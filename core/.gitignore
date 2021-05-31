@@ -4,5 +4,6 @@
 .settings
 .classpath
 .project
+.idea/sonarlint
 bin
 /bugly
