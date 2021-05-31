@@ -1,0 +1,8 @@
+/build
+/release
+/debug
+.settings
+.classpath
+.project
+bin
+/bugly
