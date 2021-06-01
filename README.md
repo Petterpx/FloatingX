@@ -211,3 +211,9 @@ wiki **loading**
 
 具体参见我的博客：[源码分析 | Activity-setContentView](https://juejin.cn/post/6897453195342610445) 
 
+
+
+## 👍 感谢
+
+基础 **悬浮窗View** 源自 [EnFloatingView](https://github.com/leotyndale/EnFloatingView) 的 [FloatingMagnetView](https://github.com/leotyndale/EnFloatingView/blob/master/floatingview/src/main/java/com/imuxuan/floatingview/FloatingMagnetView.java) 实现方式，并在其基础上增加了事件处理与多指触摸，感谢！
+
