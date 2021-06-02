@@ -102,4 +102,6 @@ jobs:
         sarif_file: ${{ github.workspace }}/detekt.sarif.json
         checkout_path: ${{ github.workspace }}
         
+    - name: Mega-Linter
+      uses: nvuillam/mega-linter@v4.34.0
       
