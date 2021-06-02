@@ -11,7 +11,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FloatingX">
         <activity android:name="com.petterp.floatingx.app.MainActivity"
-            android:configChanges="orientation|keyboard|keyboardHidden|uiMode"
+            android:configChanges="uiMode"
+            android:launchMode="standard"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,7 +22,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NewActivity" />
+        <activity android:name=".NewActivity"
+            android:configChanges="uiMode"
+            android:launchMode="standard"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan"
+            />
     </application>
 
 </manifest>

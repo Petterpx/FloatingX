@@ -3,7 +3,23 @@
 settings.gradle,0/5/05efc8b1657769a27696d478ded1e95f38737233
 G
 core/consumer-rules.pro,9/d/9df576c5d0a011f72d84e78ce1617bc4e57720d5
-p
-@core/src/main/java/com/petterp/floatingx/FxControlToScopeImpl.kt,a/9/a9dddf28355acf5f772a41d0c4630e0e9170fb99
-@
-app/build.gradle,f/4/f4a01d6a4fcb971362ec00a83903fd3902f52164
+j
+:app/src/main/java/com/petterp/floatingx/app/NewActivity.kt,7/d/7dbc523a376648f1dea34986057e90b5fd91c309
+m
+=core/src/main/java/com/petterp/floatingx/config/FxSpConfig.kt,b/b/bbcf0a03a3f7406bd268fc05abcab3baade48f89
+u
+Ecore/src/main/java/com/petterp/floatingx/listener/IFxViewLifecycle.kt,8/6/866babadfd2c69711997131dc01c13ddcfe1e1f9
+A
+core/build.gradle,9/1/918ca359602392354123b7d3b63264baf7ea9dde
+Q
+!core/src/main/AndroidManifest.xml,a/e/ae00e14a93cb05cbe86f462a3bad74d51f6b1afc
+G
+core/proguard-rules.pro,a/e/ae321721a596c5c74bb3bf67ae304581e8f9ae75
+u
+Ecore/src/main/java/com/petterp/floatingx/impl/FxControlToScopeImpl.kt,1/f/1f60cf1eb563e8f58bc29b72aaa566ff04c33d3c
+e
+5core/src/main/java/com/petterp/floatingx/ext/FxExt.kt,7/4/7420ede3e72dc381df759570d2703bc015593c52
+m
+=core/src/main/java/com/petterp/floatingx/view/FxViewHolder.kt,d/2/d27a0c77e66f1d0e721649e8dd2b8e03dbcbea4b
+9
+	README.md,8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d

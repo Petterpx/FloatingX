@@ -66,6 +66,7 @@ class FxMagnetView @JvmOverloads constructor(
         var intercepted = false
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+                FxDebug.d("view---onInterceptTouchEvent--down")
                 intercepted = false
                 touchDownX = ev.x
                 // 初始化按下后的信息
@@ -94,21 +95,31 @@ class FxMagnetView @JvmOverloads constructor(
         when (event?.action) {
             MotionEvent.ACTION_MOVE -> updateViewPosition(event)
             MotionEvent.ACTION_UP -> {
-                helper.iFxScrollListener?.up()
-                clearPortraitY()
-                moveToEdge()
-                touchDownId = 0
+                FxDebug.d("view---onTouchEvent--up")
+                actionTouchCancel()
                 if (isOnClickEvent()) {
                     helper.clickListener?.invoke(this)
                 }
             }
             MotionEvent.ACTION_POINTER_UP -> {
+                FxDebug.d("view---onTouchEvent--POINTER_UP")
                 if (event.findPointerIndex(touchDownId) == 0) {
                     moveToEdge()
                 }
             }
+            MotionEvent.ACTION_CANCEL -> {
+                FxDebug.d("view---onTouchEvent--CANCEL")
+                actionTouchCancel()
+            }
         }
         return true
+    }
+
+    private fun actionTouchCancel() {
+        helper.iFxScrollListener?.up()
+        clearPortraitY()
+        touchDownId = 0
+        moveToEdge()
     }
 
     private fun isOnClickEvent(): Boolean {
@@ -134,6 +145,7 @@ class FxMagnetView @JvmOverloads constructor(
             x = desX
             y = desY
             helper.iFxScrollListener?.dragIng(x, y)
+            FxDebug.v("view---scrollListener--drag--x($x)-y($y)")
         }
     }
 
@@ -155,8 +167,9 @@ class FxMagnetView @JvmOverloads constructor(
     @JvmOverloads
     fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
         if (!helper.isEdgeEnable) return
+        mMoveAnimator?.stop()
         // x坐标
-        val moveDistance =
+        val moveX =
             if (isLeft) helper.marginEdge else mScreenWidth - helper.marginEdge
         var y = y
         // 对于重建之后的位置保存
@@ -166,16 +179,13 @@ class FxMagnetView @JvmOverloads constructor(
         }
         // 拿到y轴目前应该在的距离
         val moveY = 0f.coerceAtLeast(y).coerceAtMost((mScreenHeight).toFloat())
-        FxDebug.d("当前x---$x，当前y---$y")
-        FxDebug.d("将要移动的地方 x--$moveDistance,y---$moveY")
-        if (moveY == y && x == moveDistance) return
-        mMoveAnimator?.start(moveDistance, moveY)
+        FxDebug.d("moveToEdge-----x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
+        if (moveY == y && x == moveX) return
+        mMoveAnimator?.start(moveX, moveY)
     }
 
-    private fun fixViewPosition() {
-        FxDebug.d(
-            "进行位置矫正--marginEdge==(${helper.marginEdge})---x===($x)---y$y,mScreenWidth=($mScreenWidth) "
-        )
+    private fun fixDirection() {
+        FxDebug.d("fixDirection-----defaultEdge-(${helper.marginEdge}),x-($x),y-($y),screenWidth-($mScreenWidth)")
         // 如果开启自动吸附&&当前位置不符合边缘
         if (helper.isEdgeEnable && (abs(x) != helper.marginEdge || abs(x) != abs(mScreenWidth - helper.marginEdge)))
             moveToEdge()
@@ -193,7 +203,7 @@ class FxMagnetView @JvmOverloads constructor(
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        FxDebug.d("view---onConfigurationChanged---")
+        FxDebug.d("view---onConfigurationChanged--")
         if (parent != null) {
             val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
             markPortraitY(isLandscape)
@@ -212,21 +222,21 @@ class FxMagnetView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        fixViewPosition()
+//        fixDirection()
         helper.iFxViewLifecycle?.attach()
-        FxDebug.d("view生命周期-> onAttachedToWindow")
+        FxDebug.d("view-lifecycle-> onAttachedToWindow")
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         helper.iFxViewLifecycle?.detached()
-        FxDebug.d("view生命周期-> onDetachedFromWindow")
+        FxDebug.d("view-lifecycle-> onDetachedFromWindow")
     }
 
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
         helper.iFxViewLifecycle?.windowsVisibility(visibility)
-        FxDebug.d("view生命周期-> onWindowVisibilityChanged")
+        FxDebug.d("view-lifecycle-> onWindowVisibilityChanged")
     }
 
     companion object {

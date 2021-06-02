@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.petterp.floatingx.FloatingX
 
 class MainActivity : AppCompatActivity(R.layout.activity_main), View.OnClickListener {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         findViewById<View>(R.id.btnInitFloating).setOnClickListener(this)

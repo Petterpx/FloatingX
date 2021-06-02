@@ -24,6 +24,11 @@ object FxDebug {
             Log.d(TAG, message)
     }
 
+    fun v(message: String) {
+        if (isDebug)
+            Log.v(TAG, message)
+    }
+
     fun e(message: String) {
         if (isDebug)
             Log.e(TAG, message)

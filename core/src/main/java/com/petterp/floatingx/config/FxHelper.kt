@@ -66,8 +66,8 @@ class FxHelper(
         private var gravity: Direction = Direction.LEFT_OR_TOP
         private var iFxScrollListener: IFxScrollListener? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
-        private var mLayoutParams: FrameLayout.LayoutParams? = null
-        private var mClickListener: ((View) -> Unit)? = null
+        private var layoutParams: FrameLayout.LayoutParams? = null
+        private var fxClickListener: ((View) -> Unit)? = null
         private val blackList by lazyLoad {
             mutableListOf<Class<*>>()
         }
@@ -86,10 +86,10 @@ class FxHelper(
                 isEdgeEnable,
                 defaultY,
                 defaultX,
-                mClickListener,
+                fxClickListener,
                 iFxViewLifecycle,
                 iFxScrollListener,
-                mLayoutParams,
+                layoutParams,
                 blackList
             )
         }
@@ -114,6 +114,11 @@ class FxHelper(
             return this
         }
 
+        fun setOnClickListener(clickListener: ((View) -> Unit)): Builder {
+            this.fxClickListener = clickListener
+            return this
+        }
+
         fun layout(@LayoutRes layoutId: Int): Builder {
             this.mLayout = layoutId
             return this
@@ -125,7 +130,7 @@ class FxHelper(
         }
 
         fun layoutParams(layoutParams: FrameLayout.LayoutParams): Builder {
-            this.mLayoutParams = layoutParams
+            this.layoutParams = layoutParams
             return this
         }
 

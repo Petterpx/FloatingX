@@ -41,7 +41,7 @@ object FloatingX {
     }
 
     @JvmStatic
-    fun isDebug(isDebug: Boolean): FloatingX {
+    fun isDebug(isDebug: Boolean = true): FloatingX {
         FxDebug.updateMode(isDebug)
         return this
     }
