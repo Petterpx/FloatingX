@@ -45,4 +45,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation "androidx.lifecycle:lifecycle-common-java8:2.3.1"
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
+
+    implementation ('com.gyf.immersionbar:immersionbar:3.0.0'){
+        exclude module: 'support-v4'
+    }
 }

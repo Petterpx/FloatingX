@@ -44,7 +44,7 @@ internal fun View.hide() {
 
 internal val Activity.rootView: FrameLayout?
     get() = try {
-        window.decorView.findViewById(android.R.id.content)
+        window.decorView as FrameLayout
     } catch (e: Exception) {
         e.printStackTrace()
         FxDebug.e("rootView -> Null")

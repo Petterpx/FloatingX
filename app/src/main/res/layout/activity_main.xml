@@ -33,6 +33,13 @@
         android:layout_height="wrap_content"
         android:text="跳转到下一个页面" />
 
+
+    <Button
+        android:id="@+id/btnStartFull"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="跳转到全屏页面" />
+
     <Button
         android:id="@+id/btnDismiss"
         android:layout_width="match_parent"

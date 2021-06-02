@@ -17,7 +17,11 @@ class CustomApplication : Application() {
             context(this@CustomApplication)
             layout(R.layout.item_floating)
             defaultDirection(Direction.RIGHT_OR_TOP)
-            addBlackClass(MainActivity::class.java, NewActivity::class.java)
+            addBlackClass(
+                MainActivity::class.java,
+                NewActivity::class.java,
+                ImmersedActivity::class.java
+            )
             y(70f)
             marginEdge(0f)
         }.isDebug(true)

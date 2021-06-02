@@ -5,6 +5,7 @@ import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
+import com.petterp.floatingx.ext.BarExt
 import com.petterp.floatingx.ext.lazyLoad
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
@@ -31,6 +32,10 @@ class FxHelper(
     var iFxScrollListener: IFxScrollListener?,
     var layoutParams: FrameLayout.LayoutParams?,
     val blackList: MutableList<Class<*>>,
+    var lScrollEdge: Int,
+    var tScrollEdge: Int,
+    var rScrollEdge: Int,
+    var bScrollEdge: Int
 ) {
 
     companion object {
@@ -54,13 +59,10 @@ class FxHelper(
         private var marginEdge: Float = 10f
         private var isEnable: Boolean = true
         private var isEdgeEnable: Boolean = true
-
-        // FIXME: 2021/5/31 这里增加边界判断 
-
-        // private var lScrollEdge: Float = 0f
-        // private var tScrollEdge: Float = 0f
-        // private var rScrollEdge: Float = 0f
-        // private var bScrollEdge: Float = 0f
+        private var lScrollEdge: Int = 0
+        private var tScrollEdge: Int = BarExt.getStatusBarHeight()
+        private var rScrollEdge: Int = 0
+        private var bScrollEdge: Int = BarExt.getNavBarHeight()
         private var context: Context? = null
         private var isDefaultDirection: Boolean = false
         private var gravity: Direction = Direction.LEFT_OR_TOP
@@ -90,7 +92,8 @@ class FxHelper(
                 iFxViewLifecycle,
                 iFxScrollListener,
                 layoutParams,
-                blackList
+                blackList,
+                lScrollEdge, tScrollEdge, rScrollEdge, bScrollEdge
             )
         }
 

@@ -2,10 +2,12 @@ package com.petterp.floatingx.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.petterp.floatingx.FloatingX
+import com.petterp.floatingx.ext.BarExt
 
 class MainActivity : AppCompatActivity(R.layout.activity_main), View.OnClickListener {
 
@@ -20,12 +22,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), View.OnClickList
         findViewById<View>(R.id.btnDismiss).setOnClickListener(this)
         findViewById<View>(R.id.btnInitClick).setOnClickListener(this)
         findViewById<View>(R.id.btnClick).setOnClickListener(this)
+        findViewById<View>(R.id.btnStartFull).setOnClickListener(this)
+        Log.e("petterp", "${BarExt.getStatusBarHeight()}---bar--${BarExt.getNavBarHeight()}")
     }
 
     override fun onClick(v: View?) {
 
         when (v?.id) {
             R.id.btnInitFloating -> {
+            }
+            R.id.btnStartFull -> {
+                startActivity(Intent(this, ImmersedActivity::class.java))
             }
             R.id.btnStartNew -> {
                 startActivity(Intent(this, NewActivity::class.java))

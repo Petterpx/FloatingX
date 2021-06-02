@@ -159,7 +159,7 @@ class FxMagnetView @JvmOverloads constructor(
 
     private fun updateSize() {
         (parent as ViewGroup).apply {
-            mScreenWidth = width - this@FxMagnetView.width
+            mScreenWidth = width - this@FxMagnetView.width - helper.lScrollEdge - helper.rScrollEdge
             mScreenHeight = height - this@FxMagnetView.height
         }
     }
@@ -170,7 +170,7 @@ class FxMagnetView @JvmOverloads constructor(
         mMoveAnimator?.stop()
         // x坐标
         val moveX =
-            if (isLeft) helper.marginEdge else mScreenWidth - helper.marginEdge
+            if (isLeft) helper.marginEdge + helper.lScrollEdge else mScreenWidth - helper.marginEdge - helper.rScrollEdge
         var y = y
         // 对于重建之后的位置保存
         if (!isLandscape && mPortraitY != 0f) {
@@ -178,7 +178,9 @@ class FxMagnetView @JvmOverloads constructor(
             clearPortraitY()
         }
         // 拿到y轴目前应该在的距离
-        val moveY = 0f.coerceAtLeast(y).coerceAtMost((mScreenHeight).toFloat())
+        val moveY =
+            helper.tScrollEdge.toFloat().coerceAtLeast(y)
+                .coerceAtMost((mScreenHeight - helper.bScrollEdge).toFloat())
         FxDebug.d("moveToEdge-----x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
         if (moveY == y && x == moveX) return
         mMoveAnimator?.start(moveX, moveY)

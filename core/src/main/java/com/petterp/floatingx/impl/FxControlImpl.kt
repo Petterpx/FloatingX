@@ -1,14 +1,20 @@
 package com.petterp.floatingx.impl
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
+import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
+import androidx.core.view.ViewCompat.requestApplyInsets
 import androidx.core.view.isVisible
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.config.FxHelper
+import com.petterp.floatingx.ext.FxDebug
 import com.petterp.floatingx.ext.hide
 import com.petterp.floatingx.ext.rootView
 import com.petterp.floatingx.ext.show
@@ -131,8 +137,19 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
         if (layout != 0) helper.layoutId = layout
         if (helper.layoutId == 0) throw RuntimeException("The layout id cannot be 0")
         managerView = FxMagnetView(helper)
+        ViewCompat.setOnApplyWindowInsetsListener(managerView!!, windowsInsetsListener)
+        managerView?.requestApplyInsets()
         viewHolder = FxViewHolder(managerView!!)
     }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    @SuppressLint("WrongConstant")
+    val windowsInsetsListener: OnApplyWindowInsetsListener =
+        OnApplyWindowInsetsListener { v, insets ->
+            val statusBarH = insets.getSystemWindowInsetTop()
+            FxDebug.e("状态栏高度变化---$statusBarH")
+            insets
+        }
 
     private fun getContainer(): FrameLayout? {
         return mContainer?.get()
