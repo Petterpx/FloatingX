@@ -18,7 +18,6 @@ import com.petterp.floatingx.listener.IFxControl
  */
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
-
     private var iFxAppLifecycle: FxLifecycleCallback? = null
     private var fxControl: IFxControl? = null
     private var helper: FxHelper? = null
@@ -27,9 +26,8 @@ object FloatingX {
             ?: throw NullPointerException("topActivity == null !,Have you ever called FloatingX.init()?")
 
     /** dsl初始化 */
-    fun init(obj: FxHelper.Builder.() -> Unit): FloatingX {
-        return init(FxHelper.builder(obj))
-    }
+    fun init(obj: FxHelper.Builder.() -> Unit): FloatingX =
+        init(FxHelper.builder(obj))
 
     /** 悬浮窗配置信息 */
     @JvmStatic
@@ -41,8 +39,9 @@ object FloatingX {
     }
 
     @JvmStatic
-    fun isDebug(isDebug: Boolean = true): FloatingX {
-        FxDebug.updateMode(isDebug)
+    @JvmOverloads
+    fun isDebug(isLog: Boolean = true): FloatingX {
+        FxDebug.updateMode(isLog)
         return this
     }
 
@@ -114,5 +113,6 @@ object FloatingX {
 
     @JvmStatic
     fun control(): IFxControl =
-        fxControl ?: throw NullPointerException("control==null!!!,IFloatingControl Cannot be null")
+        fxControl
+            ?: throw NullPointerException("control==null!!!,IFloatingControl Cannot be null")
 }

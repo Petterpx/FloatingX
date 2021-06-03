@@ -59,6 +59,7 @@ class FxMagnetView @JvmOverloads constructor(
             helper.layoutParams?.let {
                 childView?.layoutParams = helper.layoutParams
             }
+            FxDebug.d("view-->init, source-[layout]")
         }
         layoutParams = defaultLayoutParams()
         x = helper.x
@@ -183,7 +184,7 @@ class FxMagnetView @JvmOverloads constructor(
         // 拿到y轴目前应该在的距离
         moveY = (helper.tScrollEdge + helper.marginEdge).coerceAtLeast(moveY)
             .coerceAtMost((mScreenHeight - helper.bScrollEdge - helper.marginEdge))
-        FxDebug.d("moveToEdge-----x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
+        FxDebug.d("view-->moveToEdge---x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
         if (moveY == y && x == moveX) return
         mMoveAnimator?.start(moveX, moveY)
     }

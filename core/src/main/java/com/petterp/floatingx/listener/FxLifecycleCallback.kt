@@ -18,36 +18,36 @@ class FxLifecycleCallback(
 ) :
     Application.ActivityLifecycleCallbacks {
     internal var control: IFxControl? = null
-    var topActivity: Activity? = null
-    private fun isActivityInValid(activity: Activity) =
-        helper.blackList.contains(activity::class.java)
+    internal var topActivity: Activity? = null
 
-    private fun Activity.isParent() = control?.getView()?.parent === rootView
-    private fun Activity.name() = javaClass.name.split(".").last()
+    private val Activity.isParent: Boolean
+        get() = control?.getView()?.parent === rootView
+    private val Activity.name: String
+        get() = javaClass.name.split(".").last()
+    private val Activity.isActivityInValid: Boolean
+        get() = helper.blackList.contains(this::class.java)
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-        FxDebug.d("AppLifecycle-onActivityCreated")
+        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityCreated")
     }
 
     override fun onActivityStarted(activity: Activity) {
-        val isActivityInValid = isActivityInValid(activity)
-        val isParent = activity.isParent()
-        FxDebug.d(
-            "AppLifecycle--[${activity.name()}]-onActivityStarted-isContainAct-$isActivityInValid--isEnable-${helper.isEnable}---isAttach-$isParent"
-        )
-        if (helper.isEnable && isActivityInValid && !isParent)
-            control?.attach(activity)
+        topActivity = activity
     }
 
     override fun onActivityResumed(activity: Activity) {
-        FxDebug.d("AppLifecycle-onActivityResumed")
-        topActivity = activity
+        val isActivityInValid = activity.isActivityInValid
+        val isParent = activity.isParent
+        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityStarted")
+        FxDebug.d("view->isAttach? isContainActivity-$isActivityInValid--isEnable-${helper.isEnable}---isParent-$isParent")
+        if (helper.isEnable && isActivityInValid && !isParent)
+            control?.attach(activity)
     }
 
     override fun onActivityPaused(activity: Activity) {}
 
     override fun onActivityStopped(activity: Activity) {
-        FxDebug.d("AppLifecycle-onActivityStopped")
+        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityStopped")
     }
 
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
@@ -55,10 +55,9 @@ class FxLifecycleCallback(
 
     override fun onActivityDestroyed(activity: Activity) {
         if (topActivity == activity) topActivity = null
-        val isParent = activity.isParent()
-        FxDebug.d(
-            "AppLifecycle--[${activity.name()}]-onActivityDestroyed--isEnable-${helper.isEnable}---isAttach-$isParent"
-        )
+        val isParent = activity.isParent
+        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityDestroyed")
+        FxDebug.d("view->isAttach? isContainActivity-${activity.isActivityInValid}--isEnable-${helper.isEnable}---isParent-$isParent")
         if (helper.isEnable && isParent)
             control?.detach(activity)
     }

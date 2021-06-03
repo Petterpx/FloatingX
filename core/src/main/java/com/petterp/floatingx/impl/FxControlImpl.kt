@@ -2,18 +2,16 @@ package com.petterp.floatingx.impl
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
-import androidx.annotation.RequiresApi
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
-import androidx.core.view.ViewCompat.requestApplyInsets
 import androidx.core.view.isVisible
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.config.FxHelper
+import com.petterp.floatingx.ext.BarExt
 import com.petterp.floatingx.ext.FxDebug
 import com.petterp.floatingx.ext.hide
 import com.petterp.floatingx.ext.rootView
@@ -58,9 +56,12 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
 
     override fun getView(): View? = managerView
 
-    override fun isShowRunning(): Boolean = managerView?.isVisible ?: false
+    override fun isShowRunning(): Boolean =
+        managerView != null && ViewCompat.isAttachedToWindow(managerView!!) && managerView?.isVisible == true
 
-    override fun updateView(obj: (FxViewHolder) -> Unit) {
+    override
+
+    fun updateView(obj: (FxViewHolder) -> Unit) {
         viewHolder?.let(obj)
     }
 
@@ -88,6 +89,7 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
         } else {
             (managerView?.parent as? ViewGroup)?.removeView(managerView)
         }
+        FxDebug.d("view-lifecycle-> addView")
         mContainer = WeakReference(container)
         container.addView(managerView)
     }
@@ -102,9 +104,10 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
 
     override fun detach(container: FrameLayout) {
         if (managerView != null && ViewCompat.isAttachedToWindow(managerView!!)) {
+            FxDebug.d("view-lifecycle-> removeView")
             container.removeView(managerView)
         }
-        if (getContainer() === container) mContainer = null
+        mContainer = null
     }
 
     override fun setClickListener(obj: (View) -> Unit) {
@@ -112,10 +115,11 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     }
 
     override fun dismiss() {
-        getContainer()?.removeView(managerView)
+        mContainer?.get()?.let {
+            detach(it)
+        }
         helper.isEnable = false
         managerView = null
-        mContainer = null
         viewHolder = null
     }
 
@@ -142,12 +146,11 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
         viewHolder = FxViewHolder(managerView!!)
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
     @SuppressLint("WrongConstant")
     val windowsInsetsListener: OnApplyWindowInsetsListener =
-        OnApplyWindowInsetsListener { v, insets ->
-            val statusBarH = insets.getSystemWindowInsetTop()
-            FxDebug.e("状态栏高度变化---$statusBarH")
+        OnApplyWindowInsetsListener { _, insets ->
+            FxDebug.v("System--StatusBar---old-(${BarExt.realStatusBarHeight}),new-(${insets.systemWindowInsetTop})")
+            BarExt.realStatusBarHeight = insets.systemWindowInsetTop
             insets
         }
 
