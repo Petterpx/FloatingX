@@ -203,7 +203,7 @@ wiki **loading**
 
 ## 🐬 技术实现
 
-> 基于 `DecorView` 的的实现方案，全局持有一个单独的悬浮窗 `View` ,通过 `AppLifecycle` 监听 `Activity` 生命周期，并在相应时机 插入到 指定的 `Activity` -> `R.id.content` 对应的 `FrameLayout` 布局上。
+> 基于 `DecorView` 的的实现方案，全局持有一个单独的悬浮窗 `View` ,通过 `AppLifecycle` 监听 `Activity` 生命周期，并在相应时机 插入到 `DecorView` 上 。
 
 具体如下：
 
@@ -211,9 +211,13 @@ wiki **loading**
 
 具体参见我的博客：[源码分析 | Activity-setContentView](https://juejin.cn/post/6897453195342610445) 
 
+Ps: 为什么要插入到 `DecorView` ,而不是 **R.id.content** -> `FrameLayout` ?
 
+> 插入到 `DecorView` 可以最大程度控制悬浮窗的自由度，即悬浮窗可以真正意义上[`全屏`]拖动。
+>
+> 插入到 `content` 中,其拖动范围其实为 **应用视图范围** ,即摆放位置 受到 **状态栏** 和 **底部导航栏** 以及 默认的 `AppBar` 影响, 比如当用户隐藏了状态栏或者导航栏，相对应的视图大小会发生改变，将影响悬浮窗的位置摆放。
 
 ## 👍 感谢
 
-基础 **悬浮窗View** 源自 [EnFloatingView](https://github.com/leotyndale/EnFloatingView) 的 [FloatingMagnetView](https://github.com/leotyndale/EnFloatingView/blob/master/floatingview/src/main/java/com/imuxuan/floatingview/FloatingMagnetView.java) 实现方式，并在其基础上增加了事件处理与多指触摸，感谢！
+基础 **悬浮窗View** 源自 [EnFloatingView](https://github.com/leotyndale/EnFloatingView) 的 [FloatingMagnetView](https://github.com/leotyndale/EnFloatingView/blob/master/floatingview/src/main/java/com/imuxuan/floatingview/FloatingMagnetView.java) 实现方式，并在其基础上增加了一些改进！
 
