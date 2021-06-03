@@ -28,6 +28,7 @@ class CustomApplication : Application() {
             bBorder(100f)
             moveEdge(10f)
             y(70f)
-        }.isDebug(true)
+        }
+        FloatingX.isDebug(true)
     }
 }
