@@ -1,7 +1,6 @@
 package com.petterp.floatingx.ext
 
 import android.util.Log
-import com.petterp.floatingx.BuildConfig
 
 /**
  * @Author petterp
@@ -9,28 +8,30 @@ import com.petterp.floatingx.BuildConfig
  * @Email ShiyihuiCloud@163.com
  * @Function Fx日志查看器
  */
-object FxDebug {
+internal class FxDebug private constructor() {
 
-    private const val TAG = "FloatingX"
+    companion object {
+        private const val TAG = "FloatingX"
 
-    var isDebug = BuildConfig.DEBUG
+        var isDebug = false
 
-    fun updateMode(isDebug: Boolean) {
-        FxDebug.isDebug = isDebug
-    }
+        fun updateMode(isDebug: Boolean) {
+            FxDebug.isDebug = isDebug
+        }
 
-    fun d(message: String) {
-        if (isDebug)
-            Log.d(TAG, message)
-    }
+        fun d(message: String) {
+            if (isDebug)
+                Log.d(TAG, message)
+        }
 
-    fun v(message: String) {
-        if (isDebug)
-            Log.v(TAG, message)
-    }
+        fun v(message: String) {
+            if (isDebug)
+                Log.v(TAG, message)
+        }
 
-    fun e(message: String) {
-        if (isDebug)
-            Log.e(TAG, message)
+        fun e(message: String) {
+            if (isDebug)
+                Log.e(TAG, message)
+        }
     }
 }

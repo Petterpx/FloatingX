@@ -8,23 +8,27 @@ import android.content.res.Resources
  * @Email ShiyihuiCloud@163.com
  * @Function
  */
-object BarExt {
-    // /////////////////////////////////////////////////////////////////////////
-    // navigation bar
-    // /////////////////////////////////////////////////////////////////////////
-    fun getNavBarHeight(): Int {
-        val res = Resources.getSystem()
-        val resourceId = res.getIdentifier("navigation_bar_height", "dimen", "android")
-        return if (resourceId != 0) {
-            res.getDimensionPixelSize(resourceId)
-        } else {
-            0
-        }
-    }
+internal class BarExt private constructor() {
+    companion object {
+        var realStatusBarHeight: Int = getStatusBarHeight()
 
-    fun getStatusBarHeight(): Int {
-        val resources: Resources = Resources.getSystem()
-        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-        return resources.getDimensionPixelSize(resourceId)
+        // /////////////////////////////////////////////////////////////////////////
+        // navigation bar
+        // /////////////////////////////////////////////////////////////////////////
+        fun getNavBarHeight(): Int {
+            val res = Resources.getSystem()
+            val resourceId = res.getIdentifier("navigation_bar_height", "dimen", "android")
+            return if (resourceId != 0) {
+                res.getDimensionPixelSize(resourceId)
+            } else {
+                0
+            }
+        }
+
+        fun getStatusBarHeight(): Int {
+            val resources: Resources = Resources.getSystem()
+            val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+            return resources.getDimensionPixelSize(resourceId)
+        }
     }
 }
