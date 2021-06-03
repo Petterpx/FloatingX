@@ -29,8 +29,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), View.OnClickList
     override fun onClick(v: View?) {
 
         when (v?.id) {
-            R.id.btnInitFloating -> {
-            }
             R.id.btnStartFull -> {
                 startActivity(Intent(this, ImmersedActivity::class.java))
             }

@@ -17,7 +17,7 @@ class NewActivity : AppCompatActivity(R.layout.new_activity), View.OnClickListen
 
     private val floatingX by createFloatingX {
         context(this@NewActivity)
-        marginEdge(50f)
+        moveEdge(50f)
         layout(R.layout.item_floating)
     }
 
@@ -31,7 +31,6 @@ class NewActivity : AppCompatActivity(R.layout.new_activity), View.OnClickListen
     private fun showFx() {
         FxControlToScopeImpl.builder {
             context(this@NewActivity)
-
         }
 
         val config = FxHelper.builder().build()

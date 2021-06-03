@@ -32,10 +32,10 @@ class FxHelper(
     var iFxScrollListener: IFxScrollListener?,
     var layoutParams: FrameLayout.LayoutParams?,
     val blackList: MutableList<Class<*>>,
-    var lScrollEdge: Int,
-    var tScrollEdge: Int,
-    var rScrollEdge: Int,
-    var bScrollEdge: Int
+    var lScrollEdge: Float,
+    var tScrollEdge: Float,
+    var rScrollEdge: Float,
+    var bScrollEdge: Float
 ) {
 
     companion object {
@@ -56,16 +56,15 @@ class FxHelper(
         // 起始坐标
         private var defaultY: Float = 10f
         private var defaultX: Float = defaultY
-        private var marginEdge: Float = 10f
+        private var edgeMargin: Float = 10f
         private var isEnable: Boolean = true
         private var isEdgeEnable: Boolean = true
-        private var lScrollEdge: Int = 0
-        private var tScrollEdge: Int = BarExt.getStatusBarHeight()
-        private var rScrollEdge: Int = 0
-        private var bScrollEdge: Int = BarExt.getNavBarHeight()
+        private var lBorderMargin: Float = 0f
+        private var tBorderMargin: Float = 0f
+        private var rBorderMargin: Float = 0f
+        private var bBorderMargin: Float = 0f
         private var context: Context? = null
-        private var isDefaultDirection: Boolean = false
-        private var gravity: Direction = Direction.LEFT_OR_TOP
+        private var gravity: Direction = Direction.RIGHT_OR_BOTTOM
         private var iFxScrollListener: IFxScrollListener? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
         private var layoutParams: FrameLayout.LayoutParams? = null
@@ -76,14 +75,13 @@ class FxHelper(
 
         fun build(): FxHelper {
             // 当开启了自动吸附,默认x坐标=marginEdge
-            if (isEdgeEnable) defaultX = marginEdge
-            if (isDefaultDirection) sizeViewPosition()
             if (context == null) throw NullPointerException("context !=null !!!")
+            sizeViewDirection()
             return FxHelper(
                 this.mLayout,
                 context!!,
                 gravity,
-                marginEdge,
+                edgeMargin,
                 isEnable,
                 isEdgeEnable,
                 defaultY,
@@ -93,7 +91,7 @@ class FxHelper(
                 iFxScrollListener,
                 layoutParams,
                 blackList,
-                lScrollEdge, tScrollEdge, rScrollEdge, bScrollEdge
+                lBorderMargin, tBorderMargin, rBorderMargin, bBorderMargin
             )
         }
 
@@ -137,31 +135,50 @@ class FxHelper(
             return this
         }
 
-        fun marginEdge(edge: Float): Builder {
-            this.marginEdge = edge
+        fun moveEdge(edge: Float): Builder {
+            this.edgeMargin = abs(edge)
+            return this
+        }
+
+        fun tBorder(t: Float): Builder {
+            this.tBorderMargin = abs(t)
+            return this
+        }
+
+        fun lBorder(l: Float): Builder {
+            this.lBorderMargin = abs(l)
+            return this
+        }
+
+        fun rBorder(r: Float): Builder {
+            this.rBorderMargin = abs(r)
+            return this
+        }
+
+        fun bBorder(b: Float): Builder {
+            this.bBorderMargin = abs(b)
             return this
         }
 
         fun x(x: Float): Builder {
-            this.defaultX = x
+            this.defaultX = abs(x)
             return this
         }
 
         fun y(y: Float): Builder {
-            this.defaultY = y
+            this.defaultY = abs(y)
             return this
         }
 
         /** 辅助坐标配置,调用此方法，则使用辅助方向来决定默认x,y坐标
          * 即以 gravity 作为基础定位，传入的x,y都用其定位
          * */
-        fun defaultDirection(gravity: Direction): Builder {
+        fun gravity(gravity: Direction): Builder {
             this.gravity = gravity
-            isDefaultDirection = true
             return this
         }
 
-        private fun sizeViewPosition() {
+        private fun sizeViewDirection() {
             when (gravity) {
                 Direction.LEFT_OR_BOTTOM
                 -> {
@@ -182,5 +199,26 @@ class FxHelper(
                 }
             }
         }
+
+//        private fun sizeViewDirection() {
+//            val marginEdgeTox = defaultX + edgeMargin
+//            val marginEdgeToy = defaultY + edgeMargin
+//            when (gravity) {
+//                Direction.LEFT_OR_BOTTOM -> {
+//                    defaultY = -(marginEdgeToy + bBorderMargin)
+//                    defaultX = marginEdgeTox + lBorderMargin
+//                }
+//                Direction.RIGHT_OR_BOTTOM -> {
+//                    defaultY = -(marginEdgeToy + tBorderMargin)
+//                    defaultX = -(marginEdgeTox + rBorderMargin)
+//                }
+//                Direction.RIGHT_OR_TOP, Direction.RIGHT_OR_CENTER -> {
+//                    defaultX = -(marginEdgeTox + rBorderMargin)
+//                }
+//                Direction.LEFT_OR_TOP, Direction.LEFT_OR_CENTER -> {
+//                    defaultX = marginEdgeTox + lBorderMargin
+//                }
+//            }
+//        }
     }
 }

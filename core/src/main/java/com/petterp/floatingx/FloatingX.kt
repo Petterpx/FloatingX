@@ -104,7 +104,8 @@ object FloatingX {
         if (config().context is Application)
             return config().context as Application
         else throw ClassCastException(
-            "If you use the global floating window, FxConfig.context must be Application,otherwise the appLifecycle cannot be registered"
+            "If you use the global floating window, FxConfig.context must" +
+                " be Application,otherwise the appLifecycle cannot be registered"
         )
     }
 

@@ -37,9 +37,12 @@ class FxMagnetView @JvmOverloads constructor(
     // 最后触摸的时间
     private var mLastTouchDownTime: Long = 0
     private var mMoveAnimator: MoveAnimator? = null
-    private var mScreenWidth = 0
+    private var mScreenWidth = 0f
     private var mScreenHeight = 0
     private var mStatusBarHeight = 0
+
+    @Volatile
+    private var isMoveLoading = false
 
     private var isNearestLeft = true
     private var mPortraitY = 0f
@@ -133,7 +136,7 @@ class FxMagnetView @JvmOverloads constructor(
             // 按下时的坐标+当前手指距离屏幕的坐标-最开始距离屏幕的坐标
             var desX = mOriginalX + event.rawX - mOriginalRawX
             if (desX < 0f) desX = 0f
-            if (desX > mScreenWidth) desX = mScreenWidth.toFloat()
+            if (desX > mScreenWidth) desX = mScreenWidth
             // 限制不可超出屏幕高度
             var desY = mOriginalY + event.rawY - mOriginalRawY
             if (desY < mStatusBarHeight) {
@@ -166,8 +169,8 @@ class FxMagnetView @JvmOverloads constructor(
 
     @JvmOverloads
     fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
-        if (!helper.isEdgeEnable) return
-        mMoveAnimator?.stop()
+        if (!helper.isEdgeEnable || isMoveLoading) return
+        isMoveLoading = true
         // x坐标
         val moveX =
             if (isLeft) helper.marginEdge + helper.lScrollEdge else mScreenWidth - helper.marginEdge - helper.rScrollEdge
@@ -270,6 +273,7 @@ class FxMagnetView @JvmOverloads constructor(
         }
 
         fun stop() {
+            isMoveLoading = false
             HANDLER.removeCallbacks(this)
         }
     }

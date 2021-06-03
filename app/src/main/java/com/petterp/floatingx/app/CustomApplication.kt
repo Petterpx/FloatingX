@@ -16,14 +16,17 @@ class CustomApplication : Application() {
         FloatingX.init {
             context(this@CustomApplication)
             layout(R.layout.item_floating)
-            defaultDirection(Direction.RIGHT_OR_TOP)
+            gravity(Direction.RIGHT_OR_BOTTOM)
             addBlackClass(
                 MainActivity::class.java,
                 NewActivity::class.java,
                 ImmersedActivity::class.java
             )
+//            lBorder(100f)
+//            tBorder(100f)
+//            rBorder(100f)
+//            bBorder(100f)
             y(70f)
-            marginEdge(0f)
         }.isDebug(true)
     }
 }
