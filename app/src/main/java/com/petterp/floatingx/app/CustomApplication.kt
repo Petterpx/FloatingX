@@ -22,10 +22,11 @@ class CustomApplication : Application() {
                 NewActivity::class.java,
                 ImmersedActivity::class.java
             )
-//            lBorder(100f)
-//            tBorder(100f)
-//            rBorder(100f)
-//            bBorder(100f)
+            lBorder(100f)
+            tBorder(100f)
+            rBorder(100f)
+            bBorder(100f)
+            moveEdge(10f)
             y(70f)
         }.isDebug(true)
     }

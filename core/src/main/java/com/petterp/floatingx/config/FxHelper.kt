@@ -5,7 +5,6 @@ import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
-import com.petterp.floatingx.ext.BarExt
 import com.petterp.floatingx.ext.lazyLoad
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
@@ -54,9 +53,9 @@ class FxHelper(
         private var mLayout: Int = 0
 
         // 起始坐标
-        private var defaultY: Float = 10f
-        private var defaultX: Float = defaultY
-        private var edgeMargin: Float = 10f
+        private var defaultY: Float = 0f
+        private var defaultX: Float = 0f
+        private var edgeMargin: Float = 0f
         private var isEnable: Boolean = true
         private var isEdgeEnable: Boolean = true
         private var lBorderMargin: Float = 0f
@@ -179,46 +178,24 @@ class FxHelper(
         }
 
         private fun sizeViewDirection() {
+            val marginEdgeTox = defaultX + edgeMargin
+            val marginEdgeToy = defaultY + edgeMargin
             when (gravity) {
-                Direction.LEFT_OR_BOTTOM
-                -> {
-                    defaultY = -abs(defaultY)
-                    defaultX = abs(defaultX)
+                Direction.LEFT_OR_BOTTOM -> {
+                    defaultY = -(marginEdgeToy + bBorderMargin)
+                    defaultX = marginEdgeTox + lBorderMargin
                 }
                 Direction.RIGHT_OR_BOTTOM -> {
-                    defaultY = -abs(defaultY)
-                    defaultX = -abs(defaultX)
+                    defaultY = -(marginEdgeToy + tBorderMargin)
+                    defaultX = -(marginEdgeTox + rBorderMargin)
                 }
                 Direction.RIGHT_OR_TOP, Direction.RIGHT_OR_CENTER -> {
-                    defaultY = abs(defaultY)
-                    defaultX = -abs(defaultX)
+                    defaultX = -(marginEdgeTox + rBorderMargin)
                 }
                 Direction.LEFT_OR_TOP, Direction.LEFT_OR_CENTER -> {
-                    defaultY = abs(defaultY)
-                    defaultX = abs(defaultX)
+                    defaultX = marginEdgeTox + lBorderMargin
                 }
             }
         }
-
-//        private fun sizeViewDirection() {
-//            val marginEdgeTox = defaultX + edgeMargin
-//            val marginEdgeToy = defaultY + edgeMargin
-//            when (gravity) {
-//                Direction.LEFT_OR_BOTTOM -> {
-//                    defaultY = -(marginEdgeToy + bBorderMargin)
-//                    defaultX = marginEdgeTox + lBorderMargin
-//                }
-//                Direction.RIGHT_OR_BOTTOM -> {
-//                    defaultY = -(marginEdgeToy + tBorderMargin)
-//                    defaultX = -(marginEdgeTox + rBorderMargin)
-//                }
-//                Direction.RIGHT_OR_TOP, Direction.RIGHT_OR_CENTER -> {
-//                    defaultX = -(marginEdgeTox + rBorderMargin)
-//                }
-//                Direction.LEFT_OR_TOP, Direction.LEFT_OR_CENTER -> {
-//                    defaultX = marginEdgeTox + lBorderMargin
-//                }
-//            }
-//        }
     }
 }

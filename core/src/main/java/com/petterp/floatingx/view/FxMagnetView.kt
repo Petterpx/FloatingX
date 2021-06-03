@@ -38,7 +38,7 @@ class FxMagnetView @JvmOverloads constructor(
     private var mLastTouchDownTime: Long = 0
     private var mMoveAnimator: MoveAnimator? = null
     private var mScreenWidth = 0f
-    private var mScreenHeight = 0
+    private var mScreenHeight = 0f
     private var mStatusBarHeight = 0
 
     @Volatile
@@ -162,8 +162,8 @@ class FxMagnetView @JvmOverloads constructor(
 
     private fun updateSize() {
         (parent as ViewGroup).apply {
-            mScreenWidth = width - this@FxMagnetView.width - helper.lScrollEdge - helper.rScrollEdge
-            mScreenHeight = height - this@FxMagnetView.height
+            mScreenWidth = (width - this@FxMagnetView.width).toFloat()
+            mScreenHeight = (height - this@FxMagnetView.height).toFloat()
         }
     }
 
@@ -174,26 +174,18 @@ class FxMagnetView @JvmOverloads constructor(
         // x坐标
         val moveX =
             if (isLeft) helper.marginEdge + helper.lScrollEdge else mScreenWidth - helper.marginEdge - helper.rScrollEdge
-        var y = y
+        var moveY = y
         // 对于重建之后的位置保存
         if (!isLandscape && mPortraitY != 0f) {
-            y = mPortraitY
+            moveY = mPortraitY
             clearPortraitY()
         }
         // 拿到y轴目前应该在的距离
-        val moveY =
-            helper.tScrollEdge.toFloat().coerceAtLeast(y)
-                .coerceAtMost((mScreenHeight - helper.bScrollEdge).toFloat())
+        moveY = (helper.tScrollEdge + helper.marginEdge).coerceAtLeast(moveY)
+            .coerceAtMost((mScreenHeight - helper.bScrollEdge - helper.marginEdge))
         FxDebug.d("moveToEdge-----x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
         if (moveY == y && x == moveX) return
         mMoveAnimator?.start(moveX, moveY)
-    }
-
-    private fun fixDirection() {
-        FxDebug.d("fixDirection-----defaultEdge-(${helper.marginEdge}),x-($x),y-($y),screenWidth-($mScreenWidth)")
-        // 如果开启自动吸附&&当前位置不符合边缘
-        if (helper.isEdgeEnable && (abs(x) != helper.marginEdge || abs(x) != abs(mScreenWidth - helper.marginEdge)))
-            moveToEdge()
     }
 
     private fun clearPortraitY() {
@@ -227,7 +219,6 @@ class FxMagnetView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-//        fixDirection()
         helper.iFxViewLifecycle?.attach()
         FxDebug.d("view-lifecycle-> onAttachedToWindow")
     }
