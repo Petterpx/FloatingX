@@ -18,12 +18,9 @@ import com.petterp.floatingx.listener.IFxControl
  */
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
-    private var iFxAppLifecycle: FxLifecycleCallback? = null
     private var fxControl: IFxControl? = null
-    private var helper: FxHelper? = null
-    internal val topActivity: Activity
-        get() = iFxAppLifecycle?.topActivity
-            ?: throw NullPointerException("topActivity == null !,Have you ever called FloatingX.init()?")
+    internal var helper: FxHelper? = null
+    internal var iFxAppLifecycle: FxLifecycleCallback? = null
 
     /** dsl初始化 */
     fun init(obj: FxHelper.Builder.() -> Unit): FloatingX =

@@ -9,14 +9,13 @@ import androidx.annotation.DrawableRes
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
-import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.config.FxHelper
-import com.petterp.floatingx.ext.BarExt
 import com.petterp.floatingx.ext.FxDebug
+import com.petterp.floatingx.ext.UiExt
+import com.petterp.floatingx.ext.fxParentView
 import com.petterp.floatingx.ext.hide
-import com.petterp.floatingx.ext.rootView
 import com.petterp.floatingx.ext.show
-import com.petterp.floatingx.listener.FxLifecycleCallback
+import com.petterp.floatingx.ext.topActivity
 import com.petterp.floatingx.listener.IFxControl
 import com.petterp.floatingx.view.FxMagnetView
 import com.petterp.floatingx.view.FxViewHolder
@@ -33,7 +32,6 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     private var managerView: FxMagnetView? = null
     private var viewHolder: FxViewHolder? = null
     private var mContainer: WeakReference<FrameLayout>? = null
-    internal var fxLifecycleCallback: FxLifecycleCallback? = null
     private val managerViewOrContainerIsNull: Boolean
         get() = mContainer == null && managerView == null
 
@@ -74,7 +72,7 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     }
 
     override fun attach(activity: Activity) {
-        activity.rootView?.let {
+        activity.fxParentView?.let {
             attach(it)
         }
     }
@@ -87,7 +85,9 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
         if (managerView == null) {
             initManagerView()
         } else {
-            (managerView?.parent as? ViewGroup)?.removeView(managerView)
+            mContainer?.get()?.removeView(managerView)
+            mContainer?.clear()
+            mContainer = null
         }
         FxDebug.d("view-lifecycle-> addView")
         mContainer = WeakReference(container)
@@ -97,7 +97,7 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     /** 删除view */
     override fun detach(activity: Activity) {
         if (managerViewOrContainerIsNull) return
-        activity.rootView?.let {
+        activity.fxParentView?.let {
             detach(it)
         }
     }
@@ -107,7 +107,10 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
             FxDebug.d("view-lifecycle-> removeView")
             container.removeView(managerView)
         }
-        mContainer = null
+        if (container === mContainer?.get()) {
+            mContainer?.clear()
+            mContainer = null
+        }
     }
 
     override fun setClickListener(obj: (View) -> Unit) {
@@ -124,9 +127,9 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     }
 
     private fun showInit() {
-        if (getContainer() == null) {
+        if (getContainer() == null && topActivity != null) {
             // 这里的异常还是要抛出去
-            attach(FloatingX.topActivity)
+            attach(topActivity!!)
             return
         }
         if (managerView == null) initManagerView()
@@ -149,8 +152,8 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     @SuppressLint("WrongConstant")
     val windowsInsetsListener: OnApplyWindowInsetsListener =
         OnApplyWindowInsetsListener { _, insets ->
-            FxDebug.v("System--StatusBar---old-(${BarExt.realStatusBarHeight}),new-(${insets.systemWindowInsetTop})")
-            BarExt.realStatusBarHeight = insets.systemWindowInsetTop
+            FxDebug.v("System--StatusBar---old-(${UiExt.statsBarHeightConfig}),new-(${insets.systemWindowInsetTop})")
+            UiExt.statsBarHeightConfig = insets.systemWindowInsetTop
             insets
         }
 

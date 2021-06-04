@@ -63,7 +63,7 @@ class FxHelper(
         private var rBorderMargin: Float = 0f
         private var bBorderMargin: Float = 0f
         private var context: Context? = null
-        private var gravity: Direction = Direction.RIGHT_OR_BOTTOM
+        private var gravity: Direction = Direction.LEFT_OR_TOP
         private var iFxScrollListener: IFxScrollListener? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
         private var layoutParams: FrameLayout.LayoutParams? = null
@@ -186,7 +186,7 @@ class FxHelper(
                     defaultX = marginEdgeTox + lBorderMargin
                 }
                 Direction.RIGHT_OR_BOTTOM -> {
-                    defaultY = -(marginEdgeToy + tBorderMargin)
+                    defaultY = -(marginEdgeToy + bBorderMargin)
                     defaultX = -(marginEdgeTox + rBorderMargin)
                 }
                 Direction.RIGHT_OR_TOP, Direction.RIGHT_OR_CENTER -> {

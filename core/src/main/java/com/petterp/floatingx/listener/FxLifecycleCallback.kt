@@ -5,7 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import com.petterp.floatingx.config.FxHelper
 import com.petterp.floatingx.ext.FxDebug
-import com.petterp.floatingx.ext.rootView
+import com.petterp.floatingx.ext.fxParentView
 
 /**
  * @Author petterp
@@ -21,7 +21,7 @@ class FxLifecycleCallback(
     internal var topActivity: Activity? = null
 
     private val Activity.isParent: Boolean
-        get() = control?.getView()?.parent === rootView
+        get() = control?.getView()?.parent === fxParentView
     private val Activity.name: String
         get() = javaClass.name.split(".").last()
     private val Activity.isActivityInValid: Boolean
@@ -33,12 +33,13 @@ class FxLifecycleCallback(
 
     override fun onActivityStarted(activity: Activity) {
         topActivity = activity
+        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityStarted")
     }
 
     override fun onActivityResumed(activity: Activity) {
         val isActivityInValid = activity.isActivityInValid
         val isParent = activity.isParent
-        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityStarted")
+        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityResumed")
         FxDebug.d("view->isAttach? isContainActivity-$isActivityInValid--isEnable-${helper.isEnable}---isParent-$isParent")
         if (helper.isEnable && isActivityInValid && !isParent)
             control?.attach(activity)
@@ -54,9 +55,13 @@ class FxLifecycleCallback(
     }
 
     override fun onActivityDestroyed(activity: Activity) {
+        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityDestroyed")
+    }
+
+    override fun onActivityPreDestroyed(activity: Activity) {
         if (topActivity == activity) topActivity = null
         val isParent = activity.isParent
-        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityDestroyed")
+        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityPreDestroyed")
         FxDebug.d("view->isAttach? isContainActivity-${activity.isActivityInValid}--isEnable-${helper.isEnable}---isParent-$isParent")
         if (helper.isEnable && isParent)
             control?.detach(activity)

@@ -10,8 +10,12 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import com.petterp.floatingx.config.Direction
 import com.petterp.floatingx.config.FxHelper
 import com.petterp.floatingx.ext.FxDebug
+import com.petterp.floatingx.ext.UiExt
+import com.petterp.floatingx.ext.navigationBarHeight
+import com.petterp.floatingx.ext.topActivity
 import kotlin.math.abs
 
 /**
@@ -62,8 +66,12 @@ class FxMagnetView @JvmOverloads constructor(
             FxDebug.d("view-->init, source-[layout]")
         }
         layoutParams = defaultLayoutParams()
+        topActivity?.let {
+            UiExt.navigationBarHeightConfig = it.navigationBarHeight
+        }
         x = helper.x
-        y = helper.y
+        y = initDefaultY()
+        FxDebug.d("view->x&&y   x-($x),y-($y)")
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
@@ -126,6 +134,22 @@ class FxMagnetView @JvmOverloads constructor(
         moveToEdge()
     }
 
+    private fun initDefaultY(): Float {
+        var defaultY = helper.y
+        // 向下 ->
+        if (helper.y < 0) {
+            defaultY -= UiExt.navigationBarHeightConfig
+        } else if (helper.y > 0) {
+            defaultY += UiExt.statsBarHeightConfig
+        } else {
+            if (helper.gravity == Direction.RIGHT_OR_TOP || helper.gravity == Direction.LEFT_OR_TOP)
+                defaultY += UiExt.statsBarHeightConfig
+            else if (helper.gravity == Direction.LEFT_OR_BOTTOM || helper.gravity == Direction.RIGHT_OR_BOTTOM)
+                defaultY -= UiExt.navigationBarHeightConfig
+        }
+        return defaultY
+    }
+
     private fun isOnClickEvent(): Boolean {
         return System.currentTimeMillis() - mLastTouchDownTime < TOUCH_TIME_THRESHOLD
     }
@@ -177,13 +201,19 @@ class FxMagnetView @JvmOverloads constructor(
             if (isLeft) helper.marginEdge + helper.lScrollEdge else mScreenWidth - helper.marginEdge - helper.rScrollEdge
         var moveY = y
         // 对于重建之后的位置保存
-        if (!isLandscape && mPortraitY != 0f) {
+        if (isLandscape && mPortraitY != 0f) {
             moveY = mPortraitY
             clearPortraitY()
+        } else {
+            topActivity?.let {
+                UiExt.navigationBarHeightConfig = it.navigationBarHeight
+            }
         }
         // 拿到y轴目前应该在的距离
-        moveY = (helper.tScrollEdge + helper.marginEdge).coerceAtLeast(moveY)
-            .coerceAtMost((mScreenHeight - helper.bScrollEdge - helper.marginEdge))
+        moveY = (helper.tScrollEdge + helper.marginEdge + UiExt.statsBarHeightConfig).coerceAtLeast(
+            moveY
+        )
+            .coerceAtMost((mScreenHeight - helper.bScrollEdge - helper.marginEdge - UiExt.navigationBarHeightConfig))
         FxDebug.d("view-->moveToEdge---x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
         if (moveY == y && x == moveX) return
         mMoveAnimator?.start(moveX, moveY)
@@ -201,13 +231,16 @@ class FxMagnetView @JvmOverloads constructor(
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        FxDebug.d("view---onConfigurationChanged--")
+        FxDebug.d("view--lifecycle-> onConfigurationChanged--")
         if (parent != null) {
-            val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
+            val newNavigationBarHeight = topActivity?.navigationBarHeight ?: 0
+            val isLandscape =
+                newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || UiExt.navigationBarHeightConfig != newNavigationBarHeight
             markPortraitY(isLandscape)
+            isMoveLoading = false
             (parent as ViewGroup).post {
                 updateSize()
-                moveToEdge(isNearestLeft, isLandscape)
+                moveToEdge(isLandscape = isLandscape)
             }
         }
     }
