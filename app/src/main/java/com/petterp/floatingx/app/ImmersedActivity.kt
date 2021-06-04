@@ -18,7 +18,7 @@ class ImmersedActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE) // 这行代码一定要在setContentView之前，不然会闪退
-        setContentView(R.layout.new_activity)
+        setContentView(R.layout.activity_immersed)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.decorView.systemUiVisibility = (
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE // 防止状态栏、底部导航栏隐藏时，内容区域大小发生变化
