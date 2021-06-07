@@ -45,7 +45,6 @@ class FxControlToScopeImpl private constructor() : DefaultLifecycleObserver, IFx
         controlImpl?.show(fxHelper?.context as Activity)
     }
 
-    // show之前先进行一波context判断
     override fun show() {
         controlImpl?.getView()?.let {
             controlImpl?.show()
