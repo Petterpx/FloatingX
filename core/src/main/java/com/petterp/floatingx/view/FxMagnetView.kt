@@ -12,10 +12,11 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.config.Direction
 import com.petterp.floatingx.config.FxHelper
+import com.petterp.floatingx.ext.*
 import com.petterp.floatingx.ext.FxDebug
-import com.petterp.floatingx.ext.UiExt
-import com.petterp.floatingx.ext.navigationBarHeight
 import com.petterp.floatingx.ext.topActivity
+import com.petterp.floatingx.ext.x
+import com.petterp.floatingx.ext.y
 import kotlin.math.abs
 
 /**
@@ -65,13 +66,14 @@ class FxMagnetView @JvmOverloads constructor(
             }
             FxDebug.d("view-->init, source-[layout]")
         }
-        layoutParams = defaultLayoutParams()
+        val hasConfig = helper.sp?.hasConfig ?: false
+        layoutParams = defaultLayoutParams(hasConfig)
         topActivity?.let {
             UiExt.navigationBarHeightConfig = it.navigationBarHeight
         }
-        x = helper.x
-        y = initDefaultY()
-        FxDebug.d("view->x&&y   x-($x),y-($y)")
+        x = helper.sp?.x ?: helper.x
+        y = helper.sp?.y ?: initDefaultY()
+        FxDebug.d("view->x&&y   hasConfig-($hasConfig),x-($x),y-($y)")
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
@@ -194,29 +196,34 @@ class FxMagnetView @JvmOverloads constructor(
 
     @JvmOverloads
     fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
-        if (!helper.isEdgeEnable || isMoveLoading) return
+        if (isMoveLoading) return
         isMoveLoading = true
-        // x坐标
-        val moveX =
-            if (isLeft) helper.marginEdge + helper.lScrollEdge else mScreenWidth - helper.marginEdge - helper.rScrollEdge
+        var moveX = x
         var moveY = y
-        // 对于重建之后的位置保存
-        if (isLandscape && mPortraitY != 0f) {
-            moveY = mPortraitY
-            clearPortraitY()
-        } else {
-            topActivity?.let {
-                UiExt.navigationBarHeightConfig = it.navigationBarHeight
+        if (helper.isEdgeEnable) {
+            moveX =
+                if (isLeft) helper.marginEdge + helper.borderMargin.l else mScreenWidth - helper.marginEdge - helper.borderMargin.r
+            // 对于重建之后的位置保存
+            if (isLandscape && mPortraitY != 0f) {
+                moveY = mPortraitY
+                clearPortraitY()
+            } else {
+                topActivity?.let {
+                    UiExt.navigationBarHeightConfig = it.navigationBarHeight
+                }
             }
+            // 拿到y轴目前应该在的距离
+            moveY =
+                (helper.borderMargin.t + helper.marginEdge + UiExt.statsBarHeightConfig).coerceAtLeast(
+                    moveY
+                )
+                    .coerceAtMost((mScreenHeight - helper.borderMargin.b - helper.marginEdge - UiExt.navigationBarHeightConfig))
+            // x坐标
+            if (moveY == y && x == moveX) return
+            mMoveAnimator?.start(moveX, moveY)
+            FxDebug.d("view-->moveToEdge---x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
         }
-        // 拿到y轴目前应该在的距离
-        moveY = (helper.tScrollEdge + helper.marginEdge + UiExt.statsBarHeightConfig).coerceAtLeast(
-            moveY
-        )
-            .coerceAtMost((mScreenHeight - helper.bScrollEdge - helper.marginEdge - UiExt.navigationBarHeightConfig))
-        FxDebug.d("view-->moveToEdge---x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
-        if (moveY == y && x == moveX) return
-        mMoveAnimator?.start(moveX, moveY)
+        saveConfig(moveX, moveY)
     }
 
     private fun clearPortraitY() {
@@ -303,9 +310,19 @@ class FxMagnetView @JvmOverloads constructor(
         }
     }
 
-    private fun defaultLayoutParams() = LayoutParams(
+    private fun defaultLayoutParams(hasConfig: Boolean) = LayoutParams(
         LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT
     ).apply {
-        gravity = helper.gravity.value
+        if (!hasConfig)
+            gravity = helper.gravity.value
+    }
+
+    private fun saveConfig(moveX: Float, moveY: Float) {
+        helper.sp?.apply {
+            x = moveX
+            y = moveY
+            versionCode += 1
+            FxDebug.d("view-->saveDirection---x-($x)，y-($y)")
+        }
     }
 }

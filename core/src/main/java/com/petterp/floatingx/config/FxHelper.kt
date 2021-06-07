@@ -1,10 +1,14 @@
 package com.petterp.floatingx.config
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
+import com.petterp.floatingx.ext.FxDebug
 import com.petterp.floatingx.ext.lazyLoad
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
@@ -18,26 +22,26 @@ import kotlin.math.abs
  */
 @SuppressLint("StaticFieldLeak")
 class FxHelper(
-    @LayoutRes var layoutId: Int,
-    var context: Context,
-    var gravity: Direction,
-    var marginEdge: Float,
-    var isEnable: Boolean,
-    var isEdgeEnable: Boolean,
-    var y: Float,
-    var x: Float,
-    var clickListener: ((View) -> Unit)?,
-    var iFxViewLifecycle: IFxViewLifecycle?,
-    var iFxScrollListener: IFxScrollListener?,
-    var layoutParams: FrameLayout.LayoutParams?,
-    val blackList: MutableList<Class<*>>,
-    var lScrollEdge: Float,
-    var tScrollEdge: Float,
-    var rScrollEdge: Float,
-    var bScrollEdge: Float
+    @LayoutRes internal var layoutId: Int,
+    internal var context: Context,
+    internal var gravity: Direction,
+    internal var marginEdge: Float,
+    internal var isEnable: Boolean,
+    internal var isEdgeEnable: Boolean,
+    internal var y: Float,
+    internal var x: Float,
+    internal var clickListener: ((View) -> Unit)?,
+    internal var iFxViewLifecycle: IFxViewLifecycle?,
+    internal var iFxScrollListener: IFxScrollListener?,
+    internal var layoutParams: FrameLayout.LayoutParams?,
+    internal val blackList: MutableList<Class<*>>,
+    internal val borderMargin: BorderMargin,
+    internal var sp: SharedPreferences?
 ) {
 
     companion object {
+
+        private const val FX_SP_NAME = "floating_x_direction"
 
         @JvmStatic
         fun builder() = Builder()
@@ -56,13 +60,14 @@ class FxHelper(
         private var defaultY: Float = 0f
         private var defaultX: Float = 0f
         private var edgeMargin: Float = 0f
-        private var isEnable: Boolean = true
+        private var isEnable: Boolean = false
+        private var isDebugLog: Boolean = false
+        private var isSaveDirection: Boolean = false
+        private var isSizeViewDirection: Boolean = false
         private var isEdgeEnable: Boolean = true
-        private var lBorderMargin: Float = 0f
-        private var tBorderMargin: Float = 0f
-        private var rBorderMargin: Float = 0f
-        private var bBorderMargin: Float = 0f
+        private var borderMargin: BorderMargin = BorderMargin()
         private var context: Context? = null
+        private var sp: SharedPreferences? = null
         private var gravity: Direction = Direction.LEFT_OR_TOP
         private var iFxScrollListener: IFxScrollListener? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
@@ -75,7 +80,11 @@ class FxHelper(
         fun build(): FxHelper {
             // 当开启了自动吸附,默认x坐标=marginEdge
             if (context == null) throw NullPointerException("context !=null !!!")
-            sizeViewDirection()
+            // 只有是Application时才允许保存,即默认全局悬浮窗时
+            if (isSaveDirection && context is Application) sp =
+                context!!.getSharedPreferences(FX_SP_NAME, MODE_PRIVATE)
+            if (isSizeViewDirection) sizeViewDirection()
+            FxDebug.updateMode(isDebugLog)
             return FxHelper(
                 this.mLayout,
                 context!!,
@@ -90,12 +99,22 @@ class FxHelper(
                 iFxScrollListener,
                 layoutParams,
                 blackList,
-                lBorderMargin, tBorderMargin, rBorderMargin, bBorderMargin
+                borderMargin, sp
             )
         }
 
         fun context(context: Context): Builder {
             this.context = context
+            return this
+        }
+
+        fun show(): Builder {
+            this.isEnable = true
+            return this
+        }
+
+        fun layout(@LayoutRes layoutId: Int): Builder {
+            this.mLayout = layoutId
             return this
         }
 
@@ -119,11 +138,6 @@ class FxHelper(
             return this
         }
 
-        fun layout(@LayoutRes layoutId: Int): Builder {
-            this.mLayout = layoutId
-            return this
-        }
-
         fun addBlackClass(vararg c: Class<*>): Builder {
             blackList.addAll(c)
             return this
@@ -140,22 +154,27 @@ class FxHelper(
         }
 
         fun tBorder(t: Float): Builder {
-            this.tBorderMargin = abs(t)
+            borderMargin.t = abs(t)
             return this
         }
 
         fun lBorder(l: Float): Builder {
-            this.lBorderMargin = abs(l)
+            borderMargin.l = abs(l)
+            return this
+        }
+
+        fun logEnable(isLog: Boolean = true): Builder {
+            this.isDebugLog = isLog
             return this
         }
 
         fun rBorder(r: Float): Builder {
-            this.rBorderMargin = abs(r)
+            borderMargin.r = abs(r)
             return this
         }
 
         fun bBorder(b: Float): Builder {
-            this.bBorderMargin = abs(b)
+            borderMargin.b = abs(b)
             return this
         }
 
@@ -169,11 +188,21 @@ class FxHelper(
             return this
         }
 
-        /** 辅助坐标配置,调用此方法，则使用辅助方向来决定默认x,y坐标
-         * 即以 gravity 作为基础定位，传入的x,y都用其定位
+        /** 调用此方法,x,y的坐标将根据 传递进来的 [gravity] 调整 相对坐标
+         * 比如当gravity=LEFT_OR_BOTTOM，则相对应的(x,y) 只是相对于左下角的偏移量，而非全屏直接坐标
          * */
+        fun defaultSizeViewDirection(): Builder {
+            isSizeViewDirection = true
+            return this
+        }
+
         fun gravity(gravity: Direction): Builder {
             this.gravity = gravity
+            return this
+        }
+
+        fun saveDirectionEnable(): Builder {
+            this.isSaveDirection = true
             return this
         }
 
@@ -182,18 +211,18 @@ class FxHelper(
             val marginEdgeToy = defaultY + edgeMargin
             when (gravity) {
                 Direction.LEFT_OR_BOTTOM -> {
-                    defaultY = -(marginEdgeToy + bBorderMargin)
-                    defaultX = marginEdgeTox + lBorderMargin
+                    defaultY = -(marginEdgeToy + borderMargin.b)
+                    defaultX = marginEdgeTox + borderMargin.l
                 }
                 Direction.RIGHT_OR_BOTTOM -> {
-                    defaultY = -(marginEdgeToy + bBorderMargin)
-                    defaultX = -(marginEdgeTox + rBorderMargin)
+                    defaultY = -(marginEdgeToy + borderMargin.b)
+                    defaultX = -(marginEdgeTox + borderMargin.r)
                 }
                 Direction.RIGHT_OR_TOP, Direction.RIGHT_OR_CENTER -> {
-                    defaultX = -(marginEdgeTox + rBorderMargin)
+                    defaultX = -(marginEdgeTox + borderMargin.r)
                 }
                 Direction.LEFT_OR_TOP, Direction.LEFT_OR_CENTER -> {
-                    defaultX = marginEdgeTox + lBorderMargin
+                    defaultX = marginEdgeTox + borderMargin.l
                 }
             }
         }
