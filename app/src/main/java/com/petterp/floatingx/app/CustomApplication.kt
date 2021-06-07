@@ -23,7 +23,9 @@ class CustomApplication : Application() {
                 NewActivity::class.java,
                 ImmersedActivity::class.java
             )
+            logEnable()
+            defaultSizeViewDirection()
+            saveDirectionEnable()
         }
-        FloatingX.isDebug(true)
     }
 }

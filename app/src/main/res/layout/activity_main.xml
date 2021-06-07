@@ -18,7 +18,7 @@
         android:id="@+id/btnShowFloating"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="显示一个悬浮窗" />
+        android:text="显示悬浮窗" />
 
     <Button
         android:id="@+id/btnHideFloating"
