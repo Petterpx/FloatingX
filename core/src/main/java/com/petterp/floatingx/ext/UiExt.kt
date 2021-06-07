@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.res.Resources
 import android.graphics.Point
 import android.graphics.Rect
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -17,11 +18,15 @@ import androidx.core.view.isVisible
 
 val Activity.navigationBarHeight: Int
     get() {
-        val display = windowManager.defaultDisplay
+        val display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            display
+        } else {
+            windowManager.defaultDisplay
+        }
         val size = Point()
         val realSize = Point()
-        display.getSize(size)
-        display.getRealSize(realSize)
+        display?.getSize(size)
+        display?.getRealSize(realSize)
         val resourceId =
             resources.getIdentifier("navigation_bar_height", "dimen", "android")
         val height = resources.getDimensionPixelSize(resourceId)
