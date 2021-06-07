@@ -2,6 +2,7 @@ package com.petterp.floatingx.ext
 
 import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
 import android.widget.FrameLayout
 import com.petterp.floatingx.FloatingX
 
@@ -35,3 +36,21 @@ internal val Activity.fxParentView: FrameLayout?
         FxDebug.e("rootView -> Null")
         null
     }
+
+private const val CONFIG_X = "saveX"
+private const val CONFIG_Y = "saveY"
+private const val CONFIG_VERSION_CODE = "fx_save_version_code"
+internal var SharedPreferences.x: Float
+    get() = getFloat(CONFIG_X, 0f)
+    set(value) = edit().putFloat(CONFIG_X, value).apply()
+
+internal var SharedPreferences.y: Float
+    get() = getFloat(CONFIG_Y, 0f)
+    set(value) = edit().putFloat(CONFIG_Y, value).apply()
+
+internal var SharedPreferences.versionCode: Int
+    get() = getInt(CONFIG_VERSION_CODE, 0)
+    set(value) = edit().putInt(CONFIG_VERSION_CODE, value).apply()
+
+internal val SharedPreferences.hasConfig: Boolean
+    get() = versionCode > 0
