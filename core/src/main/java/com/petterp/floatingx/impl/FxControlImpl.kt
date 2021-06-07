@@ -85,11 +85,8 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
         if (managerView == null) {
             initManagerView()
         } else {
-            mContainer?.get()?.removeView(managerView)
-            mContainer?.clear()
-            mContainer = null
+            removeManagerView(getContainer())
         }
-        FxDebug.d("view-lifecycle-> addView")
         mContainer = WeakReference(container)
         addManagerView()
     }
@@ -104,8 +101,7 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
 
     override fun detach(container: FrameLayout) {
         if (managerView != null && ViewCompat.isAttachedToWindow(managerView!!)) {
-            FxDebug.d("view-lifecycle-> removeView")
-            container.removeView(managerView)
+            removeManagerView(container)
         }
         if (container === mContainer?.get()) {
             mContainer?.clear()
@@ -137,9 +133,16 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     }
 
     private fun addManagerView() {
-        FxDebug.d("view-lifecycle-> addView")
-        getContainer()?.removeView(managerView)
+        FxDebug.d("view-lifecycle-> code->addView")
+        helper.iFxViewLifecycle?.postAddView()
         getContainer()?.addView(managerView)
+    }
+
+    private fun removeManagerView(container: FrameLayout?) {
+        if (container == null) return
+        FxDebug.d("view-lifecycle-> code->removeView")
+        helper.iFxViewLifecycle?.postRemoveView()
+        container.removeView(managerView)
     }
 
     open fun initManagerView(@DrawableRes layout: Int = 0) {
