@@ -91,7 +91,7 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
         }
         FxDebug.d("view-lifecycle-> addView")
         mContainer = WeakReference(container)
-        container.addView(managerView)
+        addManagerView()
     }
 
     /** 删除view */
@@ -132,11 +132,14 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
             attach(topActivity!!)
             return
         }
-        if (managerView == null) initManagerView()
-        // 判断悬浮窗有没有已添加，如果未添加,而且不在当前decorView中
-        if (ViewCompat.isAttachedToWindow(managerView!!) && getContainer() != managerView?.parent) {
-            getContainer()?.addView(managerView)
-        }
+        initManagerView()
+        addManagerView()
+    }
+
+    private fun addManagerView() {
+        FxDebug.d("view-lifecycle-> addView")
+        getContainer()?.removeView(managerView)
+        getContainer()?.addView(managerView)
     }
 
     open fun initManagerView(@DrawableRes layout: Int = 0) {
