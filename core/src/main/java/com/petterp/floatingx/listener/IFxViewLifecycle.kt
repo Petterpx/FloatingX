@@ -8,12 +8,18 @@ package com.petterp.floatingx.listener
  */
 interface IFxViewLifecycle {
 
+    // addView前调用
+    fun postAddView() {}
+
     // 安装到新窗口时
     fun attach() {}
 
-    // 从窗口移除
-    fun detached() {}
-
     // 窗口可见性监听
     fun windowsVisibility(visibility: Int) {}
+
+    // removeView前调用
+    fun postRemoveView() {}
+
+    // 从窗口移除
+    fun detached() {}
 }

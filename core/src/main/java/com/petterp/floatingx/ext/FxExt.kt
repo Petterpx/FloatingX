@@ -9,7 +9,7 @@ import com.petterp.floatingx.FloatingX
  * @Author petterp
  * @Date 2021/5/20-5:17 下午
  * @Email ShiyihuiCloud@163.com
- * @Function
+ * @Function Fx的一些kotlin扩展
  */
 
 internal inline fun <reified T : Any> lazyLoad(

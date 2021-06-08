@@ -12,6 +12,5 @@ interface IFxScrollListener {
 
     fun up()
 
-    /** 正在拖动 */
     fun dragIng(x: Float, y: Float)
 }

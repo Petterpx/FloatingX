@@ -5,7 +5,6 @@ import android.app.Activity
 import android.app.Application
 import androidx.annotation.MainThread
 import com.petterp.floatingx.config.FxHelper
-import com.petterp.floatingx.ext.FxDebug
 import com.petterp.floatingx.impl.FxControlImpl
 import com.petterp.floatingx.listener.FxLifecycleCallback
 import com.petterp.floatingx.listener.IFxControl
@@ -23,23 +22,15 @@ object FloatingX {
     internal var iFxAppLifecycle: FxLifecycleCallback? = null
 
     /** dsl初始化 */
-    fun init(obj: FxHelper.Builder.() -> Unit): FloatingX =
+    fun init(obj: FxHelper.Builder.() -> Unit) =
         init(FxHelper.builder(obj))
 
     /** 悬浮窗配置信息 */
     @JvmStatic
-    fun init(helper: FxHelper): FloatingX {
+    fun init(helper: FxHelper) {
         this.helper = helper
         initControl()
         initAppLifecycle()
-        return this
-    }
-
-    @JvmStatic
-    @JvmOverloads
-    fun isDebug(isLog: Boolean = true): FloatingX {
-        FxDebug.updateMode(isLog)
-        return this
     }
 
     /**
@@ -69,6 +60,12 @@ object FloatingX {
     @JvmStatic
     fun hide() {
         fxControl?.hide()
+    }
+
+    /** 清除历史坐标信息，如果开启了历史存储 */
+    @JvmStatic
+    fun clearConfig() {
+        helper?.iFxConfigStorage?.clear()
     }
 
     /** 调用此方法将关闭悬浮窗,保留配置信息helper与AppLifecycle监听

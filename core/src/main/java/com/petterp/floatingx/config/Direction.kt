@@ -6,7 +6,7 @@ import android.view.Gravity
  * @Author petterp
  * @Date 2021/5/25-3:27 下午
  * @Email ShiyihuiCloud@163.com
- * @Function 用于定位的判断
+ * @Function 悬浮窗的位置方向
  */
 enum class Direction(val value: Int) {
     LEFT_OR_TOP(Gravity.START or Gravity.TOP),

@@ -16,7 +16,7 @@ import com.petterp.floatingx.view.FxViewHolder
  * @Author petterp
  * @Date 2021/5/27-7:13 下午
  * @Email ShiyihuiCloud@163.com
- * @Function 单独界面View使用时的封装
+ * @Function 单View使用时的封装
  */
 
 fun createFloatingX(obj: FxHelper.Builder.() -> Unit) =
@@ -45,7 +45,6 @@ class FxControlToScopeImpl private constructor() : DefaultLifecycleObserver, IFx
         controlImpl?.show(fxHelper?.context as Activity)
     }
 
-    // show之前先进行一波context判断
     override fun show() {
         controlImpl?.getView()?.let {
             controlImpl?.show()
@@ -76,8 +75,8 @@ class FxControlToScopeImpl private constructor() : DefaultLifecycleObserver, IFx
         controlImpl?.updateView(resource)
     }
 
-    override fun setClickListener(obj: (View) -> Unit) {
-        controlImpl?.setClickListener(obj)
+    override fun setClickListener(time: Long, obj: (View) -> Unit) {
+        controlImpl?.setClickListener(time, obj = obj)
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
