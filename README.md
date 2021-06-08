@@ -16,6 +16,7 @@
 - 自动修复显示位置
 - 支持对悬浮窗生命周期的监听
 - 支持自定义悬浮窗各项配置
+- 支持保存及恢复历史坐标位置
 - 支持自定义拖动边框，吸附边框
 - 支持App 内全局悬浮窗，单 `Activity` 悬浮窗
 
@@ -56,7 +57,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	        implementation 'com.github.Petterpx:FloatingX:1.0-beta02'
+	        implementation 'com.github.Petterpx:FloatingX:1.0-beta08'
 	}
 ```
 
@@ -67,35 +68,57 @@ dependencies {
 **Kotlin**
 
 ```kotlin
-FloatingX.init {
-    context(this@CustomApplication)
-    marginEdge(10f)
-    addBlackClass(MainActivity::class.java, NewActivity::class.java)
-    layout(R.layout.item_floating)
-    x(100f)
-    y(100f)
-    defaultDirection(Direction.RIGHT_OR_BOTTOM)
-    setViewLifecycle(xx)
-    setScrollListener(xx)
-}
+ FloatingX.init {
+            setContext(this@CustomApplication)
+            setLayout(R.layout.item_floating)
+            setGravity(Direction.RIGHT_OR_BOTTOM)
+            setEnableLog()
+            // 启用辅助方向
+            setEnableAssistDirection(true)
+            setEnableConfig()
+            addBlackClass(
+                MainActivity::class.java,
+                NewActivity::class.java,
+                ImmersedActivity::class.java
+            )
+            // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
+            show()
+        }
 ```
 
 **Java**
 
 ```java
-FxHelper config = FxHelper.builder()
-    .layout(R.layout.item_floating)
-    .x(100f)
-    .y(100f)
-    .defaultDirection(Direction.RIGHT_OR_BOTTOM)
-    .setViewLifecycle(xx)
-    .setScrollListener(xx)
-    .context(this)
-    .marginEdge(10f)
-    .isEdgeEnable(true)
-    .addBlackClass(MainActivity::class.java, NewActivity::class.java)
-    .build();
-FloatingX.init(config);
+val helper = FxHelper.builder()
+            .setContext(this)
+            .setLayout(R.layout.item_floating)
+            .setGravity(Direction.RIGHT_OR_BOTTOM)
+            .setEnableLog()
+            // 启用辅助方向
+            .setEnableAssistDirection(true)
+            .setEnableConfig()
+            .setEnableAssistDirection(true)
+            .setEnableEdgeRebound(true)
+            .setEnableLog()
+            .setLayoutParams()
+            .setLeftBorder(100f)
+            .setRightBorder(100f)
+            .setBottomBorder(100f)
+            .setTopBorder(100f)
+            .setMoveEdge(10f)
+	    .setEnableConfig(object:IFxConfigStorage()...})
+	    .setOnClickListener(800L) {
+            }
+            .setEnableEdgeAdsorption(true)
+            .addBlackClass(
+                MainActivity::class.java,
+                NewActivity::class.java,
+                ImmersedActivity::class.java
+            )
+            // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
+            .show()
+            .build()
+FloatingX.init(helper)
 ```
 
 #### 控制器
@@ -106,6 +129,7 @@ FloatingX.init(config);
  FloatingX.hide()
  FloatingX.dismiss()
  FloatingX.cancel()
+ FloatingX.clearConfig()
 ```
 
 **更多控制**
