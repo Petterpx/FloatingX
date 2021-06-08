@@ -66,13 +66,13 @@ class FxMagnetView @JvmOverloads constructor(
             }
             FxDebug.d("view-->init, source-[layout]")
         }
-        val hasConfig = helper.iFxConfig?.hasConfig() ?: false
+        val hasConfig = helper.iFxConfigStorage?.hasConfig() ?: false
         layoutParams = defaultLayoutParams(hasConfig)
         topActivity?.let {
             UiExt.navigationBarHeightConfig = it.navigationBarHeight
         }
-        x = if (hasConfig) helper.iFxConfig!!.getX() else helper.x
-        y = if (hasConfig) helper.iFxConfig!!.getY() else initDefaultY()
+        x = if (hasConfig) helper.iFxConfigStorage!!.getX() else helper.x
+        y = if (hasConfig) helper.iFxConfigStorage!!.getY() else initDefaultY()
         FxDebug.d("view->x&&y   hasConfig-($hasConfig),x-($x),y-($y)")
     }
 
@@ -327,7 +327,7 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     private fun saveConfig(moveX: Float, moveY: Float) {
-        helper.iFxConfig?.apply {
+        helper.iFxConfigStorage?.apply {
             setX(moveX)
             setY(moveY)
             setVersionCode(getVersionCode() + 1)

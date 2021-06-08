@@ -9,8 +9,8 @@ import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import com.petterp.floatingx.ext.FxDebug
 import com.petterp.floatingx.ext.lazyLoad
-import com.petterp.floatingx.impl.FxConfigSpImpl
-import com.petterp.floatingx.listener.IFxConfig
+import com.petterp.floatingx.impl.FxConfigStorageToSpImpl
+import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import kotlin.math.abs
@@ -39,7 +39,7 @@ class FxHelper(
     internal var layoutParams: FrameLayout.LayoutParams?,
     internal val blackList: MutableList<Class<*>>,
     internal val borderMargin: BorderMargin,
-    internal var iFxConfig: IFxConfig?
+    internal var iFxConfigStorage: IFxConfigStorage?
 ) {
 
     companion object {
@@ -74,7 +74,7 @@ class FxHelper(
         private var enableEdgeAdsorption: Boolean = true
         private var borderMargin: BorderMargin = BorderMargin()
 
-        private var iFxConfig: IFxConfig? = null
+        private var iFxConfigStorage: IFxConfigStorage? = null
         private var iFxScrollListener: IFxScrollListener? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
         private var ifxClickListener: ((View) -> Unit)? = null
@@ -85,8 +85,8 @@ class FxHelper(
         fun build(): FxHelper {
             if (context == null) throw NullPointerException("context !=null !!!")
             // 只有是Application时才允许保存,即默认全局悬浮窗时
-            if (iFxConfig == null && enableSaveDirection && context is Application) {
-                iFxConfig = FxConfigSpImpl.init(context!!)
+            if (iFxConfigStorage == null && enableSaveDirection && context is Application) {
+                iFxConfigStorage = FxConfigStorageToSpImpl.init(context!!)
             }
             if (enableSizeViewDirection) sizeViewDirection()
             FxDebug.updateMode(enableDebugLog)
@@ -106,7 +106,7 @@ class FxHelper(
                 iFxScrollListener,
                 layoutParams,
                 blackList,
-                borderMargin, iFxConfig
+                borderMargin, iFxConfigStorage
             )
         }
 
@@ -241,16 +241,16 @@ class FxHelper(
         }
 
         /** 设置启用存储坐标信息,存储方式默认采用 sp
-         * [iFxConfig] 传入IFxConfig对象, 也可自行实现接口，自定义具体实现逻辑
+         * [iFxConfigStorage] 传入IFxConfig对象, 也可自行实现接口，自定义具体实现逻辑
          *
          * PS: 当启用并且存在历史坐标, gravity以及自定义的x,y坐标将会失效，优先使用历史坐标
          * 如果某次边框变动或者其他影响导致原视图范围改变,现有的历史坐标位置不准确，请先移除历史坐标信息
          *  -> 即调用外部的FloatingX.clearConfig()清除历史坐标信息
          * */
         @JvmOverloads
-        fun setEnableConfig(iFxConfig: IFxConfig? = null): Builder {
+        fun setEnableConfig(iFxConfigStorage: IFxConfigStorage? = null): Builder {
             this.enableSaveDirection = true
-            this.iFxConfig = iFxConfig
+            this.iFxConfigStorage = iFxConfigStorage
             return this
         }
 

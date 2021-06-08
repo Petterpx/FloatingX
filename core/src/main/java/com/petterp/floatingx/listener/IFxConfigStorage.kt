@@ -7,7 +7,7 @@ package com.petterp.floatingx.listener
  * @Function fxConfig配置信息，实现此接口，实现自己的保存方式
  * @sample [FxConfigSpImpl]
  */
-interface IFxConfig {
+interface IFxConfigStorage {
 
     fun getX(): Float
     fun setX(x: Float)

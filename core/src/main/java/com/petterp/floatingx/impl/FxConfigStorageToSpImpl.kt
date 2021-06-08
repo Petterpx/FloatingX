@@ -3,7 +3,7 @@ package com.petterp.floatingx.impl
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import com.petterp.floatingx.listener.IFxConfig
+import com.petterp.floatingx.listener.IFxConfigStorage
 
 /**
  * @Author petterp
@@ -12,7 +12,7 @@ import com.petterp.floatingx.listener.IFxConfig
  * @Function 默认sp实现的配置信息保存
  */
 
-class FxConfigSpImpl : IFxConfig {
+class FxConfigStorageToSpImpl : IFxConfigStorage {
 
     private var sp: SharedPreferences? = null
     private var spEdit: SharedPreferences.Editor? = null
@@ -24,7 +24,7 @@ class FxConfigSpImpl : IFxConfig {
         private const val CONFIG_VERSION_CODE = "fx_save_version_code"
 
         @SuppressLint("CommitPrefEdits")
-        fun init(context: Context): IFxConfig = FxConfigSpImpl().apply {
+        fun init(context: Context): IFxConfigStorage = FxConfigStorageToSpImpl().apply {
             sp = context.getSharedPreferences(FX_SP_NAME, Context.MODE_PRIVATE)
             spEdit = sp?.edit()
         }
