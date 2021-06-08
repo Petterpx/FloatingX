@@ -40,8 +40,8 @@ class FxLifecycleCallback(
         val isActivityInValid = activity.isActivityInValid
         val isParent = activity.isParent
         FxDebug.d("AppLifecycle--[${activity.name}]-onActivityResumed")
-        FxDebug.d("view->isAttach? isContainActivity-$isActivityInValid--isEnable-${helper.isEnable}---isParent-$isParent")
-        if (helper.isEnable && isActivityInValid && !isParent)
+        FxDebug.d("view->isAttach? isContainActivity-$isActivityInValid--isEnable-${helper.enableFx}---isParent-$isParent")
+        if (helper.enableFx && isActivityInValid && !isParent)
             control?.attach(activity)
     }
 
@@ -62,8 +62,8 @@ class FxLifecycleCallback(
         if (topActivity == activity) topActivity = null
         val isParent = activity.isParent
         FxDebug.d("AppLifecycle--[${activity.name}]-onActivityPreDestroyed")
-        FxDebug.d("view->isAttach? isContainActivity-${activity.isActivityInValid}--isEnable-${helper.isEnable}---isParent-$isParent")
-        if (helper.isEnable && isParent)
+        FxDebug.d("view->isAttach? isContainActivity-${activity.isActivityInValid}--isEnable-${helper.enableFx}---isParent-$isParent")
+        if (helper.enableFx && isParent)
             control?.detach(activity)
     }
 }

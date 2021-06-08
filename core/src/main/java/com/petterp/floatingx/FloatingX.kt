@@ -62,6 +62,12 @@ object FloatingX {
         fxControl?.hide()
     }
 
+    /** 清除历史坐标信息，如果开启了历史存储 */
+    @JvmStatic
+    fun clearConfig() {
+        helper?.iFxConfig?.clear()
+    }
+
     /** 调用此方法将关闭悬浮窗,保留配置信息helper与AppLifecycle监听
      * 如果放弃配置信息与appLifecycle,再次调用show将导致无法获取栈顶Activity
      * */
