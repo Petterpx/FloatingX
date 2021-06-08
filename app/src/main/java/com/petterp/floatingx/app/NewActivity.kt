@@ -16,9 +16,9 @@ import com.petterp.floatingx.impl.createFloatingX
 class NewActivity : AppCompatActivity(R.layout.new_activity), View.OnClickListener {
 
     private val floatingX by createFloatingX {
-        context(this@NewActivity)
-        moveEdge(50f)
-        layout(R.layout.item_floating)
+        setContext(this@NewActivity)
+        setMoveEdge(50f)
+        setLayout(R.layout.item_floating)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +30,7 @@ class NewActivity : AppCompatActivity(R.layout.new_activity), View.OnClickListen
 
     private fun showFx() {
         FxControlToScopeImpl.builder {
-            context(this@NewActivity)
+            setContext(this@NewActivity)
         }
 
         val config = FxHelper.builder().build()

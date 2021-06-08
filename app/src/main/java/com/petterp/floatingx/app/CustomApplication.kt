@@ -15,17 +15,20 @@ class CustomApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         FloatingX.init {
-            context(this@CustomApplication)
-            layout(R.layout.item_floating)
-            gravity(Direction.RIGHT_OR_BOTTOM)
+            setContext(this@CustomApplication)
+            setLayout(R.layout.item_floating)
+            setGravity(Direction.RIGHT_OR_BOTTOM)
+            setEnableLog()
+            // 启用辅助方向
+            setEnableAssistDirection(true)
+            setEnableConfig()
             addBlackClass(
                 MainActivity::class.java,
                 NewActivity::class.java,
                 ImmersedActivity::class.java
             )
-            logEnable()
-            defaultSizeViewDirection()
-            saveDirectionEnable()
+            // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
+            show()
         }
     }
 }

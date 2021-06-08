@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), View.OnClickList
                 }
             }
             R.id.btnInitClick -> {
-                FloatingX.control().setClickListener {
+                FloatingX.control().setClickListener(2000L) {
                     Toast.makeText(this, "123", Toast.LENGTH_SHORT).show()
                 }
             }

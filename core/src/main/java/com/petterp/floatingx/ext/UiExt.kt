@@ -13,7 +13,7 @@ import androidx.core.view.isVisible
  * @Author petterp
  * @Date 2021/6/2-7:12 下午
  * @Email ShiyihuiCloud@163.com
- * @Function
+ * @Function Fx的一些UI扩展
  */
 
 val Activity.navigationBarHeight: Int
