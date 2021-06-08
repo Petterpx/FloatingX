@@ -3,13 +3,13 @@ package com.petterp.floatingx.config
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import android.content.SharedPreferences
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import com.petterp.floatingx.ext.FxDebug
 import com.petterp.floatingx.ext.lazyLoad
+import com.petterp.floatingx.impl.FxConfigSpImpl
+import com.petterp.floatingx.listener.IFxConfig
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import kotlin.math.abs
@@ -36,12 +36,10 @@ class FxHelper(
     internal var layoutParams: FrameLayout.LayoutParams?,
     internal val blackList: MutableList<Class<*>>,
     internal val borderMargin: BorderMargin,
-    internal var sp: SharedPreferences?
+    internal var iFxConfig: IFxConfig?
 ) {
 
     companion object {
-
-        private const val FX_SP_NAME = "floating_x_direction"
 
         @JvmStatic
         fun builder() = Builder()
@@ -67,7 +65,7 @@ class FxHelper(
         private var isEdgeEnable: Boolean = true
         private var borderMargin: BorderMargin = BorderMargin()
         private var context: Context? = null
-        private var sp: SharedPreferences? = null
+        private var iFxConfig: IFxConfig? = null
         private var gravity: Direction = Direction.LEFT_OR_TOP
         private var iFxScrollListener: IFxScrollListener? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
@@ -81,8 +79,9 @@ class FxHelper(
             // 当开启了自动吸附,默认x坐标=marginEdge
             if (context == null) throw NullPointerException("context !=null !!!")
             // 只有是Application时才允许保存,即默认全局悬浮窗时
-            if (isSaveDirection && context is Application) sp =
-                context!!.getSharedPreferences(FX_SP_NAME, MODE_PRIVATE)
+            if (iFxConfig == null && isSaveDirection && context is Application) {
+                iFxConfig = FxConfigSpImpl.init(context!!)
+            }
             if (isSizeViewDirection) sizeViewDirection()
             FxDebug.updateMode(isDebugLog)
             return FxHelper(
@@ -99,7 +98,7 @@ class FxHelper(
                 iFxScrollListener,
                 layoutParams,
                 blackList,
-                borderMargin, sp
+                borderMargin, iFxConfig
             )
         }
 
@@ -201,8 +200,9 @@ class FxHelper(
             return this
         }
 
-        fun saveDirectionEnable(): Builder {
+        fun saveDirectionEnable(iFxConfig: IFxConfig? = null): Builder {
             this.isSaveDirection = true
+            this.iFxConfig = iFxConfig
             return this
         }
 
