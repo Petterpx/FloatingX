@@ -36,13 +36,13 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
         get() = mContainer == null && managerView == null
 
     override fun show() {
-        helper.isEnable = true
+        helper.enableFx = true
         managerView ?: showInit()
         managerView?.show()
     }
 
     override fun show(activity: Activity) {
-        helper.isEnable = true
+        helper.enableFx = true
         attach(activity)
         managerView?.show()
     }
@@ -109,15 +109,16 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
         }
     }
 
-    override fun setClickListener(obj: (View) -> Unit) {
+    override fun setClickListener(time: Long, obj: (View) -> Unit) {
         helper.clickListener = obj
+        helper.clickTime = time
     }
 
     override fun dismiss() {
         mContainer?.get()?.let {
             detach(it)
         }
-        helper.isEnable = false
+        helper.enableFx = false
         managerView = null
         viewHolder = null
     }

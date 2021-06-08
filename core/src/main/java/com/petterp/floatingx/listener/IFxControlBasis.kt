@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.annotation.MainThread
+import com.petterp.floatingx.config.FxHelper
 import com.petterp.floatingx.view.FxViewHolder
 
 /**
@@ -41,5 +42,5 @@ interface IFxControlBasis {
     @MainThread
     fun updateView(@LayoutRes resource: Int)
 
-    fun setClickListener(obj: (View) -> Unit)
+    fun setClickListener(time: Long = FxHelper.clickDefaultTime, obj: (View) -> Unit)
 }
