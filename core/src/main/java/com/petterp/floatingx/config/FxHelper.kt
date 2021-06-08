@@ -158,8 +158,8 @@ class FxHelper(
          * */
         @JvmOverloads
         fun setOnClickListener(
+            time: Long = clickDefaultTime,
             clickListener: ((View) -> Unit),
-            time: Long = clickDefaultTime
         ): Builder {
             this.ifxClickListener = clickListener
             this.clickTime = time
