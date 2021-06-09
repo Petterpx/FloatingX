@@ -37,7 +37,8 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
 
     override fun show() {
         helper.enableFx = true
-        managerView ?: showInit()
+        if (!isShowRunning())
+            attach(topActivity!!)
         managerView?.show()
     }
 
@@ -89,6 +90,7 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
         }
         mContainer = WeakReference(container)
         addManagerView()
+        managerView?.show()
     }
 
     /** 删除view */
@@ -103,8 +105,7 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
         if (managerView != null && ViewCompat.isAttachedToWindow(managerView!!)) {
             removeManagerView(container)
         }
-        if (container === mContainer?.get()) {
-            mContainer?.clear()
+        if (container === getContainer()) {
             mContainer = null
         }
     }
@@ -121,16 +122,6 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
         helper.enableFx = false
         managerView = null
         viewHolder = null
-    }
-
-    private fun showInit() {
-        if (getContainer() == null && topActivity != null) {
-            // 这里的异常还是要抛出去
-            attach(topActivity!!)
-            return
-        }
-        initManagerView()
-        addManagerView()
     }
 
     private fun addManagerView() {
