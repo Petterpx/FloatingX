@@ -147,6 +147,7 @@ class FxLifecycleCallbackImpl(
     }
 
     override fun onActivityPostResumed(activity: Activity) {
+        topActivity = activity
         helper.fxLifecycleExpand?.onActivityPostResumed?.let {
             if (activity.isActivityInValid) it.invoke(activity)
         }
