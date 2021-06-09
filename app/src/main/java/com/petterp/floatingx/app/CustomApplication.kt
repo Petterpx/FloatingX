@@ -22,7 +22,7 @@ class CustomApplication : Application() {
             setEnableLog(true)
             // 启用辅助方向
             setEnableAssistDirection(true)
-            setMoveEdge(10f)
+            setMoveEdgeMargin(10f)
             setEnableEdgeAdsorption(true)
             setEnableScrollOutsideScreen(true)
             setEnableConfig()

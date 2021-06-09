@@ -2,6 +2,7 @@ package com.petterp.floatingx.view
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
@@ -13,9 +14,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.config.Direction
 import com.petterp.floatingx.config.FxHelper
+import com.petterp.floatingx.ext.*
 import com.petterp.floatingx.ext.FxDebug
-import com.petterp.floatingx.ext.UiExt
-import com.petterp.floatingx.ext.navigationBarHeight
+import com.petterp.floatingx.ext.delayView
 import com.petterp.floatingx.ext.topActivity
 import kotlin.math.abs
 
@@ -69,9 +70,6 @@ class FxMagnetView @JvmOverloads constructor(
         }
         val hasConfig = helper.iFxConfigStorage?.hasConfig() ?: false
         layoutParams = defaultLayoutParams(hasConfig)
-        topActivity?.let {
-            UiExt.navigationBarHeightConfig = it.navigationBarHeight
-        }
         x = if (hasConfig) helper.iFxConfigStorage!!.getX() else helper.x
         y = if (hasConfig) helper.iFxConfigStorage!!.getY() else initDefaultY()
         FxDebug.d("view->x&&y   hasConfig-($hasConfig),x-($x),y-($y)")
@@ -107,6 +105,15 @@ class FxMagnetView @JvmOverloads constructor(
         mMoveAnimator?.stop()
     }
 
+    override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
+        if (helper.enableAbsoluteFix)
+            delayView {
+                if (updateSize()) moveToEdge()
+            }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
             MotionEvent.ACTION_MOVE -> updateViewPosition(event)
@@ -149,14 +156,14 @@ class FxMagnetView @JvmOverloads constructor(
         var defaultY = helper.y
         // 向下 ->
         if (helper.y < 0) {
-            defaultY -= UiExt.navigationBarHeightConfig
+            defaultY -= UiExt.navigationBarHeight
         } else if (helper.y > 0) {
-            defaultY += UiExt.statsBarHeightConfig
+            defaultY += UiExt.statsBarHeight
         } else {
             if (helper.gravity == Direction.RIGHT_OR_TOP || helper.gravity == Direction.LEFT_OR_TOP)
-                defaultY += UiExt.statsBarHeightConfig
+                defaultY += UiExt.statsBarHeight
             else if (helper.gravity == Direction.LEFT_OR_BOTTOM || helper.gravity == Direction.RIGHT_OR_BOTTOM)
-                defaultY -= UiExt.navigationBarHeightConfig
+                defaultY -= UiExt.navigationBarHeight
         }
         return defaultY
     }
@@ -174,19 +181,19 @@ class FxMagnetView @JvmOverloads constructor(
             var desY = mOriginalY + event.rawY - mOriginalRawY
             // 如果允许边界外滚动，则Y轴只需要考虑状态栏与导航栏,即可超出的范围为提供的边界与marginEdge
             if (helper.enableScrollOutsideScreen) {
-                if (desY < UiExt.statsBarHeightConfig) {
-                    desY = UiExt.statsBarHeightConfig.toFloat()
+                if (desY < UiExt.statsBarHeight) {
+                    desY = UiExt.statsBarHeight.toFloat()
                 }
-                val statusY = mScreenHeight - UiExt.navigationBarHeightConfig
+                val statusY = mScreenHeight - UiExt.navigationBarHeight
                 if (desY > statusY) {
                     desY = statusY
                 }
             } else {
                 val moveX = helper.borderMargin.l + helper.marginEdge
                 val moveMaxX = mScreenWidth - helper.borderMargin.r - helper.marginEdge
-                val moveY = UiExt.statsBarHeightConfig + helper.borderMargin.t + helper.marginEdge
+                val moveY = UiExt.statsBarHeight + helper.borderMargin.t + helper.marginEdge
                 val moveMaxY =
-                    mScreenHeight - UiExt.navigationBarHeightConfig - helper.marginEdge - helper.borderMargin.b
+                    mScreenHeight - UiExt.navigationBarHeight - helper.marginEdge - helper.borderMargin.b
                 if (desX < moveX) desX = moveX
                 if (desX > moveMaxX) desX = moveMaxX
                 if (desY < moveY) desY = moveY
@@ -207,10 +214,17 @@ class FxMagnetView @JvmOverloads constructor(
         mLastTouchDownTime = System.currentTimeMillis()
     }
 
-    private fun updateSize() {
+    private fun updateSize(): Boolean {
         (parent as ViewGroup).apply {
-            mScreenWidth = (width - this@FxMagnetView.width).toFloat()
-            mScreenHeight = (height - this@FxMagnetView.height).toFloat()
+            val newScreenWidth = (width - this@FxMagnetView.width).toFloat()
+            val newScreenHeight = (height - this@FxMagnetView.height).toFloat()
+            FxDebug.d("view->size oldW-($mScreenWidth),oldH-($mScreenHeight),newW-($newScreenWidth),newH-($newScreenHeight)")
+            if (mScreenHeight != newScreenHeight || mScreenWidth != newScreenWidth) {
+                mScreenWidth = newScreenWidth
+                mScreenHeight = newScreenHeight
+                return true
+            }
+            return false
         }
     }
 
@@ -229,16 +243,19 @@ class FxMagnetView @JvmOverloads constructor(
                 clearPortraitY()
             } else {
                 topActivity?.let {
-                    UiExt.navigationBarHeightConfig = it.navigationBarHeight
+                    UiExt.navigationBarHeight = it.navigationBarHeight
                 }
             }
             // 拿到y轴目前应该在的距离
             moveY =
-                (helper.borderMargin.t + helper.marginEdge + UiExt.statsBarHeightConfig).coerceAtLeast(
+                (helper.borderMargin.t + helper.marginEdge + UiExt.statsBarHeight).coerceAtLeast(
                     moveY
                 )
-                    .coerceAtMost((mScreenHeight - helper.borderMargin.b - helper.marginEdge - UiExt.navigationBarHeightConfig))
-            if (moveY == y && x == moveX) return
+                    .coerceAtMost((mScreenHeight - helper.borderMargin.b - helper.marginEdge - UiExt.navigationBarHeight))
+            if (moveY == y && x == moveX) {
+                isMoveLoading = false
+                return
+            }
             mMoveAnimator?.start(moveX, moveY)
             FxDebug.d("view-->moveToEdge---x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
         }
@@ -261,12 +278,12 @@ class FxMagnetView @JvmOverloads constructor(
         if (parent != null) {
             val newNavigationBarHeight = topActivity?.navigationBarHeight ?: 0
             val isLandscape =
-                newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || UiExt.navigationBarHeightConfig != newNavigationBarHeight
+                newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || UiExt.navigationBarHeight != newNavigationBarHeight
             markPortraitY(isLandscape)
             isMoveLoading = false
             (parent as ViewGroup).post {
-                updateSize()
-                moveToEdge(isLandscape = isLandscape)
+                if (updateSize())
+                    moveToEdge(isLandscape = isLandscape)
             }
         }
     }
@@ -320,6 +337,8 @@ class FxMagnetView @JvmOverloads constructor(
             y += (destinationY - y) * progress
             if (progress < 1) {
                 HANDLER.post(this)
+            } else {
+                isMoveLoading = false
             }
         }
 

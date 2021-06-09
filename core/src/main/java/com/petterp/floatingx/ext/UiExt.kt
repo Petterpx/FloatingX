@@ -1,12 +1,12 @@
 package com.petterp.floatingx.ext
 
 import android.app.Activity
-import android.content.res.Resources
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.core.view.isVisible
 
 /**
@@ -36,6 +36,18 @@ val Activity.navigationBarHeight: Int
         } else 0
     }
 
+val Activity.statusBarHeight: Int
+    get() {
+        var height = 0
+        val resourceId: Int =
+            resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (resourceId > 0) {
+            height = resources
+                .getDimensionPixelSize(resourceId)
+        }
+        return height
+    }
+
 internal fun ViewGroup.updateParams(left: Int, top: Int, end: Int, bottom: Int) {
     val parent = (layoutParams as? ViewGroup.MarginLayoutParams)?.apply {
         leftMargin = left
@@ -56,22 +68,23 @@ internal fun View.hide() {
     else isVisible = false
 }
 
+internal fun <T : View> T.delayView(obj: (T) -> Unit) {
+    viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        override fun onPreDraw(): Boolean {
+            if (viewTreeObserver.isAlive) {
+                viewTreeObserver.removeOnPreDrawListener(this)
+            }
+            obj(this@delayView)
+            return true
+        }
+    })
+}
+
 class UiExt private constructor() {
     companion object {
-        var statsBarHeightConfig: Int = getBarHeight()
+        var statsBarHeight: Int = 0
 
-        var navigationBarHeightConfig: Int = 0
-
-        private fun getBarHeight(): Int {
-            var height = 0
-            val resourceId: Int =
-                Resources.getSystem().getIdentifier("status_bar_height", "dimen", "android")
-            if (resourceId > 0) {
-                height = Resources.getSystem()
-                    .getDimensionPixelSize(resourceId)
-            }
-            return height
-        }
+        var navigationBarHeight: Int = 0
 
         fun isViewCovered(view: View): Boolean {
             var currentView = view

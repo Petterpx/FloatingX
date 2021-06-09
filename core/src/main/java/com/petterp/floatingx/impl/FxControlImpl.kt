@@ -10,8 +10,8 @@ import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import com.petterp.floatingx.config.FxHelper
+import com.petterp.floatingx.ext.*
 import com.petterp.floatingx.ext.FxDebug
-import com.petterp.floatingx.ext.UiExt
 import com.petterp.floatingx.ext.fxParentView
 import com.petterp.floatingx.ext.hide
 import com.petterp.floatingx.ext.show
@@ -83,6 +83,11 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
         if (managerView?.parent === container) {
             return
         }
+        topActivity?.let {
+            UiExt.navigationBarHeight = it.navigationBarHeight
+            UiExt.statsBarHeight = it.statusBarHeight
+            FxDebug.d("system-> navigationBar-${UiExt.navigationBarHeight}--statBarHeight-${UiExt.statsBarHeight}")
+        }
         if (managerView == null) {
             initManagerView()
         } else {
@@ -150,8 +155,8 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     @SuppressLint("WrongConstant")
     val windowsInsetsListener: OnApplyWindowInsetsListener =
         OnApplyWindowInsetsListener { _, insets ->
-            FxDebug.v("System--StatusBar---old-(${UiExt.statsBarHeightConfig}),new-(${insets.systemWindowInsetTop})")
-            UiExt.statsBarHeightConfig = insets.systemWindowInsetTop
+            FxDebug.v("System--StatusBar---old-(${UiExt.statsBarHeight}),new-(${insets.systemWindowInsetTop})")
+            UiExt.statsBarHeight = insets.systemWindowInsetTop
             insets
         }
 
