@@ -57,7 +57,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	        implementation 'com.github.Petterpx:FloatingX:1.0-beta08'
+	        implementation 'com.github.Petterpx:FloatingX:1.0-beta12'
 	}
 ```
 
