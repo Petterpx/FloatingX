@@ -2,6 +2,7 @@ package com.petterp.floatingx.view
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
@@ -74,6 +75,7 @@ class FxMagnetView @JvmOverloads constructor(
         x = if (hasConfig) helper.iFxConfigStorage!!.getX() else helper.x
         y = if (hasConfig) helper.iFxConfigStorage!!.getY() else initDefaultY()
         FxDebug.d("view->x&&y   hasConfig-($hasConfig),x-($x),y-($y)")
+        setBackgroundColor(Color.TRANSPARENT)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {

@@ -29,6 +29,12 @@ class FxLifecycleCallback(
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         FxDebug.d("AppLifecycle--[${activity.name}]-onActivityCreated")
+//        if (helper.enableFx && helper.enableAttachDialogF && activity is FragmentActivity) {
+//            activity.supportFragmentManager.registerFragmentLifecycleCallbacks(
+//                FragmentLifecycleCallBacksImpl(),
+//                true
+//            )
+//        }
     }
 
     override fun onActivityStarted(activity: Activity) {
@@ -40,7 +46,7 @@ class FxLifecycleCallback(
         val isActivityInValid = activity.isActivityInValid
         val isParent = activity.isParent
         FxDebug.d("AppLifecycle--[${activity.name}]-onActivityResumed")
-        FxDebug.d("view->isAttach? isContainActivity-$isActivityInValid--isEnable-${helper.enableFx}---isParent-$isParent")
+        FxDebug.d("view->isAttach? isContainActivity-$isActivityInValid--enableFx-${helper.enableFx}---isParent-$isParent")
         if (helper.enableFx && isActivityInValid && !isParent)
             control?.attach(activity)
     }
@@ -62,7 +68,7 @@ class FxLifecycleCallback(
         if (topActivity == activity) topActivity = null
         val isParent = activity.isParent
         FxDebug.d("AppLifecycle--[${activity.name}]-onActivityPreDestroyed")
-        FxDebug.d("view->isAttach? isContainActivity-${activity.isActivityInValid}--isEnable-${helper.enableFx}---isParent-$isParent")
+        FxDebug.d("view->isDetach? isContainActivity-${activity.isActivityInValid}--enableFx-${helper.enableFx}---isParent-$isParent")
         if (helper.enableFx && isParent)
             control?.detach(activity)
     }

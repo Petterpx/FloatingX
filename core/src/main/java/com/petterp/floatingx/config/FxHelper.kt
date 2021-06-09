@@ -29,7 +29,8 @@ class FxHelper(
     internal var marginEdge: Float,
     internal var enableFx: Boolean,
     internal var enableEdgeRebound: Boolean,
-    internal var enableScrollXOutsideScreen: Boolean = false,
+    internal var enableScrollXOutsideScreen: Boolean,
+    internal var enableAttachDialogF: Boolean,
     internal var y: Float,
     internal var x: Float,
     internal var clickListener: ((View) -> Unit)?,
@@ -72,6 +73,7 @@ class FxHelper(
         private var enableSizeViewDirection: Boolean = false
         private var enableEdgeRebound: Boolean = true
         private var enableEdgeAdsorption: Boolean = true
+        private var enableAttachDialogF: Boolean = false
         private var borderMargin: BorderMargin = BorderMargin()
 
         private var iFxConfigStorage: IFxConfigStorage? = null
@@ -98,6 +100,7 @@ class FxHelper(
                 enableFx,
                 enableEdgeAdsorption,
                 enableEdgeRebound,
+                enableAttachDialogF,
                 defaultY,
                 defaultX,
                 ifxClickListener,
@@ -149,6 +152,16 @@ class FxHelper(
         /** 设置启用边缘回弹,y轴状态栏与底部导航栏禁止回弹 */
         fun setEnableEdgeRebound(isEnable: Boolean): Builder {
             this.enableEdgeRebound = isEnable
+            return this
+        }
+
+        /**
+         * todo 暂时没法处理边界
+         * 设置启用DialogFragment安装悬浮窗
+         * 默认禁止，在dialogFragment安装涉及到过多操作,不能保证完全适配
+         * */
+        fun setEnableAttachDialogFragment(isEnable: Boolean): Builder {
+            this.enableAttachDialogF = isEnable
             return this
         }
 

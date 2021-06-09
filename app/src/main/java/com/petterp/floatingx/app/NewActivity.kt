@@ -15,15 +15,15 @@ import com.petterp.floatingx.impl.createFloatingX
  */
 class NewActivity : AppCompatActivity(R.layout.new_activity), View.OnClickListener {
 
-    private val floatingX by createFloatingX {
-        setContext(this@NewActivity)
-        setMoveEdge(50f)
-        setLayout(R.layout.item_floating)
-    }
+//    private val floatingX by createFloatingX {
+//        setContext(this@NewActivity)
+//        setMoveEdge(50f)
+//        setLayout(R.layout.item_floating)
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycle.addObserver(floatingX)
+//        lifecycle.addObserver(floatingX)
         findViewById<View>(R.id.btnShowScopeFx).setOnClickListener(this)
         findViewById<View>(R.id.hideShowScopeFx).setOnClickListener(this)
     }
@@ -40,10 +40,10 @@ class NewActivity : AppCompatActivity(R.layout.new_activity), View.OnClickListen
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.btnShowScopeFx -> {
-                floatingX.show()
+//                floatingX.show()
             }
             R.id.hideShowScopeFx -> {
-                floatingX.hide()
+//                floatingX.hide()
             }
         }
     }

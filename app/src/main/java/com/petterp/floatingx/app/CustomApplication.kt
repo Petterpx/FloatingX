@@ -18,7 +18,7 @@ class CustomApplication : Application() {
             setContext(this@CustomApplication)
             setLayout(R.layout.item_floating)
             setGravity(Direction.RIGHT_OR_BOTTOM)
-            setEnableLog()
+            setEnableLog(true)
             // 启用辅助方向
             setEnableAssistDirection(true)
             setEnableConfig()
