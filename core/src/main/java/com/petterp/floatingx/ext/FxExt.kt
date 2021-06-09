@@ -21,7 +21,7 @@ internal inline fun <reified T : Any> lazyLoad(
     }
 
 internal val topActivity: Activity?
-    get() = FloatingX.iFxAppLifecycle?.topActivity
+    get() = FloatingX.iFxAppLifecycleImpl?.topActivity
 
 internal val appContext: Context
     get() = FloatingX.helper?.context

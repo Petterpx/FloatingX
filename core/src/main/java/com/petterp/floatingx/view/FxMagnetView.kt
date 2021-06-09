@@ -2,6 +2,7 @@ package com.petterp.floatingx.view
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
@@ -74,6 +75,7 @@ class FxMagnetView @JvmOverloads constructor(
         x = if (hasConfig) helper.iFxConfigStorage!!.getX() else helper.x
         y = if (hasConfig) helper.iFxConfigStorage!!.getY() else initDefaultY()
         FxDebug.d("view->x&&y   hasConfig-($hasConfig),x-($x),y-($y)")
+        setBackgroundColor(Color.TRANSPARENT)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
@@ -169,18 +171,26 @@ class FxMagnetView @JvmOverloads constructor(
         }?.let {
             // 按下时的坐标+当前手指距离屏幕的坐标-最开始距离屏幕的坐标
             var desX = mOriginalX + event.rawX - mOriginalRawX
-            if (helper.enableScrollXOutsideScreen) {
-                if (desX < 0f) desX = 0f
-                if (desX > mScreenWidth) desX = mScreenWidth
-            }
-            // 限制不可超出屏幕高度
             var desY = mOriginalY + event.rawY - mOriginalRawY
-            if (desY < UiExt.statsBarHeightConfig) {
-                desY = UiExt.statsBarHeightConfig.toFloat()
-            }
-            val statusY = mScreenHeight - UiExt.navigationBarHeightConfig
-            if (desY > statusY) {
-                desY = statusY
+            // 如果允许边界外滚动，则Y轴只需要考虑状态栏与导航栏,即可超出的范围为提供的边界与marginEdge
+            if (helper.enableScrollOutsideScreen) {
+                if (desY < UiExt.statsBarHeightConfig) {
+                    desY = UiExt.statsBarHeightConfig.toFloat()
+                }
+                val statusY = mScreenHeight - UiExt.navigationBarHeightConfig
+                if (desY > statusY) {
+                    desY = statusY
+                }
+            } else {
+                val moveX = helper.borderMargin.l + helper.marginEdge
+                val moveMaxX = mScreenWidth - helper.borderMargin.r - helper.marginEdge
+                val moveY = UiExt.statsBarHeightConfig + helper.borderMargin.t + helper.marginEdge
+                val moveMaxY =
+                    mScreenHeight - UiExt.navigationBarHeightConfig - helper.marginEdge - helper.borderMargin.b
+                if (desX < moveX) desX = moveX
+                if (desX > moveMaxX) desX = moveMaxX
+                if (desY < moveY) desY = moveY
+                if (desY > moveMaxY) desY = moveMaxY
             }
             x = desX
             y = desY
@@ -210,7 +220,7 @@ class FxMagnetView @JvmOverloads constructor(
         isMoveLoading = true
         var moveX = x
         var moveY = y
-        if (helper.enableEdgeRebound) {
+        if (helper.enableEdgeAdsorption) {
             moveX =
                 if (isLeft) helper.marginEdge + helper.borderMargin.l else mScreenWidth - helper.marginEdge - helper.borderMargin.r
             // 对于重建之后的位置保存
