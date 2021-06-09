@@ -6,7 +6,7 @@ import android.app.Application
 import androidx.annotation.MainThread
 import com.petterp.floatingx.config.FxHelper
 import com.petterp.floatingx.impl.FxControlImpl
-import com.petterp.floatingx.listener.FxLifecycleCallback
+import com.petterp.floatingx.impl.FxLifecycleCallbackImpl
 import com.petterp.floatingx.listener.IFxControl
 
 /**
@@ -19,7 +19,7 @@ import com.petterp.floatingx.listener.IFxControl
 object FloatingX {
     private var fxControl: IFxControl? = null
     internal var helper: FxHelper? = null
-    internal var iFxAppLifecycle: FxLifecycleCallback? = null
+    internal var iFxAppLifecycleImpl: FxLifecycleCallbackImpl? = null
 
     /** dsl初始化 */
     fun init(obj: FxHelper.Builder.() -> Unit) =
@@ -80,16 +80,16 @@ object FloatingX {
     private fun initControl() {
         if (fxControl == null) {
             fxControl = FxControlImpl(config())
-            iFxAppLifecycle?.control = fxControl
+            iFxAppLifecycleImpl?.control = fxControl
         }
     }
 
     private fun initAppLifecycle() {
-        if (iFxAppLifecycle == null) {
+        if (iFxAppLifecycleImpl == null) {
             val application = getConfigApplication()
-            iFxAppLifecycle = FxLifecycleCallback(config())
-            iFxAppLifecycle?.control = fxControl
-            application.registerActivityLifecycleCallbacks(iFxAppLifecycle)
+            iFxAppLifecycleImpl = FxLifecycleCallbackImpl(config())
+            iFxAppLifecycleImpl?.control = fxControl
+            application.registerActivityLifecycleCallbacks(iFxAppLifecycleImpl)
         }
     }
 

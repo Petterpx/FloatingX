@@ -10,6 +10,7 @@ import androidx.annotation.LayoutRes
 import com.petterp.floatingx.ext.FxDebug
 import com.petterp.floatingx.ext.lazyLoad
 import com.petterp.floatingx.impl.FxConfigStorageToSpImpl
+import com.petterp.floatingx.impl.FxLifecycleExpand
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
@@ -28,8 +29,8 @@ class FxHelper(
     internal var gravity: Direction,
     internal var marginEdge: Float,
     internal var enableFx: Boolean,
-    internal var enableEdgeRebound: Boolean,
-    internal var enableScrollXOutsideScreen: Boolean,
+    internal var enableEdgeAdsorption: Boolean,
+    internal var enableScrollOutsideScreen: Boolean,
     internal var enableAttachDialogF: Boolean,
     internal var y: Float,
     internal var x: Float,
@@ -37,6 +38,7 @@ class FxHelper(
     internal var clickTime: Long,
     internal var iFxViewLifecycle: IFxViewLifecycle?,
     internal var iFxScrollListener: IFxScrollListener?,
+    internal var fxLifecycleExpand: FxLifecycleExpand?,
     internal var layoutParams: FrameLayout.LayoutParams?,
     internal val blackList: MutableList<Class<*>>,
     internal val borderMargin: BorderMargin,
@@ -68,18 +70,21 @@ class FxHelper(
         private var defaultX: Float = 0f
         private var edgeMargin: Float = 0f
         private var enableFx: Boolean = false
+        private var enableEdgeAdsorption: Boolean = true
+        private var enableScrollOutsideScreen: Boolean = true
+        private var enableAttachDialogF: Boolean = false
+        private var borderMargin: BorderMargin = BorderMargin()
+
+        // build时配置
         private var enableDebugLog: Boolean = false
         private var enableSaveDirection: Boolean = false
         private var enableSizeViewDirection: Boolean = false
-        private var enableEdgeRebound: Boolean = true
-        private var enableEdgeAdsorption: Boolean = true
-        private var enableAttachDialogF: Boolean = false
-        private var borderMargin: BorderMargin = BorderMargin()
 
         private var iFxConfigStorage: IFxConfigStorage? = null
         private var iFxScrollListener: IFxScrollListener? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
         private var ifxClickListener: ((View) -> Unit)? = null
+        private var fxLifecycleExpand: FxLifecycleExpand? = null
         private val blackList by lazyLoad {
             mutableListOf<Class<*>>()
         }
@@ -99,7 +104,7 @@ class FxHelper(
                 edgeMargin,
                 enableFx,
                 enableEdgeAdsorption,
-                enableEdgeRebound,
+                enableScrollOutsideScreen,
                 enableAttachDialogF,
                 defaultY,
                 defaultX,
@@ -107,6 +112,7 @@ class FxHelper(
                 clickTime,
                 iFxViewLifecycle,
                 iFxScrollListener,
+                fxLifecycleExpand,
                 layoutParams,
                 blackList,
                 borderMargin, iFxConfigStorage
@@ -143,15 +149,19 @@ class FxHelper(
             return this
         }
 
-        /** 设置启用边缘自动吸附 */
-        fun setEnableEdgeAdsorption(isEnable: Boolean): Builder {
-            this.enableEdgeAdsorption = isEnable
+        /** 设置启用屏幕外滚动
+         * 默认为true,即悬浮窗可以拖动到全屏任意位置(除了状态栏与导航栏禁止覆盖)
+         * false时,可拖动范围受borderMargin与moveEdge限制
+         *  即可拖动范围=屏幕大小-(borderMargin+moveEdge+系统状态栏与导航栏(y轴))
+         * */
+        fun setEnableScrollOutsideScreen(isEnable: Boolean): Builder {
+            this.enableScrollOutsideScreen = isEnable
             return this
         }
 
-        /** 设置启用边缘回弹,y轴状态栏与底部导航栏禁止回弹 */
-        fun setEnableEdgeRebound(isEnable: Boolean): Builder {
-            this.enableEdgeRebound = isEnable
+        /** 设置启用边缘自动吸附 */
+        fun setEnableEdgeAdsorption(isEnable: Boolean): Builder {
+            this.enableEdgeAdsorption = isEnable
             return this
         }
 
@@ -197,26 +207,30 @@ class FxHelper(
             return this
         }
 
-        /** 设置可移动范围内的top位置,不包含导航栏与状态栏,以用户视图为范围* */
-        fun setTopBorder(t: Float): Builder {
+        /** 设置可移动范围内的相对屏幕顶部偏移量,不包含状态栏,框架会自行计算高度并减去
+         * 即顶部偏移量最终=topMargin+框架计算好的状态栏+moveEdge
+         * * */
+        fun setTopMargin(t: Float): Builder {
             borderMargin.t = abs(t)
             return this
         }
 
-        /** 设置可移动范围内的left位置 */
-        fun setLeftBorder(l: Float): Builder {
+        /** 设置可移动范围内的相对屏幕左侧偏移量 */
+        fun setLeftMargin(l: Float): Builder {
             borderMargin.l = abs(l)
             return this
         }
 
         /** 设置可移动范围内的right位置 */
-        fun setRightBorder(r: Float): Builder {
+        fun setRightMargin(r: Float): Builder {
             borderMargin.r = abs(r)
             return this
         }
 
-        /** 设置可移动范围内的bottom偏移量 */
-        fun setBottomBorder(b: Float): Builder {
+        /** 设置可移动范围内的相对屏幕底部偏移量,不包含导航栏,框架会自行计算高度并减去
+         * 即底部偏移量最终=屏幕高度-bottomMargin-框架计算好的导航栏-moveEdge
+         * */
+        fun setBottomMargin(b: Float): Builder {
             borderMargin.b = abs(b)
             return this
         }
@@ -250,6 +264,19 @@ class FxHelper(
         /** 设置视图默认位置，一般情况下，如果不使用辅助定位，此方法应避免调用，否则需要自行处理坐标 */
         fun setGravity(gravity: Direction): Builder {
             this.gravity = gravity
+            return this
+        }
+
+        /**
+         * 设置显示悬浮窗的Activity生命周期回调
+         * */
+        fun setTagActivityLifecycle(lifecycleExpand: FxLifecycleExpand): Builder {
+            this.fxLifecycleExpand = lifecycleExpand
+            return this
+        }
+
+        fun setTagActivityLifecycle(obj: FxLifecycleExpand.() -> Unit): Builder {
+            this.fxLifecycleExpand = FxLifecycleExpand().apply(obj)
             return this
         }
 
