@@ -27,10 +27,11 @@ class FxHelper(
     @LayoutRes internal var layoutId: Int,
     internal var context: Context,
     internal var gravity: Direction,
-    internal var marginEdge: Float,
+    internal var edgeOffset: Float,
     internal var enableFx: Boolean,
     internal var enableEdgeAdsorption: Boolean,
     internal var enableScrollOutsideScreen: Boolean,
+    internal var enableAbsoluteFix: Boolean,
     internal var enableAttachDialogF: Boolean,
     internal var y: Float,
     internal var x: Float,
@@ -68,8 +69,9 @@ class FxHelper(
 
         private var defaultY: Float = 0f
         private var defaultX: Float = 0f
-        private var edgeMargin: Float = 0f
+        private var edgeOffset: Float = 0f
         private var enableFx: Boolean = false
+        private var enableFixLocation: Boolean = false
         private var enableEdgeAdsorption: Boolean = true
         private var enableScrollOutsideScreen: Boolean = true
         private var enableAttachDialogF: Boolean = false
@@ -101,10 +103,11 @@ class FxHelper(
                 this.mLayout,
                 context!!,
                 gravity,
-                edgeMargin,
+                edgeOffset,
                 enableFx,
                 enableEdgeAdsorption,
                 enableScrollOutsideScreen,
+                enableFixLocation,
                 enableAttachDialogF,
                 defaultY,
                 defaultX,
@@ -168,10 +171,24 @@ class FxHelper(
         /**
          * todo 暂时没法处理边界
          * 设置启用DialogFragment安装悬浮窗
-         * 默认禁止，在dialogFragment安装涉及到过多操作,不能保证完全适配
+         * 默认禁止，在dialogFragment安装涉及到过多操作,不能保证完全适配，暂时未提供实现
          * */
         fun setEnableAttachDialogFragment(isEnable: Boolean): Builder {
             this.enableAttachDialogF = isEnable
+            return this
+        }
+
+        /**
+         * 启用位置修复
+         * 用于 onConfigurationChanged 不能被正常调用的情况下
+         * 默认 false
+         * 启用此开关,每一次onDraw,框架都会计算当前视图是否发生大小改变，如果改变，则强行修复当前错乱的位置
+         * 理论上,当屏幕旋转或者小窗模式,view会收到onConfigurationChanged 调用,框架内部会进行一次修复
+         * PS: 此方法对性能有所影响,如果 onConfigurationChanged 不能正常调用,检查Activity-manifest 是否添加了以下
+         *    android:configChanges="orientation|screenSize"
+         * */
+        fun setEnableFixLocation(isEnable: Boolean): Builder {
+            this.enableFixLocation = isEnable
             return this
         }
 
@@ -201,9 +218,9 @@ class FxHelper(
             return this
         }
 
-        /** 设置边缘吸附的距离 */
-        fun setMoveEdge(edge: Float): Builder {
-            this.edgeMargin = abs(edge)
+        /** 设置边缘吸附的偏移量 */
+        fun setEdgeOffset(edge: Float): Builder {
+            this.edgeOffset = abs(edge)
             return this
         }
 
@@ -297,8 +314,8 @@ class FxHelper(
         /** 辅助坐标的实现
          * 采用相对坐标位置,框架自行计算合适的x,y */
         private fun sizeViewDirection() {
-            val marginEdgeTox = defaultX + edgeMargin
-            val marginEdgeToy = defaultY + edgeMargin
+            val marginEdgeTox = defaultX + edgeOffset
+            val marginEdgeToy = defaultY + edgeOffset
             when (gravity) {
                 Direction.LEFT_OR_BOTTOM -> {
                     defaultY = -(marginEdgeToy + borderMargin.b)
