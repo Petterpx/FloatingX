@@ -22,9 +22,10 @@ class CustomApplication : Application() {
             setEnableLog(true)
             // 启用辅助方向
             setEnableAssistDirection(true)
-            setMoveEdgeMargin(10f)
+            setEdgeOffset(10f)
             setEnableEdgeAdsorption(true)
             setEnableScrollOutsideScreen(true)
+            setEnableFixLocation(true)
             setEnableConfig()
             addBlackClass(
                 MainActivity::class.java,

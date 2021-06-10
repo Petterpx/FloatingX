@@ -16,7 +16,6 @@ import com.petterp.floatingx.config.Direction
 import com.petterp.floatingx.config.FxHelper
 import com.petterp.floatingx.ext.*
 import com.petterp.floatingx.ext.FxDebug
-import com.petterp.floatingx.ext.delayView
 import com.petterp.floatingx.ext.topActivity
 import kotlin.math.abs
 
@@ -107,10 +106,8 @@ class FxMagnetView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        if (helper.enableAbsoluteFix)
-            delayView {
-                if (updateSize()) moveToEdge()
-            }
+        if (helper.enableAbsoluteFix && updateSize())
+            moveToEdge()
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -189,11 +186,11 @@ class FxMagnetView @JvmOverloads constructor(
                     desY = statusY
                 }
             } else {
-                val moveX = helper.borderMargin.l + helper.marginEdge
-                val moveMaxX = mScreenWidth - helper.borderMargin.r - helper.marginEdge
-                val moveY = UiExt.statsBarHeight + helper.borderMargin.t + helper.marginEdge
+                val moveX = helper.borderMargin.l + helper.edgeOffset
+                val moveMaxX = mScreenWidth - helper.borderMargin.r - helper.edgeOffset
+                val moveY = UiExt.statsBarHeight + helper.borderMargin.t + helper.edgeOffset
                 val moveMaxY =
-                    mScreenHeight - UiExt.navigationBarHeight - helper.marginEdge - helper.borderMargin.b
+                    mScreenHeight - UiExt.navigationBarHeight - helper.edgeOffset - helper.borderMargin.b
                 if (desX < moveX) desX = moveX
                 if (desX > moveMaxX) desX = moveMaxX
                 if (desY < moveY) desY = moveY
@@ -236,7 +233,7 @@ class FxMagnetView @JvmOverloads constructor(
         var moveY = y
         if (helper.enableEdgeAdsorption) {
             moveX =
-                if (isLeft) helper.marginEdge + helper.borderMargin.l else mScreenWidth - helper.marginEdge - helper.borderMargin.r
+                if (isLeft) helper.edgeOffset + helper.borderMargin.l else mScreenWidth - helper.edgeOffset - helper.borderMargin.r
             // 对于重建之后的位置保存
             if (isLandscape && mPortraitY != 0f) {
                 moveY = mPortraitY
@@ -248,10 +245,10 @@ class FxMagnetView @JvmOverloads constructor(
             }
             // 拿到y轴目前应该在的距离
             moveY =
-                (helper.borderMargin.t + helper.marginEdge + UiExt.statsBarHeight).coerceAtLeast(
+                (helper.borderMargin.t + helper.edgeOffset + UiExt.statsBarHeight).coerceAtLeast(
                     moveY
                 )
-                    .coerceAtMost((mScreenHeight - helper.borderMargin.b - helper.marginEdge - UiExt.navigationBarHeight))
+                    .coerceAtMost((mScreenHeight - helper.borderMargin.b - helper.edgeOffset - UiExt.navigationBarHeight))
             if (moveY == y && x == moveX) {
                 isMoveLoading = false
                 return

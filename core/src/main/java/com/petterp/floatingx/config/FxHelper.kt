@@ -27,7 +27,7 @@ class FxHelper(
     @LayoutRes internal var layoutId: Int,
     internal var context: Context,
     internal var gravity: Direction,
-    internal var marginEdge: Float,
+    internal var edgeOffset: Float,
     internal var enableFx: Boolean,
     internal var enableEdgeAdsorption: Boolean,
     internal var enableScrollOutsideScreen: Boolean,
@@ -69,7 +69,7 @@ class FxHelper(
 
         private var defaultY: Float = 0f
         private var defaultX: Float = 0f
-        private var edgeMargin: Float = 0f
+        private var edgeOffset: Float = 0f
         private var enableFx: Boolean = false
         private var enableFixLocation: Boolean = false
         private var enableEdgeAdsorption: Boolean = true
@@ -103,7 +103,7 @@ class FxHelper(
                 this.mLayout,
                 context!!,
                 gravity,
-                edgeMargin,
+                edgeOffset,
                 enableFx,
                 enableEdgeAdsorption,
                 enableScrollOutsideScreen,
@@ -219,8 +219,8 @@ class FxHelper(
         }
 
         /** 设置边缘吸附的偏移量 */
-        fun setMoveEdgeMargin(edge: Float): Builder {
-            this.edgeMargin = abs(edge)
+        fun setEdgeOffset(edge: Float): Builder {
+            this.edgeOffset = abs(edge)
             return this
         }
 
@@ -314,8 +314,8 @@ class FxHelper(
         /** 辅助坐标的实现
          * 采用相对坐标位置,框架自行计算合适的x,y */
         private fun sizeViewDirection() {
-            val marginEdgeTox = defaultX + edgeMargin
-            val marginEdgeToy = defaultY + edgeMargin
+            val marginEdgeTox = defaultX + edgeOffset
+            val marginEdgeToy = defaultY + edgeOffset
             when (gravity) {
                 Direction.LEFT_OR_BOTTOM -> {
                     defaultY = -(marginEdgeToy + borderMargin.b)
