@@ -33,7 +33,7 @@ class CustomApplication : Application() {
                 ImmersedActivity::class.java
             )
             setTagActivityLifecycle {
-                onActivityPreResumed = {
+                onActivityResumed = {
                     Log.e("petterp", "onActivityPreResumed")
                 }
             }
