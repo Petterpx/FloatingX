@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import androidx.annotation.MainThread
-import com.petterp.floatingx.config.FxHelper
+import com.petterp.floatingx.assist.FxHelper
 import com.petterp.floatingx.impl.FxControlImpl
 import com.petterp.floatingx.impl.FxLifecycleCallbackImpl
 import com.petterp.floatingx.listener.IFxControl

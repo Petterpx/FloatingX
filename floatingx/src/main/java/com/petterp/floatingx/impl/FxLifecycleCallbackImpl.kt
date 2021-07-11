@@ -3,7 +3,7 @@ package com.petterp.floatingx.impl
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import com.petterp.floatingx.config.FxHelper
+import com.petterp.floatingx.assist.FxHelper
 import com.petterp.floatingx.ext.FxDebug
 import com.petterp.floatingx.ext.fxParentView
 import com.petterp.floatingx.listener.IFxControl

@@ -1,4 +1,4 @@
-package com.petterp.floatingx.config
+package com.petterp.floatingx.assist
 
 /**
  * @Author petterp

@@ -3,9 +3,6 @@ package com.petterp.floatingx.app
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.petterp.floatingx.config.FxHelper
-import com.petterp.floatingx.impl.FxControlToScopeImpl
-import com.petterp.floatingx.impl.createFloatingX
 
 /**
  * @Author petterp
@@ -28,14 +25,14 @@ class NewActivity : AppCompatActivity(R.layout.new_activity), View.OnClickListen
         findViewById<View>(R.id.hideShowScopeFx).setOnClickListener(this)
     }
 
-    private fun showFx() {
-        FxControlToScopeImpl.builder {
-            setContext(this@NewActivity)
-        }
-
-        val config = FxHelper.builder().build()
-        FxControlToScopeImpl.builder(config)
-    }
+//    private fun showFx() {
+//        FxControlToScopeImpl.builder {
+//            setContext(this@NewActivity)
+//        }
+//
+//        val config = FxHelper.builder().build()
+//        FxControlToScopeImpl.builder(config)
+//    }
 
     override fun onClick(v: View?) {
         when (v?.id) {
