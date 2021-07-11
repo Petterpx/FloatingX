@@ -7,7 +7,7 @@ import android.os.Bundle
  * @Author petterp
  * @Date 2021/6/9-9:56 上午
  * @Email ShiyihuiCloud@163.com
- * @Function lifecycle扩展
+ * @Function Fx-lifecycle扩展
  * PS: 只有显示悬浮窗的Activity的才会被回调相应生命周期
  */
 class FxLifecycleExpand {

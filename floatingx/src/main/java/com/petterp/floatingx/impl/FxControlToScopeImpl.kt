@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.petterp.floatingx.config.FxHelper
+import com.petterp.floatingx.assist.FxHelper
 import com.petterp.floatingx.ext.lazyLoad
 import com.petterp.floatingx.listener.IFxControl
 import com.petterp.floatingx.listener.IFxControlBasis
@@ -17,6 +17,7 @@ import com.petterp.floatingx.view.FxViewHolder
  * @Date 2021/5/27-7:13 下午
  * @Email ShiyihuiCloud@163.com
  * @Function 单View使用时的封装
+ * 目前存在一定使用细节不足,等待完善
  */
 
 fun createFloatingX(obj: FxHelper.Builder.() -> Unit) =

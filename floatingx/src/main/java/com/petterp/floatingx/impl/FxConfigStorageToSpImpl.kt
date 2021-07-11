@@ -9,7 +9,7 @@ import com.petterp.floatingx.listener.IFxConfigStorage
  * @Author petterp
  * @Date 2021/6/8-9:40 上午
  * @Email ShiyihuiCloud@163.com
- * @Function 默认sp实现的配置信息保存
+ * @Function fx的sp存储示例
  */
 
 class FxConfigStorageToSpImpl : IFxConfigStorage {
