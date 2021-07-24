@@ -23,9 +23,10 @@ class CustomApplication : Application() {
             setEnableLog(true)
             // 启用辅助方向
             setEnableAssistDirection(true)
-            setRightMargin(100f)
-            setEdgeOffset(10f)
-            setTopMargin(100f)
+//            setRightMargin(100f)
+//            setEdgeOffset(10f)
+//            setTopMargin(100f)
+//            setBottomMargin(100f)
             setEnableEdgeAdsorption(true)
             setEnableScrollOutsideScreen(true)
             setEnableFixLocation(true)
