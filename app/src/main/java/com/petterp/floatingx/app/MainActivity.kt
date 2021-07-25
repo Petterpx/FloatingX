@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), View.OnClickList
                 startActivity(Intent(this, NewActivity::class.java))
             }
             R.id.btnShowFloating -> {
-                FloatingX.show()
+                FloatingX.show(this)
             }
             R.id.btnHideFloating -> {
                 FloatingX.hide()

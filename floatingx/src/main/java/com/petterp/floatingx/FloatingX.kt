@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.Application
 import androidx.annotation.MainThread
 import com.petterp.floatingx.assist.FxHelper
+import com.petterp.floatingx.ext.topActivity
 import com.petterp.floatingx.impl.FxControlImpl
 import com.petterp.floatingx.impl.FxLifecycleCallbackImpl
 import com.petterp.floatingx.listener.IFxControl
@@ -30,24 +31,20 @@ object FloatingX {
     fun init(helper: FxHelper) {
         this.helper = helper
         initControl()
-        initAppLifecycle()
     }
 
-    /**
-     * 显示悬浮窗,此方法禁止Application中调用
+    /** 显示fx
+     * 如果未传递activity,请确保Fx初始化时已经调用FxHelper.show()
+     * activity==null,将根据app-lifecycle使用当前栈顶的top-activity
      * */
     @MainThread
     @JvmStatic
-    fun show() {
+    fun show(activity: Activity? = null) {
+        if (activity == null && topActivity == null)
+            throw NullPointerException("Make sure Fx is properly initialized and that FxHelper.show () is called in the application.")
+        if (!config().enableFx) config().enableFx = true
         initControl()
-        control().show()
-    }
-
-    @MainThread
-    @JvmStatic
-    fun show(activity: Activity) {
-        initControl()
-        control().show(activity)
+        control().show(activity ?: topActivity!!)
     }
 
     @MainThread
@@ -74,12 +71,15 @@ object FloatingX {
     @JvmStatic
     fun cancel() {
         dismiss()
+        getConfigApplication().unregisterActivityLifecycleCallbacks(iFxAppLifecycleImpl)
         fxControl = null
+        iFxAppLifecycleImpl = null
     }
 
     private fun initControl() {
-        if (fxControl == null) {
+        if (fxControl == null && config().enableFx) {
             fxControl = FxControlImpl(config())
+            initAppLifecycle()
             iFxAppLifecycleImpl?.control = fxControl
         }
     }

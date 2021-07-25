@@ -44,7 +44,6 @@ class CustomApplication : Application() {
                 }
             }
             // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
-//            show()
         }
 
 //        val helper = FxHelper.builder()

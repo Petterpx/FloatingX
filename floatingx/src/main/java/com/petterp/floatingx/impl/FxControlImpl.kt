@@ -14,9 +14,7 @@ import com.petterp.floatingx.config.SystemConfig
 import com.petterp.floatingx.ext.FxDebug
 import com.petterp.floatingx.ext.fxParentView
 import com.petterp.floatingx.ext.hide
-import com.petterp.floatingx.ext.navigationBarHeight
 import com.petterp.floatingx.ext.show
-import com.petterp.floatingx.ext.statusBarHeight
 import com.petterp.floatingx.ext.topActivity
 import com.petterp.floatingx.listener.IFxControl
 import com.petterp.floatingx.view.FxMagnetView
@@ -43,14 +41,12 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     }
 
     override fun show() {
-        if (!helper.enableFx) helper.enableFx = true
         if (!isShowRunning())
             attach(topActivity!!)
         managerView?.show()
     }
 
     override fun show(activity: Activity) {
-        if (!helper.enableFx) helper.enableFx = true
         attach(activity)
         managerView?.show()
     }
@@ -80,6 +76,7 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     }
 
     override fun attach(activity: Activity) {
+        SystemConfig.updateConfig(activity)
         activity.fxParentView?.let {
             attach(it)
         } ?: FxDebug.e("system -> fxParentView==null")
@@ -89,11 +86,6 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     override fun attach(container: FrameLayout) {
         if (managerView?.parent === container) {
             return
-        }
-        topActivity?.let {
-            SystemConfig.navigationBarHeight = it.navigationBarHeight
-            SystemConfig.statsBarHeight = it.statusBarHeight
-            FxDebug.v("system-> navigationBar-${SystemConfig.navigationBarHeight}--statBarHeight-${SystemConfig.statsBarHeight}")
         }
         var isAnimation = false
         if (managerView == null) {
@@ -138,6 +130,7 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     override fun dismiss() {
         FxDebug.d("view->dismiss-----------")
         helper.enableFx = false
+        // FIXME: 2021/7/25 这里处理方式不是很好 
         if (helper.enableAnimation && helper.iFxAnimation != null) {
             managerView?.removeCallbacks(runnable)
             managerView?.postDelayed(
