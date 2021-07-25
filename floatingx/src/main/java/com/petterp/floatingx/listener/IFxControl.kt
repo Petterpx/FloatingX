@@ -13,7 +13,7 @@ import androidx.annotation.MainThread
 interface IFxControl : IFxControlBasis {
 
     @MainThread
-    fun show(activity: Activity)
+    fun show(activity: Activity, isAnimation: Boolean = true)
 
     /** 安装在指定activity上 */
     fun attach(activity: Activity)

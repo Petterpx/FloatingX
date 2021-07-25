@@ -29,7 +29,7 @@ import kotlin.math.abs
  */
 @SuppressLint("ViewConstructor")
 class FxMagnetView @JvmOverloads constructor(
-    private val helper: FxHelper,
+    internal val helper: FxHelper,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0

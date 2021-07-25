@@ -1,9 +1,10 @@
 package com.petterp.floatingx.impl
 
+import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.widget.FrameLayout
-import com.petterp.floatingx.listener.IFxAnimation
+import com.petterp.floatingx.listener.FxAnimation
 
 /**
  * @Author petterp
@@ -11,12 +12,11 @@ import com.petterp.floatingx.listener.IFxAnimation
  * @Email ShiyihuiCloud@163.com
  * @Function Fx的动画示例
  */
-class FxAnimationImpl(override val animatorTime: Long = 300L) : IFxAnimation {
+class FxAnimationImpl : FxAnimation() {
 
-    private var startAnimationJob: AnimatorSet? = null
-    private var endAnimationJob: AnimatorSet? = null
+    private val defaultTime = 1000L
 
-    override fun startAnimation(view: FrameLayout?) {
+    override fun fromAnimator(view: FrameLayout?): Animator {
         val scaleX = ObjectAnimator.ofFloat(
             view,
             "scaleX",
@@ -51,15 +51,13 @@ class FxAnimationImpl(override val animatorTime: Long = 300L) : IFxAnimation {
             0f,
             1f
         )
-        AnimatorSet().apply {
-            startAnimationJob = this
-            duration = animatorTime
+        return AnimatorSet().apply {
+            duration = defaultTime
             play(scaleX).with(scaleY).with(alpha)
-            start()
         }
     }
 
-    override fun endAnimation(view: FrameLayout?) {
+    override fun toAnimator(view: FrameLayout?): Animator {
         val scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 0f)
         val scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 0f)
         val alpha = ObjectAnimator.ofFloat(
@@ -68,18 +66,9 @@ class FxAnimationImpl(override val animatorTime: Long = 300L) : IFxAnimation {
             1f,
             0f
         )
-        AnimatorSet().apply {
-            endAnimationJob = this
-            duration = animatorTime
+        return AnimatorSet().apply {
+            duration = defaultTime
             play(scaleX).with(scaleY).with(alpha)
-            start()
         }
-    }
-
-    override fun cancelAnimation() {
-        startAnimationJob?.cancel()
-        startAnimationJob = null
-        endAnimationJob?.cancel()
-        endAnimationJob = null
     }
 }

@@ -31,7 +31,7 @@ class CustomApplication : Application() {
             setEnableScrollOutsideScreen(true)
             setEnableFixLocation(true)
             setEnableAnimation(true)
-            setAnimationListener(FxAnimationImpl(1000L))
+            setAnimationListener(FxAnimationImpl())
             setEnableConfig()
             addBlackClass(
                 MainActivity::class.java,

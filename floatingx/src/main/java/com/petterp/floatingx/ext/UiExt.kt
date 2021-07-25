@@ -1,8 +1,8 @@
 package com.petterp.floatingx.ext
 
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import com.petterp.floatingx.view.FxMagnetView
 
 /**
  * @Author petterp
@@ -21,12 +21,16 @@ internal fun ViewGroup.updateParams(left: Int, top: Int, end: Int, bottom: Int) 
     layoutParams = parent
 }
 
-internal fun View.show() {
-    if (isVisible) return
-    else isVisible = true
-}
-
-internal fun View.hide() {
-    if (!isVisible) return
-    else isVisible = false
+internal fun FxMagnetView.show(isAnimation: Boolean) {
+    isVisible = true
+    if (isAnimation && helper.enableAnimation &&
+        helper.fxAnimation != null && !helper.fxAnimation.fromJobRunning
+    ) {
+        if (helper.fxAnimation.fromJobRunning) {
+            FxDebug.d("view->Animation ,startAnimation Executing, cancel this operation!")
+            return
+        }
+        FxDebug.d("view->Animation ,startAnimation Executing, cancel this operation.")
+        helper.fxAnimation.fromStartAnimator(this)
+    }
 }

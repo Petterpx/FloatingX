@@ -14,11 +14,12 @@ import com.petterp.floatingx.view.FxViewHolder
  * @Function FloatingX 基础控制器
  */
 interface IFxControlBasis {
-    @MainThread
-    fun show()
 
     @MainThread
-    fun hide()
+    fun show(isAnimation: Boolean = true)
+
+    @MainThread
+    fun hide(isAnimation: Boolean = true)
 
     /** 关闭 */
     @MainThread

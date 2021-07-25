@@ -13,7 +13,7 @@ import com.petterp.floatingx.assist.FxHelper
 import com.petterp.floatingx.config.SystemConfig
 import com.petterp.floatingx.ext.FxDebug
 import com.petterp.floatingx.ext.fxParentView
-import com.petterp.floatingx.ext.hide
+import com.petterp.floatingx.ext.lazyLoad
 import com.petterp.floatingx.ext.show
 import com.petterp.floatingx.ext.topActivity
 import com.petterp.floatingx.listener.IFxControl
@@ -34,26 +34,42 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
     private var mContainer: WeakReference<FrameLayout>? = null
     private val managerViewOrContainerIsNull: Boolean
         get() = mContainer == null && managerView == null
-    private val runnable by lazy {
+    private val cancelAnimationRunnable by lazyLoad {
         Runnable {
             cancelFx()
         }
     }
-
-    override fun show() {
-        if (!isShowRunning())
-            attach(topActivity!!)
-        managerView?.show()
+    private val hideAnimationRunnable by lazyLoad {
+        Runnable {
+            mContainer?.get()?.let { detach(it) }
+        }
     }
 
-    override fun show(activity: Activity) {
+    override fun show(isAnimation: Boolean) {
+        if (isShowRunning()) return
+        attach(topActivity!!)
+        managerView?.show(isAnimation)
+    }
+
+    override fun show(activity: Activity, isAnimation: Boolean) {
         attach(activity)
-        managerView?.show()
+        managerView?.show(isAnimation)
     }
 
-    override fun hide() {
-        managerView ?: return
-        managerView?.hide()
+    override fun hide(isAnimation: Boolean) {
+        if (!isShowRunning()) return
+        if (isAnimation && helper.enableAnimation &&
+            helper.fxAnimation != null
+        ) {
+            if (helper.fxAnimation.endJobRunning) {
+                FxDebug.d("view->Animation ,endAnimation Executing, cancel this operation!")
+                return
+            }
+            FxDebug.d("view->Animation ,endAnimation Running")
+            managerView?.removeCallbacks(hideAnimationRunnable)
+            val duration = helper.fxAnimation.toEndAnimator(managerView)
+            animatorCallback(duration, hideAnimationRunnable)
+        }
     }
 
     override fun getView(): View? = managerView
@@ -92,16 +108,16 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
             initManagerView()
             isAnimation = true
         } else {
+            if (managerView?.isVisible == false) managerView?.isVisible = true
             removeManagerView(getContainer())
         }
         mContainer = WeakReference(container)
-        addManagerView()
-        if (isAnimation && helper.enableAnimation) {
-            helper.iFxAnimation?.apply {
-                cancelAnimation()
-                startAnimation(managerView)
-                FxDebug.d("view->Animation -----start")
-            }
+        FxDebug.d("view-lifecycle-> code->addView")
+        helper.iFxViewLifecycle?.postAttach()
+        getContainer()?.addView(managerView)
+        if (isAnimation && helper.enableAnimation && helper.fxAnimation != null) {
+            helper.fxAnimation.fromStartAnimator(managerView)
+            FxDebug.d("view->Animation -----start")
         }
     }
 
@@ -129,35 +145,34 @@ open class FxControlImpl(private val helper: FxHelper) : IFxControl {
 
     override fun dismiss() {
         FxDebug.d("view->dismiss-----------")
-        helper.enableFx = false
-        // FIXME: 2021/7/25 这里处理方式不是很好 
-        if (helper.enableAnimation && helper.iFxAnimation != null) {
-            managerView?.removeCallbacks(runnable)
-            managerView?.postDelayed(
-                runnable,
-                helper.iFxAnimation.animatorTime
-            )
-            helper.iFxAnimation.endAnimation(managerView)
+        if (helper.enableAnimation && helper.fxAnimation != null) {
+            val endDuration = helper.fxAnimation.toEndAnimator(managerView)
+            animatorCallback(endDuration, cancelAnimationRunnable)
             FxDebug.d("view->Animation -----end")
         } else {
             cancelFx()
         }
     }
 
+    private fun animatorCallback(long: Long, runnable: Runnable) {
+        managerView?.removeCallbacks(runnable)
+        managerView?.postDelayed(
+            runnable,
+            long
+        )
+    }
+
     private fun cancelFx() {
+        helper.enableFx = false
         mContainer?.get()?.let {
             detach(it)
         }
+        managerView?.removeCallbacks(hideAnimationRunnable)
+        managerView?.removeCallbacks(cancelAnimationRunnable)
+        helper.fxAnimation?.cancelAnimation()
         managerView = null
         viewHolder = null
         FxDebug.d("view-lifecycle-> code->cancelFx")
-    }
-
-    private fun addManagerView() {
-        FxDebug.d("view-lifecycle-> code->addView")
-        helper.iFxViewLifecycle?.postAttach()
-        getContainer()?.addView(managerView)
-        managerView?.show()
     }
 
     private fun removeManagerView(container: FrameLayout?) {

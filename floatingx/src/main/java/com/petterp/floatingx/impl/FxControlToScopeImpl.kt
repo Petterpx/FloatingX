@@ -46,13 +46,13 @@ class FxControlToScopeImpl private constructor() : DefaultLifecycleObserver, IFx
         controlImpl?.show(fxHelper?.context as Activity)
     }
 
-    override fun show() {
+    override fun show(isAnimation: Boolean) {
         controlImpl?.getView()?.let {
             controlImpl?.show()
         } ?: initManagerView()
     }
 
-    override fun hide() {
+    override fun hide(isAnimation: Boolean) {
         controlImpl?.hide()
     }
 
