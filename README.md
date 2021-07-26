@@ -14,6 +14,7 @@
 - 自动修复显示位置
 - 支持对悬浮窗生命周期的监听
 - 支持自定义悬浮窗各项配置
+- 支持保存及恢复历史坐标位置
 - 支持自定义拖动边框，吸附边框
 - 支持App 内全局悬浮窗，单 `Activity` 悬浮窗
 
@@ -54,7 +55,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	        implementation 'com.github.Petterpx:FloatingX:1.0-beta16'
+	        implementation 'com.github.Petterpx:FloatingX:1.0-beta17'
 	}
 ```
 
@@ -93,6 +94,7 @@ FloatingX.init(config);
  FloatingX.hide()
  FloatingX.dismiss()
  FloatingX.cancel()
+ FloatingX.clearConfig()
 ```
 
 **更多控制**
