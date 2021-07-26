@@ -11,34 +11,58 @@ import com.petterp.floatingx.view.FxViewHolder
  * @Author petterp
  * @Date 2021/5/28-9:54 上午
  * @Email ShiyihuiCloud@163.com
- * @Function FloatingX 基础控制器
+ * @Function FloatingX 基础控制器接口
  */
 interface IFxControlBasis {
-    @MainThread
-    fun show()
 
+    /**
+     * 显示悬浮窗
+     * @param isAnimation 是否执行动画
+     * */
     @MainThread
-    fun hide()
+    fun show(isAnimation: Boolean = true)
 
-    /** 关闭 */
+    /** 隐藏悬浮窗-不会解绑app-lifecycle
+     * @param isAnimation 是否执行动画
+     * */
     @MainThread
-    fun dismiss()
+    fun hide(isAnimation: Boolean = true)
 
-    /** 获取自定义的view */
+    /**
+     * 关闭fx,并释放所有监听
+     * @param isAnimation 是否执行动画
+     * */
+    fun cancel(isAnimation: Boolean = false)
+
+    /** 获取自定义的view
+     * @return 悬浮窗view->managerView
+     * */
+    fun getManagerView(): View?
+
     fun getView(): View?
 
-    /** 当前是否显示 */
+    /**
+     * 当前是否显示
+     * @return 是否显示
+     * */
     fun isShowRunning(): Boolean
 
-    /** 更新params */
+    /** 更新params
+     * @param params 悬浮窗管理器的layoutParams
+     * */
     @MainThread
     fun updateParams(params: ViewGroup.LayoutParams)
 
-    /** 提供一个回调入口,用于快捷刷新 */
+    /** 提供一个回调入口,用于快捷刷新
+     * @param obj
+     * */
     @MainThread
     fun updateView(obj: (FxViewHolder) -> Unit)
 
-    /** 更新当前view */
+    /**
+     * 更新当前view
+     * @param resource 新的布局layout
+     * */
     @MainThread
     fun updateView(@LayoutRes resource: Int)
 

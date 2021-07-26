@@ -4,9 +4,9 @@ import android.app.Activity
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
-import com.petterp.floatingx.ext.FxDebug
-import com.petterp.floatingx.ext.navigationBarHeight
-import com.petterp.floatingx.ext.statusBarHeight
+import com.petterp.floatingx.util.FxDebug
+import com.petterp.floatingx.util.navigationBarHeight
+import com.petterp.floatingx.util.statusBarHeight
 
 /**
  * @Author petterp

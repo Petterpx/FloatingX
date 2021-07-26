@@ -1,9 +1,11 @@
-package com.petterp.floatingx.ext
+package com.petterp.floatingx.util
 
 import android.app.Activity
 import android.content.Context
 import android.widget.FrameLayout
 import com.petterp.floatingx.FloatingX
+import com.petterp.floatingx.assist.FxHelper
+import com.petterp.floatingx.impl.FxControlToScopeImpl
 
 /**
  * @Author petterp
@@ -11,6 +13,16 @@ import com.petterp.floatingx.FloatingX
  * @Email ShiyihuiCloud@163.com
  * @Function Fx的一些kotlin扩展
  */
+
+fun createFloatingX(obj: FxHelper.Builder.() -> Unit) =
+    lazyLoad {
+        FxControlToScopeImpl.builder(obj)
+    }
+
+fun createFloatingX(helper: FxHelper) =
+    lazyLoad {
+        FxControlToScopeImpl.builder(helper)
+    }
 
 internal inline fun <reified T : Any> lazyLoad(
     mode: LazyThreadSafetyMode = LazyThreadSafetyMode.NONE,

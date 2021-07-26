@@ -4,9 +4,9 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import com.petterp.floatingx.assist.FxHelper
-import com.petterp.floatingx.ext.FxDebug
-import com.petterp.floatingx.ext.fxParentView
-import com.petterp.floatingx.listener.IFxControl
+import com.petterp.floatingx.util.FxDebug
+import com.petterp.floatingx.util.fxParentView
+import com.petterp.floatingx.listener.IFxAppControl
 import java.lang.ref.WeakReference
 
 /**
@@ -19,11 +19,11 @@ class FxLifecycleCallbackImpl(
     private val helper: FxHelper
 ) :
     Application.ActivityLifecycleCallbacks {
-    internal var control: IFxControl? = null
+    internal var appControl: IFxAppControl? = null
     internal var topActivity: WeakReference<Activity>? = null
 
     private val Activity.isParent: Boolean
-        get() = control?.getView()?.parent === fxParentView
+        get() = appControl?.getManagerView()?.parent === fxParentView
     private val Activity.name: String
         get() = javaClass.name.split(".").last()
     private val Activity.isActivityInValid: Boolean
@@ -51,7 +51,7 @@ class FxLifecycleCallbackImpl(
         val isParent = activity.isParent
         FxDebug.d("view->isAttach? isContainActivity-$isActivityInValid--enableFx-${helper.enableFx}---isParent-$isParent")
         if (helper.enableFx && isActivityInValid && !isParent)
-            control?.attach(activity)
+            appControl?.attach(activity)
         helper.fxLifecycleExpand?.onActivityResumed?.let {
             if (isActivityInValid) it.invoke(activity)
         }
@@ -79,7 +79,7 @@ class FxLifecycleCallbackImpl(
         FxDebug.d("AppLifecycle--[${activity.name}]-onActivityDestroyed")
         FxDebug.d("view->isDetach? isContainActivity-${activity.isActivityInValid}--enableFx-${helper.enableFx}---isParent-$isParent")
         if (helper.enableFx && isParent)
-            control?.detach(activity)
+            appControl?.detach(activity)
         if (topActivity?.get() === activity) {
             topActivity?.clear()
             topActivity = null

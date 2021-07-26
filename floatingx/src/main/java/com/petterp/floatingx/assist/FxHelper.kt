@@ -7,14 +7,10 @@ import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
-import com.petterp.floatingx.ext.FxDebug
-import com.petterp.floatingx.ext.lazyLoad
-import com.petterp.floatingx.impl.FxConfigStorageToSpImpl
-import com.petterp.floatingx.impl.FxLifecycleExpand
-import com.petterp.floatingx.listener.IFxAnimation
-import com.petterp.floatingx.listener.IFxConfigStorage
-import com.petterp.floatingx.listener.IFxScrollListener
-import com.petterp.floatingx.listener.IFxViewLifecycle
+import com.petterp.floatingx.util.FxDebug
+import com.petterp.floatingx.util.lazyLoad
+import com.petterp.floatingx.impl.simple.FxConfigStorageToSpImpl
+import com.petterp.floatingx.listener.*
 import kotlin.math.abs
 
 /**
@@ -41,9 +37,9 @@ class FxHelper(
     internal var clickTime: Long,
     internal val iFxViewLifecycle: IFxViewLifecycle?,
     internal val iFxScrollListener: IFxScrollListener?,
-    internal val iFxAnimation: IFxAnimation?,
     internal val fxLifecycleExpand: FxLifecycleExpand?,
     internal val iFxConfigStorage: IFxConfigStorage?,
+    internal val fxAnimation: FxAnimation?,
     internal var layoutParams: FrameLayout.LayoutParams?,
     internal val blackList: MutableList<Class<*>>,
     internal val borderMargin: BorderMargin,
@@ -68,6 +64,7 @@ class FxHelper(
         private var gravity: Direction = Direction.LEFT_OR_TOP
         private var clickTime: Long = clickDefaultTime
         private var layoutParams: FrameLayout.LayoutParams? = null
+        private var fxAnimation: FxAnimation? = null
 
         private var defaultY: Float = 0f
         private var defaultX: Float = 0f
@@ -86,7 +83,6 @@ class FxHelper(
         private var enableSizeViewDirection: Boolean = false
 
         private var iFxConfigStorage: IFxConfigStorage? = null
-        private var iFxAnimation: IFxAnimation? = null
         private var iFxScrollListener: IFxScrollListener? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
         private var ifxClickListener: ((View) -> Unit)? = null
@@ -121,9 +117,9 @@ class FxHelper(
                 clickTime,
                 iFxViewLifecycle,
                 iFxScrollListener,
-                iFxAnimation,
                 fxLifecycleExpand,
                 iFxConfigStorage,
+                fxAnimation,
                 layoutParams,
                 blackList,
                 borderMargin,
@@ -303,8 +299,8 @@ class FxHelper(
             return this
         }
 
-        fun setAnimationListener(iFxAnimation: IFxAnimation): Builder {
-            this.iFxAnimation = iFxAnimation
+        fun setAnimationListener(fxAnimation: FxAnimation): Builder {
+            this.fxAnimation = fxAnimation
             return this
         }
 

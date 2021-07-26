@@ -24,9 +24,9 @@
 -dontwarn com.petterp.floatingx.**
 -keep public class com.petterp.floatingx.view.FxMagnetView{*;}
 -keep public class com.petterp.floatingx.view.FxViewHolder{*;}
--keep class * implements com.petterp.floatingx.listener.IFxControl { *; }
+-keep class * implements com.petterp.floatingx.listener.IFxAppControl { *; }
 -keep class * implements com.petterp.floatingx.listener.IFxControlBasis { *; }
--keep public class com.petterp.floatingx.ext.ScreenExtKt{
+-keep public class com.petterp.floatingx.util.ScreenExtKt{
   private boolean checkNavigationBarShow(android.content.Context);
 }
 

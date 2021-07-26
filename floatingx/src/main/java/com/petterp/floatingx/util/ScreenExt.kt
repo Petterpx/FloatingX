@@ -1,4 +1,4 @@
-package com.petterp.floatingx.ext
+package com.petterp.floatingx.util
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -8,12 +8,23 @@ import android.provider.Settings
 import android.util.DisplayMetrics
 import android.view.WindowInsets
 import android.view.WindowManager
+import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import java.util.*
 
 /** 缓存的内容高度与底部导航栏高度 */
 private var screenHeightBf: Int = 0
 private var navigationHeight: Int = 0
+
+/** 获取内容视图高度,需要在onWindowFocusChanged方法后调用才生效 */
+val Activity.contentHeightFromAndroid: Int
+    get() =
+        window.decorView.findViewById<FrameLayout>(android.R.id.content).height
+
+/** 获取内容视图宽度 */
+val Activity.contentWidthFromAndroid: Int
+    get() =
+        window.decorView.findViewById<FrameLayout>(android.R.id.content).width
 
 /** 真实屏幕高度,往往不会改变 */
 val Context.realScreenHeight: Int
@@ -83,13 +94,15 @@ val Activity.navigationBarHeight: Int
         }
         screenHeightBf = newScreenHeight
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return getRealNavHeight(this)
+            navigationHeight = getRealNavHeight(this)
+            return navigationHeight
         }
         // 匹配任意一个都可以
         val isShow = checkNavigationBarShow(this) || isNavBarVendorHide(this) == 0
         val realSize = realScreenHeight
         // 少部分机型上述逻辑会判断失误,所以还得再判断屏幕大小与内容大小是否一致
-        val newNavigationBarHeight = if (!isShow && realSize == screenHeight) {
+        // 华为部分机型测量需要特别注意
+        val newNavigationBarHeight = if (!isShow || realSize == newScreenHeight) {
             0
         } else getNavigationBarHeightFromSystem(newScreenHeight, realSize, this)
         navigationHeight = newNavigationBarHeight
