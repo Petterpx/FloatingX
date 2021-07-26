@@ -7,8 +7,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.petterp.floatingx.assist.FxHelper
-import com.petterp.floatingx.ext.lazyLoad
-import com.petterp.floatingx.listener.IFxControl
+import com.petterp.floatingx.listener.IFxAppControl
 import com.petterp.floatingx.listener.IFxControlBasis
 import com.petterp.floatingx.view.FxViewHolder
 
@@ -20,69 +19,59 @@ import com.petterp.floatingx.view.FxViewHolder
  * 目前存在一定使用细节不足,等待完善
  */
 
-fun createFloatingX(obj: FxHelper.Builder.() -> Unit) =
-    lazyLoad {
-        FxControlToScopeImpl.builder(obj)
-    }
-
-fun createFloatingX(helper: FxHelper) =
-    lazyLoad {
-        FxControlToScopeImpl.builder(helper)
-    }
-
 class FxControlToScopeImpl private constructor() : DefaultLifecycleObserver, IFxControlBasis {
 
     private var fxHelper: FxHelper? = null
-    private var controlImpl: IFxControl? = null
+    private var appControlImpl: IFxAppControl? = null
 
-    private fun init(helper: FxHelper, fxControlImpl: FxControlImpl) {
+    private fun init(helper: FxHelper, fxControlImpl: FxAppControlImpl) {
         this.fxHelper = helper
-        this.controlImpl = fxControlImpl
+        this.appControlImpl = fxControlImpl
     }
 
     private fun initManagerView() {
         if (fxHelper?.context is Application)
             throw ClassCastException("Application Context is forbidden here, which will cause the hidden danger of memory leak!")
-        controlImpl?.show(fxHelper?.context as Activity)
+        appControlImpl?.show(fxHelper?.context as Activity)
     }
 
     override fun show(isAnimation: Boolean) {
-        controlImpl?.getView()?.let {
-            controlImpl?.show()
+        appControlImpl?.getManagerView()?.let {
+            appControlImpl?.show()
         } ?: initManagerView()
     }
 
     override fun hide(isAnimation: Boolean) {
-        controlImpl?.hide()
+        appControlImpl?.hide()
     }
 
-    override fun dismiss() {
-        controlImpl?.dismiss()
+    override fun cancel(isAnimation: Boolean) {
     }
 
-    override fun getView(): View? = controlImpl?.getView()
+    override fun getManagerView(): View? = appControlImpl?.getManagerView()
+    override fun getView(): View? = appControlImpl?.getView()
 
-    override fun isShowRunning(): Boolean = controlImpl?.isShowRunning() ?: false
+    override fun isShowRunning(): Boolean = appControlImpl?.isShowRunning() ?: false
 
     override fun updateParams(params: ViewGroup.LayoutParams) {
-        controlImpl?.updateParams(params)
+        appControlImpl?.updateParams(params)
     }
 
     override fun updateView(obj: (FxViewHolder) -> Unit) {
-        controlImpl?.updateView(obj)
+        appControlImpl?.updateView(obj)
     }
 
     override fun updateView(resource: Int) {
-        controlImpl?.updateView(resource)
+        appControlImpl?.updateView(resource)
     }
 
     override fun setClickListener(time: Long, obj: (View) -> Unit) {
-        controlImpl?.setClickListener(time, obj = obj)
+        appControlImpl?.setClickListener(time, obj = obj)
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
-        controlImpl?.dismiss()
-        controlImpl = null
+        appControlImpl?.hide()
+        appControlImpl = null
         fxHelper = null
         super.onDestroy(owner)
     }
@@ -91,13 +80,13 @@ class FxControlToScopeImpl private constructor() : DefaultLifecycleObserver, IFx
 
         @JvmStatic
         fun builder(fxHelper: FxHelper) = FxControlToScopeImpl().apply {
-            init(fxHelper, FxControlImpl(fxHelper))
+            init(fxHelper, FxAppControlImpl(fxHelper))
         }
 
         fun builder(obj: FxHelper.Builder.() -> Unit) =
             FxControlToScopeImpl().apply {
                 val config = FxHelper.builder(obj)
-                init(config, FxControlImpl(config))
+                init(config, FxAppControlImpl(config))
             }
 
         // TODO: 2021/5/28 未实现 

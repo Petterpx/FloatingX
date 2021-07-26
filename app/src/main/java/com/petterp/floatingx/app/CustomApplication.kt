@@ -4,7 +4,7 @@ import android.app.Application
 import android.util.Log
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.Direction
-import com.petterp.floatingx.impl.FxAnimationImpl
+import com.petterp.floatingx.impl.simple.FxAnimationImpl
 
 /**
  * @Author petterp

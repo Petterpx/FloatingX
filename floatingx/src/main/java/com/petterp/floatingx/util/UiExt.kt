@@ -1,4 +1,4 @@
-package com.petterp.floatingx.ext
+package com.petterp.floatingx.util
 
 import android.view.ViewGroup
 import androidx.core.view.isVisible

@@ -1,4 +1,4 @@
-package com.petterp.floatingx.ext
+package com.petterp.floatingx.util
 
 import android.util.Log
 
@@ -16,7 +16,7 @@ internal class FxDebug private constructor() {
         private var isDebug = false
 
         fun updateMode(isDebug: Boolean) {
-            FxDebug.isDebug = isDebug
+            Companion.isDebug = isDebug
         }
 
         fun d(message: String) {

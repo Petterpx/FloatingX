@@ -1,10 +1,10 @@
-package com.petterp.floatingx.impl
+package com.petterp.floatingx.impl.simple
 
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.widget.FrameLayout
-import com.petterp.floatingx.listener.FxAnimation
+import com.petterp.floatingx.assist.FxAnimation
 
 /**
  * @Author petterp
@@ -12,9 +12,7 @@ import com.petterp.floatingx.listener.FxAnimation
  * @Email ShiyihuiCloud@163.com
  * @Function Fx的动画示例
  */
-class FxAnimationImpl : FxAnimation() {
-
-    private val defaultTime = 1000L
+class FxAnimationImpl(private val defaultTime: Long = 1000L) : FxAnimation() {
 
     override fun fromAnimator(view: FrameLayout?): Animator {
         val scaleX = ObjectAnimator.ofFloat(

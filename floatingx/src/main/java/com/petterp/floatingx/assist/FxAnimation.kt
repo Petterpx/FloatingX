@@ -1,4 +1,4 @@
-package com.petterp.floatingx.listener
+package com.petterp.floatingx.assist
 
 import android.animation.Animator
 import android.widget.FrameLayout

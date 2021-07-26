@@ -1,7 +1,6 @@
 package com.petterp.floatingx.listener
 
 import android.app.Activity
-import android.widget.FrameLayout
 import androidx.annotation.MainThread
 
 /**
@@ -10,20 +9,19 @@ import androidx.annotation.MainThread
  * @Email ShiyihuiCloud@163.com
  * @Function FloatingX 全局悬浮窗控制器
  */
-interface IFxControl : IFxControlBasis {
+interface IFxAppControl : IFxControlBasis {
 
+    /**
+     * 显示悬浮窗
+     * @param activity 当前Activity
+     * @param isAnimation 是否执行动画
+     * */
     @MainThread
     fun show(activity: Activity, isAnimation: Boolean = true)
 
     /** 安装在指定activity上 */
     fun attach(activity: Activity)
 
-    /** 安装在指定FrameLayout上 */
-    fun attach(container: FrameLayout)
-
     /** 从指定activity上删除 */
     fun detach(activity: Activity)
-
-    /** 从指定FrameLayout上删除 */
-    fun detach(container: FrameLayout)
 }

@@ -6,8 +6,6 @@
 
 **FloatingX** 一个灵活的 `免权限` 悬浮窗解决方案。
 
-
-
 ## 👏 特性 
 
 - 链式调用，无感知插入
@@ -56,7 +54,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	        implementation 'com.github.Petterpx:FloatingX:1.0-beta02'
+	        implementation 'com.github.Petterpx:FloatingX:1.0-beta16'
 	}
 ```
 
@@ -68,15 +66,11 @@ dependencies {
 
 ```kotlin
 FloatingX.init {
-    context(this@CustomApplication)
+    context(this)
     marginEdge(10f)
-    addBlackClass(MainActivity::class.java, NewActivity::class.java)
+    addBlackClass(MainActivity::class.java)
     layout(R.layout.item_floating)
-    x(100f)
-    y(100f)
     defaultDirection(Direction.RIGHT_OR_BOTTOM)
-    setViewLifecycle(xx)
-    setScrollListener(xx)
 }
 ```
 
@@ -84,16 +78,10 @@ FloatingX.init {
 
 ```java
 FxHelper config = FxHelper.builder()
-    .layout(R.layout.item_floating)
-    .x(100f)
-    .y(100f)
-    .defaultDirection(Direction.RIGHT_OR_BOTTOM)
-    .setViewLifecycle(xx)
-    .setScrollListener(xx)
     .context(this)
     .marginEdge(10f)
-    .isEdgeEnable(true)
-    .addBlackClass(MainActivity::class.java, NewActivity::class.java)
+    .layout(R.layout.item_floating)
+    .addBlackClass(MainActivity.class)
     .build();
 FloatingX.init(config);
 ```
@@ -101,8 +89,7 @@ FloatingX.init(config);
 #### 控制器
 
 ```kotlin
- FloatingX.show()
- FloatingX.show(activity)
+ FloatingX.show(Activity?)
  FloatingX.hide()
  FloatingX.dismiss()
  FloatingX.cancel()

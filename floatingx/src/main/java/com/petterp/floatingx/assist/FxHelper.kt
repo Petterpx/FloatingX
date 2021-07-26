@@ -7,10 +7,9 @@ import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
-import com.petterp.floatingx.ext.FxDebug
-import com.petterp.floatingx.ext.lazyLoad
-import com.petterp.floatingx.impl.FxConfigStorageToSpImpl
-import com.petterp.floatingx.impl.FxLifecycleExpand
+import com.petterp.floatingx.util.FxDebug
+import com.petterp.floatingx.util.lazyLoad
+import com.petterp.floatingx.impl.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.listener.*
 import kotlin.math.abs
 
