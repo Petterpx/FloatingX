@@ -4,7 +4,7 @@ import android.app.Application
 import android.util.Log
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.Direction
-import com.petterp.floatingx.impl.FxAnimationImpl
+import com.petterp.floatingx.impl.simple.FxAnimationImpl
 
 /**
  * @Author petterp
@@ -23,14 +23,15 @@ class CustomApplication : Application() {
             setEnableLog(true)
             // 启用辅助方向
             setEnableAssistDirection(true)
-            setRightMargin(100f)
-            setEdgeOffset(10f)
-            setTopMargin(100f)
+//            setRightMargin(100f)
+//            setEdgeOffset(10f)
+//            setTopMargin(100f)
+//            setBottomMargin(100f)
             setEnableEdgeAdsorption(true)
             setEnableScrollOutsideScreen(true)
             setEnableFixLocation(true)
             setEnableAnimation(true)
-            setAnimationListener(FxAnimationImpl(1000L))
+            setAnimationListener(FxAnimationImpl())
             setEnableConfig()
             addBlackClass(
                 MainActivity::class.java,
@@ -43,7 +44,6 @@ class CustomApplication : Application() {
                 }
             }
             // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
-//            show()
         }
 
 //        val helper = FxHelper.builder()

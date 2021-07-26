@@ -1,13 +1,11 @@
 package com.petterp.floatingx
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Application
-import androidx.annotation.MainThread
 import com.petterp.floatingx.assist.FxHelper
-import com.petterp.floatingx.impl.FxControlImpl
+import com.petterp.floatingx.impl.FxAppControlImpl
 import com.petterp.floatingx.impl.FxLifecycleCallbackImpl
-import com.petterp.floatingx.listener.IFxControl
+import com.petterp.floatingx.listener.IFxAppControl
 
 /**
  * @Author petterp
@@ -17,7 +15,7 @@ import com.petterp.floatingx.listener.IFxControl
  */
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
-    private var fxControl: IFxControl? = null
+    private var fxControl: FxAppControlImpl? = null
     internal var helper: FxHelper? = null
     internal var iFxAppLifecycleImpl: FxLifecycleCallbackImpl? = null
 
@@ -27,39 +25,17 @@ object FloatingX {
 
     /** 悬浮窗配置信息 */
     @JvmStatic
-    fun init(helper: FxHelper) {
+    fun init(helper: FxHelper): IFxAppControl {
         this.helper = helper
-        initControl()
-        initAppLifecycle()
+        return control()
     }
 
-    /**
-     * 显示悬浮窗,此方法禁止Application中调用
-     * */
-    @MainThread
     @JvmStatic
-    fun show() {
-        initControl()
-        control().show()
-    }
-
-    @MainThread
-    @JvmStatic
-    fun show(activity: Activity) {
-        initControl()
-        control().show(activity)
-    }
-
-    @MainThread
-    @JvmStatic
-    fun dismiss() {
-        fxControl?.dismiss()
-    }
-
-    @MainThread
-    @JvmStatic
-    fun hide() {
-        fxControl?.hide()
+    fun control(): IFxAppControl {
+        if (fxControl == null) {
+            initControl()
+        }
+        return fxControl!!
     }
 
     /** 清除历史坐标信息，如果开启了历史存储 */
@@ -68,19 +44,20 @@ object FloatingX {
         helper?.iFxConfigStorage?.clear()
     }
 
-    /** 调用此方法将关闭悬浮窗,保留配置信息helper与AppLifecycle监听
-     * 如果放弃配置信息与appLifecycle,再次调用show将导致无法获取栈顶Activity
+    /** 调用此方法将直接关闭悬浮窗,保留配置信息helper
      * */
     @JvmStatic
-    fun cancel() {
-        dismiss()
+    internal fun reset() {
         fxControl = null
+        getConfigApplication().unregisterActivityLifecycleCallbacks(iFxAppLifecycleImpl)
+        iFxAppLifecycleImpl = null
     }
 
     private fun initControl() {
         if (fxControl == null) {
-            fxControl = FxControlImpl(config())
-            iFxAppLifecycleImpl?.control = fxControl
+            fxControl = FxAppControlImpl(config())
+            initAppLifecycle()
+            iFxAppLifecycleImpl?.appControl = fxControl
         }
     }
 
@@ -88,7 +65,7 @@ object FloatingX {
         if (iFxAppLifecycleImpl == null) {
             val application = getConfigApplication()
             iFxAppLifecycleImpl = FxLifecycleCallbackImpl(config())
-            iFxAppLifecycleImpl?.control = fxControl
+            iFxAppLifecycleImpl?.appControl = fxControl
             application.registerActivityLifecycleCallbacks(iFxAppLifecycleImpl)
         }
     }
@@ -104,9 +81,4 @@ object FloatingX {
 
     private fun config(): FxHelper =
         helper ?: throw NullPointerException("config==null!!!,FxConfig Cannot be null")
-
-    @JvmStatic
-    fun control(): IFxControl =
-        fxControl
-            ?: throw NullPointerException("control==null!!!,IFloatingControl Cannot be null")
 }

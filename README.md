@@ -6,8 +6,6 @@
 
 **FloatingX** 一个灵活的 `免权限` 悬浮窗解决方案。
 
-
-
 ## 👏 特性 
 
 - 链式调用，无感知插入
@@ -57,7 +55,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	        implementation 'com.github.Petterpx:FloatingX:1.0-beta12'
+	        implementation 'com.github.Petterpx:FloatingX:1.0-beta17'
 	}
 ```
 
@@ -68,64 +66,31 @@ dependencies {
 **Kotlin**
 
 ```kotlin
- FloatingX.init {
-            setContext(this@CustomApplication)
-            setLayout(R.layout.item_floating)
-            setGravity(Direction.RIGHT_OR_BOTTOM)
-            setEnableLog()
-            // 启用辅助方向
-            setEnableAssistDirection(true)
-            setEnableConfig()
-            addBlackClass(
-                MainActivity::class.java,
-                NewActivity::class.java,
-                ImmersedActivity::class.java
-            )
-            // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
-            show()
-        }
+FloatingX.init {
+    context(this)
+    marginEdge(10f)
+    addBlackClass(MainActivity::class.java)
+    layout(R.layout.item_floating)
+    defaultDirection(Direction.RIGHT_OR_BOTTOM)
+}
 ```
 
 **Java**
 
 ```java
-val helper = FxHelper.builder()
-            .setContext(this)
-            .setLayout(R.layout.item_floating)
-            .setGravity(Direction.RIGHT_OR_BOTTOM)
-            .setEnableLog()
-            // 启用辅助方向
-            .setEnableAssistDirection(true)
-            .setEnableConfig()
-            .setEnableAssistDirection(true)
-            .setEnableEdgeRebound(true)
-            .setEnableLog()
-            .setLayoutParams()
-            .setLeftBorder(100f)
-            .setRightBorder(100f)
-            .setBottomBorder(100f)
-            .setTopBorder(100f)
-            .setMoveEdge(10f)
-	    .setEnableConfig(object:IFxConfigStorage()...})
-	    .setOnClickListener(800L) {
-            }
-            .setEnableEdgeAdsorption(true)
-            .addBlackClass(
-                MainActivity::class.java,
-                NewActivity::class.java,
-                ImmersedActivity::class.java
-            )
-            // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
-            .show()
-            .build()
-FloatingX.init(helper)
+FxHelper config = FxHelper.builder()
+    .context(this)
+    .marginEdge(10f)
+    .layout(R.layout.item_floating)
+    .addBlackClass(MainActivity.class)
+    .build();
+FloatingX.init(config);
 ```
 
 #### 控制器
 
 ```kotlin
- FloatingX.show()
- FloatingX.show(activity)
+ FloatingX.show(Activity?)
  FloatingX.hide()
  FloatingX.dismiss()
  FloatingX.cancel()

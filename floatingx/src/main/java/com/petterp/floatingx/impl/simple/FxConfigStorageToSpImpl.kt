@@ -1,4 +1,4 @@
-package com.petterp.floatingx.impl
+package com.petterp.floatingx.impl.simple
 
 import android.annotation.SuppressLint
 import android.content.Context

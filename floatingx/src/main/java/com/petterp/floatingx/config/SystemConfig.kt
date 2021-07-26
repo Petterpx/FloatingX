@@ -1,8 +1,12 @@
 package com.petterp.floatingx.config
 
+import android.app.Activity
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
+import com.petterp.floatingx.util.FxDebug
+import com.petterp.floatingx.util.navigationBarHeight
+import com.petterp.floatingx.util.statusBarHeight
 
 /**
  * @Author petterp
@@ -12,9 +16,16 @@ import android.view.ViewGroup
  */
 class SystemConfig private constructor() {
     companion object {
+
         var statsBarHeight: Int = 0
 
         var navigationBarHeight: Int = 0
+
+        fun updateConfig(activity: Activity) {
+            navigationBarHeight = activity.navigationBarHeight
+            statsBarHeight = activity.statusBarHeight
+            FxDebug.v("system-> navigationBar-$navigationBarHeight--statBarHeight-$statsBarHeight")
+        }
 
         fun isViewCovered(view: View): Boolean {
             var currentView = view

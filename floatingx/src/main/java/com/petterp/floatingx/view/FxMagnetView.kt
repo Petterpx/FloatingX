@@ -15,9 +15,9 @@ import android.widget.FrameLayout
 import com.petterp.floatingx.assist.Direction
 import com.petterp.floatingx.assist.FxHelper
 import com.petterp.floatingx.config.SystemConfig
-import com.petterp.floatingx.ext.FxDebug
-import com.petterp.floatingx.ext.navigationBarHeight
-import com.petterp.floatingx.ext.topActivity
+import com.petterp.floatingx.util.FxDebug
+import com.petterp.floatingx.util.navigationBarHeight
+import com.petterp.floatingx.util.topActivity
 import kotlin.math.abs
 
 /**
@@ -29,7 +29,7 @@ import kotlin.math.abs
  */
 @SuppressLint("ViewConstructor")
 class FxMagnetView @JvmOverloads constructor(
-    private val helper: FxHelper,
+    internal val helper: FxHelper,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0

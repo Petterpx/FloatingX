@@ -17,7 +17,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), View.OnClickList
         findViewById<View>(R.id.btnHideFloating).setOnClickListener(this)
         findViewById<View>(R.id.btnUpdate).setOnClickListener(this)
         findViewById<View>(R.id.btnCancel).setOnClickListener(this)
-        findViewById<View>(R.id.btnDismiss).setOnClickListener(this)
         findViewById<View>(R.id.btnInitClick).setOnClickListener(this)
         findViewById<View>(R.id.btnClick).setOnClickListener(this)
         findViewById<View>(R.id.btnStartFull).setOnClickListener(this)
@@ -33,17 +32,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), View.OnClickList
                 startActivity(Intent(this, NewActivity::class.java))
             }
             R.id.btnShowFloating -> {
-                FloatingX.show()
+                FloatingX.control().show(this)
             }
             R.id.btnHideFloating -> {
-                FloatingX.hide()
+                FloatingX.control().hide(true)
             }
             R.id.btnCancel -> {
-                FloatingX.cancel()
-            }
-            R.id.btnDismiss -> {
-                // 关闭悬浮窗
-                FloatingX.dismiss()
+                FloatingX.control().cancel(true)
             }
             R.id.btnUpdate -> {
                 FloatingX.control().updateView {

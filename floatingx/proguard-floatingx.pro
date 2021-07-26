@@ -22,4 +22,11 @@
 # basepopup
 
 -dontwarn com.petterp.floatingx.**
--keep class com.petterp.floatingx.** { *; }
+-keep public class com.petterp.floatingx.view.FxMagnetView{*;}
+-keep public class com.petterp.floatingx.view.FxViewHolder{*;}
+-keep class * implements com.petterp.floatingx.listener.IFxAppControl { *; }
+-keep class * implements com.petterp.floatingx.listener.IFxControlBasis { *; }
+-keep public class com.petterp.floatingx.util.ScreenExtKt{
+  private boolean checkNavigationBarShow(android.content.Context);
+}
+
