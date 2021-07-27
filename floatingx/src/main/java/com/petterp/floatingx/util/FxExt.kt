@@ -5,7 +5,7 @@ import android.content.Context
 import android.widget.FrameLayout
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.FxHelper
-import com.petterp.floatingx.impl.FxControlToScopeImpl
+import com.petterp.floatingx.impl.FxLocalControlImpl
 
 /**
  * @Author petterp
@@ -16,12 +16,12 @@ import com.petterp.floatingx.impl.FxControlToScopeImpl
 
 fun createFloatingX(obj: FxHelper.Builder.() -> Unit) =
     lazyLoad {
-        FxControlToScopeImpl.builder(obj)
+        FxLocalControlImpl.builder(obj)
     }
 
 fun createFloatingX(helper: FxHelper) =
     lazyLoad {
-        FxControlToScopeImpl.builder(helper)
+        FxLocalControlImpl.builder(helper)
     }
 
 internal inline fun <reified T : Any> lazyLoad(

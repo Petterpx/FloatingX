@@ -64,7 +64,7 @@ class FxMagnetView @JvmOverloads constructor(
         if (helper.layoutId != 0) {
             childView = inflate(context, helper.layoutId, this)
             helper.layoutParams?.let {
-                childView?.layoutParams = helper.layoutParams
+                childView?.layoutParams = it
             }
             FxDebug.d("view-->init, source-[layout]")
         }

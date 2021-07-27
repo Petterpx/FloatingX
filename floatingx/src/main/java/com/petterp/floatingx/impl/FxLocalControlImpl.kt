@@ -19,7 +19,7 @@ import com.petterp.floatingx.view.FxViewHolder
  * 目前存在一定使用细节不足,等待完善
  */
 
-class FxControlToScopeImpl private constructor() : DefaultLifecycleObserver, IFxControlBasis {
+class FxLocalControlImpl private constructor() : DefaultLifecycleObserver, IFxControlBasis {
 
     private var fxHelper: FxHelper? = null
     private var appControlImpl: IFxAppControl? = null
@@ -79,12 +79,12 @@ class FxControlToScopeImpl private constructor() : DefaultLifecycleObserver, IFx
     companion object {
 
         @JvmStatic
-        fun builder(fxHelper: FxHelper) = FxControlToScopeImpl().apply {
+        fun builder(fxHelper: FxHelper) = FxLocalControlImpl().apply {
             init(fxHelper, FxAppControlImpl(fxHelper))
         }
 
         fun builder(obj: FxHelper.Builder.() -> Unit) =
-            FxControlToScopeImpl().apply {
+            FxLocalControlImpl().apply {
                 val config = FxHelper.builder(obj)
                 init(config, FxAppControlImpl(config))
             }

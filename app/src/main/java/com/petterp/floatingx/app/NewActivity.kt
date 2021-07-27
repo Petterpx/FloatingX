@@ -3,6 +3,7 @@ package com.petterp.floatingx.app
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.petterp.floatingx.assist.FxHelper
 
 /**
  * @Author petterp
@@ -21,6 +22,7 @@ class NewActivity : AppCompatActivity(R.layout.new_activity), View.OnClickListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        lifecycle.addObserver(floatingX)
+        FxHelper
         findViewById<View>(R.id.btnShowScopeFx).setOnClickListener(this)
         findViewById<View>(R.id.hideShowScopeFx).setOnClickListener(this)
     }

@@ -7,10 +7,11 @@ import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
-import com.petterp.floatingx.util.FxDebug
-import com.petterp.floatingx.util.lazyLoad
 import com.petterp.floatingx.impl.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.listener.*
+import com.petterp.floatingx.util.FxDebug
+import com.petterp.floatingx.util.FxScopeEnum
+import com.petterp.floatingx.util.lazyLoad
 import kotlin.math.abs
 
 /**
@@ -23,6 +24,7 @@ import kotlin.math.abs
 class FxHelper(
     @LayoutRes internal var layoutId: Int,
     internal var context: Context,
+    internal var fxScopeType: FxScopeEnum,
     internal var gravity: Direction,
     internal var edgeOffset: Float,
     internal var enableFx: Boolean,
@@ -31,8 +33,8 @@ class FxHelper(
     internal val enableAbsoluteFix: Boolean,
     internal val enableAnimation: Boolean,
     internal val enableAttachDialogF: Boolean,
-    internal var y: Float,
-    internal var x: Float,
+    internal val y: Float,
+    internal val x: Float,
     internal var clickListener: ((View) -> Unit)?,
     internal var clickTime: Long,
     internal val iFxViewLifecycle: IFxViewLifecycle?,
@@ -54,6 +56,11 @@ class FxHelper(
         fun builder(obj: Builder.() -> Unit) = Builder().apply {
             obj.invoke(this)
         }.build()
+
+//        fun toApp(obj: Builder.() -> Unit) = this@Companion.builder(obj)
+//        fun toFragment(obj: Builder.() -> Unit) = this@Companion.builder(obj)
+//        fun toLayout(obj: Builder.() -> Unit) = this@Companion.builder(obj)
+//        fun toActivity(obj: Builder.() -> Unit) = this@Companion.builder(obj)
     }
 
     class Builder {
@@ -62,6 +69,7 @@ class FxHelper(
 
         private var context: Context? = null
         private var gravity: Direction = Direction.LEFT_OR_TOP
+        private var scopeEnum: FxScopeEnum = FxScopeEnum.APP_SCOPE
         private var clickTime: Long = clickDefaultTime
         private var layoutParams: FrameLayout.LayoutParams? = null
         private var fxAnimation: FxAnimation? = null
@@ -99,10 +107,11 @@ class FxHelper(
             }
             // 如果启用了辅助坐标计算,框架根据方向与偏移自行计算x,y
             if (enableSizeViewDirection) sizeViewDirection()
-            FxDebug.updateMode(enableDebugLog)
+            FxDebug.updateMode(enableDebugLog, scopeEnum.tag)
             return FxHelper(
                 this.mLayout,
                 context!!,
+                scopeEnum,
                 gravity,
                 edgeOffset,
                 enableFx,
@@ -135,6 +144,12 @@ class FxHelper(
         /** 设置context,全局悬浮窗请使用Application */
         fun setContext(context: Context): Builder {
             this.context = context
+            return this
+        }
+
+        /** 设置作用域 */
+        fun setScopeType(type: FxScopeEnum): Builder {
+            this.scopeEnum = type
             return this
         }
 

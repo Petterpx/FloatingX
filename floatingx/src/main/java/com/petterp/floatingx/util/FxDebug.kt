@@ -11,12 +11,13 @@ import android.util.Log
 internal class FxDebug private constructor() {
 
     companion object {
-        private const val TAG = "FloatingX"
+        private var TAG = "FloatingX"
 
         private var isDebug = false
 
-        fun updateMode(isDebug: Boolean) {
+        fun updateMode(isDebug: Boolean, tag: String) {
             Companion.isDebug = isDebug
+            TAG = tag
         }
 
         fun d(message: String) {
