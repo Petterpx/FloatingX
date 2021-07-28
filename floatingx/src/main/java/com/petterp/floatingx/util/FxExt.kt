@@ -1,11 +1,10 @@
 package com.petterp.floatingx.util
 
 import android.app.Activity
-import android.content.Context
 import android.widget.FrameLayout
 import com.petterp.floatingx.FloatingX
-import com.petterp.floatingx.assist.FxHelper
-import com.petterp.floatingx.impl.FxLocalControlImpl
+import com.petterp.floatingx.assist.helper.BaseHelper
+import com.petterp.floatingx.impl.control.FxBasisControlImpl
 
 /**
  * @Author petterp
@@ -14,14 +13,9 @@ import com.petterp.floatingx.impl.FxLocalControlImpl
  * @Function Fx的一些kotlin扩展
  */
 
-fun createFloatingX(obj: FxHelper.Builder.() -> Unit) =
+fun createFloatingX(helper: BaseHelper) =
     lazyLoad {
-        FxLocalControlImpl.builder(obj)
-    }
-
-fun createFloatingX(helper: FxHelper) =
-    lazyLoad {
-        FxLocalControlImpl.builder(helper)
+        FxBasisControlImpl(helper)
     }
 
 internal inline fun <reified T : Any> lazyLoad(
@@ -35,11 +29,7 @@ internal inline fun <reified T : Any> lazyLoad(
 internal val topActivity: Activity?
     get() = FloatingX.iFxAppLifecycleImpl?.topActivity?.get()
 
-internal val appContext: Context
-    get() = FloatingX.helper?.context
-        ?: throw NullPointerException("appContext == null !,Did you initialize the context?")
-
-internal val Activity.fxParentView: FrameLayout?
+internal val Activity.decorView: FrameLayout?
     get() = try {
         window.decorView as FrameLayout
     } catch (e: Exception) {

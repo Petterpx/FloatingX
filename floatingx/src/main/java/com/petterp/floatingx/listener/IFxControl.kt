@@ -1,5 +1,6 @@
 package com.petterp.floatingx.listener
 
+import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
@@ -11,16 +12,20 @@ import com.petterp.floatingx.view.FxViewHolder
  * @Author petterp
  * @Date 2021/5/28-9:54 上午
  * @Email ShiyihuiCloud@163.com
- * @Function FloatingX 基础控制器接口
+ * @Function FloatingX 控制器接口
  */
-interface IFxControlBasis {
+interface IFxControl {
 
     /**
      * 显示悬浮窗
+     * @param activity 当前Activity
      * @param isAnimation 是否执行动画
      * */
     @MainThread
-    fun show(isAnimation: Boolean = true)
+    fun show(activity: Activity, isAnimation: Boolean = false)
+
+    @MainThread
+    fun show(container: ViewGroup, isAnimation: Boolean = false)
 
     /** 隐藏悬浮窗-不会解绑app-lifecycle
      * @param isAnimation 是否执行动画
@@ -45,7 +50,7 @@ interface IFxControlBasis {
      * 当前是否显示
      * @return 是否显示
      * */
-    fun isShowRunning(): Boolean
+    fun isShow(): Boolean
 
     /** 更新params
      * @param params 悬浮窗管理器的layoutParams

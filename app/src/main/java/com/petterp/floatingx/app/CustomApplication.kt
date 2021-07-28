@@ -1,7 +1,6 @@
 package com.petterp.floatingx.app
 
 import android.app.Application
-import android.util.Log
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.Direction
 import com.petterp.floatingx.impl.simple.FxAnimationImpl
@@ -32,16 +31,14 @@ class CustomApplication : Application() {
             setEnableFixLocation(true)
             setEnableAnimation(true)
             setAnimationListener(FxAnimationImpl())
-            setEnableConfig()
+            setSaveDirectionImpl()
             addBlackClass(
                 MainActivity::class.java,
                 NewActivity::class.java,
                 ImmersedActivity::class.java
             )
             setTagActivityLifecycle {
-                onActivityResumed = {
-                    Log.e("petterp", "onActivityPreResumed")
-                }
+
             }
             // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
         }

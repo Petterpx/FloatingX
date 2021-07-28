@@ -24,13 +24,13 @@ internal fun ViewGroup.updateParams(left: Int, top: Int, end: Int, bottom: Int) 
 internal fun FxMagnetView.show(isAnimation: Boolean) {
     isVisible = true
     if (isAnimation && helper.enableAnimation &&
-        helper.fxAnimation != null && !helper.fxAnimation.fromJobRunning
+        helper.fxAnimation != null && !helper.fxAnimation!!.fromJobRunning
     ) {
-        if (helper.fxAnimation.fromJobRunning) {
+        if (helper.fxAnimation?.fromJobRunning == true) {
             FxDebug.d("view->Animation ,startAnimation Executing, cancel this operation!")
             return
         }
         FxDebug.d("view->Animation ,startAnimation Executing, cancel this operation.")
-        helper.fxAnimation.fromStartAnimator(this)
+        helper.fxAnimation?.fromStartAnimator(this)
     }
 }

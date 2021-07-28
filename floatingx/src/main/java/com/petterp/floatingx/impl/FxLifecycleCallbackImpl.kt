@@ -3,10 +3,10 @@ package com.petterp.floatingx.impl
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import com.petterp.floatingx.assist.FxHelper
+import com.petterp.floatingx.assist.helper.AppHelper
+import com.petterp.floatingx.impl.control.FxAppControlImpl
 import com.petterp.floatingx.util.FxDebug
-import com.petterp.floatingx.util.fxParentView
-import com.petterp.floatingx.listener.IFxAppControl
+import com.petterp.floatingx.util.decorView
 import java.lang.ref.WeakReference
 
 /**
@@ -16,14 +16,14 @@ import java.lang.ref.WeakReference
  * @Function App-lifecycle
  */
 class FxLifecycleCallbackImpl(
-    private val helper: FxHelper
+    private val helper: AppHelper
 ) :
     Application.ActivityLifecycleCallbacks {
-    internal var appControl: IFxAppControl? = null
+    internal var appControl: FxAppControlImpl? = null
     internal var topActivity: WeakReference<Activity>? = null
 
     private val Activity.isParent: Boolean
-        get() = appControl?.getManagerView()?.parent === fxParentView
+        get() = appControl?.getManagerView()?.parent === decorView
     private val Activity.name: String
         get() = javaClass.name.split(".").last()
     private val Activity.isActivityInValid: Boolean

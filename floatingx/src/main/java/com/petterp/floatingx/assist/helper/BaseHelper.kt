@@ -1,10 +1,13 @@
 package com.petterp.floatingx.assist.helper
 
+import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import com.petterp.floatingx.assist.*
 import com.petterp.floatingx.assist.FxHelper
+import com.petterp.floatingx.impl.simple.FxConfigStorageToSpImpl
+import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.util.FxScopeEnum
@@ -14,14 +17,41 @@ import kotlin.math.abs
  * @Author petterp
  * @Date 2021/7/27-10:07 PM
  * @Email ShiyihuiCloud@163.com
- * @Function
+ * @Function 通用构建器helper
  */
 open class BaseHelper {
     @LayoutRes
     var layoutId: Int = 0
-//    var gravity: Direction = Direction.RIGHT_OR_BOTTOM
+    var gravity: Direction = Direction.LEFT_OR_TOP
+    var scopeEnum: FxScopeEnum = FxScopeEnum.APP_SCOPE
+    var clickTime: Long = FxHelper.clickDefaultTime
+    var layoutParams: FrameLayout.LayoutParams? = null
+    var fxAnimation: FxAnimation? = null
 
-    abstract class BaseHelperBuilder<T, B : BaseHelper> {
+    var defaultY: Float = 0f
+    var defaultX: Float = 0f
+    var edgeOffset: Float = 0f
+    var borderMargin: BorderMargin = BorderMargin()
+
+    var enableFx: Boolean = false
+    var enableFixLocation: Boolean = false
+    var enableAbsoluteFix: Boolean = false
+    var enableEdgeAdsorption: Boolean = true
+    var enableScrollOutsideScreen: Boolean = true
+    var enableAnimation: Boolean = false
+    var enableSaveDirection: Boolean = false
+    var enableDebugLog: Boolean = false
+    var enableSizeViewDirection: Boolean = false
+
+    var iFxScrollListener: IFxScrollListener? = null
+    var iFxViewLifecycle: IFxViewLifecycle? = null
+    var iFxConfigStorage: IFxConfigStorage? = null
+    var clickListener: ((View) -> Unit)? = null
+
+    abstract class Builder<T, B : BaseHelper> {
+        private var context: Context? = null
+
+        @LayoutRes
         private var layoutId: Int = 0
         private var gravity: Direction = Direction.LEFT_OR_TOP
         private var scopeEnum: FxScopeEnum = FxScopeEnum.APP_SCOPE
@@ -33,27 +63,53 @@ open class BaseHelper {
         private var defaultX: Float = 0f
         private var edgeOffset: Float = 0f
         private var enableFx: Boolean = false
+        private var borderMargin: BorderMargin = BorderMargin()
+
         private var enableFixLocation: Boolean = false
         private var enableEdgeAdsorption: Boolean = true
         private var enableScrollOutsideScreen: Boolean = true
-        private var enableAttachDialogF: Boolean = false
         private var enableAnimation: Boolean = false
-        private var borderMargin: BorderMargin = BorderMargin()
-
         private var enableDebugLog: Boolean = false
         private var enableSizeViewDirection: Boolean = false
 
+        private var enableSaveDirection: Boolean = false
+        private var enableDefaultSave: Boolean = false
+
+        private var iFxConfigStorage: IFxConfigStorage? = null
         private var iFxScrollListener: IFxScrollListener? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
         private var ifxClickListener: ((View) -> Unit)? = null
 
-        abstract fun build(): B
+        protected abstract fun buildHelper(): B
 
-        internal fun buildHelper(): BaseHelper {
-            return BaseHelper().apply {
-                layoutId = this@BaseHelperBuilder.layoutId
+        open fun build(): B =
+            buildHelper().apply {
+                enableFx = this@Builder.enableFx
+
+                layoutId = this@Builder.layoutId
+                gravity = this@Builder.gravity
+                scopeEnum = this@Builder.scopeEnum
+                clickTime = this@Builder.clickTime
+                layoutParams = this@Builder.layoutParams
+                fxAnimation = this@Builder.fxAnimation
+
+                defaultY = this@Builder.defaultY
+                defaultX = this@Builder.defaultX
+
+                edgeOffset = this@Builder.edgeOffset
+                enableFixLocation = this@Builder.enableFixLocation
+                enableEdgeAdsorption = this@Builder.enableEdgeAdsorption
+                enableScrollOutsideScreen = this@Builder.enableScrollOutsideScreen
+                enableAnimation = this@Builder.enableAnimation
+                borderMargin = this@Builder.borderMargin
+
+                enableDebugLog = this@Builder.enableDebugLog
+                enableSizeViewDirection = this@Builder.enableSizeViewDirection
+
+                iFxScrollListener = this@Builder.iFxScrollListener
+                iFxViewLifecycle = this@Builder.iFxViewLifecycle
+                clickListener = this@Builder.ifxClickListener
             }
-        }
 
         /** 设置作用域 */
         fun setScopeType(type: FxScopeEnum): T {
@@ -194,6 +250,7 @@ open class BaseHelper {
 
         fun setAnimationListener(fxAnimation: FxAnimation): T {
             this.fxAnimation = fxAnimation
+            this.enableAnimation = true
             return this as T
         }
 
@@ -207,6 +264,54 @@ open class BaseHelper {
         fun setScrollListener(iFxScrollListener: IFxScrollListener): T {
             this.iFxScrollListener = iFxScrollListener
             return this as T
+        }
+
+        /** 设置存储坐标保存实现逻辑
+         * @param [iFxConfigStorage] 传入IFxConfig对象, 也可自行实现接口，自定义具体实现逻辑
+         * @sample FxConfigStorageToSpImpl 如果使用默认实现,需自行传入context
+         * PS: 当启用并且存在历史坐标, gravity以及自定义的x,y坐标将会失效，优先使用历史坐标
+         * 如果某次边框变动或者其他影响导致原视图范围改变,现有的历史坐标位置不准确，请先移除历史坐标信息
+         *  -> 即调用外部的FloatingX.clearConfig()清除历史坐标信息
+         * */
+        @JvmOverloads
+        fun setSaveDirectionImpl(iFxConfigStorage: IFxConfigStorage? = null): T {
+            this.enableSaveDirection = true
+            this.iFxConfigStorage = iFxConfigStorage
+            return this as T
+        }
+
+        /**
+         * 使用默认实现保存位置
+         * */
+        fun defaultSaveDirection(context: Context): T {
+            this.enableSaveDirection = true
+            iFxConfigStorage = FxConfigStorageToSpImpl.init(context)
+            return this as T
+        }
+
+        /** 辅助坐标的实现
+         * 采用相对坐标位置,框架自行计算合适的x,y */
+        private fun sizeViewDirection() {
+            defaultX = abs(defaultX)
+            defaultY = abs(defaultY)
+            val marginEdgeTox = defaultX + edgeOffset
+            val marginEdgeToy = defaultY + edgeOffset
+            when (gravity) {
+                Direction.LEFT_OR_BOTTOM -> {
+                    defaultY = -(marginEdgeToy + borderMargin.b)
+                    defaultX = marginEdgeTox + borderMargin.l
+                }
+                Direction.RIGHT_OR_BOTTOM -> {
+                    defaultY = -(marginEdgeToy + borderMargin.b)
+                    defaultX = -(marginEdgeTox + borderMargin.r)
+                }
+                Direction.RIGHT_OR_TOP, Direction.RIGHT_OR_CENTER -> {
+                    defaultX = -(marginEdgeTox + borderMargin.r)
+                }
+                Direction.LEFT_OR_TOP, Direction.LEFT_OR_CENTER -> {
+                    defaultX = marginEdgeTox + borderMargin.l
+                }
+            }
         }
     }
 }

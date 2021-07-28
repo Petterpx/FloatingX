@@ -2,10 +2,10 @@ package com.petterp.floatingx
 
 import android.annotation.SuppressLint
 import android.app.Application
-import com.petterp.floatingx.assist.FxHelper
-import com.petterp.floatingx.impl.FxAppControlImpl
+import com.petterp.floatingx.assist.helper.AppHelper
+import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.impl.FxLifecycleCallbackImpl
-import com.petterp.floatingx.listener.IFxAppControl
+import com.petterp.floatingx.impl.control.FxAppControlImpl
 
 /**
  * @Author petterp
@@ -16,22 +16,25 @@ import com.petterp.floatingx.listener.IFxAppControl
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
     private var fxControl: FxAppControlImpl? = null
-    internal var helper: FxHelper? = null
+    internal var helper: AppHelper? = null
     internal var iFxAppLifecycleImpl: FxLifecycleCallbackImpl? = null
 
     /** dsl初始化 */
-    fun init(obj: FxHelper.Builder.() -> Unit) =
-        init(FxHelper.builder(obj))
+    fun init(obj: AppHelper.Builder.() -> Unit) =
+        init(AppHelper.Builder().apply(obj).build())
 
     /** 悬浮窗配置信息 */
     @JvmStatic
-    fun init(helper: FxHelper): IFxAppControl {
+    fun init(helper: AppHelper): FxAppControlImpl {
         this.helper = helper
         return control()
     }
 
+    /** 创建一个局部悬浮窗 */
+    fun createScopeFx(obj: BasisHelper.Builder.() -> Unit) = BasisHelper.Builder().apply(obj).build()
+
     @JvmStatic
-    fun control(): IFxAppControl {
+    fun control(): FxAppControlImpl {
         if (fxControl == null) {
             initControl()
         }
@@ -71,14 +74,9 @@ object FloatingX {
     }
 
     private fun getConfigApplication(): Application {
-        if (config().context is Application)
-            return config().context as Application
-        else throw ClassCastException(
-            "If you use the global floating window, FxConfig.context must" +
-                " be Application,otherwise the appLifecycle cannot be registered"
-        )
+        return config().application
     }
 
-    private fun config(): FxHelper =
+    private fun config(): AppHelper =
         helper ?: throw NullPointerException("config==null!!!,FxConfig Cannot be null")
 }

@@ -1,6 +1,7 @@
 package com.petterp.floatingx.view
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Color
@@ -13,7 +14,7 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.Direction
-import com.petterp.floatingx.assist.FxHelper
+import com.petterp.floatingx.assist.helper.BaseHelper
 import com.petterp.floatingx.config.SystemConfig
 import com.petterp.floatingx.util.FxDebug
 import com.petterp.floatingx.util.navigationBarHeight
@@ -29,11 +30,12 @@ import kotlin.math.abs
  */
 @SuppressLint("ViewConstructor")
 class FxMagnetView @JvmOverloads constructor(
-    internal val helper: FxHelper,
+    context: Context,
+    val helper: BaseHelper,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
-) : FrameLayout(helper.context, attrs, defStyleAttr, defStyleRes) {
+) : FrameLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     private var mOriginalRawX = 0f
     private var mOriginalRawY = 0f
@@ -70,7 +72,7 @@ class FxMagnetView @JvmOverloads constructor(
         }
         val hasConfig = helper.iFxConfigStorage?.hasConfig() ?: false
         layoutParams = defaultLayoutParams(hasConfig)
-        x = if (hasConfig) helper.iFxConfigStorage!!.getX() else helper.x
+        x = if (hasConfig) helper.iFxConfigStorage!!.getX() else helper.defaultX
         y = if (hasConfig) helper.iFxConfigStorage!!.getY() else initDefaultY()
         FxDebug.d("view->x&&y   hasConfig-($hasConfig),x-($x),y-($y)")
         setBackgroundColor(Color.TRANSPARENT)
@@ -151,11 +153,11 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     private fun initDefaultY(): Float {
-        var defaultY = helper.y
+        var defaultY = helper.defaultY
         // 向下 ->
-        if (helper.y < 0) {
+        if (helper.defaultY < 0) {
             defaultY -= SystemConfig.navigationBarHeight
-        } else if (helper.y > 0) {
+        } else if (helper.defaultY > 0) {
             defaultY += SystemConfig.statsBarHeight
         } else {
             if (helper.gravity == Direction.RIGHT_OR_TOP || helper.gravity == Direction.LEFT_OR_TOP)
@@ -257,7 +259,8 @@ class FxMagnetView @JvmOverloads constructor(
             mMoveAnimator?.start(moveX, moveY)
             FxDebug.d("view-->moveToEdge---x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
         }
-        saveConfig(moveX, moveY)
+        if (helper.enableSaveDirection)
+            saveConfig(moveX, moveY)
     }
 
     private fun clearPortraitY() {

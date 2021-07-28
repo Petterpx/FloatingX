@@ -4,6 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:id="@+id/ll"
+        android:layout_height="200dp" />
+
     <Button
         android:id="@+id/btnShowScopeFx"
         android:layout_width="wrap_content"

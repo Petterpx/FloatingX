@@ -3,7 +3,9 @@ package com.petterp.floatingx.app
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.petterp.floatingx.assist.FxHelper
+import androidx.appcompat.widget.LinearLayoutCompat
+import com.petterp.floatingx.FloatingX
+import com.petterp.floatingx.impl.simple.FxAnimationImpl
 
 /**
  * @Author petterp
@@ -13,36 +15,33 @@ import com.petterp.floatingx.assist.FxHelper
  */
 class NewActivity : AppCompatActivity(R.layout.new_activity), View.OnClickListener {
 
-//    private val floatingX by createFloatingX {
-//        setContext(this@NewActivity)
-//        setMoveEdge(50f)
-//        setLayout(R.layout.item_floating)
-//    }
+    private val floatingX by lazy {
+        FloatingX.createScopeFx {
+            setLayout(R.layout.item_floating)
+            setEnableAnimation(true)
+            setAnimationListener(FxAnimationImpl())
+        }.toControl()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        lifecycle.addObserver(floatingX)
-        FxHelper
+
+        findViewById<LinearLayoutCompat>(R.id.ll).apply {
+            setOnClickListener {
+                floatingX.show(this, true)
+            }
+        }
         findViewById<View>(R.id.btnShowScopeFx).setOnClickListener(this)
         findViewById<View>(R.id.hideShowScopeFx).setOnClickListener(this)
     }
 
-//    private fun showFx() {
-//        FxControlToScopeImpl.builder {
-//            setContext(this@NewActivity)
-//        }
-//
-//        val config = FxHelper.builder().build()
-//        FxControlToScopeImpl.builder(config)
-//    }
-
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.btnShowScopeFx -> {
-//                floatingX.show()
+                floatingX.show(this)
             }
             R.id.hideShowScopeFx -> {
-//                floatingX.hide()
+                floatingX.hide()
             }
         }
     }
