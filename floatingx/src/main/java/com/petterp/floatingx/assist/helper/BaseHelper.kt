@@ -10,6 +10,7 @@ import com.petterp.floatingx.impl.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
+import com.petterp.floatingx.util.FxDebug
 import com.petterp.floatingx.util.FxScopeEnum
 import kotlin.math.abs
 
@@ -41,7 +42,6 @@ open class BaseHelper {
     var enableAnimation: Boolean = false
     var enableSaveDirection: Boolean = false
     var enableDebugLog: Boolean = false
-    var enableSizeViewDirection: Boolean = false
 
     var iFxScrollListener: IFxScrollListener? = null
     var iFxViewLifecycle: IFxViewLifecycle? = null
@@ -53,7 +53,7 @@ open class BaseHelper {
 
         @LayoutRes
         private var layoutId: Int = 0
-        private var gravity: Direction = Direction.LEFT_OR_TOP
+        private var gravity: Direction = Direction.RIGHT_OR_BOTTOM
         private var scopeEnum: FxScopeEnum = FxScopeEnum.APP_SCOPE
         private var clickTime: Long = FxHelper.clickDefaultTime
         private var layoutParams: FrameLayout.LayoutParams? = null
@@ -70,7 +70,6 @@ open class BaseHelper {
         private var enableScrollOutsideScreen: Boolean = true
         private var enableAnimation: Boolean = false
         private var enableDebugLog: Boolean = false
-        private var enableSizeViewDirection: Boolean = false
 
         private var enableSaveDirection: Boolean = false
         private var enableDefaultSave: Boolean = false
@@ -104,7 +103,6 @@ open class BaseHelper {
                 borderMargin = this@Builder.borderMargin
 
                 enableDebugLog = this@Builder.enableDebugLog
-                enableSizeViewDirection = this@Builder.enableSizeViewDirection
 
                 iFxScrollListener = this@Builder.iFxScrollListener
                 iFxViewLifecycle = this@Builder.iFxViewLifecycle
@@ -112,7 +110,7 @@ open class BaseHelper {
             }
 
         /** 设置作用域 */
-        fun setScopeType(type: FxScopeEnum): T {
+        internal fun setScopeType(type: FxScopeEnum): T {
             this.scopeEnum = type
             return this as T
         }
@@ -120,6 +118,12 @@ open class BaseHelper {
         /** 设置悬浮窗view的layout */
         fun setLayout(@LayoutRes layoutId: Int): T {
             this.layoutId = layoutId
+            return this as T
+        }
+
+        /** 设置启用fx */
+        fun show(): T {
+            this.enableFx = true
             return this as T
         }
 
@@ -180,37 +184,43 @@ open class BaseHelper {
             return this as T
         }
 
-        /** 设置可移动范围内的相对屏幕顶部偏移量,不包含状态栏,框架会自行计算高度并减去
-         * 即顶部偏移量最终=topMargin+框架计算好的状态栏+moveEdge
-         * * */
-        fun setTopMargin(t: Float): T {
+        /** 设置悬浮窗可移动位置偏移 */
+        fun setBorderMargin(t: Float, l: Float, b: Float, r: Float): T {
+            borderMargin.apply {
+                this.t = t
+                this.l = l
+                this.b = b
+                this.r = r
+            }
+            return this as T
+        }
+
+        /** 设置可移动范围内相对屏幕顶部偏移量 */
+        fun setTopBorderMargin(t: Float): T {
             borderMargin.t = abs(t)
             return this as T
         }
 
         /** 设置可移动范围内相对屏幕左侧偏移量 */
-        fun setLeftMargin(l: Float): T {
+        fun setLeftBorderMargin(l: Float): T {
             borderMargin.l = abs(l)
             return this as T
         }
 
         /** 设置可移动范围内相对屏幕右侧偏移量 */
-        fun setRightMargin(r: Float): T {
+        fun setRightBorderMargin(r: Float): T {
             borderMargin.r = abs(r)
             return this as T
         }
 
-        /** 设置可移动范围内的相对屏幕底部偏移量,不包含导航栏,框架会自行计算高度并减去
-         * 即底部偏移量最终=屏幕高度-bottomMargin-框架计算好的导航栏-moveEdge
-         * */
-        fun setBottomMargin(b: Float): T {
+        fun setBorderBorderMargin(b: Float): T {
             borderMargin.b = abs(b)
             return this as T
         }
 
         @JvmOverloads
         fun setEnableLog(isLog: Boolean = true): T {
-            this.enableDebugLog = isLog
+            FxDebug.updateMode(isLog)
             return this as T
         }
 
@@ -228,11 +238,26 @@ open class BaseHelper {
             return this as T
         }
 
-        /** 调用此方法,x,y的坐标将根据 传递进来的 [setGravity] 调整 相对坐标
-         * 比如当gravity=LEFT_OR_BOTTOM，则相对应的(x,y) 只是相对于左下角的偏移量，而非全屏直接坐标
+        /** 调用此方法,x,y的坐标将根据 传递进来的 [gravity] 进行相对应调整
+         * 比如当[gravity]= [Direction.LEFT_OR_BOTTOM]
+         * 则相对应的([defaultX], [defaultY]) 最终会根据 t,b,l,r 偏移量计算，而非直接坐标
+         *
+         * @param t 设置可移动范围内的相对屏幕顶部偏移量
+         * activity时 不包含状态栏,框架会自行计算高度并减去,即顶部偏移量最终=topMargin+框架计算好的状态栏+moveEdg。
+         * 需要注意,当悬浮窗插入到普通view时,框架不会考虑状态栏
+         * @param b 设置可移动范围内的相对屏幕底部偏移量,不包含导航栏,框架会自行计算高度并减去
+         * 即底部偏移量最终=屏幕高度-bottomMargin-框架计算好的导航栏-moveEdge。
+         * 需要注意,当悬浮窗插入到普通View时，框架不会考虑底部导航栏
+         * @param l 设置可移动范围内相对父容器右侧偏移量
+         * @param r 设置可移动范围内相对父容器左侧偏移量
          * */
-        fun setEnableAssistDirection(isEnable: Boolean): T {
-            enableSizeViewDirection = isEnable
+        fun setEnableAssistDirection(
+            t: Float = 0f,
+            b: Float = 0f,
+            l: Float = 0f,
+            r: Float = 0f
+        ): T {
+            sizeViewDirection(abs(t), abs(b), abs(l), abs(r))
             return this as T
         }
 
@@ -242,13 +267,17 @@ open class BaseHelper {
             return this as T
         }
 
-        /** 设置悬浮窗视图默认位置，一般情况下，设置了方向，需要自行处理坐标关系,需谨慎设置 */
+        /** 设置悬浮窗视图默认位置,默认右下角 */
         fun setGravity(gravity: Direction): T {
             this.gravity = gravity
             return this as T
         }
 
-        fun setAnimationListener(fxAnimation: FxAnimation): T {
+        /** 设置启用动画具体实现
+         * @param fxAnimation 动画的具体实现类
+         * @sample [FxAnimationImpl]
+         * */
+        fun setAnimationImpl(fxAnimation: FxAnimation): T {
             this.fxAnimation = fxAnimation
             this.enableAnimation = true
             return this as T
@@ -291,25 +320,38 @@ open class BaseHelper {
 
         /** 辅助坐标的实现
          * 采用相对坐标位置,框架自行计算合适的x,y */
-        private fun sizeViewDirection() {
-            defaultX = abs(defaultX)
-            defaultY = abs(defaultY)
+        private fun sizeViewDirection(
+            t: Float = 0f,
+            b: Float = 0f,
+            l: Float = 0f,
+            r: Float = 0f
+        ) {
+            defaultX = 0f
+            defaultY = 0f
             val marginEdgeTox = defaultX + edgeOffset
             val marginEdgeToy = defaultY + edgeOffset
             when (gravity) {
                 Direction.LEFT_OR_BOTTOM -> {
-                    defaultY = -(marginEdgeToy + borderMargin.b)
-                    defaultX = marginEdgeTox + borderMargin.l
+                    defaultY = -(marginEdgeToy + b)
+                    defaultX = marginEdgeTox + l
                 }
                 Direction.RIGHT_OR_BOTTOM -> {
-                    defaultY = -(marginEdgeToy + borderMargin.b)
-                    defaultX = -(marginEdgeTox + borderMargin.r)
+                    defaultY = -(marginEdgeToy + b)
+                    defaultX = -(marginEdgeTox + r)
                 }
-                Direction.RIGHT_OR_TOP, Direction.RIGHT_OR_CENTER -> {
-                    defaultX = -(marginEdgeTox + borderMargin.r)
+                Direction.RIGHT_OR_TOP -> {
+                    defaultX = -(marginEdgeTox + r)
+                    defaultY = marginEdgeToy + t
                 }
-                Direction.LEFT_OR_TOP, Direction.LEFT_OR_CENTER -> {
-                    defaultX = marginEdgeTox + borderMargin.l
+                Direction.RIGHT_OR_CENTER -> {
+                    defaultX = -(marginEdgeTox + r)
+                }
+                Direction.LEFT_OR_CENTER -> {
+                    defaultX = marginEdgeTox + l
+                }
+                Direction.LEFT_OR_TOP -> {
+                    defaultX = marginEdgeTox + l
+                    defaultY = marginEdgeToy + t
                 }
             }
         }

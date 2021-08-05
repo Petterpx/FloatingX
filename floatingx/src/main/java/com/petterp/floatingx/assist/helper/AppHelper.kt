@@ -2,7 +2,6 @@ package com.petterp.floatingx.assist.helper
 
 import android.app.Activity
 import android.app.Application
-import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.FxLifecycleExpand
 
 /**

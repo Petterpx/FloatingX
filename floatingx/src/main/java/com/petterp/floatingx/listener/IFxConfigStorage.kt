@@ -5,7 +5,7 @@ package com.petterp.floatingx.listener
  * @Date 2021/6/8-9:35 上午
  * @Email ShiyihuiCloud@163.com
  * @Function fxConfig配置信息，实现此接口，实现自己的保存方式
- * 示例 FxConfigSpImpl
+ * fx不关心如何保存,只需要实现fx默认的方法即可,具体逻辑自行实现即可。具体可参考 FxConfigStorageToSpImpl
  */
 interface IFxConfigStorage {
 

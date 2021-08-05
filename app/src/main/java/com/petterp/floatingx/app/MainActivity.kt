@@ -35,10 +35,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), View.OnClickList
                 FloatingX.control().show(this)
             }
             R.id.btnHideFloating -> {
-                FloatingX.control().hide(true)
+                FloatingX.control().hide()
             }
             R.id.btnCancel -> {
-                FloatingX.control().cancel(true)
+                FloatingX.control().cancel()
             }
             R.id.btnUpdate -> {
                 FloatingX.control().updateView {

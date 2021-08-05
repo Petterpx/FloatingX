@@ -15,7 +15,7 @@ internal class FxDebug private constructor() {
 
         private var isDebug = false
 
-        fun updateMode(isDebug: Boolean, tag: String) {
+        fun updateMode(isDebug: Boolean, tag: String = TAG) {
             Companion.isDebug = isDebug
             TAG = tag
         }

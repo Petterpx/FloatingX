@@ -1,6 +1,6 @@
 package com.petterp.floatingx.assist.helper
 
-import com.petterp.floatingx.impl.control.FxBasisControlImpl
+import com.petterp.floatingx.impl.control.FxViewControl
 import com.petterp.floatingx.listener.IFxControl
 
 /**
@@ -11,7 +11,7 @@ import com.petterp.floatingx.listener.IFxControl
  */
 class BasisHelper : BaseHelper() {
 
-    fun toControl(): IFxControl = FxBasisControlImpl(this)
+    fun toControl(): FxViewControl = FxViewControl(this)
 
     class Builder : BaseHelper.Builder<Builder, BasisHelper>() {
         override fun buildHelper(): BasisHelper = BasisHelper()

@@ -2,6 +2,7 @@ package com.petterp.floatingx.app
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.LinearLayoutCompat
 import com.petterp.floatingx.FloatingX
@@ -19,18 +20,13 @@ class NewActivity : AppCompatActivity(R.layout.new_activity), View.OnClickListen
         FloatingX.createScopeFx {
             setLayout(R.layout.item_floating)
             setEnableAnimation(true)
-            setAnimationListener(FxAnimationImpl())
-        }.toControl()
+            setEnableScrollOutsideScreen(false)
+            setAnimationImpl(FxAnimationImpl())
+        }.toControl().init(findViewById<ViewGroup>(R.id.ll))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        findViewById<LinearLayoutCompat>(R.id.ll).apply {
-            setOnClickListener {
-                floatingX.show(this, true)
-            }
-        }
         findViewById<View>(R.id.btnShowScopeFx).setOnClickListener(this)
         findViewById<View>(R.id.hideShowScopeFx).setOnClickListener(this)
     }
@@ -38,7 +34,7 @@ class NewActivity : AppCompatActivity(R.layout.new_activity), View.OnClickListen
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.btnShowScopeFx -> {
-                floatingX.show(this)
+                floatingX.show()
             }
             R.id.hideShowScopeFx -> {
                 floatingX.hide()

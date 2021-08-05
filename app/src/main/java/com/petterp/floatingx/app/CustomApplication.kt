@@ -15,63 +15,73 @@ class CustomApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
         FloatingX.init {
+            // 设置context
             setContext(this@CustomApplication)
+            // 设置悬浮窗layout
             setLayout(R.layout.item_floating)
+            // 设置悬浮窗默认方向
             setGravity(Direction.RIGHT_OR_BOTTOM)
+            // 设置是否启用日志
             setEnableLog(true)
+
             // 启用辅助方向
-            setEnableAssistDirection(true)
-//            setRightMargin(100f)
-//            setEdgeOffset(10f)
-//            setTopMargin(100f)
-//            setBottomMargin(100f)
+            setEnableAssistDirection(0f, 0f, 0f, 100f)
+            // 设置x轴默认坐标
+//            setX()
+            // 设置y轴默认坐标
+//            setY()
+
+            // 设置启用边缘吸附
             setEnableEdgeAdsorption(true)
+            // 设置边缘偏移量
+            setEdgeOffset(10f)
+            // 设置启用悬浮窗可屏幕外回弹
             setEnableScrollOutsideScreen(true)
-            setEnableFixLocation(true)
-            setEnableAnimation(true)
-            setAnimationListener(FxAnimationImpl())
+            // 设置辅助方向辅助
+            // 设置点击事件
+            setOnClickListener { }
+            // 设置保存impl
             setSaveDirectionImpl()
+            // 设置view-lifecycle监听
+//            setViewLifecycle()
+
+            // 设置启用悬浮窗位置修复
+            setEnableFixLocation(true)
+            // 设置启用动画
+            setEnableAnimation(true)
+            // 设置启用动画实现
+            setAnimationImpl(FxAnimationImpl())
+            // 设置方向保存impl
+            setSaveDirectionImpl()
+
+            // 设置底部偏移量
+            setBorderBorderMargin(100f)
+            // 设置顶部偏移量
+            setTopBorderMargin(100f)
+            // 设置左侧偏移量
+            setLeftBorderMargin(100f)
+            // 设置右侧偏移量
+            setRightBorderMargin(100f)
+
+            // 设置悬浮窗LayoutParams
+//            setLayoutParams()
+            // 设置要显示的activity
             addBlackClass(
                 MainActivity::class.java,
                 NewActivity::class.java,
                 ImmersedActivity::class.java
             )
+            // 设置tag-Activity
             setTagActivityLifecycle {
-
+                onCreated { activity, bundle ->
+                }
+                onResumes { }
             }
+            setEnableLog(true)
             // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
+            show()
         }
-
-//        val helper = FxHelper.builder()
-//            .setContext(this)
-//            .setLayout(R.layout.item_floating)
-//            .setGravity(Direction.RIGHT_OR_BOTTOM)
-//            .setEnableLog()
-//            // 启用辅助方向
-//            .setEnableAssistDirection(true)
-//            .setEnableConfig()
-//            .setEnableAssistDirection(true)
-//            .setEnableEdgeRebound(true)
-//            .setEnableLog()
-//            .setLayoutParams()
-//            .setEnableConfig(IFxConfigStorage)
-//            .setOnClickListener(800L) {
-//            }
-//            .setLeftBorder(100f)
-//            .setRightBorder(100f)
-//            .setBottomBorder(100f)
-//            .setTopBorder(100f)
-//            .setMoveEdge(10f)
-//            .setEnableEdgeAdsorption(true)
-//            .addBlackClass(
-//                MainActivity::class.java,
-//                NewActivity::class.java,
-//                ImmersedActivity::class.java
-//            )
-//            // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
-//            .show()
-//            .build()
-//        FloatingX.init(helper)
     }
 }

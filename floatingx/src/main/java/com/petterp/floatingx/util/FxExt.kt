@@ -4,7 +4,7 @@ import android.app.Activity
 import android.widget.FrameLayout
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.helper.BaseHelper
-import com.petterp.floatingx.impl.control.FxBasisControlImpl
+import com.petterp.floatingx.impl.control.FxViewControl
 
 /**
  * @Author petterp
@@ -15,7 +15,7 @@ import com.petterp.floatingx.impl.control.FxBasisControlImpl
 
 fun createFloatingX(helper: BaseHelper) =
     lazyLoad {
-        FxBasisControlImpl(helper)
+        FxViewControl(helper)
     }
 
 internal inline fun <reified T : Any> lazyLoad(

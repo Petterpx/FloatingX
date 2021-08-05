@@ -14,6 +14,8 @@ import java.lang.ref.WeakReference
  * @Date 2021/5/20-4:07 下午
  * @Email ShiyihuiCloud@163.com
  * @Function App-lifecycle
+ * 最开始想到在onActivityPostCreated后插入,
+ * 但是最后发现在Android9及以下,此方法不会被调用,故选择了onResume
  */
 class FxLifecycleCallbackImpl(
     private val helper: AppHelper

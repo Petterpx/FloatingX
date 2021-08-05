@@ -7,6 +7,8 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:id="@+id/ll"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
         android:layout_height="200dp" />
 
     <Button

@@ -2,16 +2,17 @@ package com.petterp.floatingx.impl.control
 
 import android.app.Activity
 import android.content.Context
+import android.view.ViewGroup
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.config.SystemConfig
+import com.petterp.floatingx.listener.IFxAppControl
 import com.petterp.floatingx.util.*
 import com.petterp.floatingx.util.FxDebug
 import com.petterp.floatingx.util.lazyLoad
-import com.petterp.floatingx.util.show
 import com.petterp.floatingx.util.topActivity
 import java.lang.ref.WeakReference
 
@@ -22,7 +23,7 @@ import java.lang.ref.WeakReference
  * @Function 全局控制器
  */
 open class FxAppControlImpl(private val helper: AppHelper) :
-    FxBasisControlImpl(helper) {
+    FxBasisControlImpl(helper), IFxAppControl {
 
     private val windowsInsetsListener by lazyLoad {
         OnApplyWindowInsetsListener { _, insets ->
@@ -32,49 +33,62 @@ open class FxAppControlImpl(private val helper: AppHelper) :
         }
     }
 
-    /**
-     * 显示悬浮窗
-     * @param isAnimation 是否执行动画
-     * */
-    fun show(isAnimation: Boolean) {
+    override fun show(activity: Activity) {
         if (isShow()) return
-        attach(topActivity!!)
-        managerView?.show(isAnimation)
+        attach(activity)
+        getManagerView()?.show()
     }
 
-    override fun initManagerView(layout: Int) {
-        super.initManagerView(layout)
-        ViewCompat.setOnApplyWindowInsetsListener(managerView!!, windowsInsetsListener)
-        managerView?.requestApplyInsets()
+    override fun detach(activity: Activity) {
+        activity.decorView?.let {
+            detach(it)
+        }
+    }
+
+    override fun show() {
+        if (isShow()) return
+        attach(topActivity!!)
+        getManagerView()?.show()
+    }
+
+    override fun updateMangerView(layout: Int) {
+        super.updateMangerView(layout)
+        ViewCompat.setOnApplyWindowInsetsListener(getManagerView()!!, windowsInsetsListener)
+        getManagerView()?.requestApplyInsets()
     }
 
     override fun context(): Context {
         return helper.application
     }
 
-    override fun attach(activity: Activity) {
+    internal fun attach(activity: Activity) {
         activity.decorView?.let {
-            if (managerView?.parent === it) {
+            if (getManagerView()?.parent === it) {
                 return
             }
             var isAnimation = false
-            if (managerView == null) {
+            if (getManagerView() == null) {
                 SystemConfig.updateConfig(activity)
-                initManagerView()
+                updateMangerView()
                 isAnimation = true
             } else {
-                if (managerView?.isVisible == false) managerView?.isVisible = true
-                removeManagerView(getContainer())
+                if (getManagerView()?.isVisible == false) getManagerView()?.isVisible = true
+                detach()
             }
             mContainer = WeakReference(it)
             FxDebug.d("view-lifecycle-> code->addView")
             helper.iFxViewLifecycle?.postAttach()
-            getContainer()?.addView(managerView)
+            getContainer()?.addView(getManagerView())
             if (isAnimation && helper.enableAnimation && helper.fxAnimation != null) {
-                helper.fxAnimation?.fromStartAnimator(managerView)
+                helper.fxAnimation?.fromStartAnimator(getManagerView())
                 FxDebug.d("view->Animation -----start")
             }
         } ?: FxDebug.e("system -> fxParentView==null")
+    }
+
+    override fun detach(container: ViewGroup?) {
+        super.detach(container)
+        clearContainer()
     }
 
     override fun reset() {

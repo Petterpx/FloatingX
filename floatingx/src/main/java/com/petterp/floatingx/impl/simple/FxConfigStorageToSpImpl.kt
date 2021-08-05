@@ -11,7 +11,6 @@ import com.petterp.floatingx.listener.IFxConfigStorage
  * @Email ShiyihuiCloud@163.com
  * @Function fx的sp存储示例
  */
-
 class FxConfigStorageToSpImpl : IFxConfigStorage {
 
     private var sp: SharedPreferences? = null
