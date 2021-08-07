@@ -3,11 +3,8 @@ package com.petterp.floatingx.assist
 import android.view.Gravity
 
 /**
- * @Author petterp
- * @Date 2021/5/25-3:27 下午
- * @Email ShiyihuiCloud@163.com
- * @Function 悬浮窗的位置方向
- */
+ * 对于位置而言,至少需要两个方向才能确定位置,如果单纯一个方向,那么另一个方向将无法确定,即x或y其中一个将无法计算
+ * */
 enum class Direction(val value: Int) {
     LEFT_OR_TOP(Gravity.START or Gravity.TOP),
     LEFT_OR_CENTER(Gravity.START or Gravity.CENTER),

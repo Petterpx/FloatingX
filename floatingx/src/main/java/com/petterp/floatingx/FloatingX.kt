@@ -3,15 +3,11 @@ package com.petterp.floatingx
 import android.annotation.SuppressLint
 import android.app.Application
 import com.petterp.floatingx.assist.helper.AppHelper
-import com.petterp.floatingx.assist.helper.BasisHelper
-import com.petterp.floatingx.impl.FxLifecycleCallbackImpl
 import com.petterp.floatingx.impl.control.FxAppControlImpl
+import com.petterp.floatingx.impl.lifecycle.FxLifecycleCallbackImpl
 
 /**
- * @Author petterp
- * @Date 2021/5/20-7:48 下午
- * @Email ShiyihuiCloud@163.com
- * @Function Single Control To Fx
+ * Single Control To Fx
  */
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
@@ -29,9 +25,6 @@ object FloatingX {
         this.helper = helper
         return control()
     }
-
-    /** 创建一个局部悬浮窗 */
-    fun createScopeFx(obj: BasisHelper.Builder.() -> Unit) = BasisHelper.Builder().apply(obj).build()
 
     @JvmStatic
     fun control(): FxAppControlImpl {

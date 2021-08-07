@@ -3,18 +3,20 @@ package com.petterp.floatingx.assist.helper
 import android.app.Activity
 import android.app.Application
 import com.petterp.floatingx.assist.FxLifecycleExpand
+import com.petterp.floatingx.util.FxDebug
+import com.petterp.floatingx.util.navigationBarHeight
 
-/**
- * @Author petterp
- * @Date 2021/7/27-10:22 PM
- * @Email ShiyihuiCloud@163.com
- * @Function
- */
+/** AppHelper构建器 */
 class AppHelper(
     val application: Application,
     val blackList: MutableList<Class<*>>,
     val fxLifecycleExpand: FxLifecycleExpand?
 ) : BaseHelper() {
+
+    internal fun updateNavigationBar(activity: Activity?) {
+        navigationBarHeight = activity?.navigationBarHeight ?: navigationBarHeight
+        FxDebug.v("system-> navigationBar-$navigationBarHeight")
+    }
 
     /** 获取全局静态控制器,提供这样的能力 */
 //    override fun toControl() = FloatingX.init(this)

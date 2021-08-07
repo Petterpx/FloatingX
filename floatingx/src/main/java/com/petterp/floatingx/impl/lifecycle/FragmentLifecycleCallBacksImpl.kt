@@ -1,4 +1,4 @@
-package com.petterp.floatingx.impl
+package com.petterp.floatingx.impl.lifecycle
 
 import android.content.Context
 import android.os.Bundle
@@ -7,11 +7,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
 /**
- * @Author petterp
- * @Date 2021/6/9-9:24 上午
- * @Email ShiyihuiCloud@163.com
- * @Function FragmentLifecycle监测
- */
+ * FragmentLifecycle监测
+ * */
 class FragmentLifecycleCallBacksImpl : FragmentManager.FragmentLifecycleCallbacks() {
     override fun onFragmentAttached(fm: FragmentManager, f: Fragment, context: Context) {
         super.onFragmentAttached(fm, f, context)

@@ -5,30 +5,27 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.helper.AppHelper
-import com.petterp.floatingx.config.SystemConfig
-import com.petterp.floatingx.listener.IFxAppControl
+import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.util.*
 import com.petterp.floatingx.util.FxDebug
 import com.petterp.floatingx.util.lazyLoad
 import com.petterp.floatingx.util.topActivity
 import java.lang.ref.WeakReference
 
-/**
- * @Author petterp
- * @Date 2021/5/21-2:24 下午
- * @Email ShiyihuiCloud@163.com
- * @Function 全局控制器
- */
+/** 全局控制器 */
 open class FxAppControlImpl(private val helper: AppHelper) :
     FxBasisControlImpl(helper), IFxAppControl {
 
+    /** 对于状态栏高度的实时监听,在小屏模式下,效果极好 */
     private val windowsInsetsListener by lazyLoad {
         OnApplyWindowInsetsListener { _, insets ->
-            FxDebug.v("System--StatusBar---old-(${SystemConfig.statsBarHeight}),new-(${insets.systemWindowInsetTop})")
-            SystemConfig.statsBarHeight = insets.systemWindowInsetTop
+            val statusBar = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            helper.statsBarHeight = statusBar
+            FxDebug.v("System--StatusBar---old-(${helper.statsBarHeight}),new-($statusBar))")
             insets
         }
     }
@@ -68,7 +65,7 @@ open class FxAppControlImpl(private val helper: AppHelper) :
             }
             var isAnimation = false
             if (getManagerView() == null) {
-                SystemConfig.updateConfig(activity)
+                helper.updateNavigationBar(activity)
                 updateMangerView()
                 isAnimation = true
             } else {

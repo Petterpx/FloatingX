@@ -5,7 +5,6 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import com.petterp.floatingx.assist.*
-import com.petterp.floatingx.assist.FxHelper
 import com.petterp.floatingx.impl.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
@@ -14,18 +13,13 @@ import com.petterp.floatingx.util.FxDebug
 import com.petterp.floatingx.util.FxScopeEnum
 import kotlin.math.abs
 
-/**
- * @Author petterp
- * @Date 2021/7/27-10:07 PM
- * @Email ShiyihuiCloud@163.com
- * @Function 通用构建器helper
- */
+/** 通用构建器helper */
 open class BaseHelper {
     @LayoutRes
     var layoutId: Int = 0
     var gravity: Direction = Direction.LEFT_OR_TOP
     var scopeEnum: FxScopeEnum = FxScopeEnum.APP_SCOPE
-    var clickTime: Long = FxHelper.clickDefaultTime
+    var clickTime: Long = 500L
     var layoutParams: FrameLayout.LayoutParams? = null
     var fxAnimation: FxAnimation? = null
 
@@ -48,6 +42,10 @@ open class BaseHelper {
     var iFxConfigStorage: IFxConfigStorage? = null
     var clickListener: ((View) -> Unit)? = null
 
+    /** 底部导航栏与状态栏测量高度 */
+    internal var navigationBarHeight: Int = 0
+    internal var statsBarHeight: Int = 0
+
     abstract class Builder<T, B : BaseHelper> {
         private var context: Context? = null
 
@@ -55,7 +53,7 @@ open class BaseHelper {
         private var layoutId: Int = 0
         private var gravity: Direction = Direction.RIGHT_OR_BOTTOM
         private var scopeEnum: FxScopeEnum = FxScopeEnum.APP_SCOPE
-        private var clickTime: Long = FxHelper.clickDefaultTime
+        private var clickTime: Long = 500L
         private var layoutParams: FrameLayout.LayoutParams? = null
         private var fxAnimation: FxAnimation? = null
 
@@ -101,11 +99,13 @@ open class BaseHelper {
                 enableScrollOutsideScreen = this@Builder.enableScrollOutsideScreen
                 enableAnimation = this@Builder.enableAnimation
                 borderMargin = this@Builder.borderMargin
+                enableSaveDirection = this@Builder.enableSaveDirection
 
                 enableDebugLog = this@Builder.enableDebugLog
 
                 iFxScrollListener = this@Builder.iFxScrollListener
                 iFxViewLifecycle = this@Builder.iFxViewLifecycle
+                iFxConfigStorage = this@Builder.iFxConfigStorage
                 clickListener = this@Builder.ifxClickListener
             }
 
@@ -164,7 +164,7 @@ open class BaseHelper {
          * */
         @JvmOverloads
         fun setOnClickListener(
-            time: Long = FxHelper.clickDefaultTime,
+            time: Long = 500L,
             clickListener: ((View) -> Unit),
         ): T {
             this.ifxClickListener = clickListener
@@ -303,7 +303,7 @@ open class BaseHelper {
          *  -> 即调用外部的FloatingX.clearConfig()清除历史坐标信息
          * */
         @JvmOverloads
-        fun setSaveDirectionImpl(iFxConfigStorage: IFxConfigStorage? = null): T {
+        fun setSaveDirectionImpl(iFxConfigStorage: IFxConfigStorage): T {
             this.enableSaveDirection = true
             this.iFxConfigStorage = iFxConfigStorage
             return this as T
@@ -314,12 +314,12 @@ open class BaseHelper {
          * */
         fun defaultSaveDirection(context: Context): T {
             this.enableSaveDirection = true
-            iFxConfigStorage = FxConfigStorageToSpImpl.init(context)
+            iFxConfigStorage = FxConfigStorageToSpImpl(context)
             return this as T
         }
 
         /** 辅助坐标的实现
-         * 采用相对坐标位置,框架自行计算合适的x,y */
+         * 采用坐标偏移位置,框架自行计算合适的x,y */
         private fun sizeViewDirection(
             t: Float = 0f,
             b: Float = 0f,
@@ -328,8 +328,8 @@ open class BaseHelper {
         ) {
             defaultX = 0f
             defaultY = 0f
-            val marginEdgeTox = defaultX + edgeOffset
-            val marginEdgeToy = defaultY + edgeOffset
+            val marginEdgeTox = edgeOffset
+            val marginEdgeToy = edgeOffset
             when (gravity) {
                 Direction.LEFT_OR_BOTTOM -> {
                     defaultY = -(marginEdgeToy + b)

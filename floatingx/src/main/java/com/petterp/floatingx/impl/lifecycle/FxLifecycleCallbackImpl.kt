@@ -1,4 +1,4 @@
-package com.petterp.floatingx.impl
+package com.petterp.floatingx.impl.lifecycle
 
 import android.app.Activity
 import android.app.Application
@@ -10,12 +10,7 @@ import com.petterp.floatingx.util.decorView
 import java.lang.ref.WeakReference
 
 /**
- * @Author petterp
- * @Date 2021/5/20-4:07 下午
- * @Email ShiyihuiCloud@163.com
- * @Function App-lifecycle
- * 最开始想到在onActivityPostCreated后插入,
- * 但是最后发现在Android9及以下,此方法不会被调用,故选择了onResume
+ * App-lifecycle
  */
 class FxLifecycleCallbackImpl(
     private val helper: AppHelper
@@ -46,6 +41,10 @@ class FxLifecycleCallbackImpl(
         }
     }
 
+    /**
+     * 最开始想到在onActivityPostCreated后插入,
+     * 但是最后发现在Android9及以下,此方法不会被调用,故选择了onResume
+     * */
     override fun onActivityResumed(activity: Activity) {
         initActivity(activity)
         FxDebug.d("AppLifecycle--[${activity.name}]-onActivityResumed")

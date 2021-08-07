@@ -1,19 +1,13 @@
-package com.petterp.floatingx.listener
+package com.petterp.floatingx.listener.control
 
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.annotation.MainThread
-import com.petterp.floatingx.assist.FxHelper
 import com.petterp.floatingx.view.FxMagnetView
 import com.petterp.floatingx.view.FxViewHolder
 
-/**
- * @Author petterp
- * @Date 2021/5/28-9:54 上午
- * @Email ShiyihuiCloud@163.com
- * @Function FloatingX 控制器接口
- */
+/** FloatingX 基础控制器 */
 interface IFxControl {
 
     /** 显示悬浮窗 */
@@ -65,5 +59,5 @@ interface IFxControl {
     fun updateManagerView(@LayoutRes resource: Int)
 
     /** 设置点击事件 */
-    fun setClickListener(time: Long = FxHelper.clickDefaultTime, obj: (View) -> Unit)
+    fun setClickListener(time: Long = 500L, obj: (View) -> Unit)
 }

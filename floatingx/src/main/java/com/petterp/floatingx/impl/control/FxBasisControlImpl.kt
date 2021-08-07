@@ -7,7 +7,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import com.petterp.floatingx.assist.helper.BaseHelper
-import com.petterp.floatingx.listener.IFxControl
+import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.util.FxDebug
 import com.petterp.floatingx.util.lazyLoad
 import com.petterp.floatingx.view.FxMagnetView
@@ -99,6 +99,7 @@ abstract class FxBasisControlImpl(private val helper: BaseHelper) : IFxControl {
             detach(it)
         }
         managerView = null
+        viewHolder?.clear()
         viewHolder = null
         clearContainer()
         FxDebug.d("view-lifecycle-> code->cancelFx")
@@ -114,27 +115,6 @@ abstract class FxBasisControlImpl(private val helper: BaseHelper) : IFxControl {
 
     protected fun getContainer(): ViewGroup? {
         return mContainer?.get()
-    }
-
-    protected fun attach(container: ViewGroup?) {
-        container?.let {
-            when {
-                managerView == null -> {
-                    updateMangerView()
-                }
-                it === getContainer() -> {
-                    FxDebug.d("view-attach-> Repeat installation, skip this operation")
-                    return
-                }
-                else -> {
-                    detach(it)
-                }
-            }
-            FxDebug.d("view-attach-> code->addView")
-            mContainer = WeakReference(it)
-            helper.iFxViewLifecycle?.postAttach()
-            getContainer()?.addView(managerView)
-        } ?: FxDebug.e("system -> fxParentView==null")
     }
 
     protected open fun detach(container: ViewGroup?) {

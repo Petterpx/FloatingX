@@ -1,14 +1,11 @@
-package com.petterp.floatingx.listener
+package com.petterp.floatingx.listener.control
 
 import android.app.Activity
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 
 /**
- * @Author petterp
- * @Date 2021/8/5-11:29 PM
- * @Email ShiyihuiCloud@163.com
- * @Function
+ * Fx局部控制器
  */
 interface IFxScopeControl<T> {
     fun init(viewGroup: ViewGroup): T
