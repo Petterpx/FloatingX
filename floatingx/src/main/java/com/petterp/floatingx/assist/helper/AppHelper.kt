@@ -3,7 +3,7 @@ package com.petterp.floatingx.assist.helper
 import android.app.Activity
 import android.app.Application
 import com.petterp.floatingx.assist.FxLifecycleExpand
-import com.petterp.floatingx.util.FxDebug
+import com.petterp.floatingx.util.FxScopeEnum
 import com.petterp.floatingx.util.navigationBarHeight
 
 /** AppHelper构建器 */
@@ -15,11 +15,13 @@ class AppHelper(
 
     internal fun updateNavigationBar(activity: Activity?) {
         navigationBarHeight = activity?.navigationBarHeight ?: navigationBarHeight
-        FxDebug.v("system-> navigationBar-$navigationBarHeight")
+        fxLog?.v("system-> navigationBar-$navigationBarHeight")
     }
 
-    /** 获取全局静态控制器,提供这样的能力 */
-//    override fun toControl() = FloatingX.init(this)
+    companion object {
+        @JvmStatic
+        fun builder() = Builder()
+    }
 
     class Builder : BaseHelper.Builder<Builder, AppHelper>() {
         private var application: Application? = null
@@ -52,5 +54,11 @@ class AppHelper(
             if (application == null) throw NullPointerException("To build AppHelper, you must set application!") else AppHelper(
                 application!!, blackList, fxLifecycleExpand
             )
+
+        override fun build(): AppHelper {
+            val helper = super.build()
+            helper.initLog(FxScopeEnum.APP_SCOPE.tag)
+            return helper
+        }
     }
 }

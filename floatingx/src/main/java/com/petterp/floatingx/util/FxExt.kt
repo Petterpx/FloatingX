@@ -6,7 +6,6 @@ import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import com.petterp.floatingx.assist.helper.ScopeHelper
 import com.petterp.floatingx.listener.control.IFxControl
-import com.petterp.floatingx.listener.control.IFxScopeControl
 
 /** 创建一个fx,自行初始化并控制插入位置
  *
@@ -26,23 +25,23 @@ inline fun <T> createFx(crossinline obj: ScopeHelper.Builder.() -> T) =
 
 /** 创建一个fx,内部自行决定显示位置 */
 inline fun createFx(
-    crossinline initControlObj: (IFxScopeControl<IFxControl>.() -> IFxControl),
+    crossinline initControlObj: (ScopeHelper.() -> IFxControl),
     crossinline builderObj: ScopeHelper.Builder.() -> Unit,
 ) =
     lazy(LazyThreadSafetyMode.NONE) {
-        ScopeHelper.toControl(builderObj).run(initControlObj)
+        ScopeHelper.build(builderObj).run(initControlObj)
     }
 
 /** 快捷构建-在activity下创建一个fx */
 inline fun activityToFx(activity: Activity, crossinline obj: ScopeHelper.Builder.() -> Unit) =
     lazy(LazyThreadSafetyMode.NONE) {
-        ScopeHelper.toControl(obj).init(activity)
+        ScopeHelper.build(obj).toControl(activity)
     }
 
 /** 快捷构建-在fragment对应的view中显示一个fx */
-inline fun fragmentToFx(activity: Activity, crossinline obj: ScopeHelper.Builder.() -> Unit) =
+inline fun fragmentToFx(fragment: Fragment, crossinline obj: ScopeHelper.Builder.() -> Unit) =
     lazy(LazyThreadSafetyMode.NONE) {
-        ScopeHelper.toControl(obj).init(activity)
+        ScopeHelper.build(obj).toControl(fragment)
     }
 
 /** 快捷构建-在activity中创建一个view作用域的fx */
@@ -52,7 +51,7 @@ inline fun viewToFx(
     crossinline obj: ScopeHelper.Builder.() -> Unit
 ) = lazy(LazyThreadSafetyMode.NONE) {
     val parent = activity.findViewById<ViewGroup>(id)
-    ScopeHelper.toControl(obj).init(parent)
+    ScopeHelper.build(obj).toControl(parent)
 }
 
 /** 快捷构建-在fragment中创建一个view作用域fx */
@@ -62,7 +61,7 @@ inline fun viewToFx(
     crossinline obj: ScopeHelper.Builder.() -> Unit
 ) = lazy(LazyThreadSafetyMode.NONE) {
     val parent = fragment.requireView().findViewById<ViewGroup>(id)
-    ScopeHelper.toControl(obj).init(parent)
+    ScopeHelper.build(obj).toControl(parent)
 }
 
 internal inline fun <reified T : Any> lazyLoad(

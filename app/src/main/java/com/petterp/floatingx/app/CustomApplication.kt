@@ -4,6 +4,7 @@ import android.app.Application
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.Direction
 import com.petterp.floatingx.impl.simple.FxAnimationImpl
+import com.petterp.floatingx.impl.simple.FxConfigStorageToSpImpl
 
 /**
  * @Author petterp
@@ -42,19 +43,18 @@ class CustomApplication : Application() {
             // 设置辅助方向辅助
             // 设置点击事件
             setOnClickListener { }
-            // 设置保存impl
-            setSaveDirectionImpl()
             // 设置view-lifecycle监听
 //            setViewLifecycle()
 
             // 设置启用悬浮窗位置修复
-            setEnableFixLocation(true)
+            setEnableAbsoluteFix(true)
             // 设置启用动画
             setEnableAnimation(true)
             // 设置启用动画实现
             setAnimationImpl(FxAnimationImpl())
             // 设置方向保存impl
-            setSaveDirectionImpl()
+            setSaveDirectionImpl(FxConfigStorageToSpImpl(applicationContext))
+//            defaultSaveDirection(applicationContext)
 
             // 设置底部偏移量
             setBorderBorderMargin(100f)
@@ -70,7 +70,6 @@ class CustomApplication : Application() {
             // 设置要显示的activity
             addBlackClass(
                 MainActivity::class.java,
-                NewActivity::class.java,
                 ImmersedActivity::class.java
             )
             // 设置tag-Activity
@@ -81,6 +80,12 @@ class CustomApplication : Application() {
             }
             setEnableLog(true)
             // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
+//            show()
+        }
+
+        FloatingX.init {
+            setContext(this@CustomApplication)
+            setLayout(R.layout.item_floating_new)
             show()
         }
     }

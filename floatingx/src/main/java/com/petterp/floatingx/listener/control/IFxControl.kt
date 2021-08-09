@@ -10,6 +10,10 @@ import com.petterp.floatingx.view.FxViewHolder
 /** FloatingX 基础控制器 */
 interface IFxControl {
 
+    /** 获取配置层控制器,以便运行时动态调整某些基础配置
+     * */
+    val helperControl: IFxHelperControl
+
     /** 显示悬浮窗 */
     fun show()
 
@@ -31,12 +35,13 @@ interface IFxControl {
      * */
     fun cancel()
 
-    /** 获取自定义的view
+    /** 获取悬浮窗view
      * @return 悬浮窗view->managerView
      * */
     fun getManagerView(): FxMagnetView?
     fun getManagerViewHolder(): FxViewHolder?
 
+    /** 获取传递进去的layout对应的悬浮窗view */
     fun getView(): View?
 
     /** 更新params

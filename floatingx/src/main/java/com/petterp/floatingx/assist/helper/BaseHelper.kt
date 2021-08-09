@@ -9,42 +9,47 @@ import com.petterp.floatingx.impl.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
-import com.petterp.floatingx.util.FxDebug
+import com.petterp.floatingx.util.FxLog
 import com.petterp.floatingx.util.FxScopeEnum
 import kotlin.math.abs
 
 /** 通用构建器helper */
 open class BaseHelper {
     @LayoutRes
-    var layoutId: Int = 0
-    var gravity: Direction = Direction.LEFT_OR_TOP
-    var scopeEnum: FxScopeEnum = FxScopeEnum.APP_SCOPE
-    var clickTime: Long = 500L
-    var layoutParams: FrameLayout.LayoutParams? = null
-    var fxAnimation: FxAnimation? = null
+    internal var layoutId: Int = 0
+    internal var gravity: Direction = Direction.LEFT_OR_TOP
+    internal var clickTime: Long = 500L
+    internal var layoutParams: FrameLayout.LayoutParams? = null
+    internal var fxAnimation: FxAnimation? = null
 
-    var defaultY: Float = 0f
-    var defaultX: Float = 0f
-    var edgeOffset: Float = 0f
-    var borderMargin: BorderMargin = BorderMargin()
+    internal var defaultY: Float = 0f
+    internal var defaultX: Float = 0f
+    internal var edgeOffset: Float = 0f
+    internal var borderMargin: BorderMargin = BorderMargin()
 
-    var enableFx: Boolean = false
-    var enableFixLocation: Boolean = false
-    var enableAbsoluteFix: Boolean = false
-    var enableEdgeAdsorption: Boolean = true
-    var enableScrollOutsideScreen: Boolean = true
-    var enableAnimation: Boolean = false
-    var enableSaveDirection: Boolean = false
-    var enableDebugLog: Boolean = false
+    internal var enableFx: Boolean = false
+    internal var enableAbsoluteFix: Boolean = false
+    internal var enableEdgeAdsorption: Boolean = true
+    internal var enableEdgeRebound: Boolean = true
+    internal var enableAnimation: Boolean = false
+    internal var enableSaveDirection: Boolean = false
+    internal var enableDebugLog: Boolean = false
 
-    var iFxScrollListener: IFxScrollListener? = null
-    var iFxViewLifecycle: IFxViewLifecycle? = null
-    var iFxConfigStorage: IFxConfigStorage? = null
-    var clickListener: ((View) -> Unit)? = null
+    internal var iFxScrollListener: IFxScrollListener? = null
+    internal var iFxViewLifecycle: IFxViewLifecycle? = null
+    internal var iFxConfigStorage: IFxConfigStorage? = null
+    internal var clickListener: ((View) -> Unit)? = null
+
+    internal var fxLog: FxLog? = null
+    private var fxLogTag: String = ""
 
     /** 底部导航栏与状态栏测量高度 */
     internal var navigationBarHeight: Int = 0
     internal var statsBarHeight: Int = 0
+
+    internal fun initLog(scope: String) {
+        if (enableDebugLog) fxLog = FxLog.builder("$scope$fxLogTag")
+    }
 
     abstract class Builder<T, B : BaseHelper> {
         private var context: Context? = null
@@ -63,11 +68,12 @@ open class BaseHelper {
         private var enableFx: Boolean = false
         private var borderMargin: BorderMargin = BorderMargin()
 
-        private var enableFixLocation: Boolean = false
+        private var enableAbsoluteFix: Boolean = false
         private var enableEdgeAdsorption: Boolean = true
-        private var enableScrollOutsideScreen: Boolean = true
+        private var enableEdgeRebound: Boolean = true
         private var enableAnimation: Boolean = false
         private var enableDebugLog: Boolean = false
+        private var fxLogTag: String = ""
 
         private var enableSaveDirection: Boolean = false
         private var enableDefaultSave: Boolean = false
@@ -81,11 +87,12 @@ open class BaseHelper {
 
         open fun build(): B =
             buildHelper().apply {
+                if (this@Builder.defaultX == 0f && this@Builder.defaultY == 0f && this@Builder.edgeOffset != 0f)
+                    sizeViewDirection()
                 enableFx = this@Builder.enableFx
 
                 layoutId = this@Builder.layoutId
                 gravity = this@Builder.gravity
-                scopeEnum = this@Builder.scopeEnum
                 clickTime = this@Builder.clickTime
                 layoutParams = this@Builder.layoutParams
                 fxAnimation = this@Builder.fxAnimation
@@ -94,14 +101,15 @@ open class BaseHelper {
                 defaultX = this@Builder.defaultX
 
                 edgeOffset = this@Builder.edgeOffset
-                enableFixLocation = this@Builder.enableFixLocation
+                enableAbsoluteFix = this@Builder.enableAbsoluteFix
                 enableEdgeAdsorption = this@Builder.enableEdgeAdsorption
-                enableScrollOutsideScreen = this@Builder.enableScrollOutsideScreen
+                enableEdgeRebound = this@Builder.enableEdgeRebound
                 enableAnimation = this@Builder.enableAnimation
                 borderMargin = this@Builder.borderMargin
                 enableSaveDirection = this@Builder.enableSaveDirection
 
                 enableDebugLog = this@Builder.enableDebugLog
+                fxLogTag = this@Builder.fxLogTag
 
                 iFxScrollListener = this@Builder.iFxScrollListener
                 iFxViewLifecycle = this@Builder.iFxViewLifecycle
@@ -133,7 +141,7 @@ open class BaseHelper {
          *  即可拖动范围=屏幕大小-(borderMargin+moveEdge+系统状态栏与导航栏(y轴))
          * */
         fun setEnableScrollOutsideScreen(isEnable: Boolean): T {
-            this.enableScrollOutsideScreen = isEnable
+            this.enableEdgeRebound = isEnable
             return this as T
         }
 
@@ -153,8 +161,8 @@ open class BaseHelper {
          * ps: 此方法对性能有一定影响,如果 onConfigurationChanged 不能正常调用,检查Activity-manifest 是否添加了以下
          *    android:configChanges="orientation|screenSize"
          * */
-        fun setEnableFixLocation(isEnable: Boolean): T {
-            this.enableFixLocation = isEnable
+        fun setEnableAbsoluteFix(isEnable: Boolean): T {
+            this.enableAbsoluteFix = isEnable
             return this as T
         }
 
@@ -219,8 +227,9 @@ open class BaseHelper {
         }
 
         @JvmOverloads
-        fun setEnableLog(isLog: Boolean = true): T {
-            FxDebug.updateMode(isLog)
+        fun setEnableLog(isLog: Boolean = true, tag: String = ""): T {
+            enableDebugLog = isLog
+            fxLogTag = if (tag.isNotEmpty()) "-$tag" else ""
             return this as T
         }
 
@@ -349,6 +358,7 @@ open class BaseHelper {
                 Direction.LEFT_OR_CENTER -> {
                     defaultX = marginEdgeTox + l
                 }
+                Direction.DEFAULT,
                 Direction.LEFT_OR_TOP -> {
                     defaultX = marginEdgeTox + l
                     defaultY = marginEdgeToy + t

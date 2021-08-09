@@ -1,36 +1,32 @@
 package com.petterp.floatingx.app
 
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
-import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.impl.simple.FxAnimationImpl
-import com.petterp.floatingx.util.activityToFx
 import com.petterp.floatingx.util.createFx
 
-class MainActivity : AppCompatActivity() {
+/**
+ *
+ * @author petterp
+ */
+class ScopeActivity : AppCompatActivity() {
 
     private lateinit var viewGroup: ViewGroup
 
-    private val activityFx by activityToFx(this) {
-        setLayout(R.layout.item_floating)
-    }
-
-    private val viewFx by createFx({
-        toControl(viewGroup)
-    }) {
+    private val scopeFx by createFx {
         setLayout(R.layout.item_floating)
         setEnableScrollOutsideScreen(false)
+        setEnableEdgeAdsorption(false)
+        setEdgeOffset(40f)
         setAnimationImpl(FxAnimationImpl())
-        setEnableLog(true, "main_fx")
+        setEnableAnimation(false)
+        setEnableLog(true)
+        build().toControl(viewGroup)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,32 +39,38 @@ class MainActivity : AppCompatActivity() {
                 )
                 orientation = LinearLayout.VERTICAL
                 addScopeViewGroup()
-                addItemView("显示全局悬浮窗") {
-                    FloatingX.control().show(this@MainActivity)
-                    FloatingX.control().updateView {
-                        it.text(R.id.tvItemFx, "App")
-                        it.getView<CardView>(R.id.cardItemFx)?.setCardBackgroundColor(Color.RED)
+                addItemView("显示悬浮窗") {
+                    scopeFx.show()
+                }
+                addItemView("隐藏悬浮窗") {
+                    scopeFx.hide()
+                }
+                addItemView("更换layout") {
+                    scopeFx.updateManagerView(R.layout.item_floating_new)
+                }
+                addItemView("增加点击事件") {
+                    scopeFx.setClickListener {
+                        Toast.makeText(this@ScopeActivity, "被点击", Toast.LENGTH_SHORT).show()
                     }
                 }
-                addItemView("显示Activity悬浮窗") {
-                    activityFx.show()
-                    activityFx.updateView {
-                        it.text(R.id.tvItemFx, "Act")
-                        it.getView<CardView>(R.id.cardItemFx)?.setCardBackgroundColor(Color.BLUE)
-                    }
+                addItemView("当前是否显示") {
+                    Toast.makeText(
+                        this@ScopeActivity,
+                        "当前是否显示-${scopeFx.isShow()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-                addItemView("显示View级别悬浮窗") {
-                    viewFx.show()
-                    viewFx.updateView {
-                        it.text(R.id.tvItemFx, "view")
-                        it.getView<CardView>(R.id.cardItemFx)?.setCardBackgroundColor(Color.GREEN)
-                    }
+                addItemView("允许边缘吸附,立即生效") {
+                    scopeFx.helperControl.enableEdgeAdsorption(true)
                 }
-                addItemView("调整到无状态栏页面") {
-                    ImmersedActivity::class.java.start()
+                addItemView("允许边缘回弹") {
+                    scopeFx.helperControl.enableEdgeRebound(true)
                 }
-                addItemView("跳转到局部悬浮窗页面") {
-                    ScopeActivity::class.java.start()
+                addItemView("开启动画") {
+                    scopeFx.helperControl.enableAnimation(true)
+                }
+                addItemView("边距调整为100f") {
+                    scopeFx.helperControl.setBorderMargin(100f, 100f, 100f, 100f)
                 }
             }
         )
@@ -78,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         FrameLayout(context).apply {
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                300
+                700
             ).apply {
                 leftMargin = 50
                 topMargin = 50
@@ -97,13 +99,10 @@ class MainActivity : AppCompatActivity() {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 )
+                (this as TextView).isAllCaps = false
                 gravity = Gravity.CENTER
                 setOnClickListener(click)
                 this.text = text
             }
         )
-
-    private fun Class<*>.start() {
-        startActivity(Intent(this@MainActivity, this))
-    }
 }

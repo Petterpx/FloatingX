@@ -5,7 +5,6 @@ import android.app.Application
 import android.os.Bundle
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.impl.control.FxAppControlImpl
-import com.petterp.floatingx.util.FxDebug
 import com.petterp.floatingx.util.decorView
 import java.lang.ref.WeakReference
 
@@ -27,7 +26,7 @@ class FxLifecycleCallbackImpl(
         get() = helper.blackList.contains(this::class.java)
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityCreated")
+        helper.fxLog?.d("AppLifecycle--[${activity.name}]-onActivityCreated")
         helper.fxLifecycleExpand?.onActivityCreated?.let {
             if (activity.isActivityInValid) it.invoke(activity, savedInstanceState)
         }
@@ -35,7 +34,7 @@ class FxLifecycleCallbackImpl(
 
     override fun onActivityStarted(activity: Activity) {
         initActivity(activity)
-        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityStarted")
+        helper.fxLog?.d("AppLifecycle--[${activity.name}]-onActivityStarted")
         helper.fxLifecycleExpand?.onActivityStarted?.let {
             if (activity.isActivityInValid) it.invoke(activity)
         }
@@ -47,26 +46,37 @@ class FxLifecycleCallbackImpl(
      * */
     override fun onActivityResumed(activity: Activity) {
         initActivity(activity)
-        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityResumed")
+        helper.fxLog?.d("AppLifecycle--[${activity.name}]-onActivityResumed")
+        if (!helper.enableFx) {
+            helper.fxLog?.d("view->isAttach? -enableFx-${helper.enableFx}")
+            return
+        }
         val isActivityInValid = activity.isActivityInValid
+        if (!isActivityInValid) {
+            helper.fxLog?.d("view->isAttach? -isActivityInValid-$isActivityInValid")
+            return
+        }
         val isParent = activity.isParent
-        FxDebug.d("view->isAttach? isContainActivity-$isActivityInValid--enableFx-${helper.enableFx}---isParent-$isParent")
-        if (helper.enableFx && isActivityInValid && !isParent)
-            appControl?.attach(activity)
+        if (isParent) {
+            helper.fxLog?.d("view->isAttach? -isParent-$isParent")
+            return
+        }
+        helper.fxLog?.d("view->isAttach? isContainActivity-$isActivityInValid--enableFx-${helper.enableFx}---isParent-$isParent")
+        appControl?.attach(activity)
         helper.fxLifecycleExpand?.onActivityResumed?.let {
             if (isActivityInValid) it.invoke(activity)
         }
     }
 
     override fun onActivityPaused(activity: Activity) {
-        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityPaused")
+        helper.fxLog?.d("AppLifecycle--[${activity.name}]-onActivityPaused")
         helper.fxLifecycleExpand?.onActivityPaused?.let {
             if (activity.isActivityInValid) it.invoke(activity)
         }
     }
 
     override fun onActivityStopped(activity: Activity) {
-        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityStopped")
+        helper.fxLog?.d("AppLifecycle--[${activity.name}]-onActivityStopped")
         helper.fxLifecycleExpand?.onActivityStopped?.let {
             if (activity.isActivityInValid) it.invoke(activity)
         }
@@ -77,8 +87,8 @@ class FxLifecycleCallbackImpl(
             if (activity.isActivityInValid) it.invoke(activity)
         }
         val isParent = activity.isParent
-        FxDebug.d("AppLifecycle--[${activity.name}]-onActivityDestroyed")
-        FxDebug.d("view->isDetach? isContainActivity-${activity.isActivityInValid}--enableFx-${helper.enableFx}---isParent-$isParent")
+        helper.fxLog?.d("AppLifecycle--[${activity.name}]-onActivityDestroyed")
+        helper.fxLog?.d("view->isDetach? isContainActivity-${activity.isActivityInValid}--enableFx-${helper.enableFx}---isParent-$isParent")
         if (helper.enableFx && isParent)
             appControl?.detach(activity)
         if (topActivity?.get() === activity) {

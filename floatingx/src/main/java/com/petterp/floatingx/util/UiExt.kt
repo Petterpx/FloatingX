@@ -15,7 +15,6 @@ internal val Activity.decorView: FrameLayout?
         window.decorView as FrameLayout
     } catch (e: Exception) {
         e.printStackTrace()
-        FxDebug.e("rootView -> Null")
         null
     }
 
@@ -24,7 +23,6 @@ internal val Activity.contentView: FrameLayout?
         window.decorView.findViewById(android.R.id.content)
     } catch (e: Exception) {
         e.printStackTrace()
-        FxDebug.e("rootView -> Null")
         null
     }
 

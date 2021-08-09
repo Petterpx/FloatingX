@@ -8,20 +8,23 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import com.petterp.floatingx.assist.helper.BaseHelper
 import com.petterp.floatingx.listener.control.IFxControl
-import com.petterp.floatingx.util.FxDebug
+import com.petterp.floatingx.listener.control.IFxHelperControl
 import com.petterp.floatingx.util.lazyLoad
 import com.petterp.floatingx.view.FxMagnetView
 import com.petterp.floatingx.view.FxViewHolder
 import java.lang.ref.WeakReference
 
 /** 基础控制器实现 */
-abstract class FxBasisControlImpl(private val helper: BaseHelper) : IFxControl {
+abstract class FxBasisControlImpl(private val helper: BaseHelper) : IFxControl, IFxHelperControl {
     private var managerView: FxMagnetView? = null
     private var viewHolder: FxViewHolder? = null
     protected var mContainer: WeakReference<ViewGroup>? = null
 
     private val cancelAnimationRunnable by lazyLoad { Runnable { reset() } }
     private val hideAnimationRunnable by lazyLoad { Runnable { detach() } }
+
+    override val helperControl: IFxHelperControl
+        get() = this
 
     override fun isShow(): Boolean =
         managerView != null && ViewCompat.isAttachedToWindow(managerView!!) && managerView?.isVisible == true
@@ -49,23 +52,16 @@ abstract class FxBasisControlImpl(private val helper: BaseHelper) : IFxControl {
         helper.clickTime = time
     }
 
-    override fun hide() {
-        if (!isShow()) return
-        if (helper.enableAnimation &&
-            helper.fxAnimation != null
-        ) {
-            if (helper.fxAnimation!!.endJobRunning) {
-                FxDebug.d("view->Animation ,endAnimation Executing, cancel this operation!")
-                return
-            }
-            FxDebug.d("view->Animation ,endAnimation Running")
-            managerView?.removeCallbacks(hideAnimationRunnable)
-            val duration = helper.fxAnimation!!.toEndAnimator(managerView)
-            animatorCallback(duration, hideAnimationRunnable)
-        } else detach()
+    override fun getConfigHelper(): BaseHelper {
+        return helper
+    }
+
+    override fun show() {
+        if (!helper.enableFx) helper.enableFx = true
     }
 
     override fun cancel() {
+        if (managerView == null && viewHolder == null) return
         if (helper.enableAnimation &&
             helper.fxAnimation != null
         ) {
@@ -75,17 +71,63 @@ abstract class FxBasisControlImpl(private val helper: BaseHelper) : IFxControl {
         } else reset()
     }
 
+    override fun hide() {
+        if (!isShow()) return
+        helper.enableFx = false
+        if (helper.enableAnimation &&
+            helper.fxAnimation != null
+        ) {
+            if (helper.fxAnimation!!.endJobRunning) {
+                helper.fxLog?.d("view->Animation ,endAnimation Executing, cancel this operation!")
+                return
+            }
+            helper.fxLog?.d("view->Animation ,endAnimation Running")
+            managerView?.removeCallbacks(hideAnimationRunnable)
+            val duration = helper.fxAnimation!!.toEndAnimator(managerView)
+            animatorCallback(duration, hideAnimationRunnable)
+        } else detach()
+    }
+
+    override fun setBorderMargin(t: Float, l: Float, b: Float, r: Float) {
+        super.setBorderMargin(t, l, b, r)
+        managerView?.fixLocation()
+    }
+
+    override fun setEdgeOffset(edgeOffset: Float) {
+        super.setEdgeOffset(edgeOffset)
+        managerView?.moveToEdge()
+    }
+
+    override fun enableEdgeAdsorption(enable: Boolean, lazyStart: Boolean) {
+        super.enableEdgeAdsorption(enable, lazyStart)
+        if (enable && !lazyStart) managerView?.moveToEdge()
+    }
+
     /*
     * 以下方法作为基础实现,供子类自行调用
     * */
 
     protected open fun updateMangerView(@DrawableRes layout: Int = 0) {
         if (layout != 0) helper.layoutId = layout
-        initManagerView()
+        if (getContainer() == null) throw NullPointerException("FloatingX window The parent container cannot be null!")
+        val isShow = isShow()
+        if (helper.iFxConfigStorage?.hasConfig() != true) {
+            val x = managerView?.x ?: 0f
+            val y = managerView?.y ?: 0f
+            initManagerView()
+            managerView?.updateLocation(x, y)
+        } else {
+            initManagerView()
+        }
+        // 如果当前显示,再添加到parent里
+        if (isShow)
+            getContainer()?.addView(managerView)
     }
 
     protected fun initManagerView() {
         if (helper.layoutId == 0) throw RuntimeException("The layout id cannot be 0")
+        getContainer()?.removeView(managerView)
+        viewHolder?.clear()
         managerView = FxMagnetView(context(), helper)
         viewHolder = FxViewHolder(managerView!!)
     }
@@ -102,7 +144,7 @@ abstract class FxBasisControlImpl(private val helper: BaseHelper) : IFxControl {
         viewHolder?.clear()
         viewHolder = null
         clearContainer()
-        FxDebug.d("view-lifecycle-> code->cancelFx")
+        helper.fxLog?.d("view-lifecycle-> code->cancelFx")
     }
 
     private fun animatorCallback(long: Long, runnable: Runnable) {
@@ -119,7 +161,7 @@ abstract class FxBasisControlImpl(private val helper: BaseHelper) : IFxControl {
 
     protected open fun detach(container: ViewGroup?) {
         if (managerView != null && container != null) {
-            FxDebug.d("view-lifecycle-> code->removeView")
+            helper.fxLog?.d("view-lifecycle-> code->removeView")
             helper.iFxViewLifecycle?.postDetached()
             container.removeView(managerView)
         }
@@ -143,15 +185,16 @@ abstract class FxBasisControlImpl(private val helper: BaseHelper) : IFxControl {
     }
 
     protected fun FxMagnetView.show() {
+        helper.enableFx = true
         isVisible = true
         if (helper.enableAnimation &&
             helper.fxAnimation != null && !helper.fxAnimation!!.fromJobRunning
         ) {
             if (helper.fxAnimation?.fromJobRunning == true) {
-                FxDebug.d("view->Animation ,startAnimation Executing, cancel this operation!")
+                helper.fxLog?.d("view->Animation ,startAnimation Executing, cancel this operation!")
                 return
             }
-            FxDebug.d("view->Animation ,startAnimation Executing, cancel this operation.")
+            helper.fxLog?.d("view->Animation ,startAnimation Executing, cancel this operation.")
             helper.fxAnimation?.fromStartAnimator(this)
         }
     }

@@ -11,7 +11,6 @@ import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.util.*
-import com.petterp.floatingx.util.FxDebug
 import com.petterp.floatingx.util.lazyLoad
 import com.petterp.floatingx.util.topActivity
 import java.lang.ref.WeakReference
@@ -25,15 +24,16 @@ open class FxAppControlImpl(private val helper: AppHelper) :
         OnApplyWindowInsetsListener { _, insets ->
             val statusBar = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             helper.statsBarHeight = statusBar
-            FxDebug.v("System--StatusBar---old-(${helper.statsBarHeight}),new-($statusBar))")
+            helper.fxLog?.v("System--StatusBar---old-(${helper.statsBarHeight}),new-($statusBar))")
             insets
         }
     }
 
     override fun show(activity: Activity) {
+        super.show()
         if (isShow()) return
-        attach(activity)
-        getManagerView()?.show()
+        if (attach(activity))
+            getManagerView()?.show()
     }
 
     override fun detach(activity: Activity) {
@@ -43,9 +43,7 @@ open class FxAppControlImpl(private val helper: AppHelper) :
     }
 
     override fun show() {
-        if (isShow()) return
-        attach(topActivity!!)
-        getManagerView()?.show()
+        show(topActivity!!)
     }
 
     override fun updateMangerView(layout: Int) {
@@ -58,29 +56,30 @@ open class FxAppControlImpl(private val helper: AppHelper) :
         return helper.application
     }
 
-    internal fun attach(activity: Activity) {
+    internal fun attach(activity: Activity): Boolean {
         activity.decorView?.let {
-            if (getManagerView()?.parent === it) {
-                return
+            if (getContainer() === it) {
+                return false
             }
             var isAnimation = false
             if (getManagerView() == null) {
                 helper.updateNavigationBar(activity)
-                updateMangerView()
+                initManagerView()
                 isAnimation = true
             } else {
                 if (getManagerView()?.isVisible == false) getManagerView()?.isVisible = true
                 detach()
             }
             mContainer = WeakReference(it)
-            FxDebug.d("view-lifecycle-> code->addView")
+            helper.fxLog?.d("view-lifecycle-> code->addView")
             helper.iFxViewLifecycle?.postAttach()
             getContainer()?.addView(getManagerView())
             if (isAnimation && helper.enableAnimation && helper.fxAnimation != null) {
+                helper.fxLog?.d("view->Animation -----start")
                 helper.fxAnimation?.fromStartAnimator(getManagerView())
-                FxDebug.d("view->Animation -----start")
             }
-        } ?: FxDebug.e("system -> fxParentView==null")
+        } ?: helper.fxLog?.e("system -> fxParentView==null")
+        return true
     }
 
     override fun detach(container: ViewGroup?) {
@@ -89,6 +88,9 @@ open class FxAppControlImpl(private val helper: AppHelper) :
     }
 
     override fun reset() {
+        getManagerView()?.let {
+            ViewCompat.setOnApplyWindowInsetsListener(it, null)
+        }
         super.reset()
         FloatingX.reset()
     }
