@@ -1,28 +1,68 @@
 package com.petterp.floatingx.util
 
 import android.app.Activity
-import android.content.Context
-import android.widget.FrameLayout
-import com.petterp.floatingx.FloatingX
-import com.petterp.floatingx.assist.FxHelper
-import com.petterp.floatingx.impl.FxControlToScopeImpl
+import android.view.ViewGroup
+import androidx.annotation.IdRes
+import androidx.fragment.app.Fragment
+import com.petterp.floatingx.assist.helper.ScopeHelper
+import com.petterp.floatingx.listener.control.IFxControl
 
-/**
- * @Author petterp
- * @Date 2021/5/20-5:17 下午
- * @Email ShiyihuiCloud@163.com
- * @Function Fx的一些kotlin扩展
- */
-
-fun createFloatingX(obj: FxHelper.Builder.() -> Unit) =
-    lazyLoad {
-        FxControlToScopeImpl.builder(obj)
+/** 创建一个fx,自行初始化并控制插入位置
+ *
+ *   val builder by createFx {
+ *
+ *     setLayout(R.layout.item_floating)
+ *     setEnableScrollOutsideScreen(false)
+ *     setAnimationImpl(FxAnimationImpl())
+ *     build().toControl().init(this@MainActivity)
+ *
+ *   }
+ * */
+inline fun <T> createFx(crossinline obj: ScopeHelper.Builder.() -> T) =
+    lazy(LazyThreadSafetyMode.NONE) {
+        ScopeHelper.Builder().run(obj)
     }
 
-fun createFloatingX(helper: FxHelper) =
-    lazyLoad {
-        FxControlToScopeImpl.builder(helper)
+/** 创建一个fx,内部自行决定显示位置 */
+inline fun createFx(
+    crossinline initControlObj: (ScopeHelper.() -> IFxControl),
+    crossinline builderObj: ScopeHelper.Builder.() -> Unit,
+) =
+    lazy(LazyThreadSafetyMode.NONE) {
+        ScopeHelper.build(builderObj).run(initControlObj)
     }
+
+/** 快捷构建-在activity下创建一个fx */
+inline fun activityToFx(activity: Activity, crossinline obj: ScopeHelper.Builder.() -> Unit) =
+    lazy(LazyThreadSafetyMode.NONE) {
+        ScopeHelper.build(obj).toControl(activity)
+    }
+
+/** 快捷构建-在fragment对应的view中显示一个fx */
+inline fun fragmentToFx(fragment: Fragment, crossinline obj: ScopeHelper.Builder.() -> Unit) =
+    lazy(LazyThreadSafetyMode.NONE) {
+        ScopeHelper.build(obj).toControl(fragment)
+    }
+
+/** 快捷构建-在activity中创建一个view作用域的fx */
+inline fun viewToFx(
+    @IdRes id: Int,
+    activity: Activity,
+    crossinline obj: ScopeHelper.Builder.() -> Unit
+) = lazy(LazyThreadSafetyMode.NONE) {
+    val parent = activity.findViewById<ViewGroup>(id)
+    ScopeHelper.build(obj).toControl(parent)
+}
+
+/** 快捷构建-在fragment中创建一个view作用域fx */
+inline fun viewToFx(
+    @IdRes id: Int,
+    fragment: Fragment,
+    crossinline obj: ScopeHelper.Builder.() -> Unit
+) = lazy(LazyThreadSafetyMode.NONE) {
+    val parent = fragment.requireView().findViewById<ViewGroup>(id)
+    ScopeHelper.build(obj).toControl(parent)
+}
 
 internal inline fun <reified T : Any> lazyLoad(
     mode: LazyThreadSafetyMode = LazyThreadSafetyMode.NONE,
@@ -30,20 +70,4 @@ internal inline fun <reified T : Any> lazyLoad(
 ): Lazy<T> =
     lazy(mode) {
         obj()
-    }
-
-internal val topActivity: Activity?
-    get() = FloatingX.iFxAppLifecycleImpl?.topActivity?.get()
-
-internal val appContext: Context
-    get() = FloatingX.helper?.context
-        ?: throw NullPointerException("appContext == null !,Did you initialize the context?")
-
-internal val Activity.fxParentView: FrameLayout?
-    get() = try {
-        window.decorView as FrameLayout
-    } catch (e: Exception) {
-        e.printStackTrace()
-        FxDebug.e("rootView -> Null")
-        null
     }

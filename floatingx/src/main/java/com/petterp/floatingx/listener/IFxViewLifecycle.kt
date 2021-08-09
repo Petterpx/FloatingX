@@ -1,10 +1,7 @@
 package com.petterp.floatingx.listener
 
 /**
- * @Author petterp
- * @Date 2021/5/20-4:24 下午
- * @Email ShiyihuiCloud@163.com
- * @Function fx-悬浮窗的生命周期扩展
+ * fx-悬浮窗的生命周期扩展
  */
 interface IFxViewLifecycle {
 

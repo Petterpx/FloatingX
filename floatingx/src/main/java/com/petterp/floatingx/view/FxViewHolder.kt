@@ -4,15 +4,11 @@ import android.util.SparseArray
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 
-/**
- * @Author petterp
- * @Date 2021/5/24-7:06 下午
- * @Email ShiyihuiCloud@163.com
- * @Function
- */
+/** FxManagerView对应的ViewHolder */
 class FxViewHolder(val magnetView: FxMagnetView) {
     @PublishedApi
     internal val sparseArray: SparseArray<View> = SparseArray()
@@ -40,5 +36,13 @@ class FxViewHolder(val magnetView: FxMagnetView) {
 
     fun backResource(@IdRes id: Int, @DrawableRes source: Int) {
         getView<ImageView>(id)?.setBackgroundResource(source)
+    }
+
+    fun backColor(@IdRes id: Int, @ColorInt color: Int) {
+        getView<ImageView>(id)?.setBackgroundColor(color)
+    }
+
+    fun clear() {
+        sparseArray.clear()
     }
 }

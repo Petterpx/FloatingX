@@ -21,7 +21,7 @@ val Activity.contentHeightFromAndroid: Int
     get() =
         window.decorView.findViewById<FrameLayout>(android.R.id.content).height
 
-/** 获取内容视图宽度 */
+/** 获取内容视图高度,需要在onWindowFocusChanged方法后调用才生效 */
 val Activity.contentWidthFromAndroid: Int
     get() =
         window.decorView.findViewById<FrameLayout>(android.R.id.content).width
@@ -97,7 +97,6 @@ val Activity.navigationBarHeight: Int
             navigationHeight = getRealNavHeight(this)
             return navigationHeight
         }
-        // 匹配任意一个都可以
         val isShow = checkNavigationBarShow(this) || isNavBarVendorHide(this) == 0
         val realSize = realScreenHeight
         // 少部分机型上述逻辑会判断失误,所以还得再判断屏幕大小与内容大小是否一致

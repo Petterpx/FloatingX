@@ -12,7 +12,7 @@
         android:theme="@style/Theme.FloatingX">
         <activity
             android:name="com.petterp.floatingx.app.MainActivity"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,10 +22,11 @@
         </activity>
         <activity
             android:name=".NewActivity"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
             android:launchMode="standard"
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ImmersedActivity" />
+        <activity android:name=".ScopeActivity" />
     </application>
 
 </manifest>

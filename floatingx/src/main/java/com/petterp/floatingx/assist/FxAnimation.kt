@@ -4,10 +4,7 @@ import android.animation.Animator
 import android.widget.FrameLayout
 
 /**
- * @Author petterp
- * @Date 2021/7/11-3:27 下午
- * @Email ShiyihuiCloud@163.com
- * @Function fx的动画辅助类
+ * fx的动画辅助类
  * 默认实现示例 FxAnimationImpl
  */
 abstract class FxAnimation {

@@ -7,11 +7,8 @@ import android.widget.FrameLayout
 import com.petterp.floatingx.assist.FxAnimation
 
 /**
- * @Author petterp
- * @Date 2021/7/11-4:07 下午
- * @Email ShiyihuiCloud@163.com
- * @Function Fx的动画示例
- */
+ * Fx的动画示例
+ * */
 class FxAnimationImpl(private val defaultTime: Long = 1000L) : FxAnimation() {
 
     override fun fromAnimator(view: FrameLayout?): Animator {

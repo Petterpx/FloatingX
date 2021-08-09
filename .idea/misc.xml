@@ -4,7 +4,19 @@
     <asm skipDebug="false" skipFrames="false" skipCode="false" expandFrames="false" />
     <groovy codeStyle="LEGACY" />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="../../../../../../../layout/custom_preview.xml" value="0.2552083333333333" />
+        <entry key="app/src/main/res/layout/activity_immersed.xml" value="0.2630208333333333" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.24444444444444444" />
+        <entry key="app/src/main/res/layout/item_floating.xml" value="0.23981481481481481" />
+        <entry key="app/src/main/res/layout/item_floating_new.xml" value="0.31145833333333334" />
+        <entry key="app/src/main/res/layout/new_activity.xml" value="0.21944444444444444" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
