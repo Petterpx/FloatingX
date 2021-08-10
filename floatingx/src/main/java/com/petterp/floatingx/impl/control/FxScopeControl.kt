@@ -3,7 +3,7 @@ package com.petterp.floatingx.impl.control
 import android.app.Activity
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.petterp.floatingx.assist.helper.BaseHelper
+import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.listener.control.IFxScopeControl
 import com.petterp.floatingx.util.FxScopeEnum
@@ -11,7 +11,7 @@ import com.petterp.floatingx.util.contentView
 import java.lang.ref.WeakReference
 
 /**  Fx普通View控制器 */
-class FxViewControl(private val helper: BaseHelper) :
+class FxScopeControl(private val helper: BasisHelper) :
     FxBasisControlImpl(helper),
     IFxScopeControl<IFxControl> {
 

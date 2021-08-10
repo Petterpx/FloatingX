@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
-import com.petterp.floatingx.assist.helper.BaseHelper
+import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.listener.control.IFxHelperControl
 import com.petterp.floatingx.util.lazyLoad
@@ -15,7 +15,7 @@ import com.petterp.floatingx.view.FxViewHolder
 import java.lang.ref.WeakReference
 
 /** 基础控制器实现 */
-abstract class FxBasisControlImpl(private val helper: BaseHelper) : IFxControl, IFxHelperControl {
+abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFxHelperControl {
     private var managerView: FxMagnetView? = null
     private var viewHolder: FxViewHolder? = null
     protected var mContainer: WeakReference<ViewGroup>? = null
@@ -52,7 +52,7 @@ abstract class FxBasisControlImpl(private val helper: BaseHelper) : IFxControl, 
         helper.clickTime = time
     }
 
-    override fun getConfigHelper(): BaseHelper {
+    override fun getConfigHelper(): BasisHelper {
         return helper
     }
 
@@ -98,8 +98,8 @@ abstract class FxBasisControlImpl(private val helper: BaseHelper) : IFxControl, 
         managerView?.moveToEdge()
     }
 
-    override fun enableEdgeAdsorption(enable: Boolean, lazyStart: Boolean) {
-        super.enableEdgeAdsorption(enable, lazyStart)
+    override fun setEnableEdgeAdsorption(enable: Boolean, lazyStart: Boolean) {
+        super.setEnableEdgeAdsorption(enable, lazyStart)
         if (enable && !lazyStart) managerView?.moveToEdge()
     }
 

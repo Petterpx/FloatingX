@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.FloatingX
 
+/** App级当前设置了tag的栈顶Activity */
 internal val topActivity: Activity?
     get() = FloatingX.iFxAppLifecycleImpl?.topActivity?.get()
 
@@ -38,7 +39,7 @@ internal fun ViewGroup.updateParams(left: Int, top: Int, end: Int, bottom: Int) 
 }
 
 /** 判断视图是否被覆盖 */
-val View.isViewCovered: Boolean
+internal val View.isViewCovered: Boolean
     get() {
         var currentView = this
         val currentViewRect = Rect()
@@ -69,7 +70,7 @@ val View.isViewCovered: Boolean
         return false
     }
 
-fun View.indexOfViewInParent(parent: ViewGroup): Int {
+internal fun View.indexOfViewInParent(parent: ViewGroup): Int {
     var index = 0
     while (index < parent.childCount) {
         if (parent.getChildAt(index) === this) break

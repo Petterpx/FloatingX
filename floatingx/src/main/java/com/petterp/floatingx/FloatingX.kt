@@ -17,7 +17,7 @@ object FloatingX {
 
     /** dsl初始化 */
     fun init(obj: AppHelper.Builder.() -> Unit) =
-        init(AppHelper.Builder().apply(obj).build())
+        init(AppHelper.builder().apply(obj).build())
 
     /** 悬浮窗配置信息 */
     @JvmStatic

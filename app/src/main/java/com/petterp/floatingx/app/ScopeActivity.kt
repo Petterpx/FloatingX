@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.petterp.floatingx.impl.simple.FxAnimationImpl
+import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.util.createFx
 
 /**
@@ -61,13 +61,13 @@ class ScopeActivity : AppCompatActivity() {
                     ).show()
                 }
                 addItemView("允许边缘吸附,立即生效") {
-                    scopeFx.helperControl.enableEdgeAdsorption(true)
+                    scopeFx.helperControl.setEnableEdgeAdsorption(true)
                 }
                 addItemView("允许边缘回弹") {
-                    scopeFx.helperControl.enableEdgeRebound(true)
+                    scopeFx.helperControl.setEnableEdgeRebound(true)
                 }
                 addItemView("开启动画") {
-                    scopeFx.helperControl.enableAnimation(true)
+                    scopeFx.helperControl.setEnableAnimation(true)
                 }
                 addItemView("边距调整为100f") {
                     scopeFx.helperControl.setBorderMargin(100f, 100f, 100f, 100f)

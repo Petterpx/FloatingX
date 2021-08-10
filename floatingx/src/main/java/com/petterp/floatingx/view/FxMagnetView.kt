@@ -12,7 +12,7 @@ import android.view.*
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.Direction
 import com.petterp.floatingx.assist.helper.AppHelper
-import com.petterp.floatingx.assist.helper.BaseHelper
+import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.util.topActivity
 import kotlin.math.abs
 
@@ -24,7 +24,7 @@ import kotlin.math.abs
 @SuppressLint("ViewConstructor")
 class FxMagnetView @JvmOverloads constructor(
     context: Context,
-    val helper: BaseHelper,
+    val helper: BasisHelper,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
@@ -364,6 +364,10 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     private fun saveConfig(moveX: Float, moveY: Float) {
+        if (helper.iFxConfigStorage == null) {
+            helper.fxLog?.e("view-->saveDirection---iFxConfigStorageImpl does not exist, save failed!")
+            return
+        }
         helper.iFxConfigStorage?.update(moveX, moveY)
         helper.fxLog?.d("view-->saveDirection---x-($moveX)，y-($moveY)")
     }

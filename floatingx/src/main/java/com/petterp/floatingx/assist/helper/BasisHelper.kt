@@ -5,7 +5,6 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import com.petterp.floatingx.assist.*
-import com.petterp.floatingx.impl.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
@@ -14,7 +13,7 @@ import com.petterp.floatingx.util.FxScopeEnum
 import kotlin.math.abs
 
 /** 通用构建器helper */
-open class BaseHelper {
+open class BasisHelper {
     @LayoutRes
     internal var layoutId: Int = 0
     internal var gravity: Direction = Direction.LEFT_OR_TOP
@@ -51,7 +50,7 @@ open class BaseHelper {
         if (enableDebugLog) fxLog = FxLog.builder("$scope$fxLogTag")
     }
 
-    abstract class Builder<T, B : BaseHelper> {
+    abstract class Builder<T, B : BasisHelper> {
         private var context: Context? = null
 
         @LayoutRes
@@ -315,15 +314,6 @@ open class BaseHelper {
         fun setSaveDirectionImpl(iFxConfigStorage: IFxConfigStorage): T {
             this.enableSaveDirection = true
             this.iFxConfigStorage = iFxConfigStorage
-            return this as T
-        }
-
-        /**
-         * 使用默认实现保存位置
-         * */
-        fun defaultSaveDirection(context: Context): T {
-            this.enableSaveDirection = true
-            iFxConfigStorage = FxConfigStorageToSpImpl(context)
             return this as T
         }
 

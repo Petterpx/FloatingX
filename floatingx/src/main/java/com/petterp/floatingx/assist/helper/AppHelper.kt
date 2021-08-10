@@ -11,19 +11,14 @@ class AppHelper(
     val application: Application,
     val blackList: MutableList<Class<*>>,
     val fxLifecycleExpand: FxLifecycleExpand?
-) : BaseHelper() {
+) : BasisHelper() {
 
     internal fun updateNavigationBar(activity: Activity?) {
         navigationBarHeight = activity?.navigationBarHeight ?: navigationBarHeight
         fxLog?.v("system-> navigationBar-$navigationBarHeight")
     }
 
-    companion object {
-        @JvmStatic
-        fun builder() = Builder()
-    }
-
-    class Builder : BaseHelper.Builder<Builder, AppHelper>() {
+    class Builder : BasisHelper.Builder<Builder, AppHelper>() {
         private var application: Application? = null
         private var blackList = mutableListOf<Class<*>>()
         private var fxLifecycleExpand: FxLifecycleExpand? = null
@@ -60,5 +55,10 @@ class AppHelper(
             helper.initLog(FxScopeEnum.APP_SCOPE.tag)
             return helper
         }
+    }
+
+    companion object {
+        @JvmStatic
+        fun builder() = Builder()
     }
 }
