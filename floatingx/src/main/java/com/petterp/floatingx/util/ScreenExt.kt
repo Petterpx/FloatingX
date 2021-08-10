@@ -138,8 +138,8 @@ private fun getRealNavHeight(context: Context): Int {
     val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     val windowMetrics = wm.currentWindowMetrics
     val windowInsets = windowMetrics.windowInsets
-    val insets =
-        windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout())
+    val typeMask = WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout()
+    val insets = windowInsets.getInsetsIgnoringVisibility(typeMask)
     return insets.bottom
 }
 
@@ -188,37 +188,20 @@ private fun getNavigationBarHeightFromSystem(
     } else 0
 }
 
-private fun isNavBarVendorHide(context: Context): Int {
-    // 有虚拟键，判断是否显示
-    if (isVivo) {
-        return vivoNavigationEnabled(context)
+private fun isNavBarVendorHide(context: Context): Int =
+    when {
+        isVivo -> vivoNavigationEnabled(context)
+        isOppo -> oppoNavigationEnabled(context)
+        isXiaomi -> xiaomiNavigationEnabled(context)
+        isHuawei -> huaWeiNavigationEnabled(context)
+        isOnePlus -> onePlusNavigationEnabled(context)
+        isSamsung -> samsungNavigationEnabled(context)
+        isSmarTisan -> smartisanNavigationEnabled(context)
+        isNokia -> nokiaNavigationEnabled(context)
+        // // navigation_mode 三种模式均有导航栏，只是高度不同。
+        isGoogle -> 0
+        else -> -1
     }
-    if (isOppo) {
-        return oppoNavigationEnabled(context)
-    }
-    if (isXiaomi) {
-        return xiaomiNavigationEnabled(context)
-    }
-    if (isHuawei) {
-        return huaWeiNavigationEnabled(context)
-    }
-    if (isOnePlus) {
-        return onePlusNavigationEnabled(context)
-    }
-    if (isSamsung) {
-        return samsungNavigationEnabled(context)
-    }
-    if (isSmarTisan) {
-        return smartisanNavigationEnabled(context)
-    }
-    if (isNokia) {
-        return nokiaNavigationEnabled(context)
-    }
-    return if (isGoogle) {
-        // navigation_mode 三种模式均有导航栏，只是高度不同。
-        0
-    } else -1
-}
 
 /**
  * 判断当前系统是使用导航键还是手势导航操作

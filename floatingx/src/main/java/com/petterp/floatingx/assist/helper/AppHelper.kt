@@ -46,9 +46,9 @@ class AppHelper(
         }
 
         override fun buildHelper(): AppHelper =
-            if (application == null) throw NullPointerException("To build AppHelper, you must set application!") else AppHelper(
-                application!!, blackList, fxLifecycleExpand
-            )
+            if (application == null)
+                throw NullPointerException("To build AppHelper, you must set application!")
+            else AppHelper(application!!, blackList, fxLifecycleExpand)
 
         override fun build(): AppHelper {
             val helper = super.build()
