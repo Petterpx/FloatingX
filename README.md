@@ -4,43 +4,24 @@
 
 [![](https://jitpack.io/v/Petterpx/FloatingX.svg)](https://jitpack.io/#Petterpx/FloatingX) [![Scan with Detekt](https://github.com/Petterpx/FloatingX/actions/workflows/detekt-analysis.yml/badge.svg)](https://github.com/Petterpx/FloatingX/actions/workflows/detekt-analysis.yml) [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/) 
 
-**FloatingX** 一个灵活的 `免权限` 悬浮窗解决方案。
+**FloatingX** 一个灵活且强大的 `免权限` 悬浮窗解决方案。
 
 ## 👏 特性 
 
-- 链式调用，无感知插入
-- 支持滑动，自动吸附，兼容多指触摸
-- Kotlin-dsl
-- 自动修复显示位置
-- 支持对悬浮窗生命周期的监听
-- 支持自定义悬浮窗各项配置
-- 支持保存及恢复历史坐标位置
-- 支持自定义拖动边框，吸附边框
-- 支持App 内全局悬浮窗，单 `Activity` 悬浮窗
+- 单例持有浮窗view
+- 支持各项回调监听
+- 链式调用，无感插入
+- 支持自定义是否保存历史位置及还原
+- 支持插入 `ViewGroup` , `Fragment` , `Activity`
+- 允许自定义悬浮窗各项指标，自定义隐藏显示动画
+- 支持 越界回弹，多指触摸，小屏适配，屏幕旋转
+- 支持自定义位置方向,自带辅助定位显示坐标
+- 完善的 `kotlin` 构建扩展,及对 `Java` 的友好兼容
+- 支持显示位置[强行修复],应对特殊机型(需要单独开启)
+- 完善的日志系统，打开即可看到不同级别的Fx运行过程,更利于发现问题
+- ...
 
-
-
-## 👨‍🔧‍ Loading 
-
-**1.x Todo**
-
-- 支持拖动到指定方向显示回收悬浮窗设计
-- 初始化方式简化
-- 多个悬浮窗时的自动规避覆盖
-- 自定义显示隐藏动画效果
-- 单个 `ViewGroup` 悬浮窗
-
-**2.x Todo**
-
-- 悬浮窗方案自动选择
-  - 全局悬浮窗(需要申请权限)
-  - 单App 悬浮窗
-  - 单个 `Activity` 悬浮窗
-  - 单个 `ViewGroup` 悬浮窗
-
-
-
-## 👨‍💻‍ 使用方式
+## 👨‍💻‍ 依赖方式
 
 #### Gradle
 
@@ -55,158 +36,153 @@ allprojects {
 
 ```groovy
 dependencies {
-	        implementation 'com.github.Petterpx:FloatingX:1.0-beta17'
+	        implementation 'com.github.Petterpx:FloatingX:1.0-rc01'
 }
 ```
 
 
 
-#### 初始化-Application
+## 🏄‍♀️ 效果图
 
-**Kotlin**
+| 全屏,activity,fragment,单view                                | 小屏展示                                                     | 非正常比例缩放屏幕                                           |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![效果-展示1](https://tva1.sinaimg.cn/large/008i3skNly1gt8cwy2lvrg30700ey1l0.gif) | ![演示-小屏](https://tva1.sinaimg.cn/large/008i3skNly1gtb0ruynzpg607c0eie8d02.gif) | ![非正常比例缩放](https://tva1.sinaimg.cn/large/008i3skNly1gtb0rxgpgmg607c0ege8702.gif) |
+
+| 屏幕旋转                                                     | 功能演示                                                     |      |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
+| ![演示-旋转](https://tva1.sinaimg.cn/large/008i3skNly1gt8cx7m0wgg30h60fg1kz.gif) | ![演示-局部功能](https://tva1.sinaimg.cn/large/008i3skNly1gtayx6t0l0g307c0ege84.gif) |      |
+
+### 完善的日志-查看器
+
+开启日志查看器，将看到Fx整个运行轨迹，更便于发现问题以及追踪解决。同时支持自定义日志tag
+
+| App                                                          | Activity                                                     | ViewGroup                                                    |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![image-20210808123000851](/Users/petterp/Library/Application Support/typora-user-images/image-20210808123000851.png) | ![image-20210808123414921](https://tva1.sinaimg.cn/large/008i3skNly1gt99vralyqj313o0r4jwk.jpg) | ![image-20210808123553402](https://tva1.sinaimg.cn/large/008i3skNly1gt99xfpfwgj311y0jctc8.jpg) |
+
+
+
+## 👨‍🔧‍ 使用方式
+
+### 全局悬浮窗管理
+
+**kt**
 
 ```kotlin
 FloatingX.init {
-    context(this)
-    marginEdge(10f)
-    addBlackClass(MainActivity::class.java)
-    layout(R.layout.item_floating)
-    defaultDirection(Direction.RIGHT_OR_BOTTOM)
+        setContext(this@CustomApplication)
+        setLayout(R.layout.item_floating_new)
+  			addBlackClass(
+                MainActivity::class.java,
+                NewActivity::class.java,
+                ImmersedActivity::class.java
+         )
+  			//只有调用了show,才会监听app-lifecycle,后续会自动插入activity中
+        show()
 }
 ```
 
 **Java**
 
 ```java
-FxHelper config = FxHelper.builder()
-    .context(this)
-    .marginEdge(10f)
-    .layout(R.layout.item_floating)
-    .addBlackClass(MainActivity.class)
-    .build();
-FloatingX.init(config);
+AppHelper helper = AppHelper.builder()
+        .setContext(application)
+        .setLayout(R.layout.item_floating)
+        .build();
+FloatingX.init(helper);
 ```
 
-#### 控制器
+
+
+### 局部悬浮窗管理
+
+#### 通用创建方式
+
+**kt**
 
 ```kotlin
- FloatingX.show(Activity?)
- FloatingX.hide()
- FloatingX.dismiss()
- FloatingX.cancel()
- FloatingX.clearConfig()
+ScopeHelper.builder {
+  setLayout(R.layout.item_floating)
+}.toControl(activity)
 ```
 
-**更多控制**
+**kt && java**
 
 ```kotlin
-FloatingX.control() - >
-
-    @MainThread
-    fun show(activity: Activity)
-
-    /** 安装在指定activity上 */
-    fun attach(activity: Activity)
-
-    /** 安装在指定FrameLayout上 */
-    fun attach(container: FrameLayout)
-
-    /** 从指定activity上删除 */
-    fun detach(activity: Activity)
-
-    /** 从指定FrameLayout上删除 */
-    fun detach(container: FrameLayout)
-    
-    @MainThread
-    fun show()
-
-    @MainThread
-    fun hide()
-
-    /** 关闭 */
-    @MainThread
-    fun dismiss()
-
-    /** 获取自定义的view */
-    fun getView(): View?
-
-    /** 当前是否显示 */
-    fun isShowRunning(): Boolean
-
-    /** 更新params */
-    @MainThread
-    fun updateParams(params: ViewGroup.LayoutParams)
-
-    /** 提供一个回调入口,用于快捷刷新 */
-    @MainThread
-    fun updateView(obj: (FxViewHolder) -> Unit)
-
-    /** 更新当前view */
-    @MainThread
-    fun updateView(@LayoutRes resource: Int)
-
-    fun setClickListener(obj: (View) -> Unit)
+ScopeHelper.builder()
+            .setLayout(R.layout.item_floating)
+            .build()
+            .toControl(activity)
+            .toControl(fragment)
+            .toControl(viewgroup)
 ```
 
+#### 对kt的扩展支持
 
+##### activity创建悬浮窗
 
-#### 进阶使用
+```kotlin
+private val activityFx by activityToFx(activity) {
+    setLayout(R.layout.item_floating)
+}
+```
 
-wiki **loading**
+##### fragment创建悬浮窗
 
----
+```kotlin
+private val fragment by fragmentToFx(fragment) {
+    setLayout(R.layout.item_floating)
+}
+```
 
+##### viewGroup创建悬浮窗
 
+```kotlin
+private val viewFx by createFx({
+        init(viewGroup)
+    }) {
+        setLayout(R.layout.item_floating)
+        setEnableLog(true, "main_fx")
+    }
+```
 
-## 🚴‍♀️ 业务决定方案
+##### 快速创建任意作用域悬浮窗
 
-对于悬浮窗方案，我们常见有两种实现方式：
+```kotlin
+private val customCreateFx by createFx {
+    setLayout(R.layout.item_floating)
+    build().toControl(activity)
+    build().toControl(fragment)
+    build().toControl(viewgroup)
+}
+```
 
-- 前者是基于 `WindowManager`，从而不依赖 `Activity` ,实现添加 `View` ，达到悬浮窗的目的。
-- 后者基于 `Activity-DecorView` 动态添加移除 `view` ，从而达到悬浮窗目的。
+## 🤔 技术实现
 
-#### 🖐 综合对比：
-
-|      实现方案      | app内显示 | app外显示 | 头部app方案 | 兼容性  | 显示效果 | 权限请求 |
-| :----------------: | :-------: | :-------: | :---------: | :-----: | :------: | :------: |
-|   WindowManager    |     ✅     |     ✅     |      ✅      |    ✅    | ✅  ✅  ✅  | ✅ (8.0+) |
-| Activity-DecorView |     ✅     |     ❎     |      ✅      | ✅  ✅  ✅ |    ✅     |    ❎     |
-
-> ✅  代表支持 、 ✅  ✅ 效果好 、 ✅  ✅  ✅ 效果极佳
+> **App** 级别悬浮窗 基于 `DecorView` 的的实现方案，全局持有一个单独的悬浮窗 `View` ,通过 `AppLifecycle` 监听 `Activity` 生命周期，并在相应时机 插入到 `DecorView` 上 ;
 >
-> ❎  代表 不需要或者不支持。
-
-
-
-如果app需要 **app外显示悬浮窗** ，及是 **游戏sdk** 相关，以及需要支持 **语音通话** 这种,那么 `WMS` 这种方案是最好。
-
-如果app **不需要app外显示** ,不想申请权限，对显示效果可接受(接受 `Activity` 切换时悬浮窗的闪动，当然也有补救措施)，那么后者方案适合你。
-
-头部app采用悬浮窗的：
-
-**微信**，QQ，采用的基本都是 `WMS` 的方案(很大程度是因为音视频)，**知乎** 采用的是免权限。
-
-
-
----
-
-## 🐬 技术实现
-
-> 基于 `DecorView` 的的实现方案，全局持有一个单独的悬浮窗 `View` ,通过 `AppLifecycle` 监听 `Activity` 生命周期，并在相应时机 插入到 `DecorView` 上 。
+> **View** 级别悬浮窗，基于给定的 `ViewGroup` ;
+>
+> **Fragment** 级别，基于其对应的 `rootView` ;
+>
+> **Acrtivity** 级别,基于 `DecorView` 内部的 `R.id.content` ;
 
 具体如下：
 
 <img src="https://tva1.sinaimg.cn/large/008i3skNly1gr20ks7780j30rc0i5dim.jpg" alt="Activity-setContentView"  />
 
-具体参见我的博客：[源码分析 | Activity-setContentView](https://juejin.cn/post/6897453195342610445) 
+具体见我的博客：[源码分析 | Activity-setContentView](https://juejin.cn/post/6897453195342610445) 
 
-Ps: 为什么要插入到 `DecorView` ,而不是 **R.id.content** -> `FrameLayout` ?
+Ps: 为什么App级别悬浮窗 要插入到 `DecorView` ,而不是 **R.id.content** -> `FrameLayout` ?
 
 > 插入到 `DecorView` 可以最大程度控制悬浮窗的自由度，即悬浮窗可以真正意义上[`全屏`]拖动。
 >
 > 插入到 `content` 中,其拖动范围其实为 **应用视图范围** ,即摆放位置 受到 **状态栏** 和 **底部导航栏** 以及 默认的 `AppBar` 影响, 比如当用户隐藏了状态栏或者导航栏，相对应的视图大小会发生改变，将影响悬浮窗的位置摆放。
 
+
+
 ## 👍 感谢
 
-基础 **悬浮窗View** 源自 [EnFloatingView](https://github.com/leotyndale/EnFloatingView) 的 [FloatingMagnetView](https://github.com/leotyndale/EnFloatingView/blob/master/floatingview/src/main/java/com/imuxuan/floatingview/FloatingMagnetView.java) 实现方式，并在其基础上增加了一些改进！
+基础 **悬浮窗View** 源自 [EnFloatingView](https://github.com/leotyndale/EnFloatingView) 的 [FloatingMagnetView](https://github.com/leotyndale/EnFloatingView/blob/master/floatingview/src/main/java/com/imuxuan/floatingview/FloatingMagnetView.java) 实现方式，并在其基础上增加了一些改进。
 
+对于导航栏的测量部分代码来自，wenlu,并在其之上增加了更多适配，已覆盖市场95%机型，可以说是目前能搜到的唯一可以准确测量的工具。
