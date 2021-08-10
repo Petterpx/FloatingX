@@ -1,4 +1,4 @@
-package com.petterp.floatingx.impl.simple
+package com.petterp.floatingx.app.simple
 
 import android.animation.Animator
 import android.animation.AnimatorSet

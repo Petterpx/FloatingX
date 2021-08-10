@@ -5,7 +5,7 @@ import android.widget.FrameLayout
 
 /**
  * fx的动画辅助类
- * 默认实现示例 FxAnimationImpl
+ * 默认实现示例 见simple - FxAnimationImpl
  */
 abstract class FxAnimation {
 

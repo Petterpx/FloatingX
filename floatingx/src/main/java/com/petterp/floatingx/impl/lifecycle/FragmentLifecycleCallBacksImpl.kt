@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
 /**
- * FragmentLifecycle监测
+ * FragmentLifecycle监测,暂时没有想好具体处理方式
  * */
 class FragmentLifecycleCallBacksImpl : FragmentManager.FragmentLifecycleCallbacks() {
     override fun onFragmentAttached(fm: FragmentManager, f: Fragment, context: Context) {

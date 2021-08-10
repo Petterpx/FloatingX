@@ -10,7 +10,7 @@ import androidx.core.view.isVisible
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.listener.control.IFxAppControl
-import com.petterp.floatingx.util.*
+import com.petterp.floatingx.util.decorView
 import com.petterp.floatingx.util.lazyLoad
 import com.petterp.floatingx.util.topActivity
 import java.lang.ref.WeakReference

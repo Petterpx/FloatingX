@@ -8,11 +8,14 @@ import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
-import android.view.*
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewConfiguration
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.Direction
 import com.petterp.floatingx.assist.helper.AppHelper
-import com.petterp.floatingx.assist.helper.BaseHelper
+import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.util.topActivity
 import kotlin.math.abs
 
@@ -24,7 +27,7 @@ import kotlin.math.abs
 @SuppressLint("ViewConstructor")
 class FxMagnetView @JvmOverloads constructor(
     context: Context,
-    val helper: BaseHelper,
+    val helper: BasisHelper,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
@@ -222,19 +225,17 @@ class FxMagnetView @JvmOverloads constructor(
         if (!helper.enableEdgeAdsorption || isMoveLoading) return
         isMoveLoading = true
         var moveY = y
-        val moveX =
-            if (isLeft) helper.edgeOffset + helper.borderMargin.l else mRootWidth - helper.edgeOffset - helper.borderMargin.r
+        val moveX = if (isLeft) helper.edgeOffset + helper.borderMargin.l
+        else mRootWidth - helper.edgeOffset - helper.borderMargin.r
         // 对于重建之后的位置保存
         if (isLandscape && mPortraitY != 0f) {
             moveY = mPortraitY
             clearPortraitY()
         }
         // 拿到y轴目前应该在的距离
-        moveY =
-            (helper.borderMargin.t + helper.edgeOffset + helper.statsBarHeight).coerceAtLeast(
-                moveY
-            )
-                .coerceAtMost((mRootHeight - helper.borderMargin.b - helper.edgeOffset - helper.navigationBarHeight))
+        moveY = (helper.borderMargin.t + helper.edgeOffset + helper.statsBarHeight)
+            .coerceAtLeast(moveY)
+            .coerceAtMost((mRootHeight - helper.borderMargin.b - helper.edgeOffset - helper.navigationBarHeight))
         moveLocation(moveX, moveY)
     }
 
@@ -340,10 +341,11 @@ class FxMagnetView @JvmOverloads constructor(
             if (rootView == null || rootView.parent == null) {
                 return
             }
-            val progress = 1f.coerceAtMost((System.currentTimeMillis() - startingTime) / 400f)
+            val progress =
+                MAX_PROGRESS.coerceAtMost((System.currentTimeMillis() - startingTime) / 400f)
             x += (destinationX - x) * progress
             y += (destinationY - y) * progress
-            if (progress < 1) {
+            if (progress < MAX_PROGRESS) {
                 HANDLER.post(this)
             } else {
                 isMoveLoading = false
@@ -364,12 +366,17 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     private fun saveConfig(moveX: Float, moveY: Float) {
+        if (helper.iFxConfigStorage == null) {
+            helper.fxLog?.e("view-->saveDirection---iFxConfigStorageImpl does not exist, save failed!")
+            return
+        }
         helper.iFxConfigStorage?.update(moveX, moveY)
         helper.fxLog?.d("view-->saveDirection---x-($moveX)，y-($moveY)")
     }
 
     companion object {
-        private const val TOUCH_TIME_THRESHOLD = 150
-        internal val HANDLER = Handler(Looper.getMainLooper())
+        private const val TOUCH_TIME_THRESHOLD = 150L
+        private const val MAX_PROGRESS = 1f
+        private val HANDLER = Handler(Looper.getMainLooper())
     }
 }

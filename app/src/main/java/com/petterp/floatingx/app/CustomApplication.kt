@@ -3,8 +3,8 @@ package com.petterp.floatingx.app
 import android.app.Application
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.Direction
-import com.petterp.floatingx.impl.simple.FxAnimationImpl
-import com.petterp.floatingx.impl.simple.FxConfigStorageToSpImpl
+import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
 
 /**
  * @Author petterp
@@ -54,7 +54,6 @@ class CustomApplication : Application() {
             setAnimationImpl(FxAnimationImpl())
             // 设置方向保存impl
             setSaveDirectionImpl(FxConfigStorageToSpImpl(applicationContext))
-//            defaultSaveDirection(applicationContext)
 
             // 设置底部偏移量
             setBorderBorderMargin(100f)

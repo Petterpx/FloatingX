@@ -12,22 +12,26 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import java.util.*
 
+/**
+ * 作为三方库,我们不应该将某些测量方法暴露,完成基本职责即可,避免与业务产生耦合,所以下面方法都是internal或者private
+ * */
+
 /** 缓存的内容高度与底部导航栏高度 */
 private var screenHeightBf: Int = 0
 private var navigationHeight: Int = 0
 
 /** 获取内容视图高度,需要在onWindowFocusChanged方法后调用才生效 */
-val Activity.contentHeightFromAndroid: Int
+internal val Activity.contentHeightFromAndroid: Int
     get() =
         window.decorView.findViewById<FrameLayout>(android.R.id.content).height
 
 /** 获取内容视图高度,需要在onWindowFocusChanged方法后调用才生效 */
-val Activity.contentWidthFromAndroid: Int
+internal val Activity.contentWidthFromAndroid: Int
     get() =
         window.decorView.findViewById<FrameLayout>(android.R.id.content).width
 
 /** 真实屏幕高度,往往不会改变 */
-val Context.realScreenHeight: Int
+internal val Context.realScreenHeight: Int
     get() {
         val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val display = wm.defaultDisplay
@@ -37,7 +41,7 @@ val Context.realScreenHeight: Int
     }
 
 /** 真实屏幕宽度,往往不会改变 */
-val Context.realScreenWidth: Int
+internal val Context.realScreenWidth: Int
     get() {
         val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val display = wm.defaultDisplay
@@ -47,7 +51,7 @@ val Context.realScreenWidth: Int
     }
 
 /** 屏幕内容高度,一般情况下不会包含底部导航栏 [navigationBarHeight] ,全面屏机型可能会包含,故不能直接使用 */
-val Context.screenHeight: Int
+internal val Context.screenHeight: Int
     get() {
         val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val display = wm.defaultDisplay
@@ -57,7 +61,7 @@ val Context.screenHeight: Int
     }
 
 /** 屏幕内容宽度,一般情况下与 [realScreenWidth] 一致*/
-val Context.screenWidth: Int
+internal val Context.screenWidth: Int
     get() {
         val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val display = wm.defaultDisplay
@@ -67,11 +71,11 @@ val Context.screenWidth: Int
     }
 
 /** 部分机型,直接使用AppContext测量,部分情况会不准确 */
-val Activity.contentHeight: Int
+internal val Activity.contentHeight: Int
     get() = realScreenHeight - navigationBarHeight
 
 /** 部分机型,直接使用AppContext测量,部分情况会不准确 */
-val Activity.statusBarHeight: Int
+internal val Activity.statusBarHeight: Int
     get() {
         var height = 0
         val resourceId: Int =
@@ -84,7 +88,7 @@ val Activity.statusBarHeight: Int
     }
 
 /** 部分机型,直接使用AppContext测量,部分情况会不准确 */
-val Activity.navigationBarHeight: Int
+internal val Activity.navigationBarHeight: Int
     get() {
         // 获取底部导航栏内部会用到反射,这里进行缓存,尽可能避免多余损耗
         // 当导航栏改变时，往往屏幕高度会发生变化,故可以借此进行判断
@@ -134,8 +138,8 @@ private fun getRealNavHeight(context: Context): Int {
     val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     val windowMetrics = wm.currentWindowMetrics
     val windowInsets = windowMetrics.windowInsets
-    val insets =
-        windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout())
+    val typeMask = WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout()
+    val insets = windowInsets.getInsetsIgnoringVisibility(typeMask)
     return insets.bottom
 }
 
@@ -184,37 +188,20 @@ private fun getNavigationBarHeightFromSystem(
     } else 0
 }
 
-private fun isNavBarVendorHide(context: Context): Int {
-    // 有虚拟键，判断是否显示
-    if (isVivo) {
-        return vivoNavigationEnabled(context)
+private fun isNavBarVendorHide(context: Context): Int =
+    when {
+        isVivo -> vivoNavigationEnabled(context)
+        isOppo -> oppoNavigationEnabled(context)
+        isXiaomi -> xiaomiNavigationEnabled(context)
+        isHuawei -> huaWeiNavigationEnabled(context)
+        isOnePlus -> onePlusNavigationEnabled(context)
+        isSamsung -> samsungNavigationEnabled(context)
+        isSmarTisan -> smartisanNavigationEnabled(context)
+        isNokia -> nokiaNavigationEnabled(context)
+        // // navigation_mode 三种模式均有导航栏，只是高度不同。
+        isGoogle -> 0
+        else -> -1
     }
-    if (isOppo) {
-        return oppoNavigationEnabled(context)
-    }
-    if (isXiaomi) {
-        return xiaomiNavigationEnabled(context)
-    }
-    if (isHuawei) {
-        return huaWeiNavigationEnabled(context)
-    }
-    if (isOnePlus) {
-        return onePlusNavigationEnabled(context)
-    }
-    if (isSamsung) {
-        return samsungNavigationEnabled(context)
-    }
-    if (isSmarTisan) {
-        return smartisanNavigationEnabled(context)
-    }
-    if (isNokia) {
-        return nokiaNavigationEnabled(context)
-    }
-    return if (isGoogle) {
-        // navigation_mode 三种模式均有导航栏，只是高度不同。
-        0
-    } else -1
-}
 
 /**
  * 判断当前系统是使用导航键还是手势导航操作

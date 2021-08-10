@@ -3,12 +3,12 @@ package com.petterp.floatingx.assist.helper
 import android.app.Activity
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.petterp.floatingx.impl.control.FxViewControl
+import com.petterp.floatingx.impl.control.FxScopeControl
 import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.listener.control.IFxScopeControl
 
 /** 特定范围的Helper构建器 */
-class ScopeHelper : BaseHelper() {
+class ScopeHelper : BasisHelper() {
 
     fun toControl(activity: Activity): IFxControl =
         toControl().init(activity)
@@ -19,7 +19,7 @@ class ScopeHelper : BaseHelper() {
     fun toControl(group: ViewGroup): IFxControl =
         toControl().init(group)
 
-    private fun toControl(): IFxScopeControl<IFxControl> = FxViewControl(this)
+    private fun toControl(): IFxScopeControl<IFxControl> = FxScopeControl(this)
 
     companion object {
         @JvmStatic
@@ -28,7 +28,7 @@ class ScopeHelper : BaseHelper() {
         inline fun build(obj: Builder.() -> Unit) = builder().apply(obj).build()
     }
 
-    class Builder : BaseHelper.Builder<Builder, ScopeHelper>() {
+    class Builder : BasisHelper.Builder<Builder, ScopeHelper>() {
         override fun buildHelper(): ScopeHelper = ScopeHelper()
     }
 }

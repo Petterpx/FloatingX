@@ -7,13 +7,18 @@ package com.petterp.floatingx.listener
  * */
 interface IFxConfigStorage {
 
+    /** x坐标 */
     fun getX(): Float
 
+    /** y坐标 */
     fun getY(): Float
 
+    /** 悬浮窗位置更新时调用 */
     fun update(x: Float, y: Float)
 
+    /** 是否存在历史位置,返回true悬浮窗才会使用 */
     fun hasConfig(): Boolean
 
+    /** 清除存储信息 */
     fun clear()
 }
