@@ -128,6 +128,11 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
         if (helper.layoutId == 0) throw RuntimeException("The layout id cannot be 0")
         getContainer()?.removeView(managerView)
         viewHolder?.clear()
+        // 在初始化前,需要做一些清除工作
+        initManager()
+    }
+
+    protected open fun initManager() {
         managerView = FxMagnetView(context(), helper)
         viewHolder = FxViewHolder(managerView!!)
     }

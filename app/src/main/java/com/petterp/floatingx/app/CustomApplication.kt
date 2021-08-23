@@ -58,7 +58,7 @@ class CustomApplication : Application() {
             // 设置底部偏移量
             setBorderBorderMargin(100f)
             // 设置顶部偏移量
-            setTopBorderMargin(100f)
+//            setTopBorderMargin(100f)
             // 设置左侧偏移量
             setLeftBorderMargin(100f)
             // 设置右侧偏移量

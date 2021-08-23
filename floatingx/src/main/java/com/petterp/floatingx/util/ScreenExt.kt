@@ -87,6 +87,19 @@ internal val Activity.statusBarHeight: Int
         return height
     }
 
+/** 直接使用appContent获取状态栏高度 */
+internal val Context.statusBarHeight: Int
+    get() {
+        var height = 0
+        val resourceId: Int =
+            resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (resourceId > 0) {
+            height = resources
+                .getDimensionPixelSize(resourceId)
+        }
+        return height
+    }
+
 /** 部分机型,直接使用AppContext测量,部分情况会不准确 */
 internal val Activity.navigationBarHeight: Int
     get() {

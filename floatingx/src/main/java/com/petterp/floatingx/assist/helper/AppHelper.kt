@@ -5,6 +5,7 @@ import android.app.Application
 import com.petterp.floatingx.assist.FxLifecycleExpand
 import com.petterp.floatingx.util.FxScopeEnum
 import com.petterp.floatingx.util.navigationBarHeight
+import com.petterp.floatingx.util.statusBarHeight
 
 /** AppHelper构建器 */
 class AppHelper(
@@ -16,6 +17,11 @@ class AppHelper(
     internal fun updateNavigationBar(activity: Activity?) {
         navigationBarHeight = activity?.navigationBarHeight ?: navigationBarHeight
         fxLog?.v("system-> navigationBar-$navigationBarHeight")
+    }
+
+    internal fun updateStatsBar(activity: Activity?) {
+        statsBarHeight = activity?.statusBarHeight ?: statsBarHeight
+        fxLog?.v("system-> statusBarHeight-$statsBarHeight")
     }
 
     class Builder : BasisHelper.Builder<Builder, AppHelper>() {

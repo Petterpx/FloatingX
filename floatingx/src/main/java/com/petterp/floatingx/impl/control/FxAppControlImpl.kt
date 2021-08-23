@@ -46,14 +46,15 @@ open class FxAppControlImpl(private val helper: AppHelper) :
         show(topActivity!!)
     }
 
-    override fun updateMangerView(layout: Int) {
-        super.updateMangerView(layout)
-        ViewCompat.setOnApplyWindowInsetsListener(getManagerView()!!, windowsInsetsListener)
-        getManagerView()?.requestApplyInsets()
-    }
-
     override fun context(): Context {
         return helper.application
+    }
+
+    private fun initWindowsInsetsListener() {
+        getManagerView()?.let {
+            ViewCompat.setOnApplyWindowInsetsListener(it, windowsInsetsListener)
+            it.requestApplyInsets()
+        }
     }
 
     internal fun attach(activity: Activity): Boolean {
@@ -64,6 +65,7 @@ open class FxAppControlImpl(private val helper: AppHelper) :
             var isAnimation = false
             if (getManagerView() == null) {
                 helper.updateNavigationBar(activity)
+                helper.updateStatsBar(activity)
                 initManagerView()
                 isAnimation = true
             } else {
@@ -87,11 +89,24 @@ open class FxAppControlImpl(private val helper: AppHelper) :
         clearContainer()
     }
 
+    override fun initManager() {
+        // 在清除之前移除insets监听
+        clearWindowsInsetsListener()
+        super.initManager()
+        // 移除之后再添加inset监听
+        initWindowsInsetsListener()
+    }
+
     override fun reset() {
+        // 重置之前记得移除insets
+        clearWindowsInsetsListener()
+        super.reset()
+        FloatingX.reset()
+    }
+
+    private fun clearWindowsInsetsListener() {
         getManagerView()?.let {
             ViewCompat.setOnApplyWindowInsetsListener(it, null)
         }
-        super.reset()
-        FloatingX.reset()
     }
 }
