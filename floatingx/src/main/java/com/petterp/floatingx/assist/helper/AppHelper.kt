@@ -56,9 +56,12 @@ class AppHelper(
 
         /**
          * 允许所有activity都显示全局悬浮窗
+         * @param isEnable 默认false
+         *
+         * 启用了这个方法,addBlackClass就不用设置了
          * */
-        fun enableAllBlackClass(enable: Boolean): Builder {
-            enableAllBlackClass = enable
+        fun setEnableAllBlackClass(isEnable: Boolean): Builder {
+            enableAllBlackClass = isEnable
             return this
         }
 

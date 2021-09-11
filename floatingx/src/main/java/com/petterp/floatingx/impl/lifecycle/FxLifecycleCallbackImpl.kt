@@ -34,24 +34,26 @@ class FxLifecycleCallbackImpl(
 
     override fun onActivityStarted(activity: Activity) {
         helper.fxLog?.d("AppLifecycle--[${activity.name}]-onActivityStarted")
-        initActivity(activity)
         helper.fxLifecycleExpand?.onActivityStarted?.let {
             if (activity.isActivityInValid) it.invoke(activity)
         }
     }
 
     /**
-     * 最开始想到在onActivityPostCreated后插入,
+     * 最开始想到在onActivityPostStarted后插入,
      * 但是最后发现在Android9及以下,此方法不会被调用,故选择了onResume
      * */
     override fun onActivityResumed(activity: Activity) {
         helper.fxLog?.d("AppLifecycle--[${activity.name}]-onActivityResumed")
+        helper.fxLifecycleExpand?.onActivityResumed?.let {
+            if (activity.isActivityInValid) it.invoke(activity)
+        }
         initActivity(activity)
         if (!helper.enableFx) {
             helper.fxLog?.d("view->isAttach? -enableFx-${helper.enableFx}")
             return
         }
-        if (activity.isActivityInValid) {
+        if (!activity.isActivityInValid) {
             helper.fxLog?.d("view->isAttach? -isActivityInValid-[false]")
             return
         }
@@ -62,7 +64,6 @@ class FxLifecycleCallbackImpl(
         }
         helper.fxLog?.d("view->isAttach? isContainActivity-[true]--enableFx-${helper.enableFx}---isParent-$isParent")
         appControl?.attach(activity)
-        helper.fxLifecycleExpand?.onActivityResumed?.invoke(activity)
     }
 
     override fun onActivityPaused(activity: Activity) {
