@@ -10,7 +10,8 @@ import com.petterp.floatingx.util.statusBarHeight
 /** AppHelper构建器 */
 class AppHelper(
     val application: Application,
-    val blackList: MutableList<Class<*>>,
+    val blackList: MutableList<Class<*>>?,
+    val enableAllBlackClass: Boolean,
     val fxLifecycleExpand: FxLifecycleExpand?
 ) : BasisHelper() {
 
@@ -26,8 +27,9 @@ class AppHelper(
 
     class Builder : BasisHelper.Builder<Builder, AppHelper>() {
         private var application: Application? = null
-        private var blackList = mutableListOf<Class<*>>()
+        private var blackList: MutableList<Class<*>>? = null
         private var fxLifecycleExpand: FxLifecycleExpand? = null
+        private var enableAllBlackClass: Boolean = false
 
         fun setContext(application: Application): Builder {
             this.application = application
@@ -47,14 +49,23 @@ class AppHelper(
          * @param c 允许显示的activity类
          * */
         fun addBlackClass(vararg c: Class<out Activity>): Builder {
-            blackList.addAll(c)
+            if (blackList == null) blackList = mutableListOf()
+            blackList?.addAll(c)
+            return this
+        }
+
+        /**
+         * 允许所有activity都显示全局悬浮窗
+         * */
+        fun enableAllBlackClass(enable: Boolean): Builder {
+            enableAllBlackClass = enable
             return this
         }
 
         override fun buildHelper(): AppHelper =
             if (application == null)
                 throw NullPointerException("To build AppHelper, you must set application!")
-            else AppHelper(application!!, blackList, fxLifecycleExpand)
+            else AppHelper(application!!, blackList, enableAllBlackClass, fxLifecycleExpand)
 
         override fun build(): AppHelper {
             val helper = super.build()
