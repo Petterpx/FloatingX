@@ -45,23 +45,28 @@ interface IFxHelperControl {
     }
 
     /** 启用位置修复 */
-    fun setEnableAbsoluteFix(enable: Boolean) {
-        getConfigHelper().enableAbsoluteFix = enable
+    fun setEnableAbsoluteFix(isEnable: Boolean) {
+        getConfigHelper().enableAbsoluteFix = isEnable
     }
 
     /** 启用边缘回弹
      * */
-    fun setEnableEdgeRebound(enable: Boolean) {
-        getConfigHelper().enableEdgeRebound = enable
+    fun setEnableEdgeRebound(isEnable: Boolean) {
+        getConfigHelper().enableEdgeRebound = isEnable
+    }
+
+    /** 设置是否启用触摸事件
+     * @param enable==true,则允许悬浮窗拖动
+     * */
+    fun setEnableTouch(isEnable: Boolean) {
+        getConfigHelper().enableTouch = isEnable
     }
 
     /** 是否启用边缘吸附
      * @param enable 是否启用,默认true
      * @param lazyStart 是否下次拖动再生效,false 代表立即生效,即立即边缘吸附
      * */
-    fun setEnableEdgeAdsorption(enable: Boolean, lazyStart: Boolean = false) {
-        getConfigHelper().enableEdgeAdsorption = enable
-    }
+    fun setEnableEdgeAdsorption(isEnable: Boolean, lazyStart: Boolean = false)
 
     /** 设置滑动监听 */
     fun setScrollListener(listener: IFxScrollListener) {
@@ -74,16 +79,16 @@ interface IFxHelperControl {
     }
 
     /** 设置允许保存方向 */
-    fun setEnableSaveDirection(impl: IFxConfigStorage, enable: Boolean = true) {
+    fun setEnableSaveDirection(impl: IFxConfigStorage, isEnable: Boolean = true) {
         getConfigHelper().iFxConfigStorage = impl
-        getConfigHelper().enableSaveDirection = enable
+        getConfigHelper().enableSaveDirection = isEnable
     }
 
     /** 设置方向保存开关
      * 设置之前,请确保已经设置了方向保存实例
      * */
-    fun setEnableSaveDirection(enable: Boolean = true) {
-        getConfigHelper().enableSaveDirection = enable
+    fun setEnableSaveDirection(isEnable: Boolean = true) {
+        getConfigHelper().enableSaveDirection = isEnable
     }
 
     /** 清除保存的位置信息 */

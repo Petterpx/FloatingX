@@ -10,14 +10,12 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.Direction
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.util.topActivity
-import kotlin.math.abs
 
 /**
  * 基础悬浮窗View 源自 ->
@@ -75,25 +73,22 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        var intercepted = false
-        when (ev.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                helper.fxLog?.d("view---onInterceptTouchEvent--down")
-                intercepted = false
-                touchDownX = ev.x
-                // 初始化按下后的信息
-                initTouchDown(ev)
-                helper.iFxScrollListener?.down()
-            }
-            MotionEvent.ACTION_MOVE ->
-                // 判断是否要拦截事件
-                intercepted =
-                    abs(touchDownX - ev.x) >= ViewConfiguration.get(
-                        context
-                    ).scaledTouchSlop
-            MotionEvent.ACTION_UP -> intercepted = false
+        if (!helper.enableTouch) return super.onInterceptTouchEvent(ev)
+        if (ev.actionMasked == MotionEvent.ACTION_DOWN) {
+            helper.fxLog?.d("view---onInterceptTouchEvent--down")
+            touchDownX = ev.x
+            // 初始化按下后的信息
+            initTouchDown(ev)
+            helper.iFxScrollListener?.down()
         }
-        return intercepted
+//            MotionEvent.ACTION_MOVE ->
+//                // 判断是否要拦截事件
+//                intercepted =
+//                    abs(touchDownX - ev.x) >= ViewConfiguration.get(
+//                        context
+//                    ).scaledTouchSlop
+//            MotionEvent.ACTION_UP -> intercepted = false
+        return super.onInterceptTouchEvent(ev)
     }
 
     private fun initTouchDown(ev: MotionEvent) {
@@ -129,7 +124,7 @@ class FxMagnetView @JvmOverloads constructor(
                 actionTouchCancel()
             }
         }
-        return true
+        return helper.enableTouch
     }
 
     private fun clickManagerView() {

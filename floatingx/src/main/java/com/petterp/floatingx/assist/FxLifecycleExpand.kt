@@ -4,12 +4,10 @@ import android.app.Activity
 import android.os.Bundle
 
 /**
- * @Author petterp
- * @Date 2021/6/9-9:56 上午
- * @Email ShiyihuiCloud@163.com
- * @Function Fx-lifecycle扩展
+ * Fx-lifecycle扩展
+ *
  * PS: 只有显示悬浮窗的Activity的才会被回调相应生命周期
- */
+ * */
 class FxLifecycleExpand {
     internal var onActivityCreated: ((Activity, Bundle?) -> Unit)? = null
     internal var onActivityStarted: ((Activity) -> Unit)? = null
