@@ -43,31 +43,31 @@ class MainActivity : AppCompatActivity() {
                 )
                 orientation = LinearLayout.VERTICAL
                 addScopeViewGroup()
-                addItemView("显示全局悬浮窗") {
+                addItemView("显示全局悬浮窗-(展示与多指触摸)") {
                     FloatingX.control().show(this@MainActivity)
                     FloatingX.control().updateView {
                         it.text(R.id.tvItemFx, "App")
                         it.getView<CardView>(R.id.cardItemFx)?.setCardBackgroundColor(Color.RED)
                     }
                 }
-                addItemView("显示Activity悬浮窗") {
+                addItemView("显示Activity悬浮窗-(展示与多指触摸)") {
                     activityFx.show()
                     activityFx.updateView {
                         it.text(R.id.tvItemFx, "Act")
                         it.getView<CardView>(R.id.cardItemFx)?.setCardBackgroundColor(Color.BLUE)
                     }
                 }
-                addItemView("显示View级别悬浮窗") {
+                addItemView("显示View级别悬浮窗-(展示与多指触摸)") {
                     viewFx.show()
                     viewFx.updateView {
                         it.text(R.id.tvItemFx, "view")
                         it.getView<CardView>(R.id.cardItemFx)?.setCardBackgroundColor(Color.GREEN)
                     }
                 }
-                addItemView("调整到无状态栏页面") {
+                addItemView("调整到无状态栏页面-(测试状态栏影响)") {
                     ImmersedActivity::class.java.start()
                 }
-                addItemView("跳转到局部悬浮窗页面") {
+                addItemView("跳转到局部悬浮窗页面-(测试api功能)") {
                     ScopeActivity::class.java.start()
                 }
             }

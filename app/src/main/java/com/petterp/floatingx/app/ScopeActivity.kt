@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.NestedScrollView
 import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.util.createFx
 
@@ -39,39 +40,68 @@ class ScopeActivity : AppCompatActivity() {
                 )
                 orientation = LinearLayout.VERTICAL
                 addScopeViewGroup()
-                addItemView("显示悬浮窗") {
-                    scopeFx.show()
-                }
-                addItemView("隐藏悬浮窗") {
-                    scopeFx.hide()
-                }
-                addItemView("更换layout") {
-                    scopeFx.updateManagerView(R.layout.item_floating_new)
-                }
-                addItemView("增加点击事件") {
-                    scopeFx.setClickListener {
-                        Toast.makeText(this@ScopeActivity, "被点击", Toast.LENGTH_SHORT).show()
+                addView(
+                    TextView(context).apply {
+                        text = "api列表可拖动"
+                        gravity = Gravity.CENTER
+                        setPadding(0, 0, 0, 20)
+                        textSize = 19f
                     }
-                }
-                addItemView("当前是否显示") {
-                    Toast.makeText(
-                        this@ScopeActivity,
-                        "当前是否显示-${scopeFx.isShow()}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                addItemView("允许边缘吸附,立即生效") {
-                    scopeFx.helperControl.setEnableEdgeAdsorption(true)
-                }
-                addItemView("允许边缘回弹") {
-                    scopeFx.helperControl.setEnableEdgeRebound(true)
-                }
-                addItemView("开启动画") {
-                    scopeFx.helperControl.setEnableAnimation(true)
-                }
-                addItemView("边距调整为100f") {
-                    scopeFx.helperControl.setBorderMargin(100f, 100f, 100f, 100f)
-                }
+                )
+                addView(
+                    NestedScrollView(context).apply {
+                        layoutParams = FrameLayout.LayoutParams(-1, -2)
+                        addView(
+                            LinearLayout(context).apply {
+                                orientation = LinearLayout.VERTICAL
+                                addItemView("显示悬浮窗") {
+                                    scopeFx.show()
+                                }
+                                addItemView("禁止触摸事件(禁止拖动)") {
+                                    scopeFx.helperControl.setEnableTouch(false)
+                                }
+                                addItemView("允许触摸事件(允许拖动)-默认允许") {
+                                    scopeFx.helperControl.setEnableTouch(true)
+                                }
+                                addItemView("隐藏悬浮窗") {
+                                    scopeFx.hide()
+                                }
+                                addItemView("更换layout") {
+                                    scopeFx.updateManagerView(R.layout.item_floating_new)
+                                }
+                                addItemView("增加点击事件") {
+                                    scopeFx.setClickListener {
+                                        Toast.makeText(
+                                            this@ScopeActivity,
+                                            "被点击",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                            .show()
+                                    }
+                                }
+                                addItemView("当前是否显示") {
+                                    Toast.makeText(
+                                        this@ScopeActivity,
+                                        "当前是否显示-${scopeFx.isShow()}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                addItemView("允许边缘吸附,立即生效") {
+                                    scopeFx.helperControl.setEnableEdgeAdsorption(true)
+                                }
+                                addItemView("允许边缘回弹") {
+                                    scopeFx.helperControl.setEnableEdgeRebound(true)
+                                }
+                                addItemView("开启动画") {
+                                    scopeFx.helperControl.setEnableAnimation(true)
+                                }
+                                addItemView("边距调整为100f") {
+                                    scopeFx.helperControl.setBorderMargin(100f, 100f, 100f, 100f)
+                                }
+                            }
+                        )
+                    }
+                )
             }
         )
     }

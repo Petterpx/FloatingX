@@ -2,9 +2,9 @@ package com.petterp.floatingx.app
 
 import android.app.Application
 import com.petterp.floatingx.FloatingX
-import com.petterp.floatingx.assist.Direction
 import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
+import com.petterp.floatingx.assist.Direction
 
 /**
  * @Author petterp
@@ -56,7 +56,7 @@ class CustomApplication : Application() {
             setSaveDirectionImpl(FxConfigStorageToSpImpl(applicationContext))
 
             // 设置底部偏移量
-            setBorderBorderMargin(100f)
+            setBottomBorderMargin(100f)
             // 设置顶部偏移量
 //            setTopBorderMargin(100f)
             // 设置左侧偏移量
@@ -64,13 +64,19 @@ class CustomApplication : Application() {
             // 设置右侧偏移量
             setRightBorderMargin(100f)
 
+            // 设置允许触摸事件
+            setEnableTouch(true)
+
             // 设置悬浮窗LayoutParams
 //            setLayoutParams()
             // 设置要显示的activity
             addBlackClass(
                 MainActivity::class.java,
-                ImmersedActivity::class.java
+                ImmersedActivity::class.java,
             )
+            // 设置允许全部activity显示悬浮窗,默认false
+            setEnableAllBlackClass(false)
+
             // 设置tag-Activity
             setTagActivityLifecycle {
                 onCreated { activity, bundle ->

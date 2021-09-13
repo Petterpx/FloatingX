@@ -98,9 +98,9 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
         managerView?.moveToEdge()
     }
 
-    override fun setEnableEdgeAdsorption(enable: Boolean, lazyStart: Boolean) {
-        super.setEnableEdgeAdsorption(enable, lazyStart)
-        if (enable && !lazyStart) managerView?.moveToEdge()
+    override fun setEnableEdgeAdsorption(isEnable: Boolean, lazyStart: Boolean) {
+        getConfigHelper().enableEdgeAdsorption = isEnable
+        if (isEnable && !lazyStart) managerView?.moveToEdge()
     }
 
     /*

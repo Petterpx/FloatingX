@@ -33,6 +33,7 @@ open class BasisHelper {
     internal var enableAnimation: Boolean = false
     internal var enableSaveDirection: Boolean = false
     internal var enableDebugLog: Boolean = false
+    internal var enableTouch: Boolean = true
 
     internal var iFxScrollListener: IFxScrollListener? = null
     internal var iFxViewLifecycle: IFxViewLifecycle? = null
@@ -73,6 +74,7 @@ open class BasisHelper {
         private var enableAnimation: Boolean = false
         private var enableDebugLog: Boolean = false
         private var fxLogTag: String = ""
+        private var enableTouch: Boolean = true
 
         private var enableSaveDirection: Boolean = false
         private var enableDefaultSave: Boolean = false
@@ -106,6 +108,7 @@ open class BasisHelper {
                 enableAnimation = this@Builder.enableAnimation
                 borderMargin = this@Builder.borderMargin
                 enableSaveDirection = this@Builder.enableSaveDirection
+                enableTouch = this@Builder.enableTouch
 
                 enableDebugLog = this@Builder.enableDebugLog
                 fxLogTag = this@Builder.fxLogTag
@@ -131,6 +134,15 @@ open class BasisHelper {
         /** 设置启用fx */
         fun show(): T {
             this.enableFx = true
+            return this as T
+        }
+
+        /**
+         * 是否启用触摸,即是否允许拖动悬浮窗
+         * @param isEnable 默认true
+         * */
+        fun setEnableTouch(isEnable: Boolean): T {
+            this.enableTouch = isEnable
             return this as T
         }
 
@@ -220,7 +232,7 @@ open class BasisHelper {
             return this as T
         }
 
-        fun setBorderBorderMargin(b: Float): T {
+        fun setBottomBorderMargin(b: Float): T {
             borderMargin.b = abs(b)
             return this as T
         }
@@ -251,7 +263,7 @@ open class BasisHelper {
          * 则相对应的([defaultX], [defaultY]) 最终会根据 t,b,l,r 偏移量计算，而非直接坐标
          *
          * @param t 设置可移动范围内的相对屏幕顶部偏移量
-         * activity时 不包含状态栏,框架会自行计算高度并减去,即顶部偏移量最终=topMargin+框架计算好的状态栏+moveEdg。
+         * App级别时 不包含状态栏,框架会自行计算高度并减去,即顶部偏移量最终=topMargin+框架计算好的状态栏+moveEdg。
          * 需要注意,当悬浮窗插入到普通view时,框架不会考虑状态栏
          * @param b 设置可移动范围内的相对屏幕底部偏移量,不包含导航栏,框架会自行计算高度并减去
          * 即底部偏移量最终=屏幕高度-bottomMargin-框架计算好的导航栏-moveEdge。
