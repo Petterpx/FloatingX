@@ -98,6 +98,17 @@ class ScopeActivity : AppCompatActivity() {
                                 addItemView("边距调整为100f") {
                                     scopeFx.helperControl.setBorderMargin(100f, 100f, 100f, 100f)
                                 }
+                                addItemView("设置浮窗子view点击事件") {
+                                    scopeFx.updateView {
+                                        it.getView<View>(R.id.cardItemFx)?.setOnClickListener {
+                                            Toast.makeText(
+                                                this@ScopeActivity,
+                                                "点击了内部cardView",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                }
                             }
                         )
                     }

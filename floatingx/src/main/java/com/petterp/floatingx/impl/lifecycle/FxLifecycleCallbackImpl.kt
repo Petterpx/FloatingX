@@ -50,19 +50,19 @@ class FxLifecycleCallbackImpl(
         }
         initActivity(activity)
         if (!helper.enableFx) {
-            helper.fxLog?.d("view->isAttach? -enableFx-${helper.enableFx}")
+            helper.fxLog?.d("fxView->isAttach? -enableFx-${helper.enableFx}")
             return
         }
         if (!activity.isActivityInValid) {
-            helper.fxLog?.d("view->isAttach? -isActivityInValid-[false]")
+            helper.fxLog?.d("fxView->isAttach? -isActivityInValid-[false]")
             return
         }
         val isParent = activity.isParent
         if (isParent) {
-            helper.fxLog?.d("view->isAttach? -isParent-$isParent")
+            helper.fxLog?.d("fxView->isAttach? -isParent-$isParent")
             return
         }
-        helper.fxLog?.d("view->isAttach? isContainActivity-[true]--enableFx-${helper.enableFx}---isParent-$isParent")
+        helper.fxLog?.d("fxView->isAttach? isContainActivity-[true]--enableFx-${helper.enableFx}---isParent-$isParent")
         appControl?.attach(activity)
     }
 
@@ -87,7 +87,7 @@ class FxLifecycleCallbackImpl(
         }
         if (!helper.enableFx) return
         val isParent = activity.isParent
-        helper.fxLog?.d("view->isDetach? isContainActivity-${activity.isActivityInValid}--enableFx-${helper.enableFx}---isParent-$isParent")
+        helper.fxLog?.d("fxView->isDetach? isContainActivity-${activity.isActivityInValid}--enableFx-${helper.enableFx}---isParent-$isParent")
         if (helper.enableFx && isParent)
             appControl?.detach(activity)
         if (topActivity?.get() === activity) {

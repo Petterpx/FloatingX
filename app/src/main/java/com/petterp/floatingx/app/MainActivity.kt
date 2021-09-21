@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity() {
                     FloatingX.control().show(this@MainActivity)
                     FloatingX.control().updateView {
                         it.text(R.id.tvItemFx, "App")
-                        it.getView<CardView>(R.id.cardItemFx)?.setCardBackgroundColor(Color.RED)
                     }
                 }
                 addItemView("显示Activity悬浮窗-(展示与多指触摸)") {

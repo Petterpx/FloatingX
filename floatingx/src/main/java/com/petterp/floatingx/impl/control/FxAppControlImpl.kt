@@ -73,11 +73,11 @@ open class FxAppControlImpl(private val helper: AppHelper) :
                 detach()
             }
             mContainer = WeakReference(it)
-            helper.fxLog?.d("view-lifecycle-> code->addView")
+            helper.fxLog?.d("fxView-lifecycle-> code->addView")
             helper.iFxViewLifecycle?.postAttach()
             getContainer()?.addView(getManagerView())
             if (isAnimation && helper.enableAnimation && helper.fxAnimation != null) {
-                helper.fxLog?.d("view->Animation -----start")
+                helper.fxLog?.d("fxView->Animation -----start")
                 helper.fxAnimation?.fromStartAnimator(getManagerView())
             }
         } ?: helper.fxLog?.e("system -> fxParentView==null")

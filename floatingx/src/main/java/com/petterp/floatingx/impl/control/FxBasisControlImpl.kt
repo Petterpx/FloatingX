@@ -78,10 +78,10 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
             helper.fxAnimation != null
         ) {
             if (helper.fxAnimation!!.endJobRunning) {
-                helper.fxLog?.d("view->Animation ,endAnimation Executing, cancel this operation!")
+                helper.fxLog?.d("fxView->Animation ,endAnimation Executing, cancel this operation!")
                 return
             }
-            helper.fxLog?.d("view->Animation ,endAnimation Running")
+            helper.fxLog?.d("fxView->Animation ,endAnimation Running")
             managerView?.removeCallbacks(hideAnimationRunnable)
             val duration = helper.fxAnimation!!.toEndAnimator(managerView)
             animatorCallback(duration, hideAnimationRunnable)
@@ -149,7 +149,7 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
         viewHolder?.clear()
         viewHolder = null
         clearContainer()
-        helper.fxLog?.d("view-lifecycle-> code->cancelFx")
+        helper.fxLog?.d("fxView-lifecycle-> code->cancelFx")
     }
 
     private fun animatorCallback(long: Long, runnable: Runnable) {
@@ -166,7 +166,7 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
 
     protected open fun detach(container: ViewGroup?) {
         if (managerView != null && container != null) {
-            helper.fxLog?.d("view-lifecycle-> code->removeView")
+            helper.fxLog?.d("fxView-lifecycle-> code->removeView")
             helper.iFxViewLifecycle?.postDetached()
             container.removeView(managerView)
         }
@@ -196,10 +196,10 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
             helper.fxAnimation != null && !helper.fxAnimation!!.fromJobRunning
         ) {
             if (helper.fxAnimation?.fromJobRunning == true) {
-                helper.fxLog?.d("view->Animation ,startAnimation Executing, cancel this operation!")
+                helper.fxLog?.d("fxView->Animation ,startAnimation Executing, cancel this operation!")
                 return
             }
-            helper.fxLog?.d("view->Animation ,startAnimation Executing, cancel this operation.")
+            helper.fxLog?.d("fxView->Animation ,startAnimation Executing, cancel this operation.")
             helper.fxAnimation?.fromStartAnimator(this)
         }
     }

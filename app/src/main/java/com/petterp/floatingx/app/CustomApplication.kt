@@ -42,7 +42,7 @@ class CustomApplication : Application() {
             setEnableScrollOutsideScreen(true)
             // 设置辅助方向辅助
             // 设置点击事件
-            setOnClickListener { }
+//            setOnClickListener { }
             // 设置view-lifecycle监听
 //            setViewLifecycle()
 
