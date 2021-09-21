@@ -4,7 +4,7 @@
 
 ![image-20210810161316095](https://tva1.sinaimg.cn/large/008i3skNly1gtbrg85hlhj61040k80ui02.jpg)
 
-[![](https://jitpack.io/v/Petterpx/FloatingX.svg)](https://jitpack.io/#Petterpx/FloatingX) [![Scan with Detekt](https://github.com/Petterpx/FloatingX/actions/workflows/detekt-analysis.yml/badge.svg)](https://github.com/Petterpx/FloatingX/actions/workflows/detekt-analysis.yml) [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/) 
+[![](https://jitpack.io/v/Petterpx/FloatingX.svg)](https://jitpack.io/#Petterpx/FloatingX) [![](https://jitci.com/gh/Petterpx/FloatingX/svg)](https://jitci.com/gh/Petterpx/FloatingX) [![Scan with Detekt](https://github.com/Petterpx/FloatingX/actions/workflows/detekt-analysis.yml/badge.svg)](https://github.com/Petterpx/FloatingX/actions/workflows/detekt-analysis.yml) [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/) 
 
 **FloatingX** 一个灵活且强大的 `免权限` 悬浮窗解决方案。
 
