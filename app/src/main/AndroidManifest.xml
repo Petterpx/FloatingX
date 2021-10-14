@@ -21,12 +21,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".NewActivity"
-            android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
-            android:launchMode="standard"
-            android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".ImmersedActivity" />
-        <activity android:name=".ScopeActivity" />
+            android:name=".ImmersedActivity"
+            android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
+        <activity
+            android:name=".ScopeActivity"
+            android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
     </application>
 
 </manifest>

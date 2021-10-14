@@ -111,7 +111,7 @@ class FxMagnetView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        if (helper.enableAbsoluteFix && updateSize())
+        if (updateSize() && helper.enableAbsoluteFix)
             fixLocation()
     }
 
@@ -214,6 +214,7 @@ class FxMagnetView @JvmOverloads constructor(
 
     private fun updateSize(): Boolean {
         (parent as ViewGroup).apply {
+            // 这里先减掉自身大小可以避免后期再重复减掉
             val parentWidth = (width - this@FxMagnetView.width).toFloat()
             val parentHeight = (height - this@FxMagnetView.height).toFloat()
             helper.fxLog?.d("fxView->size oldW-($mRootWidth),oldH-($mRootHeight),newW-($parentWidth),newH-($parentHeight)")
