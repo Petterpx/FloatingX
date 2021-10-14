@@ -50,11 +50,11 @@ dependencies {
 
 | 全屏,activity,fragment,单view                                | 小屏展示                                                     | 非正常比例缩放屏幕                                           |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![效果-展示1](https://tva1.sinaimg.cn/large/008i3skNly1gt8cwy2lvrg30700ey1l0.gif) | ![演示-小屏](https://tva1.sinaimg.cn/large/008i3skNly1gtb0ruynzpg607c0eie8d02.gif) | ![非正常比例缩放](https://tva1.sinaimg.cn/large/008i3skNly1gtb0rxgpgmg607c0ege8702.gif) |
+| ![效果-展示1](https://github.com/Petterpx/FloatingX/blob/master/image/fx-api-simple.gif) | ![演示-小屏](https://github.com/Petterpx/FloatingX/blob/master/image/fx-small-gif.gif) | ![非正常比例缩放](https://github.com/Petterpx/FloatingX/blob/master/image/fx-view-deformed-simple.gif) |
 
 | 屏幕旋转                                                     | 功能演示                                                     |      |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
-| ![演示-旋转](https://tva1.sinaimg.cn/large/008i3skNly1gt8cx7m0wgg30h60fg1kz.gif) | ![演示-局部功能](https://tva1.sinaimg.cn/large/008i3skNly1gtayx6t0l0g307c0ege84.gif) |      |
+| ![演示-旋转](https://github.com/Petterpx/FloatingX/blob/master/image/fx-rotate-simple.gif) | ![演示-局部功能](https://github.com/Petterpx/FloatingX/blob/master/image/fx-api-simple.gif) |      |
 
 ### 完善的日志-查看器
 
