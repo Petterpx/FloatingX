@@ -16,7 +16,6 @@ class CustomApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-
         FloatingX.init {
             // 设置context
             setContext(this@CustomApplication)
@@ -77,7 +76,7 @@ class CustomApplication : Application() {
             // 设置允许全部activity显示悬浮窗,默认false
             setEnableAllBlackClass(false)
 
-            // 设置tag-Activity
+            // 设置tag-Activity生命周期回调时的触发
             setTagActivityLifecycle {
                 onCreated { activity, bundle ->
                 }
@@ -85,12 +84,6 @@ class CustomApplication : Application() {
             }
             setEnableLog(true)
             // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
-//            show()
-        }
-
-        FloatingX.init {
-            setContext(this@CustomApplication)
-            setLayout(R.layout.item_floating_new)
             show()
         }
     }
