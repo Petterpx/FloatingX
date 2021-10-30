@@ -12,13 +12,12 @@ android {
             keyPassword '19980920.'
         }
     }
-    compileSdkVersion 30
-    buildToolsVersion "30.0.3"
+    compileSdk compilesdk_version
 
     defaultConfig {
-        applicationId "com.android.floatingx"
-        minSdkVersion 21
-        targetSdkVersion 30
+        applicationId "com.petterp.floatingx.app"
+        minSdk minsdk_version
+        targetSdk targetsdk_version
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -37,6 +36,11 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
     }
 }
 

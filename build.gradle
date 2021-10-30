@@ -1,12 +1,24 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    ext.kotlin_version = "1.5.20"
+    ext {
+        kotlin_version = "1.5.21"
+        minsdk_version = 21
+        targetsdk_version = 31
+        compilesdk_version = 31
+        version_name = '1.0-rc08'
+        versionCode = {
+            def cmd = 'git rev-list HEAD --count'
+            cmd.execute().text.trim().toInteger()
+        }
+        group_id = 'com.petterp'
+        artifactId = 'floatingx'
+    }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.2.0"
+        classpath 'com.android.tools.build:gradle:7.0.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -14,13 +26,6 @@ buildscript {
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        jcenter() // Warning: this repository is going to shut down soon
-    }
-}
 
 task clean(type: Delete) {
     delete rootProject.buildDir
