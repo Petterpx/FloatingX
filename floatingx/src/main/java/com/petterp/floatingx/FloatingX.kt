@@ -16,14 +16,14 @@ object FloatingX {
     internal var iFxAppLifecycleImpl: FxLifecycleCallbackImpl? = null
 
     /** dsl初始化 */
-    fun init(obj: AppHelper.Builder.() -> Unit) =
+    fun init(obj: AppHelper.Builder.() -> Unit): FloatingX =
         init(AppHelper.builder().apply(obj).build())
 
     /** 悬浮窗配置信息 */
     @JvmStatic
-    fun init(helper: AppHelper): FxAppControlImpl {
+    fun init(helper: AppHelper): FloatingX {
         this.helper = helper
-        return control()
+        return this
     }
 
     @JvmStatic
@@ -32,12 +32,6 @@ object FloatingX {
             initControl()
         }
         return fxControl!!
-    }
-
-    /** 清除历史坐标信息，如果开启了历史存储 */
-    @JvmStatic
-    fun clearConfig() {
-        helper?.iFxConfigStorage?.clear()
     }
 
     /** 调用此方法将直接关闭悬浮窗,保留配置信息helper

@@ -43,6 +43,10 @@ open class FxAppControlImpl(private val helper: AppHelper) :
     }
 
     override fun show() {
+        if (topActivity == null) {
+            helper.fxLog?.e("show-fx---topActivity=null!!!")
+            return
+        }
         show(topActivity!!)
     }
 

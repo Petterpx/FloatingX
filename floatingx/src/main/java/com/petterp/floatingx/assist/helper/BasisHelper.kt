@@ -9,7 +9,6 @@ import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.util.FxLog
-import com.petterp.floatingx.util.FxScopeEnum
 import kotlin.math.abs
 
 /** 通用构建器helper */
@@ -57,7 +56,6 @@ open class BasisHelper {
         @LayoutRes
         private var layoutId: Int = 0
         private var gravity: Direction = Direction.RIGHT_OR_BOTTOM
-        private var scopeEnum: FxScopeEnum = FxScopeEnum.APP_SCOPE
         private var clickTime: Long = 500L
         private var layoutParams: FrameLayout.LayoutParams? = null
         private var fxAnimation: FxAnimation? = null
@@ -118,12 +116,6 @@ open class BasisHelper {
                 iFxConfigStorage = this@Builder.iFxConfigStorage
                 clickListener = this@Builder.ifxClickListener
             }
-
-        /** 设置作用域 */
-        internal fun setScopeType(type: FxScopeEnum): T {
-            this.scopeEnum = type
-            return this as T
-        }
 
         /** 设置悬浮窗view的layout */
         fun setLayout(@LayoutRes layoutId: Int): T {
