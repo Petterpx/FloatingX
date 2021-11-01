@@ -27,24 +27,50 @@
 
 ## 👨‍💻‍ 依赖方式
 
-#### Gradle
+### 添加jitpack仓库
+
+**build.gradle**
+
+Gradle7.0 以下
 
 ```groovy
 allprojects {
 		repositories {
-			...
+			// ...
 			maven { url 'https://jitpack.io' }
 		}
-	}
-```
-
-```groovy
-dependencies {
-	        implementation 'com.github.Petterpx:FloatingX:1.0-rc07'
 }
 ```
 
+> AndroidStudio-Arctic Fox && Gradle7.0+,并且已经对依赖方式进行过调整，则可能需要添加到如下位置：
+>
+> **settings.gradle**
+>
+> ```groovy
+> dependencyResolutionManagement {
+> repositories {
+> 
+>      // ...
+>      maven { url 'https://jitpack.io' }
+>  }
+> }
+> ```
 
+### Gradle
+
+```groovy
+dependencies {
+	  implementation 'com.github.Petterpx:FloatingX:1.0-rc08'
+}
+```
+
+> 如果您是在纯Java中使用,那么还需要导入Kotlin依赖，为了避免冲突, FloatingX 不会引入任何第三方库。
+>
+> ```groovy
+> implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21"
+> ```
+>
+> [完整kotlin库依赖方式请参考](https://developer.android.com/kotlin/add-kotlin?hl=zh-cn)
 
 ## 🏄‍♀️ 效果图
 
