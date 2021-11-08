@@ -42,6 +42,8 @@ open class FxAppControlImpl(private val helper: AppHelper) :
         }
     }
 
+    /** 请注意：
+     * 调用此方法前请确定在初始化fx时,调用了show方法,否则,fx默认不会插入到全局Activity */
     override fun show() {
         if (topActivity == null) {
             helper.fxLog?.e("show-fx---topActivity=null!!!")

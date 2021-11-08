@@ -23,6 +23,10 @@ object FloatingX {
     @JvmStatic
     fun init(helper: AppHelper): FloatingX {
         this.helper = helper
+        // 如果用户未开启全局浮窗,那么此时初始化控制器意义页不大
+        if (helper.enableFx) {
+            initControl()
+        }
         return this
     }
 
@@ -39,6 +43,7 @@ object FloatingX {
     @JvmStatic
     internal fun reset() {
         fxControl = null
+        if (iFxAppLifecycleImpl == null) return
         getConfigApplication().unregisterActivityLifecycleCallbacks(iFxAppLifecycleImpl)
         iFxAppLifecycleImpl = null
     }
@@ -46,6 +51,7 @@ object FloatingX {
     private fun initControl() {
         if (fxControl == null) {
             fxControl = FxAppControlImpl(config())
+            if (!config().enableFx) return
             initAppLifecycle()
             iFxAppLifecycleImpl?.appControl = fxControl
         }
@@ -65,5 +71,6 @@ object FloatingX {
     }
 
     private fun config(): AppHelper =
-        helper ?: throw NullPointerException("config==null!!!,FxConfig Cannot be null")
+        helper
+            ?: throw NullPointerException("helper==null!!!,AppHelper Cannot be null,Please check if init() is called.")
 }
