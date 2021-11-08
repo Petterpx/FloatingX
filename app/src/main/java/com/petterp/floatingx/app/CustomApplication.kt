@@ -32,7 +32,6 @@ class CustomApplication : Application() {
 //            setX()
             // 设置y轴默认坐标
 //            setY()
-
             // 设置启用边缘吸附
             setEnableEdgeAdsorption(true)
             // 设置边缘偏移量
@@ -44,7 +43,6 @@ class CustomApplication : Application() {
 //            setOnClickListener { }
             // 设置view-lifecycle监听
 //            setViewLifecycle()
-
             // 设置启用悬浮窗位置修复
             setEnableAbsoluteFix(true)
             // 设置启用动画
@@ -62,7 +60,6 @@ class CustomApplication : Application() {
             setLeftBorderMargin(100f)
             // 设置右侧偏移量
             setRightBorderMargin(100f)
-
             // 设置允许触摸事件
             setEnableTouch(true)
 
@@ -75,14 +72,12 @@ class CustomApplication : Application() {
             )
             // 设置允许全部activity显示悬浮窗,默认false
             setEnableAllBlackClass(false)
-
             // 设置tag-Activity生命周期回调时的触发
             setTagActivityLifecycle {
                 onCreated { activity, bundle ->
                 }
                 onResumes { }
             }
-            setEnableLog(true)
             // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
             show()
         }
