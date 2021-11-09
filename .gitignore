@@ -1,13 +1,9 @@
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/sonarlint
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+/.idea/*
+!/.idea/detekt.xml
+!/.idea/ktlint.xml
 .DS_Store
 /build
 /captures
