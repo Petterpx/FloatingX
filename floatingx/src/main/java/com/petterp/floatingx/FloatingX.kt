@@ -38,9 +38,6 @@ object FloatingX {
         return fxControl!!
     }
 
-    /** 调用此方法将直接关闭悬浮窗,保留配置信息helper
-     * */
-    @JvmStatic
     internal fun reset() {
         fxControl = null
         if (iFxAppLifecycleImpl == null) return
@@ -53,16 +50,15 @@ object FloatingX {
             fxControl = FxAppControlImpl(config())
             if (!config().enableFx) return
             initAppLifecycle()
-            iFxAppLifecycleImpl?.appControl = fxControl
         }
     }
 
-    private fun initAppLifecycle() {
+    internal fun initAppLifecycle() {
         if (iFxAppLifecycleImpl == null) {
             val application = getConfigApplication()
             iFxAppLifecycleImpl = FxLifecycleCallbackImpl(config())
-            iFxAppLifecycleImpl?.appControl = fxControl
             application.registerActivityLifecycleCallbacks(iFxAppLifecycleImpl)
+            iFxAppLifecycleImpl?.appControl = fxControl
         }
     }
 

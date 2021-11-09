@@ -31,9 +31,14 @@ open class FxAppControlImpl(private val helper: AppHelper) :
 
     override fun show(activity: Activity) {
         super.show()
+        observerAppLifecycle()
         if (isShow()) return
         if (attach(activity))
             getManagerView()?.show()
+    }
+
+    private fun observerAppLifecycle() {
+        FloatingX.initAppLifecycle()
     }
 
     override fun detach(activity: Activity) {
