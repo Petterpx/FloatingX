@@ -65,13 +65,18 @@ class CustomApplication : Application() {
 
             // 设置悬浮窗LayoutParams
 //            setLayoutParams()
-            // 设置要显示的activity
+
+            /** 对于浮窗允许显示的位置进行调整 */
+            // 1. 设置是否允许所有activity都进行显示,默认false
+//            setEnableAllBlackClass(false)
+            //  2.设置是否只允许显示在特定的页面
             addBlackClass(
                 MainActivity::class.java,
                 ImmersedActivity::class.java,
             )
-            // 设置允许全部activity显示悬浮窗,默认false
-            setEnableAllBlackClass(false)
+            // 3. 设置允许所有activity进行显示，同时增加过滤列表
+//            setEnableAllBlackClass(true, MainActivity::class.java)
+
             // 设置tag-Activity生命周期回调时的触发
             setTagActivityLifecycle {
                 onCreated { activity, bundle ->
@@ -79,7 +84,7 @@ class CustomApplication : Application() {
                 onResumes { }
             }
             // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
-//            show()
+            show()
         }
     }
 }

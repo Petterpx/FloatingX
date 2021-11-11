@@ -29,6 +29,7 @@ public class CustomJavaApplication extends Application {
                 .setContext(this)
                 .setEnableAllBlackClass(true)
                 .setEnableLog()
+                .setEnableAllBlackClass(true, MainActivity.class, ScopeActivity.class)
                 .show()
                 .build();
         FloatingX.init(helper);

@@ -11,6 +11,7 @@ import com.petterp.floatingx.util.statusBarHeight
 class AppHelper(
     val application: Application,
     val blackList: MutableList<Class<*>>?,
+    val filterList: MutableList<Class<*>>?,
     val enableAllBlackClass: Boolean,
     val fxLifecycleExpand: FxLifecycleExpand?
 ) : BasisHelper() {
@@ -27,7 +28,8 @@ class AppHelper(
 
     class Builder : BasisHelper.Builder<Builder, AppHelper>() {
         private var application: Application? = null
-        private var blackList: MutableList<Class<*>>? = null
+        private var insertList: MutableList<Class<*>>? = null
+        private var filterList: MutableList<Class<*>>? = null
         private var fxLifecycleExpand: FxLifecycleExpand? = null
         private var enableAllBlackClass: Boolean = false
 
@@ -49,18 +51,23 @@ class AppHelper(
          * @param c 允许显示的activity类
          * */
         fun addBlackClass(vararg c: Class<out Activity>): Builder {
-            if (blackList == null) blackList = mutableListOf()
-            blackList?.addAll(c)
+            if (insertList == null) insertList = mutableListOf()
+            insertList?.addAll(c)
             return this
         }
 
         /**
-         * 允许所有activity都显示全局悬浮窗
+         * 允许所有activity都显示全局悬浮窗,支持增加过滤列表
          * @param isEnable 默认false
-         *
-         * 启用了这个方法,addBlackClass就不用设置了
+         * @param filterClass 需要过滤掉的activity,即不会在以下activity中插入
          * */
-        fun setEnableAllBlackClass(isEnable: Boolean): Builder {
+        @JvmOverloads
+        fun setEnableAllBlackClass(
+            isEnable: Boolean,
+            vararg filterClass: Class<out Activity> = emptyArray()
+        ): Builder {
+            if (filterList == null) filterList = mutableListOf()
+            filterList?.addAll(filterClass)
             enableAllBlackClass = isEnable
             return this
         }
@@ -68,7 +75,13 @@ class AppHelper(
         override fun buildHelper(): AppHelper =
             if (application == null)
                 throw NullPointerException("To build AppHelper, you must set application!")
-            else AppHelper(application!!, blackList, enableAllBlackClass, fxLifecycleExpand)
+            else AppHelper(
+                application!!,
+                insertList,
+                filterList,
+                enableAllBlackClass,
+                fxLifecycleExpand
+            )
 
         override fun build(): AppHelper {
             val helper = super.build()

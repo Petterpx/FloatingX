@@ -17,13 +17,25 @@ class FxLifecycleCallbackImpl(
     Application.ActivityLifecycleCallbacks {
     internal var appControl: FxAppControlImpl? = null
     internal var topActivity: WeakReference<Activity>? = null
+    private var insertCls = mutableMapOf<Class<*>, Boolean>()
 
     private val Activity.isParent: Boolean
         get() = appControl?.getManagerView()?.parent === decorView
     private val Activity.name: String
         get() = javaClass.name.split(".").last()
     private val Activity.isActivityInValid: Boolean
-        get() = helper.enableAllBlackClass || helper.blackList?.contains(this::class.java) ?: false
+        get() {
+            val cls = this::class.java
+            return insertCls[cls] ?: isInsertActivity(cls)
+        }
+
+    private fun isInsertActivity(cls: Class<*>): Boolean {
+        val isInsert =
+            (helper.enableAllBlackClass && !(helper.filterList?.contains(cls) ?: false)) ||
+                helper.blackList?.contains(this::class.java) ?: false
+        insertCls[cls] = isInsert
+        return isInsert
+    }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         helper.fxLog?.d("AppLifecycle--[${activity.name}]-onActivityCreated")
