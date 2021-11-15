@@ -8,12 +8,7 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 
-/**
- * @Author petterp
- * @Date 2021/6/2-5:07 下午
- * @Email ShiyihuiCloud@163.com
- * @Function 沉浸式Activity
- */
+/** 全屏Activity */
 class ImmersedActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

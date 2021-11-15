@@ -1,5 +1,6 @@
 package com.petterp.floatingx.listener.control
 
+import android.view.View
 import com.petterp.floatingx.assist.BorderMargin
 import com.petterp.floatingx.assist.FxAnimation
 import com.petterp.floatingx.assist.helper.BasisHelper
@@ -38,6 +39,16 @@ interface IFxHelperControl {
     /** 设置边框相对应父view的偏移量 */
     fun setBorderMargin(t: Float, l: Float, b: Float, r: Float) {
         getConfigHelper().borderMargin = BorderMargin(t, l, b, r)
+    }
+
+    /** 设置点击事件监听器 */
+    fun setClickListener(clickListener: (View) -> Unit) {
+        getConfigHelper().clickListener = clickListener
+    }
+
+    /** 设置是否启用点击事件 */
+    fun setEnableClickListener(enable: Boolean) {
+        getConfigHelper().enableClickListener = enable
     }
 
     fun setEdgeOffset(edgeOffset: Float) {

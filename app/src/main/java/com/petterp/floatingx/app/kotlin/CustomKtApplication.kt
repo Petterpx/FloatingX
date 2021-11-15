@@ -1,24 +1,21 @@
-package com.petterp.floatingx.app
+package com.petterp.floatingx.app.kotlin
 
 import android.app.Application
 import com.petterp.floatingx.FloatingX
-import com.petterp.floatingx.app.simple.FxAnimationImpl
-import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
+import com.petterp.floatingx.app.ImmersedActivity
+import com.petterp.floatingx.app.MainActivity
+import com.petterp.floatingx.app.R
 import com.petterp.floatingx.assist.Direction
+import com.petterp.floatingx.listener.IFxScrollListener
 
-/**
- * @Author petterp
- * @Date 2021/5/21-5:42 下午
- * @Email ShiyihuiCloud@163.com
- * @Function
- */
-class CustomApplication : Application() {
+/** Kotlin-Application */
+class CustomKtApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
         FloatingX.init {
             // 设置context
-            setContext(this@CustomApplication)
+            setContext(this@CustomKtApplication)
             // 设置悬浮窗layout
             setLayout(R.layout.item_floating)
             // 设置悬浮窗默认方向
@@ -83,6 +80,19 @@ class CustomApplication : Application() {
                 }
                 onResumes { }
             }
+            setScrollListener(object : IFxScrollListener {
+                override fun down() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun up() {
+                    TODO("Not yet implemented")
+                }
+
+                override fun dragIng(x: Float, y: Float) {
+                    TODO("Not yet implemented")
+                }
+            })
             // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
             show()
         }

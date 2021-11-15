@@ -1,19 +1,12 @@
-package com.petterp.floatingx.app;
+package com.petterp.floatingx.app.java;
 
 import android.app.Application;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 import com.petterp.floatingx.FloatingX;
+import com.petterp.floatingx.app.MainActivity;
+import com.petterp.floatingx.app.R;
+import com.petterp.floatingx.app.ScopeActivity;
 import com.petterp.floatingx.assist.helper.AppHelper;
-import com.petterp.floatingx.assist.helper.ScopeHelper;
-import com.petterp.floatingx.listener.control.IFxControl;
-import com.petterp.floatingx.listener.control.IFxScopeControl;
-import com.petterp.floatingx.view.FxViewHolder;
-
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
 
 /**
  * java 中的配置示例

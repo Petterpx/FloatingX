@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
-import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.app.kotlin.FxAnimationImpl
 import com.petterp.floatingx.util.createFx
 
 /**

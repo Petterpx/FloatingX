@@ -33,6 +33,7 @@ open class BasisHelper {
     internal var enableSaveDirection: Boolean = false
     internal var enableDebugLog: Boolean = false
     internal var enableTouch: Boolean = true
+    internal var enableClickListener: Boolean = false
 
     internal var iFxScrollListener: IFxScrollListener? = null
     internal var iFxViewLifecycle: IFxViewLifecycle? = null
@@ -73,6 +74,7 @@ open class BasisHelper {
         private var enableDebugLog: Boolean = false
         private var fxLogTag: String = ""
         private var enableTouch: Boolean = true
+        private var enableClickListener: Boolean = false
 
         private var enableSaveDirection: Boolean = false
         private var enableDefaultSave: Boolean = false
@@ -107,6 +109,7 @@ open class BasisHelper {
                 borderMargin = this@Builder.borderMargin
                 enableSaveDirection = this@Builder.enableSaveDirection
                 enableTouch = this@Builder.enableTouch
+                enableClickListener = this@Builder.enableClickListener
 
                 enableDebugLog = this@Builder.enableDebugLog
                 fxLogTag = this@Builder.fxLogTag
@@ -178,6 +181,7 @@ open class BasisHelper {
             time: Long = 500L,
             clickListener: ((View) -> Unit),
         ): T {
+            this.enableClickListener = true
             this.ifxClickListener = clickListener
             this.clickTime = time
             return this as T

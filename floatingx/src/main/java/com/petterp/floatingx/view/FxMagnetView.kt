@@ -139,10 +139,11 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     private fun clickManagerView() {
-        if (isClickEnable && isOnClickEvent()) {
+        if (helper.enableClickListener && isClickEnable && isOnClickEvent()) {
             isClickEnable = false
             helper.fxLog?.d("fxView -> click")
             helper.clickListener?.invoke(this)
+                ?: helper.fxLog?.e("fxView -> click, clickListener = null!!!")
             postDelayed({ isClickEnable = true }, helper.clickTime)
         }
     }
