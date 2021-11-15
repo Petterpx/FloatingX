@@ -60,7 +60,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	  implementation 'com.github.Petterpx:FloatingX:1.0-rc11'
+	  implementation 'com.github.Petterpx:FloatingX:1.0-rc12'
 }
 ```
 
@@ -100,15 +100,14 @@ dependencies {
 
 ```kotlin
 FloatingX.init {
-        setContext(this@CustomApplication)
         setLayout(R.layout.item_floating_new)
   			addBlackClass(
                 MainActivity::class.java,
                 NewActivity::class.java,
                 ImmersedActivity::class.java
          )
-  			//只有调用了show,才会监听app-lifecycle,后续会自动插入activity中
-        show()
+  	//只有调用了enableFx(),后续才会自动插入activity中
+        enableFx()
 }
 ```
 
