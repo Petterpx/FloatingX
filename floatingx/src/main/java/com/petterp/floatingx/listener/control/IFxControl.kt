@@ -39,6 +39,7 @@ interface IFxControl {
      * @return 悬浮窗view->managerView
      * */
     fun getManagerView(): FxMagnetView?
+
     fun getManagerViewHolder(): FxViewHolder?
 
     /** 获取传递进去的layout对应的悬浮窗view */

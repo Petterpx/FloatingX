@@ -127,6 +127,12 @@ open class BasisHelper {
         }
 
         /** 设置启用fx */
+        fun enableFx(): T {
+            this.enableFx = true
+            return this as T
+        }
+
+        @Deprecated("使用enableFx()替代show()", replaceWith = ReplaceWith("enableFx()"))
         fun show(): T {
             this.enableFx = true
             return this as T
@@ -291,7 +297,7 @@ open class BasisHelper {
 
         /** 设置启用动画具体实现
          * @param fxAnimation 动画的具体实现类
-         * @sample [FxAnimationImpl]
+         * @sample [com.petterp.floatingx.app.simple.FxAnimationImpl]
          * */
         fun setAnimationImpl(fxAnimation: FxAnimation): T {
             this.fxAnimation = fxAnimation
@@ -305,7 +311,9 @@ open class BasisHelper {
             return this as T
         }
 
-        /** 设置悬浮窗view-移动监听 */
+        /** 设置悬浮窗view-移动监听
+         * @sample com.petterp.floatingx.impl.FxScrollImpl
+         * */
         fun setScrollListener(iFxScrollListener: IFxScrollListener): T {
             this.iFxScrollListener = iFxScrollListener
             return this as T
@@ -313,12 +321,11 @@ open class BasisHelper {
 
         /** 设置存储坐标保存实现逻辑
          * @param [iFxConfigStorage] 传入IFxConfig对象, 也可自行实现接口，自定义具体实现逻辑
-         * @sample FxConfigStorageToSpImpl 如果使用默认实现,需自行传入context
+         * @sample com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl 如果使用默认实现,需自行传入context
          * PS: 当启用并且存在历史坐标, gravity以及自定义的x,y坐标将会失效，优先使用历史坐标
          * 如果某次边框变动或者其他影响导致原视图范围改变,现有的历史坐标位置不准确，请先移除历史坐标信息
          *  -> 即调用外部的FloatingX.clearConfig()清除历史坐标信息
          * */
-        @JvmOverloads
         fun setSaveDirectionImpl(iFxConfigStorage: IFxConfigStorage): T {
             this.enableSaveDirection = true
             this.iFxConfigStorage = iFxConfigStorage

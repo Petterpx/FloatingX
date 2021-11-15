@@ -47,7 +47,7 @@ interface IFxHelperControl {
     }
 
     /** 设置是否启用点击事件 */
-    fun setEnableClickListener(enable: Boolean) {
+    fun setEnableClick(enable: Boolean) {
         getConfigHelper().enableClickListener = enable
     }
 
@@ -67,14 +67,14 @@ interface IFxHelperControl {
     }
 
     /** 设置是否启用触摸事件
-     * @param enable==true,则允许悬浮窗拖动
+     * @param isEnable  true,则允许悬浮窗拖动
      * */
     fun setEnableTouch(isEnable: Boolean) {
         getConfigHelper().enableTouch = isEnable
     }
 
     /** 是否启用边缘吸附
-     * @param enable 是否启用,默认true
+     * @param isEnable 是否启用,默认true
      * @param lazyStart 是否下次拖动再生效,false 代表立即生效,即立即边缘吸附
      * */
     fun setEnableEdgeAdsorption(isEnable: Boolean, lazyStart: Boolean = false)

@@ -5,11 +5,11 @@ import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import com.petterp.floatingx.FloatingX
+import com.petterp.floatingx.impl.lifecycle.FxLifecycleCallbackImpl
 
 /** App级当前设置了tag的栈顶Activity */
 internal val topActivity: Activity?
-    get() = FloatingX.iFxAppLifecycleImpl?.topActivity?.get()
+    get() = FxLifecycleCallbackImpl.topActivity?.get()
 
 internal val Activity.decorView: FrameLayout?
     get() = try {

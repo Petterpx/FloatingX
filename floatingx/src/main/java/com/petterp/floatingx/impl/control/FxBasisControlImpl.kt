@@ -50,6 +50,7 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
     override fun setClickListener(time: Long, obj: (View) -> Unit) {
         helper.clickListener = obj
         helper.clickTime = time
+        helper.enableClickListener = true
     }
 
     override fun getConfigHelper(): BasisHelper {

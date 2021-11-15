@@ -1,69 +1,40 @@
 package com.petterp.floatingx
 
 import android.annotation.SuppressLint
-import android.app.Application
+import android.content.Context
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.impl.control.FxAppControlImpl
-import com.petterp.floatingx.impl.lifecycle.FxLifecycleCallbackImpl
+import com.petterp.floatingx.listener.control.IFxAppControl
 
 /**
  * Single Control To Fx
  */
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
-    private var fxControl: FxAppControlImpl? = null
+    internal lateinit var context: Context
     internal var helper: AppHelper? = null
-    internal var iFxAppLifecycleImpl: FxLifecycleCallbackImpl? = null
+    internal var fxControl: FxAppControlImpl? = null
 
-    /** dsl初始化 */
-    fun init(obj: AppHelper.Builder.() -> Unit): FloatingX =
+    /** 悬浮窗初始化 */
+    fun init(obj: AppHelper.Builder.() -> Unit) =
         init(AppHelper.builder().apply(obj).build())
 
-    /** 悬浮窗配置信息 */
     @JvmStatic
-    fun init(helper: AppHelper): FloatingX {
+    fun init(helper: AppHelper) {
         this.helper = helper
-        // 如果用户未开启全局浮窗,那么此时初始化控制器意义页不大
-        if (helper.enableFx) {
-            initControl()
-        }
-        return this
     }
 
+    /** 浮窗控制器 */
     @JvmStatic
-    fun control(): FxAppControlImpl {
+    fun control(): IFxAppControl {
         if (fxControl == null) {
-            initControl()
+            fxControl = FxAppControlImpl(config())
         }
         return fxControl!!
     }
 
     internal fun reset() {
         fxControl = null
-        if (iFxAppLifecycleImpl == null) return
-        getConfigApplication().unregisterActivityLifecycleCallbacks(iFxAppLifecycleImpl)
-        iFxAppLifecycleImpl = null
-    }
-
-    private fun initControl() {
-        if (fxControl == null) {
-            fxControl = FxAppControlImpl(config())
-            if (!config().enableFx) return
-            initAppLifecycle()
-        }
-    }
-
-    internal fun initAppLifecycle() {
-        if (iFxAppLifecycleImpl == null) {
-            val application = getConfigApplication()
-            iFxAppLifecycleImpl = FxLifecycleCallbackImpl(config())
-            application.registerActivityLifecycleCallbacks(iFxAppLifecycleImpl)
-            iFxAppLifecycleImpl?.appControl = fxControl
-        }
-    }
-
-    private fun getConfigApplication(): Application {
-        return config().application
     }
 
     private fun config(): AppHelper =

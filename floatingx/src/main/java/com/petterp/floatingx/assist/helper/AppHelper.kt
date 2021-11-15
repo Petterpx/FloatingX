@@ -2,18 +2,18 @@ package com.petterp.floatingx.assist.helper
 
 import android.app.Activity
 import android.app.Application
-import com.petterp.floatingx.assist.FxLifecycleExpand
+import com.petterp.floatingx.FloatingX
+import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.util.FxScopeEnum
 import com.petterp.floatingx.util.navigationBarHeight
 import com.petterp.floatingx.util.statusBarHeight
 
 /** AppHelper构建器 */
 class AppHelper(
-    val application: Application,
     val blackList: MutableList<Class<*>>?,
     val filterList: MutableList<Class<*>>?,
     val enableAllBlackClass: Boolean,
-    val fxLifecycleExpand: FxLifecycleExpand?
+    val fxLifecycleExpand: IFxProxyTagActivityLifecycle?
 ) : BasisHelper() {
 
     internal fun updateNavigationBar(activity: Activity?) {
@@ -27,23 +27,24 @@ class AppHelper(
     }
 
     class Builder : BasisHelper.Builder<Builder, AppHelper>() {
-        private var application: Application? = null
         private var insertList: MutableList<Class<*>>? = null
         private var filterList: MutableList<Class<*>>? = null
-        private var fxLifecycleExpand: FxLifecycleExpand? = null
+        private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
         private var enableAllBlackClass: Boolean = false
 
+        @Deprecated("No need to call this method again, it will be removed later.")
         fun setContext(application: Application): Builder {
-            this.application = application
+            FloatingX.context = application
             return this
         }
 
         /**
          * 设置显示悬浮窗的Activity生命周期回调
          * @param tagActivityLifecycle 生命周期实现类回调
+         * @sample [com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl] 空实现,便于直接object:XXX
          * */
-        fun setTagActivityLifecycle(tagActivityLifecycle: FxLifecycleExpand.() -> Unit): Builder {
-            this.fxLifecycleExpand = FxLifecycleExpand().apply(tagActivityLifecycle)
+        fun setTagActivityLifecycle(tagActivityLifecycle: IFxProxyTagActivityLifecycle): Builder {
+            this.fxLifecycleExpand = tagActivityLifecycle
             return this
         }
 
@@ -66,17 +67,16 @@ class AppHelper(
             isEnable: Boolean,
             vararg filterClass: Class<out Activity> = emptyArray()
         ): Builder {
-            if (filterList == null) filterList = mutableListOf()
-            filterList?.addAll(filterClass)
+            if (filterClass.isNotEmpty()) {
+                if (filterList == null) filterList = mutableListOf()
+                filterList?.addAll(filterClass)
+            }
             enableAllBlackClass = isEnable
             return this
         }
 
         override fun buildHelper(): AppHelper =
-            if (application == null)
-                throw NullPointerException("To build AppHelper, you must set application!")
-            else AppHelper(
-                application!!,
+            AppHelper(
                 insertList,
                 filterList,
                 enableAllBlackClass,

@@ -31,14 +31,9 @@ open class FxAppControlImpl(private val helper: AppHelper) :
 
     override fun show(activity: Activity) {
         super.show()
-        observerAppLifecycle()
         if (isShow()) return
         if (attach(activity))
             getManagerView()?.show()
-    }
-
-    private fun observerAppLifecycle() {
-        FloatingX.initAppLifecycle()
     }
 
     override fun detach(activity: Activity) {
@@ -47,18 +42,18 @@ open class FxAppControlImpl(private val helper: AppHelper) :
         }
     }
 
+    override fun context(): Context = FloatingX.context
+
     /** 请注意：
      * 调用此方法前请确定在初始化fx时,调用了show方法,否则,fx默认不会插入到全局Activity */
-    override fun show() {
+    override
+    fun show() {
         if (topActivity == null) {
-            helper.fxLog?.e("show-fx---topActivity=null!!!")
+            helper.enableFx = true
+            helper.fxLog?.e("show-fx, topActivity=null,Do not call it during initialization in Application!")
             return
         }
         show(topActivity!!)
-    }
-
-    override fun context(): Context {
-        return helper.application
     }
 
     private fun initWindowsInsetsListener() {
