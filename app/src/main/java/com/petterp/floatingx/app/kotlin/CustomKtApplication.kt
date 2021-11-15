@@ -1,11 +1,17 @@
 package com.petterp.floatingx.app.kotlin
 
+import android.app.Activity
 import android.app.Application
+import android.os.Bundle
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.ImmersedActivity
 import com.petterp.floatingx.app.MainActivity
 import com.petterp.floatingx.app.R
+import com.petterp.floatingx.app.ScopeActivity
+import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.assist.Direction
+import com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl
 import com.petterp.floatingx.listener.IFxScrollListener
 
 /** Kotlin-Application */
@@ -15,7 +21,7 @@ class CustomKtApplication : Application() {
         super.onCreate()
         FloatingX.init {
             // 设置context
-            setContext(this@CustomKtApplication)
+//            setContext(this@CustomKtApplication)
             // 设置悬浮窗layout
             setLayout(R.layout.item_floating)
             // 设置悬浮窗默认方向
@@ -63,38 +69,41 @@ class CustomKtApplication : Application() {
             // 设置悬浮窗LayoutParams
 //            setLayoutParams()
 
-            /** 对于浮窗允许显示的位置进行调整 */
-            // 1. 设置是否允许所有activity都进行显示,默认false
+            // 指定浮窗可显示的activity方式
+            // 1.设置是否允许所有activity都进行显示,默认false
 //            setEnableAllBlackClass(false)
-            //  2.设置是否只允许显示在特定的页面
+            // 2.设置是否只允许显示在特定的页面
             addBlackClass(
                 MainActivity::class.java,
                 ImmersedActivity::class.java,
+                ScopeActivity::class.java,
             )
             // 3. 设置允许所有activity进行显示，同时增加过滤列表
 //            setEnableAllBlackClass(true, MainActivity::class.java)
 
             // 设置tag-Activity生命周期回调时的触发
-            setTagActivityLifecycle {
-                onCreated { activity, bundle ->
+            setTagActivityLifecycle(object : FxTagActivityLifecycleImpl() {
+                override fun onCreated(activity: Activity, bundle: Bundle?) {
+                    // 允许插入的浮窗activity执行到onCreated时会回调相应方法
                 }
-                onResumes { }
-            }
+            })
+            // 设置滑动监听
             setScrollListener(object : IFxScrollListener {
                 override fun down() {
-                    TODO("Not yet implemented")
+                    // 按下
                 }
 
                 override fun up() {
-                    TODO("Not yet implemented")
+                    // 释放
                 }
 
                 override fun dragIng(x: Float, y: Float) {
-                    TODO("Not yet implemented")
+                    // 正在拖动
                 }
             })
-            // 只有调用了show,默认才会启用fx,否则fx不会自动插入activity
-            show()
+            // 只有调用了enableFx,默认才会启用fx,否则fx不会自动插入activity
+            // ps: 这里的只有调用了enableFx仅仅只是配置工具层的标记,后续使用control.show()也会默认启用
+            enableFx()
         }
     }
 }

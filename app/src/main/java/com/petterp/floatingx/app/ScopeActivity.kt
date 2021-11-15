@@ -1,5 +1,6 @@
 package com.petterp.floatingx.app
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
@@ -8,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
-import com.petterp.floatingx.app.kotlin.FxAnimationImpl
+import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.util.createFx
 
 /**
@@ -30,6 +31,7 @@ class ScopeActivity : AppCompatActivity() {
         build().toControl(viewGroup)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(
@@ -78,6 +80,12 @@ class ScopeActivity : AppCompatActivity() {
                                         )
                                             .show()
                                     }
+                                }
+                                addItemView("关闭点击事件响应") {
+                                    scopeFx.helperControl.setEnableClick(false)
+                                }
+                                addItemView("打开点击事件响应") {
+                                    scopeFx.helperControl.setEnableClick(true)
                                 }
                                 addItemView("当前是否显示") {
                                     Toast.makeText(

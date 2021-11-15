@@ -12,7 +12,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
-import com.petterp.floatingx.app.kotlin.FxAnimationImpl
+import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.util.activityToFx
 import com.petterp.floatingx.util.createFx
 

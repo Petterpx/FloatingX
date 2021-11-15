@@ -1,4 +1,4 @@
-package com.petterp.floatingx.app.kotlin
+package com.petterp.floatingx.app.simple
 
 import android.content.Context
 import android.content.SharedPreferences
