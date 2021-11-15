@@ -2,11 +2,11 @@ package com.petterp.floatingx.impl.control
 
 import android.app.Activity
 import android.content.Context
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.listener.control.IFxAppControl
@@ -75,7 +75,8 @@ open class FxAppControlImpl(private val helper: AppHelper) :
                 initManagerView()
                 isAnimation = true
             } else {
-                if (getManagerView()?.isVisible == false) getManagerView()?.isVisible = true
+                if (getManagerView()?.visibility != View.VISIBLE) getManagerView()?.visibility =
+                    View.VISIBLE
                 detach()
             }
             mContainer = WeakReference(it)

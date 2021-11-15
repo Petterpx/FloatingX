@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.core.view.ViewCompat
-import androidx.core.view.isVisible
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.listener.control.IFxHelperControl
@@ -27,7 +26,7 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
         get() = this
 
     override fun isShow(): Boolean =
-        managerView != null && ViewCompat.isAttachedToWindow(managerView!!) && managerView?.isVisible == true
+        managerView != null && ViewCompat.isAttachedToWindow(managerView!!) && managerView?.visibility == View.VISIBLE
 
     override fun getView(): View? = managerView?.childView
 
@@ -192,7 +191,7 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
 
     protected fun FxMagnetView.show() {
         helper.enableFx = true
-        isVisible = true
+        visibility = View.VISIBLE
         if (helper.enableAnimation &&
             helper.fxAnimation != null && !helper.fxAnimation!!.fromJobRunning
         ) {
