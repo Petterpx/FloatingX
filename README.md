@@ -101,7 +101,7 @@ dependencies {
 ```kotlin
 FloatingX.init {
         setLayout(R.layout.item_floating_new)
-  			addBlackClass(
+  	addBlackClass(
                 MainActivity::class.java,
                 NewActivity::class.java,
                 ImmersedActivity::class.java
@@ -115,8 +115,8 @@ FloatingX.init {
 
 ```java
 AppHelper helper = AppHelper.builder()
-        .setContext(application)
         .setLayout(R.layout.item_floating)
+	.enableFx()
         .build();
 FloatingX.init(helper);
 ```
