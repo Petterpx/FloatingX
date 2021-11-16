@@ -7,7 +7,8 @@
 [![](https://jitpack.io/v/Petterpx/FloatingX.svg)](https://jitpack.io/#Petterpx/FloatingX) [![Scan with Detekt](https://github.com/Petterpx/FloatingX/actions/workflows/detekt-analysis.yml/badge.svg)](https://github.com/Petterpx/FloatingX/actions/workflows/detekt-analysis.yml) [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/) 
 
 **FloatingX** 一个灵活且强大的 `免权限` 悬浮窗解决方案。
-[中文简介](https://github.com/Petterpx/FloatingX/READDME.md) [English Introduction](https://github.com/Petterpx/FloatingX/READDME_EN.md)
+
+[English Introduction](https://github.com/Petterpx/FloatingX/README_EN.md)
 
 ## 👏 特性 
 
