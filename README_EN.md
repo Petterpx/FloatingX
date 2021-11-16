@@ -8,9 +8,7 @@
 
 **FloatingX** A flexible and powerful ``permission-free`` hover window solution.
 
-[中文简介](https://github.com/Petterpx/FloatingX/READDME.md)
-
-[English Introduction](https://github.com/Petterpx/FloatingX/READDME_EN.md)
+[中文简介](https://github.com/Petterpx/FloatingX/READDME.md) [English Introduction](https://github.com/Petterpx/FloatingX/READDME_EN.md)
 
 ## 👏 Features 
 
