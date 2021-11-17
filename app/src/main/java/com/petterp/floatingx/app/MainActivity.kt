@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.simple.FxAnimationImpl
-import com.petterp.floatingx.app.single.SingleActivity
 import com.petterp.floatingx.util.activityToFx
 import com.petterp.floatingx.util.createFx
 
@@ -32,7 +31,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         createLinearLayoutToParent {
-            addScopeViewGroup()
+            viewGroup = addScopeViewGroup()
             addItemView("显示全局悬浮窗-(展示与多指触摸)") {
                 FloatingX.control().show(this@MainActivity)
                 FloatingX.control().updateView {
@@ -59,14 +58,14 @@ class MainActivity : AppCompatActivity() {
             addItemView("跳转到局部悬浮窗页面-(测试api功能)") {
                 ScopeActivity::class.java.start(context)
             }
-            addItemView("跳转到测试页面-(测试申请权限的浮窗)") {
-                SingleActivity::class.java.start(context)
-            }
+//            addItemView("跳转到测试页面-(测试申请权限的浮窗)") {
+//                SingleActivity::class.java.start(context)
+//            }
         }
     }
 
-    private fun ViewGroup.addScopeViewGroup() = addView(
-        FrameLayout(context).apply {
+    private fun ViewGroup.addScopeViewGroup(): ViewGroup {
+        val viewGroup = FrameLayout(context).apply {
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 300
@@ -78,5 +77,7 @@ class MainActivity : AppCompatActivity() {
             }
             setBackgroundColor(Color.YELLOW)
         }
-    )
+        addView(viewGroup)
+        return viewGroup
+    }
 }

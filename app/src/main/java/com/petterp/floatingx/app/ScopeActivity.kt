@@ -34,7 +34,7 @@ class ScopeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         createLinearLayoutToParent {
-            addScopeViewGroup()
+            viewGroup = addScopeViewGroup()
             addTextView {
                 text = "api列表可拖动"
                 gravity = Gravity.CENTER
@@ -109,11 +109,11 @@ class ScopeActivity : AppCompatActivity() {
         }
     }
 
-    private fun ViewGroup.addScopeViewGroup() = addView(
-        FrameLayout(context).apply {
+    private fun ViewGroup.addScopeViewGroup(): ViewGroup {
+        val viewGroup = FrameLayout(context).apply {
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                700
+                300
             ).apply {
                 leftMargin = 50
                 topMargin = 50
@@ -121,7 +121,8 @@ class ScopeActivity : AppCompatActivity() {
                 bottomMargin = 50
             }
             setBackgroundColor(Color.YELLOW)
-            viewGroup = this
         }
-    )
+        addView(viewGroup)
+        return viewGroup
+    }
 }
