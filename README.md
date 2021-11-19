@@ -8,7 +8,7 @@
 
 **FloatingX** 一个灵活且强大的 `免权限` 悬浮窗解决方案。
 
-[English Introduction](https://github.com/Petterpx/FloatingX/README_EN.md)
+[English Introduction](https://github.com/Petterpx/FloatingX/blob/main/README_EN.md)
 
 ## 👏 特性 
 
