@@ -22,19 +22,24 @@ object FloatingX {
     @JvmStatic
     fun init(helper: AppHelper) {
         this.helper = helper
+        if (helper.enableFx) initControl()
     }
 
     /** 浮窗控制器 */
     @JvmStatic
     fun control(): IFxAppControl {
-        if (fxControl == null) {
-            fxControl = FxAppControlImpl(config())
-        }
+        initControl()
         return fxControl!!
     }
 
     internal fun reset() {
         fxControl = null
+    }
+
+    private fun initControl() {
+        if (fxControl == null) {
+            fxControl = FxAppControlImpl(config())
+        }
     }
 
     private fun config(): AppHelper =
