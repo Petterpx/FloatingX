@@ -4,7 +4,7 @@
     <application>
         <provider
             android:name=".impl.lifecycle.FxLifecycleProvider"
-            android:authorities="com.petterp.floatingx.impl.lifecycle.fxlifecycleprovider"
+            android:authorities="${applicationId}.fx.provider"
             android:exported="false" />
     </application>
 </manifest>
