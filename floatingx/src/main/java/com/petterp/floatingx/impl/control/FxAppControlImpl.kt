@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.listener.control.IFxAppControl
@@ -22,7 +21,7 @@ open class FxAppControlImpl(private val helper: AppHelper) :
     /** 对于状态栏高度的实时监听,在小屏模式下,效果极好 */
     private val windowsInsetsListener by lazyLoad {
         OnApplyWindowInsetsListener { _, insets ->
-            val statusBar = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val statusBar = insets.stableInsetTop
             helper.statsBarHeight = statusBar
             helper.fxLog?.v("System--StatusBar---old-(${helper.statsBarHeight}),new-($statusBar))")
             insets
