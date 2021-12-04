@@ -3,6 +3,7 @@ package com.petterp.floatingx.app.kotlin
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import android.view.MotionEvent
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.ImmersedActivity
 import com.petterp.floatingx.app.MainActivity
@@ -11,8 +12,8 @@ import com.petterp.floatingx.app.ScopeActivity
 import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.assist.Direction
+import com.petterp.floatingx.impl.FxScrollImpl
 import com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl
-import com.petterp.floatingx.listener.IFxScrollListener
 
 /** Kotlin-Application */
 class CustomKtApplication : Application() {
@@ -88,7 +89,7 @@ class CustomKtApplication : Application() {
                 }
             })
             // 设置滑动监听
-            setScrollListener(object : IFxScrollListener {
+            setScrollListener(object : FxScrollImpl() {
                 override fun down() {
                     // 按下
                 }
@@ -97,8 +98,12 @@ class CustomKtApplication : Application() {
                     // 释放
                 }
 
-                override fun dragIng(x: Float, y: Float) {
+                override fun dragIng(event: MotionEvent, x: Float, y: Float) {
                     // 正在拖动
+                }
+
+                override fun eventIng(event: MotionEvent) {
+                    // 接收所有事件传递
                 }
             })
             // 只有调用了enableFx,默认才会启用fx,否则fx不会自动插入activity
