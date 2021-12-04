@@ -60,17 +60,9 @@ allprojects {
 
 ```groovy
 dependencies {
-	  implementation 'com.github.Petterpx:FloatingX:1.0-rc13'
+	  implementation 'com.github.Petterpx:FloatingX:1.0-rc14'
 }
 ```
-
-> If you are using it in pure Java, then you also need to import Kotlin dependencies. To avoid conflicts, FloatingX does not introduce any third-party libraries.
->
-> ```groovy
-> implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21"
-> ```
->
-> [For the full kotlin library dependency approach, please refer to](https://developer.android.com/kotlin/add-kotlin?hl=zh-cn)
 
 ## 🏄‍♀️ Render
 

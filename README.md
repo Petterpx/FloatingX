@@ -60,17 +60,9 @@ allprojects {
 
 ```groovy
 dependencies {
-	  implementation 'com.github.Petterpx:FloatingX:1.0-rc13'
+	  implementation 'com.github.Petterpx:FloatingX:1.0-rc14'
 }
 ```
-
-> 如果您是在纯Java中使用,那么还需要导入Kotlin依赖，为了避免冲突, FloatingX 不会引入任何第三方库。
->
-> ```groovy
-> implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21"
-> ```
->
-> [完整kotlin库依赖方式请参考](https://developer.android.com/kotlin/add-kotlin?hl=zh-cn)
 
 ## 🏄‍♀️ 效果图
 
