@@ -139,7 +139,11 @@ open class BasisHelper {
         }
 
         /**
-         * 是否启用触摸,即是否允许拖动悬浮窗
+         * 是否启用触摸事件-(onTouchEvent)
+         *
+         * true -> 浮窗允许移动 , 并且主动消费所有onTouchEvent中的事件
+         *
+         * false -> ,浮窗屏蔽移动 , 事件将遵循默认传递过程，将询问其子view是否需要消费,用户可自行处理
          * @param isEnable 默认true
          * */
         fun setEnableTouch(isEnable: Boolean): T {

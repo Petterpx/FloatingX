@@ -1,7 +1,13 @@
 package com.petterp.floatingx.listener
 
+import android.view.MotionEvent
+
 /**
- * fx-拖动监听事件
+ * fx监听事件，用于监听浮窗上的一些手势事件
+ *
+ * 当选择了[com.petterp.floatingx.assist.helper.BasisHelper.enableTouch]=true,此时事件将完全被fx消费,向外输出这个接口用于查看。
+ *
+ * 默认提供了一些常见的事件场景，比如按下、松开、浮窗位置移动,如需监听所有，请在eventIng中监听所有事件
  * */
 interface IFxScrollListener {
 
@@ -11,6 +17,23 @@ interface IFxScrollListener {
     /** 松开 */
     fun up()
 
-    /** 正在拖拽 */
-    fun dragIng(x: Float, y: Float)
+    /**
+     * 首个手指按下后的事件move回调
+     *
+     * @param event 当前手势事件
+     * @param x 当前浮窗相对于父View的x坐标
+     * @param y 当前浮窗相对于父View的y坐标.
+     * @since x,y代表了当前浮窗相对于父View的位置信息,即当前浮窗(左上角坐标)。
+     * App与Activity级别时一般相当于其相对于屏幕的位置。
+     * View级别相当于其相当于父ViewGroup
+     *
+     * 注意：[com.petterp.floatingx.assist.helper.BasisHelper.enableTouch]=false时，x,y不会变化
+     *
+     * 注意：这个方法仅会回调首个按下的手指事件哦
+     *
+     * */
+    fun dragIng(event: MotionEvent, x: Float, y: Float)
+
+    /** 接收所有event,用于自定义判断逻辑,会在onTouchEvent中被优先永远调用 */
+    fun eventIng(event: MotionEvent)
 }

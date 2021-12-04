@@ -17,7 +17,6 @@ import com.petterp.floatingx.assist.Direction
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.util.topActivity
-import java.lang.Math.abs
 
 /**
  * 基础悬浮窗View 源自 ->
@@ -116,9 +115,11 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        when (event?.action) {
-            MotionEvent.ACTION_MOVE -> updateViewPosition(event)
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        helper.iFxScrollListener?.eventIng(event)
+        when (event.action) {
+            MotionEvent.ACTION_MOVE ->
+                updateViewPosition(event)
             MotionEvent.ACTION_UP -> {
                 helper.fxLog?.v("fxView---onTouchEvent--up")
                 actionTouchCancel()
@@ -135,7 +136,7 @@ class FxMagnetView @JvmOverloads constructor(
                 actionTouchCancel()
             }
         }
-        return helper.enableTouch
+        return helper.enableTouch || super.onTouchEvent(event)
     }
 
     private fun clickManagerView() {
@@ -172,6 +173,11 @@ class FxMagnetView @JvmOverloads constructor(
         event.findPointerIndex(touchDownId).takeIf {
             it == 0
         }?.let {
+            if (!helper.enableTouch) {
+                helper.iFxScrollListener?.dragIng(event, x, y)
+                helper.fxLog?.v("fxView---scrollListener--drag-event--x(${event.x})-y(${event.y})")
+                return
+            }
             // 按下时的坐标+当前手指距离屏幕的坐标-最开始距离屏幕的坐标
             var desX = mOriginalX + event.rawX - mOriginalRawX
             var desY = mOriginalY + event.rawY - mOriginalRawY
@@ -200,8 +206,8 @@ class FxMagnetView @JvmOverloads constructor(
             }
             x = desX
             y = desY
-            helper.iFxScrollListener?.dragIng(x, y)
-            helper.fxLog?.v("fxView---scrollListener--drag--x($x)-y($y)")
+            helper.fxLog?.v("fxView---scrollListener--drag--x($desX)-y($desY)")
+            helper.iFxScrollListener?.dragIng(event, desX, desY)
         }
     }
 
@@ -228,8 +234,7 @@ class FxMagnetView @JvmOverloads constructor(
         }
     }
 
-    @JvmOverloads
-    fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
+    internal fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
         if (!helper.enableEdgeAdsorption || isMoveLoading) return
         isMoveLoading = true
         var moveY = y
@@ -299,7 +304,7 @@ class FxMagnetView @JvmOverloads constructor(
         helper.fxLog?.d("fxView-lifecycle-> onWindowVisibilityChanged")
     }
 
-    fun updateLocation(x: Float, y: Float) {
+    internal fun updateLocation(x: Float, y: Float) {
         (layoutParams as LayoutParams).gravity = Direction.DEFAULT.value
         this.x = x
         this.y = y
@@ -307,7 +312,7 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     /** 修复位置显示 */
-    fun fixLocation() {
+    internal fun fixLocation() {
         if (helper.enableEdgeAdsorption) {
             moveToEdge()
             return
