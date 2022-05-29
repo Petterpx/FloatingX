@@ -1,8 +1,6 @@
 package com.petterp.floatingx.assist.helper
 
 import android.app.Activity
-import android.app.Application
-import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.util.FxScopeEnum
 import com.petterp.floatingx.util.navigationBarHeight
@@ -16,11 +14,13 @@ class AppHelper(
     val fxLifecycleExpand: IFxProxyTagActivityLifecycle?
 ) : BasisHelper() {
 
+    @JvmName(" updateNavigationBar")
     internal fun updateNavigationBar(activity: Activity?) {
         navigationBarHeight = activity?.navigationBarHeight ?: navigationBarHeight
         fxLog?.v("system-> navigationBar-$navigationBarHeight")
     }
 
+    @JvmName(" updateStatsBar")
     internal fun updateStatsBar(activity: Activity?) {
         statsBarHeight = activity?.statusBarHeight ?: statsBarHeight
         fxLog?.v("system-> statusBarHeight-$statsBarHeight")
@@ -31,12 +31,6 @@ class AppHelper(
         private var filterList: MutableList<Class<*>>? = null
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
         private var enableAllBlackClass: Boolean = false
-
-        @Deprecated("No need to call this method again, it will be removed later.")
-        fun setContext(application: Application): Builder {
-            FloatingX.context = application
-            return this
-        }
 
         /**
          * 设置显示悬浮窗的Activity生命周期回调
