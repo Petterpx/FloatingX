@@ -6,32 +6,18 @@ import android.content.Context
 import android.os.Build
 import android.provider.Settings
 import android.util.DisplayMetrics
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowManager
-import android.widget.FrameLayout
-import androidx.annotation.RequiresApi
 import java.util.*
-
-/**
- * 作为三方库,我们不应该将某些测量方法暴露,完成基本职责即可,避免与业务产生耦合,所以下面方法都是internal或者private
- * */
 
 /** 缓存的内容高度与底部导航栏高度 */
 private var screenHeightBf: Int = 0
-private var navigationHeight: Int = 0
-
-/** 获取内容视图高度,需要在onWindowFocusChanged方法后调用才生效 */
-internal val Activity.contentHeightFromAndroid: Int
-    get() =
-        window.decorView.findViewById<FrameLayout>(android.R.id.content).height
-
-/** 获取内容视图高度,需要在onWindowFocusChanged方法后调用才生效 */
-internal val Activity.contentWidthFromAndroid: Int
-    get() =
-        window.decorView.findViewById<FrameLayout>(android.R.id.content).width
+private var navigationHeightBf: Int = 0
 
 /** 真实屏幕高度,往往不会改变 */
-internal val Context.realScreenHeight: Int
+val Context.realScreenHeight: Int
     get() {
         val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val display = wm.defaultDisplay
@@ -40,18 +26,9 @@ internal val Context.realScreenHeight: Int
         return dm.heightPixels
     }
 
-/** 真实屏幕宽度,往往不会改变 */
-internal val Context.realScreenWidth: Int
-    get() {
-        val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val display = wm.defaultDisplay
-        val dm = DisplayMetrics()
-        display.getRealMetrics(dm)
-        return dm.widthPixels
-    }
-
-/** 屏幕内容高度,一般情况下不会包含底部导航栏 [navigationBarHeight] ,全面屏机型可能会包含,故不能直接使用 */
-internal val Context.screenHeight: Int
+/** 当前屏幕高度,一般情况下不会包含底部导航栏 [navigationBarHeight]
+ * 在全面屏机型不能直接使用 */
+val Context.screenHeight: Int
     get() {
         val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val display = wm.defaultDisplay
@@ -60,60 +37,48 @@ internal val Context.screenHeight: Int
         return dm.heightPixels
     }
 
-/** 屏幕内容宽度,一般情况下与 [realScreenWidth] 一致*/
-internal val Context.screenWidth: Int
+/** 状态栏高度,直接使用AppContext测量,部分情况会不准确 */
+val Activity.statusBarHeight: Int
     get() {
-        val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val display = wm.defaultDisplay
-        val dm = DisplayMetrics()
-        display.getMetrics(dm)
-        return dm.widthPixels
-    }
-
-/** 部分机型,直接使用AppContext测量,部分情况会不准确 */
-internal val Activity.contentHeight: Int
-    get() = realScreenHeight - navigationBarHeight
-
-/** 部分机型,直接使用AppContext测量,部分情况会不准确 */
-internal val Activity.statusBarHeight: Int
-    get() {
-        var height = 0
-        val resourceId: Int =
-            resources.getIdentifier("status_bar_height", "dimen", "android")
-        if (resourceId > 0) {
-            height = resources
-                .getDimensionPixelSize(resourceId)
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInMultiWindowMode) {
+                return 0
+            }
+            val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+            return resources.getDimensionPixelSize(resourceId)
+        } catch (e: Exception) {
+            0
         }
-        return height
     }
 
-/** 直接使用appContent获取状态栏高度 */
-internal val Context.statusBarHeight: Int
-    get() {
-        var height = 0
-        val resourceId: Int =
-            resources.getIdentifier("status_bar_height", "dimen", "android")
-        if (resourceId > 0) {
-            height = resources
-                .getDimensionPixelSize(resourceId)
-        }
-        return height
-    }
-
-/** 部分机型,直接使用AppContext测量,部分情况会不准确 */
-internal val Activity.navigationBarHeight: Int
+/** 获取底部导航栏高度 */
+val Activity.navigationBarHeight: Int
     get() {
         // 获取底部导航栏内部会用到反射,这里进行缓存,尽可能避免多余损耗
         // 当导航栏改变时，往往屏幕高度会发生变化,故可以借此进行判断
+
+        // -> 1. 优先从缓存中取
         val newScreenHeight = screenHeight
         if (newScreenHeight == screenHeightBf) {
-            return navigationHeight
+            return navigationHeightBf
         }
         screenHeightBf = newScreenHeight
+
+        // -> 2. Android11 直接用相应api
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            navigationHeight = getRealNavHeight(this)
-            return navigationHeight
+            navigationHeightBf = getRealNavHeight(this)
+            return navigationHeightBf
         }
+
+        // -> 3. 利用decorView去判断,调用时机是onWindowFocusChanged才生效
+        val (showFromAndroidStates, height) = getNavigationFromAndroid(this)
+        if (showFromAndroidStates == 1) {
+            navigationHeightBf = height
+            return navigationHeightBf
+            // ==0 意味着此时不存在导航栏
+        } else if (showFromAndroidStates == 0) return 0
+
+        // -> 4. 使用老办法去判断,系统判断||按照机型精细化判断
         val isShow = checkNavigationBarShow(this) || isNavBarVendorHide(this) == 0
         val realSize = realScreenHeight
         // 少部分机型上述逻辑会判断失误,所以还得再判断屏幕大小与内容大小是否一致
@@ -121,9 +86,31 @@ internal val Activity.navigationBarHeight: Int
         val newNavigationBarHeight = if (!isShow || realSize == newScreenHeight) {
             0
         } else getNavigationBarHeightFromSystem(newScreenHeight, realSize, this)
-        navigationHeight = newNavigationBarHeight
+        navigationHeightBf = newNavigationBarHeight
         return newNavigationBarHeight
     }
+
+/** 获取当前底部导航栏高度
+ * Pair<Int,Int>
+ *     前者代表状态,
+ *     -1 异常
+ *     1 成功
+ *     0 失败。
+ *     后者代表具体值：
+ * */
+private fun getNavigationFromAndroid(activity: Activity): Pair<Int, Int> {
+    try {
+        val vp = activity.window.decorView as? ViewGroup ?: return -1 to 0
+        (0 until vp.childCount).forEach lit@{ i ->
+            val id = vp.getChildAt(i)?.id
+            if (id == android.R.id.navigationBarBackground)
+                return 1 to vp.findViewById<View>(id).height
+        }
+    } catch (e: Exception) {
+        return -1 to 0
+    }
+    return 0 to 0
+}
 
 /** from weilu@掘金 */
 private val BRAND = Build.BRAND.toLowerCase(Locale.ROOT)
@@ -146,11 +133,12 @@ private val isNokia: Boolean
 private val isGoogle: Boolean
     get() = BRAND.contains("google")
 
-@RequiresApi(api = Build.VERSION_CODES.R)
+@SuppressLint("NewApi")
 private fun getRealNavHeight(context: Context): Int {
     val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     val windowMetrics = wm.currentWindowMetrics
     val windowInsets = windowMetrics.windowInsets
+    windowInsets.getInsets(WindowInsets.Type.navigationBars())
     val typeMask = WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout()
     val insets = windowInsets.getInsetsIgnoringVisibility(typeMask)
     return insets.bottom
@@ -201,20 +189,37 @@ private fun getNavigationBarHeightFromSystem(
     } else 0
 }
 
-private fun isNavBarVendorHide(context: Context): Int =
-    when {
-        isVivo -> vivoNavigationEnabled(context)
-        isOppo -> oppoNavigationEnabled(context)
-        isXiaomi -> xiaomiNavigationEnabled(context)
-        isHuawei -> huaWeiNavigationEnabled(context)
-        isOnePlus -> onePlusNavigationEnabled(context)
-        isSamsung -> samsungNavigationEnabled(context)
-        isSmarTisan -> smartisanNavigationEnabled(context)
-        isNokia -> nokiaNavigationEnabled(context)
-        // // navigation_mode 三种模式均有导航栏，只是高度不同。
-        isGoogle -> 0
-        else -> -1
+private fun isNavBarVendorHide(context: Context): Int {
+    // 有虚拟键，判断是否显示
+    if (isVivo) {
+        return vivoNavigationEnabled(context)
     }
+    if (isOppo) {
+        return oppoNavigationEnabled(context)
+    }
+    if (isXiaomi) {
+        return xiaomiNavigationEnabled(context)
+    }
+    if (isHuawei) {
+        return huaWeiNavigationEnabled(context)
+    }
+    if (isOnePlus) {
+        return onePlusNavigationEnabled(context)
+    }
+    if (isSamsung) {
+        return samsungNavigationEnabled(context)
+    }
+    if (isSmarTisan) {
+        return smartisanNavigationEnabled(context)
+    }
+    if (isNokia) {
+        return nokiaNavigationEnabled(context)
+    }
+    return if (isGoogle) {
+        // navigation_mode 三种模式均有导航栏，只是高度不同。
+        0
+    } else -1
+}
 
 /**
  * 判断当前系统是使用导航键还是手势导航操作
@@ -257,7 +262,11 @@ private fun onePlusNavigationEnabled(context: Context): Int {
 }
 
 private fun samsungNavigationEnabled(context: Context): Int {
-    return Settings.Global.getInt(context.contentResolver, "navigationbar_hide_bar_enabled", 0)
+    return Settings.Global.getInt(
+        context.contentResolver,
+        "navigationbar_hide_bar_enabled",
+        0
+    )
 }
 
 private fun smartisanNavigationEnabled(context: Context): Int {
