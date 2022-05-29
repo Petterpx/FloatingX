@@ -47,6 +47,7 @@ open class BasisHelper {
     internal var navigationBarHeight: Int = 0
     internal var statsBarHeight: Int = 0
 
+    @JvmName(" initLog")
     internal fun initLog(scope: String) {
         if (enableDebugLog) fxLog = FxLog.builder("$scope$fxLogTag")
     }

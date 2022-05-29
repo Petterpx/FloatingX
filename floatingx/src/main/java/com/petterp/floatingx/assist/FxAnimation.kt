@@ -26,6 +26,7 @@ abstract class FxAnimation {
     /** 结束动画 */
     abstract fun toAnimator(view: FrameLayout?): Animator
 
+    @JvmName(" fromStartAnimator")
     internal fun fromStartAnimator(view: FrameLayout?): Long {
         startAnimatorJob?.cancel()
         startAnimatorJob = fromAnimator(view)
@@ -36,6 +37,7 @@ abstract class FxAnimation {
         return startAnimatorJob?.animatorDuration ?: 0
     }
 
+    @JvmName(" toEndAnimator")
     internal fun toEndAnimator(view: FrameLayout?): Long {
         endAnimatorJob?.cancel()
         endAnimatorJob = toAnimator(view)

@@ -1,6 +1,5 @@
 package com.petterp.floatingx.impl.lifecycle
 
-import android.app.Application
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.database.Cursor
@@ -13,8 +12,9 @@ import com.petterp.floatingx.FloatingX
  */
 class FxLifecycleProvider : ContentProvider() {
     override fun onCreate(): Boolean {
-        FloatingX.context = context!!
-        (context as Application).registerActivityLifecycleCallbacks(FxLifecycleCallbackImpl())
+        context?.let {
+            FloatingX.initAppLifecycle(it)
+        }
         return true
     }
 

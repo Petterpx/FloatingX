@@ -1,9 +1,11 @@
 package com.petterp.floatingx
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.impl.control.FxAppControlImpl
+import com.petterp.floatingx.impl.lifecycle.FxLifecycleCallbackImpl
 import com.petterp.floatingx.listener.control.IFxAppControl
 
 /**
@@ -11,9 +13,10 @@ import com.petterp.floatingx.listener.control.IFxAppControl
  */
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
-    internal lateinit var context: Context
     internal var helper: AppHelper? = null
     internal var fxControl: FxAppControlImpl? = null
+    internal lateinit var context: Context
+    private var fxLifecycleCallback: FxLifecycleCallbackImpl? = null
 
     /** 悬浮窗初始化 */
     fun init(obj: AppHelper.Builder.() -> Unit) =
@@ -32,8 +35,20 @@ object FloatingX {
         return fxControl!!
     }
 
+    @JvmName(" reset")
     internal fun reset() {
         fxControl = null
+    }
+
+    @JvmName(" initAppLifecycle")
+    internal fun initAppLifecycle(context: Context) {
+        this.context = context
+        if (fxLifecycleCallback == null)
+            fxLifecycleCallback = FxLifecycleCallbackImpl()
+        (context as Application).apply {
+            unregisterActivityLifecycleCallbacks(fxLifecycleCallback)
+            registerActivityLifecycleCallbacks(fxLifecycleCallback)
+        }
     }
 
     private fun initControl() {

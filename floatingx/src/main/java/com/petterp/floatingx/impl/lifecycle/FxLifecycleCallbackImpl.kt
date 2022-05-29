@@ -9,6 +9,7 @@ import com.petterp.floatingx.impl.control.FxAppControlImpl
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.util.FxLog
 import com.petterp.floatingx.util.decorView
+import com.petterp.floatingx.util.lazyLoad
 import java.lang.ref.WeakReference
 
 /**
@@ -33,7 +34,7 @@ class FxLifecycleCallbackImpl :
     private val Activity.isParent: Boolean
         get() = appControl?.getManagerView()?.parent === decorView
 
-    private val insertCls by lazy {
+    private val insertCls by lazyLoad {
         mutableMapOf<Class<*>, Boolean>()
     }
     private val Activity.isActivityInValid: Boolean
