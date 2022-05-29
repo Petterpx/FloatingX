@@ -234,7 +234,6 @@ class FxMagnetView @JvmOverloads constructor(
         }
     }
 
-    @JvmName(" moveToEdge")
     internal fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
         if (isMoveLoading) return
         // 如果禁止边缘吸附或者边缘反弹
@@ -307,7 +306,6 @@ class FxMagnetView @JvmOverloads constructor(
         helper.fxLog?.d("fxView-lifecycle-> onWindowVisibilityChanged")
     }
 
-    @JvmName(" updateLocation")
     internal fun updateLocation(x: Float, y: Float) {
         (layoutParams as LayoutParams).gravity = Direction.DEFAULT.value
         this.x = x
@@ -316,7 +314,6 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     /** 修复位置显示 */
-    @JvmName(" fixLocation")
     internal fun fixLocation() {
         if (helper.enableEdgeAdsorption) {
             moveToEdge()

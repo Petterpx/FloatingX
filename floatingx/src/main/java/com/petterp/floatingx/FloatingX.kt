@@ -35,12 +35,10 @@ object FloatingX {
         return fxControl!!
     }
 
-    @JvmName(" reset")
     internal fun reset() {
         fxControl = null
     }
 
-    @JvmName(" initAppLifecycle")
     internal fun initAppLifecycle(context: Context) {
         this.context = context
         if (fxLifecycleCallback == null)

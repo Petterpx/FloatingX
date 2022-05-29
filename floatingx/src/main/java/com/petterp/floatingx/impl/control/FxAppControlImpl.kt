@@ -61,7 +61,6 @@ open class FxAppControlImpl(private val helper: AppHelper) :
         }
     }
 
-    @JvmName(" attach")
     internal fun attach(activity: Activity): Boolean {
         activity.decorView?.let {
             if (getContainer() === it) {
