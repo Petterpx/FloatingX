@@ -1,6 +1,8 @@
 package com.petterp.floatingx.util
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.view.ViewGroup
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
@@ -71,3 +73,17 @@ internal inline fun <reified T : Any> lazyLoad(
     lazy(mode) {
         obj()
     }
+
+internal fun Context.findActivity(): Activity? {
+    return when (this) {
+        is Activity -> {
+            this
+        }
+        is ContextWrapper -> {
+            baseContext.findActivity()
+        }
+        else -> {
+            null
+        }
+    }
+}

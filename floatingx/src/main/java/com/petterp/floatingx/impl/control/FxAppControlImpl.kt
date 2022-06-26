@@ -41,6 +41,13 @@ open class FxAppControlImpl(private val helper: AppHelper) :
         }
     }
 
+    override fun getBindActivity(): Activity? {
+        if (mContainer?.get() === topActivity?.decorView) {
+            return topActivity
+        }
+        return null
+    }
+
     override fun context(): Context = FloatingX.context
 
     /** 请注意：
