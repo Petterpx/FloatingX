@@ -204,7 +204,7 @@ open class BasisHelper {
             return this as T
         }
 
-        /** 设置悬浮窗的layoutParams */
+        /** 设置悬浮窗的layoutParams,只会与[setLayout]匹配使用 */
         fun setLayoutParams(layoutParams: FrameLayout.LayoutParams): T {
             this.layoutParams = layoutParams
             return this as T
