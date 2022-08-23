@@ -56,9 +56,14 @@ class FxMagnetView @JvmOverloads constructor(
     internal var childView: View? = null
 
     init {
+        initView()
+    }
+
+    private fun initView() {
         mMoveAnimator = MoveAnimator()
         isClickable = true
         childView = inflateLayoutView() ?: inflateLayoutId()
+        if (childView == null) return
         if (childView == null) helper.fxLog?.e("fxView--> inflateView, Error")
         val hasConfig = helper.iFxConfigStorage?.hasConfig() ?: false
         layoutParams = defaultLayoutParams(hasConfig)
