@@ -1,6 +1,7 @@
 package com.petterp.floatingx.impl.control
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
@@ -31,8 +32,9 @@ open class FxAppControlImpl(private val helper: AppHelper) :
     override fun show(activity: Activity) {
         super.show()
         if (isShow()) return
-        if (attach(activity))
+        if (attach(activity)) {
             getManagerView()?.show()
+        }
     }
 
     override fun detach(activity: Activity) {
@@ -48,10 +50,17 @@ open class FxAppControlImpl(private val helper: AppHelper) :
         return null
     }
 
+    /** 注意,全局浮窗下,view必须是全局application对应的context! */
+    override fun updateManagerView(view: View) {
+        if (view.context !is Application) {
+            throw IllegalArgumentException("view.context != Application,The global floating window must use application as context!")
+        }
+        super.updateManagerView(view)
+    }
+
     override fun context(): Context = FloatingX.context
 
-    /** 请注意：
-     * 调用此方法前请确定在初始化fx时,调用了show方法,否则,fx默认不会插入到全局Activity */
+    /** 请注意： 调用此方法前请确定在初始化fx时,调用了show方法,否则,fx默认不会插入到全局Activity */
     override fun show() {
         if (topActivity == null) {
             helper.enableFx = true

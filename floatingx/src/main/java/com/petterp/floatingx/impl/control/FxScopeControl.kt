@@ -1,6 +1,8 @@
 package com.petterp.floatingx.impl.control
 
 import android.app.Activity
+import android.app.Application
+import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.petterp.floatingx.assist.helper.BasisHelper
@@ -10,7 +12,7 @@ import com.petterp.floatingx.util.FxScopeEnum
 import com.petterp.floatingx.util.contentView
 import java.lang.ref.WeakReference
 
-/**  Fx普通View控制器 */
+/** Fx普通View控制器 */
 class FxScopeControl(private val helper: BasisHelper) :
     FxBasisControlImpl(helper),
     IFxScopeControl<IFxControl> {
@@ -42,5 +44,12 @@ class FxScopeControl(private val helper: BasisHelper) :
             init(it)
         }
         return this
+    }
+
+    override fun updateManagerView(view: View) {
+        if (view.context is Application) {
+            throw IllegalArgumentException("view == Application,Scope floating windows cannot use application-level views!")
+        }
+        super.updateManagerView(view)
     }
 }

@@ -58,7 +58,8 @@ class FxMagnetView @JvmOverloads constructor(
     init {
         mMoveAnimator = MoveAnimator()
         isClickable = true
-        inflateChildView()
+        childView = inflateLayoutView() ?: inflateLayoutId()
+        if (childView == null) helper.fxLog?.e("fxView--> inflateView, Error")
         val hasConfig = helper.iFxConfigStorage?.hasConfig() ?: false
         layoutParams = defaultLayoutParams(hasConfig)
         x = if (hasConfig) helper.iFxConfigStorage!!.getX() else helper.defaultX
@@ -67,32 +68,27 @@ class FxMagnetView @JvmOverloads constructor(
         setBackgroundColor(Color.TRANSPARENT)
     }
 
-    private fun inflateChildView() {
-        childView = inflateLayoutView() ?: inflateLayoutId()
-        childView?.let { child ->
-            helper.layoutParams?.let {
-                child.layoutParams = it
-            }
-            if (child.layoutParams == null) {
-                child.layoutParams = LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-            }
-            addViewInLayout(child, -1, child.layoutParams, true)
-        } ?: helper.fxLog?.e("fxView--> inflateView, Error")
-    }
-
     private fun inflateLayoutView(): View? {
         val view = helper.layoutView?.get()
-        if (view != null) helper.fxLog?.d("fxView-->init, way-[layoutView]")
+        if (view != null) {
+            val lp = layoutParams ?: LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            addViewInLayout(view, -1, lp, true)
+            helper.fxLog?.d("fxView-->init, way-[layoutView]")
+        }
         return view
     }
 
     private fun inflateLayoutId(): View? {
         if (helper.layoutId != 0) {
             helper.fxLog?.d("fxView-->init, way-[layoutId]")
-            return inflate(context, helper.layoutId, null)
+            val view = inflate(context, helper.layoutId, this)
+            helper.layoutParams?.let {
+                view.layoutParams = it
+            }
+            return view
         }
         return null
     }

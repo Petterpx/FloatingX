@@ -3,7 +3,6 @@ package com.petterp.floatingx.impl.control
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
 import com.petterp.floatingx.assist.helper.BasisHelper
@@ -35,13 +34,21 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
 
     override fun getManagerViewHolder(): FxViewHolder? = viewHolder
 
-    override fun updateManagerView(@DrawableRes resource: Int) {
+    override fun updateManagerView(@LayoutRes resource: Int) {
+        if (resource == 0) throw IllegalArgumentException("resource cannot be 0!")
+        helper.layoutView?.clear()
+        helper.layoutView = null
         updateMangerView(resource)
     }
 
     override fun updateManagerView(view: View) {
         helper.layoutView = WeakReference(view)
         updateMangerView(0)
+    }
+
+    override fun updateManagerView(obj: (context: Context) -> View) {
+        val view = obj(context())
+        updateManagerView(view)
     }
 
     override fun updateView(obj: (FxViewHolder) -> Unit) {
@@ -187,7 +194,7 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
 
     protected open fun context(): Context {
         if (mContainer?.get()?.context == null) {
-            throw NullPointerException("context cannot be empty")
+            throw NullPointerException("context cannot be null")
         }
         return mContainer?.get()?.context!!
     }

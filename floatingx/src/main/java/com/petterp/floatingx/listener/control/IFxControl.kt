@@ -1,5 +1,6 @@
 package com.petterp.floatingx.listener.control
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
@@ -66,11 +67,13 @@ interface IFxControl {
     @MainThread
     fun updateManagerView(@LayoutRes resource: Int)
 
-    /**
-     * 更新当前View
-     * */
+    /** 更新当前View */
     @MainThread
     fun updateManagerView(view: View)
+
+    /** 更新当前View,如果要通过view更新视图,建议通过此方法,可以帮助选用合适的context,来避免因context所导致的内存泄漏 */
+    @MainThread
+    fun updateManagerView(obj: (context: Context) -> View)
 
     /** 设置点击事件 */
     fun setClickListener(time: Long = 500L, obj: (View) -> Unit)
