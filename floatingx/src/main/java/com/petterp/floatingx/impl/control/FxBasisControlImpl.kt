@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
+import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.listener.control.IFxControl
@@ -36,6 +37,11 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
 
     override fun updateManagerView(@DrawableRes resource: Int) {
         updateMangerView(resource)
+    }
+
+    override fun updateManagerView(view: View) {
+        helper.layoutView = WeakReference(view)
+        updateMangerView(0)
     }
 
     override fun updateView(obj: (FxViewHolder) -> Unit) {
@@ -107,8 +113,8 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
     * 以下方法作为基础实现,供子类自行调用
     * */
 
-    protected open fun updateMangerView(@DrawableRes layout: Int = 0) {
-        if (layout != 0) helper.layoutId = layout
+    protected open fun updateMangerView(@LayoutRes layout: Int = 0) {
+        helper.layoutId = layout
         if (getContainer() == null) throw NullPointerException("FloatingX window The parent container cannot be null!")
         val isShow = isShow()
         if (helper.iFxConfigStorage?.hasConfig() != true) {
@@ -120,12 +126,13 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
             initManagerView()
         }
         // 如果当前显示,再添加到parent里
-        if (isShow)
+        if (isShow) {
             getContainer()?.addView(managerView)
+        }
     }
 
     protected fun initManagerView() {
-        if (helper.layoutId == 0) throw RuntimeException("The layout id cannot be 0")
+        if (helper.layoutId == 0 && helper.layoutView == null) throw RuntimeException("The layout id cannot be 0 ,and layoutView==null")
         getContainer()?.removeView(managerView)
         viewHolder?.clear()
         // 在初始化前,需要做一些清除工作
@@ -179,8 +186,9 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
     }
 
     protected open fun context(): Context {
-        if (mContainer?.get()?.context == null)
+        if (mContainer?.get()?.context == null) {
             throw NullPointerException("context cannot be empty")
+        }
         return mContainer?.get()?.context!!
     }
 
