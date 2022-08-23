@@ -137,14 +137,21 @@ open class BasisHelper {
             return this as T
         }
 
-        /** 设置悬浮窗view的layout,当与[setLayoutView]一起使用时,优先使用后者 */
-        fun setLayout(@LayoutRes layoutId: Int): T {
+        /** 设置悬浮窗view的layout */
+        @JvmOverloads
+        fun setLayout(@LayoutRes layoutId: Int, layoutParams: FrameLayout.LayoutParams? = null): T {
+            this.layoutView?.clear()
+            this.layoutView = null
             this.layoutId = layoutId
+            this.layoutParams = layoutParams
             return this as T
         }
 
-        /** 设置悬浮窗View,当与[setLayout]一起使用时,优先使用当前方法 */
-        fun setLayoutView(view: View): T {
+        /** 设置悬浮窗View */
+        @JvmOverloads
+        fun setLayoutView(view: View, layoutParams: FrameLayout.LayoutParams? = null): T {
+            layoutId = 0
+            if (view.layoutParams == null) view.layoutParams = layoutParams
             this.layoutView = WeakReference(view)
             return this as T
         }
@@ -205,6 +212,7 @@ open class BasisHelper {
         }
 
         /** 设置悬浮窗的layoutParams,只会与[setLayout]匹配使用 */
+        @Deprecated("后期会逐渐移除,建议通过[setLayout]时一起设置")
         fun setLayoutParams(layoutParams: FrameLayout.LayoutParams): T {
             this.layoutParams = layoutParams
             return this as T
