@@ -8,13 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.util.createFx
 
-/**
- *
- * @author petterp
- */
+/** @author petterp */
 class ScopeActivity : AppCompatActivity() {
 
     private lateinit var viewGroup: ViewGroup
@@ -55,8 +53,22 @@ class ScopeActivity : AppCompatActivity() {
                     addItemView("隐藏悬浮窗") {
                         scopeFx.hide()
                     }
-                    addItemView("更换layout") {
+                    addItemView("更换layout(通过布局更换)") {
                         scopeFx.updateManagerView(R.layout.item_floating_new)
+                    }
+                    addItemView("更换layoutView(通过传递View)") {
+                        scopeFx.updateManagerView {
+                            TextView(it).apply {
+                                layoutParams = ViewGroup.LayoutParams(
+                                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                                    ViewGroup.LayoutParams.WRAP_CONTENT
+                                )
+                                text = "scope"
+                                textSize = 15f
+                                setBackgroundColor(Color.GRAY)
+                                setPadding(10, 10, 10, 10)
+                            }
+                        }
                     }
                     addItemView("增加点击事件") {
                         scopeFx.setClickListener {

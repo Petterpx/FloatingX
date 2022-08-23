@@ -21,8 +21,6 @@ class CustomKtApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         FloatingX.init {
-            // 设置context
-//            setContext(this@CustomKtApplication)
             // 设置悬浮窗layout
             setLayout(R.layout.item_floating)
             // 设置悬浮窗默认方向

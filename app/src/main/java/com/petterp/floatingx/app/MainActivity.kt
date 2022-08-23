@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
@@ -32,11 +33,36 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         createLinearLayoutToParent {
             viewGroup = addScopeViewGroup()
+            addItemView("隐藏全局悬浮窗") {
+                FloatingX.control().hide()
+            }
             addItemView("显示全局悬浮窗-(展示与多指触摸)") {
-                FloatingX.control().show(this@MainActivity)
-                FloatingX.control().updateView {
-                    it.text(R.id.tvItemFx, "App")
+                // 虽然可以不传递activity,不传递时将使用当前栈顶activity
+//                FloatingX.control().show(this@MainActivity)
+                FloatingX.control().show()
+            }
+            addItemView("更新当前全局浮窗显示View-(layoutId)") {
+                FloatingX.control().apply {
+                    updateManagerView(R.layout.item_floating)
+                    updateView {
+                        it.text(R.id.tvItemFx, "App")
+                    }
+                }.show()
+            }
+            addItemView("更新当前全局浮窗显示View-(layoutView)") {
+                FloatingX.control().updateManagerView {
+                    TextView(it).apply {
+                        layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        )
+                        text = "App"
+                        textSize = 15f
+                        setBackgroundColor(Color.GRAY)
+                        setPadding(10, 10, 10, 10)
+                    }
                 }
+                FloatingX.control().show()
             }
             addItemView("显示Activity悬浮窗-(展示与多指触摸)") {
                 activityFx.show()
