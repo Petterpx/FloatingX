@@ -5,7 +5,7 @@ buildscript {
         minsdk_version = 21
         targetsdk_version = 31
         compilesdk_version = 31
-        version_name = '1.0.2'
+        version_name = '1.0.3'
         versionCode = {
             def cmd = 'git rev-list HEAD --count'
             cmd.execute().text.trim().toInteger()
