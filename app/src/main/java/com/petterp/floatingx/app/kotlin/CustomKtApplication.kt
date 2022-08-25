@@ -4,11 +4,9 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.view.MotionEvent
+import android.widget.TextView
 import com.petterp.floatingx.FloatingX
-import com.petterp.floatingx.app.ImmersedActivity
-import com.petterp.floatingx.app.MainActivity
-import com.petterp.floatingx.app.R
-import com.petterp.floatingx.app.ScopeActivity
+import com.petterp.floatingx.app.*
 import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.assist.Direction
@@ -21,12 +19,24 @@ class CustomKtApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         FloatingX.init {
-            // 设置悬浮窗layout
+            // TODO: 浮窗layout设置方式二选一,后者会替换前者方式
             setLayout(R.layout.item_floating)
+//            // 设置浮窗layoutId,同时增加layoutParams,一般情况下可以不用增加params
+//            setLayout(
+//                R.layout.item_floating,
+//                FrameLayout.LayoutParams(
+//                    ViewGroup.LayoutParams.WRAP_CONTENT,
+//                    ViewGroup.LayoutParams.WRAP_CONTENT
+//                )
+//            )
+
+            // 传递自定义的View,layoutParams(可选参数,不传递默认使用wrap-wrap)
+            setLayoutView(TextView(applicationContext))
+
             // 设置悬浮窗默认方向
             setGravity(Direction.RIGHT_OR_BOTTOM)
             // 设置是否启用日志
-            setEnableLog(true)
+            setEnableLog(BuildConfig.DEBUG)
 
             // 启用辅助方向
             setEnableAssistDirection(0f, 0f, 0f, 100f)
@@ -75,7 +85,7 @@ class CustomKtApplication : Application() {
             addBlackClass(
                 MainActivity::class.java,
                 ImmersedActivity::class.java,
-                ScopeActivity::class.java,
+                ScopeActivity::class.java
             )
             // 3. 设置允许所有activity进行显示，同时增加过滤列表
 //            setEnableAllBlackClass(true, MainActivity::class.java)
