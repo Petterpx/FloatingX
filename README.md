@@ -10,6 +10,8 @@
 
 [English Introduction](https://github.com/Petterpx/FloatingX/blob/main/README_EN.md)
 
+[中文文档](https://github.com/Petterpx/FloatingX/wiki)
+
 ## 👏 特性 
 
 - 单例持有浮窗view
@@ -60,7 +62,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	  implementation 'com.github.Petterpx:FloatingX:1.0.3'
+	  implementation 'com.github.Petterpx:FloatingX:1.0.4'
 }
 ```
 
