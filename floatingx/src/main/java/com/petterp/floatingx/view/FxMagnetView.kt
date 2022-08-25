@@ -40,8 +40,8 @@ class FxMagnetView @JvmOverloads constructor(
     // 最后触摸的时间
     private var mLastTouchDownTime: Long = 0
     private var mMoveAnimator: MoveAnimator? = null
-    private var mRootWidth = 0f
-    private var mRootHeight = 0f
+    private var mParentWidth = 0f
+    private var mParentHeight = 0f
 
     @Volatile
     private var isMoveLoading = false
@@ -211,21 +211,21 @@ class FxMagnetView @JvmOverloads constructor(
             // 如果允许边界外滚动，则Y轴只需要考虑状态栏与导航栏,即可超出的范围为提供的边界与marginEdge
             if (helper.enableEdgeRebound) {
                 if (desX < 0f) desX = 0f
-                else if (desX > mRootWidth) desX = mRootWidth
+                else if (desX > mParentWidth) desX = mParentWidth
 
                 if (desY < helper.statsBarHeight) {
                     desY = helper.statsBarHeight.toFloat()
                 }
-                val statusY = mRootHeight - helper.navigationBarHeight
+                val statusY = mParentHeight - helper.navigationBarHeight
                 if (desY > statusY) {
                     desY = statusY
                 }
             } else {
                 val moveMinX = helper.borderMargin.l + helper.edgeOffset
-                val moveMaxX = mRootWidth - helper.borderMargin.r - helper.edgeOffset
+                val moveMaxX = mParentWidth - helper.borderMargin.r - helper.edgeOffset
                 val moveMinY = helper.statsBarHeight + helper.borderMargin.t + helper.edgeOffset
                 val moveMaxY =
-                    mRootHeight - helper.navigationBarHeight - helper.edgeOffset - helper.borderMargin.b
+                    mParentHeight - helper.navigationBarHeight - helper.edgeOffset - helper.borderMargin.b
                 if (desX < moveMinX) desX = moveMinX
                 if (desX > moveMaxX) desX = moveMaxX
                 if (desY < moveMinY) desY = moveMinY
@@ -247,18 +247,19 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     private fun updateSize(): Boolean {
-        (parent as ViewGroup).apply {
-            // 这里先减掉自身大小可以避免后期再重复减掉
-            val parentWidth = (width - this@FxMagnetView.width).toFloat()
-            val parentHeight = (height - this@FxMagnetView.height).toFloat()
-            helper.fxLog?.d("fxView->size oldW-($mRootWidth),oldH-($mRootHeight),newW-($parentWidth),newH-($parentHeight)")
-            if (mRootHeight != parentHeight || mRootWidth != parentWidth) {
-                mRootWidth = parentWidth
-                mRootHeight = parentHeight
-                return true
-            }
-            return false
+        // 如果此时浮窗被父布局移除,parent将为null,此时就别更新位置了,没意义
+        val parentGroup = (parent as? ViewGroup) ?: return false
+
+        // 这里先减掉自身大小可以避免后期再重复减掉
+        val parentWidth = (parentGroup.width - this@FxMagnetView.width).toFloat()
+        val parentHeight = (parentGroup.height - this@FxMagnetView.height).toFloat()
+        helper.fxLog?.d("fxView->size oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)")
+        if (mParentHeight != parentHeight || mParentWidth != parentWidth) {
+            mParentWidth = parentWidth
+            mParentHeight = parentHeight
+            return true
         }
+        return false
     }
 
     internal fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
@@ -268,7 +269,7 @@ class FxMagnetView @JvmOverloads constructor(
         isMoveLoading = true
         var moveY = y
         val moveX = if (isLeft) helper.edgeOffset + helper.borderMargin.l
-        else mRootWidth - helper.edgeOffset - helper.borderMargin.r
+        else mParentWidth - helper.edgeOffset - helper.borderMargin.r
         // 对于重建之后的位置保存
         if (isLandscape && mPortraitY != 0f) {
             moveY = mPortraitY
@@ -277,7 +278,7 @@ class FxMagnetView @JvmOverloads constructor(
         // 拿到y轴目前应该在的距离
         moveY = (helper.borderMargin.t + helper.edgeOffset + helper.statsBarHeight)
             .coerceAtLeast(moveY)
-            .coerceAtMost((mRootHeight - helper.borderMargin.b - helper.edgeOffset - helper.navigationBarHeight))
+            .coerceAtMost((mParentHeight - helper.borderMargin.b - helper.edgeOffset - helper.navigationBarHeight))
         moveLocation(moveX, moveY)
     }
 
@@ -286,7 +287,7 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     private fun isNearestLeft(): Boolean {
-        val middle = mRootWidth / 2
+        val middle = mParentWidth / 2
         isNearestLeft = x < middle
         return isNearestLeft
     }
@@ -294,24 +295,25 @@ class FxMagnetView @JvmOverloads constructor(
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         helper.fxLog?.d("fxView--lifecycle-> onConfigurationChanged--")
-        if (parent != null) {
-            val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
-            var isNavigationCHanged = false
-            // 对于全局的处理
-            if (helper is AppHelper) {
-                val navigationBarHeight = helper.navigationBarHeight
-                helper.updateNavigationBar(topActivity)
-                isNavigationCHanged = navigationBarHeight != helper.navigationBarHeight
-            }
-            if (isLandscape || isNavigationCHanged) {
-                mPortraitY = y
-            }
-            isMoveLoading = false
-            (parent as ViewGroup).post {
-                // 如果视图大小改变
-                if (updateSize()) {
-                    moveToEdge(isLandscape = isLandscape)
-                }
+        val parentGroup = (parent as? ViewGroup) ?: return
+
+        val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
+        var isNavigationCHanged = false
+        // 对于全局的处理
+        if (helper is AppHelper) {
+            val navigationBarHeight = helper.navigationBarHeight
+            helper.updateNavigationBar(topActivity)
+            isNavigationCHanged = navigationBarHeight != helper.navigationBarHeight
+        }
+        if (isLandscape || isNavigationCHanged) {
+            mPortraitY = y
+        }
+        isMoveLoading = false
+
+        // 如果视图大小改变,则更新位置
+        parentGroup.post {
+            if (updateSize()) {
+                moveToEdge(isLandscape = isLandscape)
             }
         }
     }
@@ -350,9 +352,9 @@ class FxMagnetView @JvmOverloads constructor(
         var moveX = x
         var moveY = y
         val minX = helper.borderMargin.l
-        val maxX = mRootWidth - helper.borderMargin.r
+        val maxX = mParentWidth - helper.borderMargin.r
         val minY = helper.borderMargin.t + helper.statsBarHeight
-        val maxY = mRootHeight - helper.borderMargin.b - helper.navigationBarHeight
+        val maxY = mParentHeight - helper.borderMargin.b - helper.navigationBarHeight
         if (x < minX) moveX = minX else if (x > maxX) moveX = maxX
         if (y < minY) moveY = minY else if (y > maxY) moveY = maxY
         moveLocation(moveX, moveY)
