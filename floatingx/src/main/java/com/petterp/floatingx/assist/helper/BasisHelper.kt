@@ -40,7 +40,7 @@ open class BasisHelper {
     internal var iFxScrollListener: IFxScrollListener? = null
     internal var iFxViewLifecycle: IFxViewLifecycle? = null
     internal var iFxConfigStorage: IFxConfigStorage? = null
-    internal var clickListener: ((View) -> Unit)? = null
+    internal var iFxClickListener: View.OnClickListener? = null
 
     internal var fxLog: FxLog? = null
     private var fxLogTag: String = ""
@@ -85,7 +85,7 @@ open class BasisHelper {
         private var iFxConfigStorage: IFxConfigStorage? = null
         private var iFxScrollListener: IFxScrollListener? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
-        private var ifxClickListener: ((View) -> Unit)? = null
+        private var ifxClickListener: View.OnClickListener? = null
 
         protected abstract fun buildHelper(): B
 
@@ -122,7 +122,7 @@ open class BasisHelper {
                 iFxScrollListener = this@Builder.iFxScrollListener
                 iFxViewLifecycle = this@Builder.iFxViewLifecycle
                 iFxConfigStorage = this@Builder.iFxConfigStorage
-                clickListener = this@Builder.ifxClickListener
+                iFxClickListener = this@Builder.ifxClickListener
             }
 
         /** 设置启用fx */
@@ -151,7 +151,7 @@ open class BasisHelper {
         @JvmOverloads
         fun setLayoutView(view: View, layoutParams: FrameLayout.LayoutParams? = null): T {
             layoutId = 0
-            if (view.layoutParams == null) view.layoutParams = layoutParams
+            if (view.layoutParams != null) view.layoutParams = layoutParams
             this.layoutView = WeakReference(view)
             return this as T
         }
@@ -203,7 +203,7 @@ open class BasisHelper {
         @JvmOverloads
         fun setOnClickListener(
             time: Long = 500L,
-            clickListener: ((View) -> Unit)
+            clickListener: View.OnClickListener
         ): T {
             this.enableClickListener = true
             this.ifxClickListener = clickListener

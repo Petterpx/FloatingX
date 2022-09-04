@@ -26,7 +26,7 @@ import com.petterp.floatingx.util.topActivity
 @SuppressLint("ViewConstructor")
 class FxMagnetView @JvmOverloads constructor(
     context: Context,
-    val helper: BasisHelper,
+    private val helper: BasisHelper,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
@@ -43,9 +43,6 @@ class FxMagnetView @JvmOverloads constructor(
     private var mParentWidth = 0f
     private var mParentHeight = 0f
 
-    @Volatile
-    private var isMoveLoading = false
-
     private var isNearestLeft = true
     private var mPortraitY = 0f
     private var touchDownX = 0f
@@ -53,7 +50,12 @@ class FxMagnetView @JvmOverloads constructor(
 
     @Volatile
     private var isClickEnable: Boolean = true
-    internal var childView: View? = null
+
+    @Volatile
+    private var isMoveLoading = false
+
+    private var _childFxView: View? = null
+    val childFxView: View? get() = _childFxView
 
     init {
         initView()
@@ -62,9 +64,9 @@ class FxMagnetView @JvmOverloads constructor(
     private fun initView() {
         mMoveAnimator = MoveAnimator()
         isClickable = true
-        childView = inflateLayoutView() ?: inflateLayoutId()
-        if (childView == null) return
-        if (childView == null) helper.fxLog?.e("fxView--> inflateView, Error")
+        _childFxView = inflateLayoutView() ?: inflateLayoutId()
+        if (_childFxView == null) return
+        if (_childFxView == null) helper.fxLog?.e("fxView--> inflateView, Error")
         val hasConfig = helper.iFxConfigStorage?.hasConfig() ?: false
         layoutParams = defaultLayoutParams(hasConfig)
         x = if (hasConfig) helper.iFxConfigStorage!!.getX() else helper.defaultX
@@ -169,7 +171,7 @@ class FxMagnetView @JvmOverloads constructor(
         if (helper.enableClickListener && isClickEnable && isOnClickEvent()) {
             isClickEnable = false
             helper.fxLog?.d("fxView -> click")
-            helper.clickListener?.invoke(this)
+            helper.iFxClickListener?.onClick(this)
                 ?: helper.fxLog?.e("fxView -> click, clickListener = null!!!")
             postDelayed({ isClickEnable = true }, helper.clickTime)
         }
@@ -262,26 +264,6 @@ class FxMagnetView @JvmOverloads constructor(
         return false
     }
 
-    internal fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
-        if (isMoveLoading) return
-        // 如果禁止边缘吸附或者边缘反弹
-        if (!helper.enableEdgeAdsorption && !helper.enableEdgeRebound) return
-        isMoveLoading = true
-        var moveY = y
-        val moveX = if (isLeft) helper.edgeOffset + helper.borderMargin.l
-        else mParentWidth - helper.edgeOffset - helper.borderMargin.r
-        // 对于重建之后的位置保存
-        if (isLandscape && mPortraitY != 0f) {
-            moveY = mPortraitY
-            clearPortraitY()
-        }
-        // 拿到y轴目前应该在的距离
-        moveY = (helper.borderMargin.t + helper.edgeOffset + helper.statsBarHeight)
-            .coerceAtLeast(moveY)
-            .coerceAtMost((mParentHeight - helper.borderMargin.b - helper.edgeOffset - helper.navigationBarHeight))
-        moveLocation(moveX, moveY)
-    }
-
     private fun clearPortraitY() {
         mPortraitY = 0f
     }
@@ -336,6 +318,28 @@ class FxMagnetView @JvmOverloads constructor(
         helper.fxLog?.d("fxView-lifecycle-> onWindowVisibilityChanged")
     }
 
+    @JvmSynthetic
+    internal fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
+        if (isMoveLoading) return
+        // 如果禁止边缘吸附或者边缘反弹
+        if (!helper.enableEdgeAdsorption && !helper.enableEdgeRebound) return
+        isMoveLoading = true
+        var moveY = y
+        val moveX = if (isLeft) helper.edgeOffset + helper.borderMargin.l
+        else mParentWidth - helper.edgeOffset - helper.borderMargin.r
+        // 对于重建之后的位置保存
+        if (isLandscape && mPortraitY != 0f) {
+            moveY = mPortraitY
+            clearPortraitY()
+        }
+        // 拿到y轴目前应该在的距离
+        moveY = (helper.borderMargin.t + helper.edgeOffset + helper.statsBarHeight)
+            .coerceAtLeast(moveY)
+            .coerceAtMost((mParentHeight - helper.borderMargin.b - helper.edgeOffset - helper.navigationBarHeight))
+        moveLocation(moveX, moveY)
+    }
+
+    @JvmSynthetic
     internal fun updateLocation(x: Float, y: Float) {
         (layoutParams as LayoutParams).gravity = Direction.DEFAULT.value
         this.x = x
@@ -344,6 +348,7 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     /** 修复位置显示 */
+    @JvmSynthetic
     internal fun fixLocation() {
         if (helper.enableEdgeAdsorption) {
             moveToEdge()
@@ -384,7 +389,7 @@ class FxMagnetView @JvmOverloads constructor(
         }
 
         override fun run() {
-            if (rootView == null || rootView.parent == null) {
+            if (childFxView == null || childFxView?.parent == null) {
                 return
             }
             val progress =

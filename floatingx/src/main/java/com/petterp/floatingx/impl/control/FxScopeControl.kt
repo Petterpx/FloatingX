@@ -10,7 +10,6 @@ import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.listener.control.IFxScopeControl
 import com.petterp.floatingx.util.FxScopeEnum
 import com.petterp.floatingx.util.contentView
-import java.lang.ref.WeakReference
 
 /** Fx普通View控制器 */
 class FxScopeControl(private val helper: BasisHelper) :
@@ -21,13 +20,13 @@ class FxScopeControl(private val helper: BasisHelper) :
         super.show()
         if (isShow()) return
         if (getManagerView() == null) initManagerView()
-        getContainer()?.addView(getManagerView())
+        getContainerGroup()?.addView(getManagerView())
         getManagerView()?.show()
     }
 
     override fun init(viewGroup: ViewGroup): IFxControl {
         helper.initLog(FxScopeEnum.VIEW_GROUP_SCOPE.tag)
-        mContainer = WeakReference(viewGroup)
+        setContainerGroup(viewGroup)
         return this
     }
 

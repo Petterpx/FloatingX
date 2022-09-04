@@ -9,7 +9,7 @@ import com.petterp.floatingx.impl.lifecycle.FxLifecycleCallbackImpl
 
 /** App级当前设置了tag的栈顶Activity */
 internal val topActivity: Activity?
-    get() = FxLifecycleCallbackImpl.topActivity?.get()
+    get() = FxLifecycleCallbackImpl.getTopActivity()
 
 internal val Activity.decorView: FrameLayout?
     get() = try {
@@ -26,17 +26,6 @@ internal val Activity.contentView: FrameLayout?
         e.printStackTrace()
         null
     }
-
-/** Fx的一些UI扩展 */
-internal fun ViewGroup.updateParams(left: Int, top: Int, end: Int, bottom: Int) {
-    val parent = (layoutParams as? ViewGroup.MarginLayoutParams)?.apply {
-        leftMargin = left
-        topMargin = top
-        marginEnd = end
-        bottomMargin = bottom
-    }
-    layoutParams = parent
-}
 
 /** 判断视图是否被覆盖 */
 internal val View.isViewCovered: Boolean
@@ -70,6 +59,19 @@ internal val View.isViewCovered: Boolean
         return false
     }
 
+/** Fx的一些UI扩展 */
+@JvmSynthetic
+internal fun ViewGroup.updateParams(left: Int, top: Int, end: Int, bottom: Int) {
+    val parent = (layoutParams as? ViewGroup.MarginLayoutParams)?.apply {
+        leftMargin = left
+        topMargin = top
+        marginEnd = end
+        bottomMargin = bottom
+    }
+    layoutParams = parent
+}
+
+@JvmSynthetic
 internal fun View.indexOfViewInParent(parent: ViewGroup): Int {
     var index = 0
     while (index < parent.childCount) {

@@ -14,11 +14,13 @@ class AppHelper(
     val fxLifecycleExpand: IFxProxyTagActivityLifecycle?
 ) : BasisHelper() {
 
+    @JvmSynthetic
     internal fun updateNavigationBar(activity: Activity?) {
         navigationBarHeight = activity?.navigationBarHeight ?: navigationBarHeight
         fxLog?.v("system-> navigationBar-$navigationBarHeight")
     }
 
+    @JvmSynthetic
     internal fun updateStatsBar(activity: Activity?) {
         statsBarHeight = activity?.statusBarHeight ?: statsBarHeight
         fxLog?.v("system-> statusBarHeight-$statsBarHeight")

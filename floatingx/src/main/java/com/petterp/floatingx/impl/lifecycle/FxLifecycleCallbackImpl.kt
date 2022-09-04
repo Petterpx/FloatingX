@@ -21,11 +21,11 @@ class FxLifecycleCallbackImpl :
     private val fxLog: FxLog?
         get() = helper?.fxLog
     private val helper: AppHelper?
-        get() = FloatingX.helper
+        get() = FloatingX.getHelper()
     private val enableFx: Boolean
         get() = helper?.enableFx ?: false
     private val appControl: FxAppControlImpl?
-        get() = FloatingX.fxControl
+        get() = FloatingX.getControl()
     private val appLifecycleCallBack: IFxProxyTagActivityLifecycle?
         get() = helper?.fxLifecycleExpand
 
@@ -53,8 +53,7 @@ class FxLifecycleCallbackImpl :
         } ?: false
 
     private fun initTopActivity(activity: Activity) {
-        if (topActivity?.get() != activity)
-            topActivity = WeakReference(activity)
+        if (topActivity?.get() != activity) topActivity = WeakReference(activity)
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
@@ -141,6 +140,9 @@ class FxLifecycleCallbackImpl :
     }
 
     companion object {
-        internal var topActivity: WeakReference<Activity>? = null
+        private var topActivity: WeakReference<Activity>? = null
+
+        @JvmSynthetic
+        fun getTopActivity(): Activity? = topActivity?.get()
     }
 }

@@ -12,11 +12,6 @@ abstract class FxAnimation {
     private var startAnimatorJob: Animator? = null
     private var endAnimatorJob: Animator? = null
 
-    internal val fromJobRunning: Boolean
-        get() = startAnimatorJob?.isRunning ?: false
-    internal val endJobRunning: Boolean
-        get() = endAnimatorJob?.isRunning ?: false
-
     private val Animator.animatorDuration: Long
         get() = duration + startDelay
 
@@ -26,6 +21,20 @@ abstract class FxAnimation {
     /** 结束动画 */
     abstract fun toAnimator(view: FrameLayout?): Animator
 
+    fun cancelAnimation() {
+        startAnimatorJob?.cancel()
+        endAnimatorJob?.cancel()
+        startAnimatorJob = null
+        endAnimatorJob = null
+    }
+
+    @JvmSynthetic
+    internal fun fromJobIsRunning(): Boolean = startAnimatorJob?.isRunning ?: false
+
+    @JvmSynthetic
+    internal fun endJobIsRunning(): Boolean = endAnimatorJob?.isRunning ?: false
+
+    @JvmSynthetic
     internal fun fromStartAnimator(view: FrameLayout?): Long {
         startAnimatorJob?.cancel()
         startAnimatorJob = fromAnimator(view)
@@ -36,6 +45,7 @@ abstract class FxAnimation {
         return startAnimatorJob?.animatorDuration ?: 0
     }
 
+    @JvmSynthetic
     internal fun toEndAnimator(view: FrameLayout?): Long {
         endAnimatorJob?.cancel()
         endAnimatorJob = toAnimator(view)
@@ -44,12 +54,5 @@ abstract class FxAnimation {
         }
         endAnimatorJob?.start()
         return endAnimatorJob?.animatorDuration ?: 0
-    }
-
-    fun cancelAnimation() {
-        startAnimatorJob?.cancel()
-        endAnimatorJob?.cancel()
-        startAnimatorJob = null
-        endAnimatorJob = null
     }
 }

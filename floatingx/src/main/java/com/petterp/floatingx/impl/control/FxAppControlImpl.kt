@@ -13,7 +13,6 @@ import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.util.decorView
 import com.petterp.floatingx.util.lazyLoad
 import com.petterp.floatingx.util.topActivity
-import java.lang.ref.WeakReference
 
 /** 全局控制器 */
 open class FxAppControlImpl(private val helper: AppHelper) :
@@ -44,7 +43,7 @@ open class FxAppControlImpl(private val helper: AppHelper) :
     }
 
     override fun getBindActivity(): Activity? {
-        if (mContainer?.get() === topActivity?.decorView) {
+        if (getContainerGroup() === topActivity?.decorView) {
             return topActivity
         }
         return null
@@ -58,7 +57,7 @@ open class FxAppControlImpl(private val helper: AppHelper) :
         super.updateManagerView(view)
     }
 
-    override fun context(): Context = FloatingX.context
+    override fun context(): Context = FloatingX.getContext()
 
     /** 请注意： 调用此方法前请确定在初始化fx时,调用了show方法,否则,fx默认不会插入到全局Activity */
     override fun show() {
@@ -79,7 +78,7 @@ open class FxAppControlImpl(private val helper: AppHelper) :
 
     internal fun attach(activity: Activity): Boolean {
         activity.decorView?.let {
-            if (getContainer() === it) {
+            if (getContainerGroup() === it) {
                 return false
             }
             var isAnimation = false
@@ -93,10 +92,10 @@ open class FxAppControlImpl(private val helper: AppHelper) :
                     View.VISIBLE
                 detach()
             }
-            mContainer = WeakReference(it)
+            setContainerGroup(it)
             helper.fxLog?.d("fxView-lifecycle-> code->addView")
             helper.iFxViewLifecycle?.postAttach()
-            getContainer()?.addView(getManagerView())
+            getContainerGroup()?.addView(getManagerView())
             if (isAnimation && helper.enableAnimation && helper.fxAnimation != null) {
                 helper.fxLog?.d("fxView->Animation -----start")
                 helper.fxAnimation?.fromStartAnimator(getManagerView())
@@ -126,8 +125,7 @@ open class FxAppControlImpl(private val helper: AppHelper) :
     }
 
     private fun clearWindowsInsetsListener() {
-        getManagerView()?.let {
-            ViewCompat.setOnApplyWindowInsetsListener(it, null)
-        }
+        val managerView = getManagerView() ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(managerView, null)
     }
 }

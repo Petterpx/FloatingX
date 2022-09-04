@@ -13,12 +13,13 @@ import com.petterp.floatingx.listener.control.IFxAppControl
  */
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
-    internal var helper: AppHelper? = null
-    internal var fxControl: FxAppControlImpl? = null
-    internal lateinit var context: Context
+    private lateinit var context: Context
+    private var helper: AppHelper? = null
+    private var fxControl: FxAppControlImpl? = null
     private var fxLifecycleCallback: FxLifecycleCallbackImpl? = null
 
     /** 悬浮窗初始化 */
+    @JvmSynthetic
     fun init(obj: AppHelper.Builder.() -> Unit) =
         init(AppHelper.builder().apply(obj).build())
 
@@ -35,20 +36,6 @@ object FloatingX {
         return fxControl!!
     }
 
-    internal fun reset() {
-        fxControl = null
-    }
-
-    internal fun initAppLifecycle(context: Context) {
-        this.context = context
-        if (fxLifecycleCallback == null)
-            fxLifecycleCallback = FxLifecycleCallbackImpl()
-        (context as Application).apply {
-            unregisterActivityLifecycleCallbacks(fxLifecycleCallback)
-            registerActivityLifecycleCallbacks(fxLifecycleCallback)
-        }
-    }
-
     private fun initControl() {
         if (fxControl == null) {
             fxControl = FxAppControlImpl(config())
@@ -58,4 +45,30 @@ object FloatingX {
     private fun config(): AppHelper =
         helper
             ?: throw NullPointerException("helper==null!!!,AppHelper Cannot be null,Please check if init() is called.")
+
+    @JvmSynthetic
+    internal fun initAppLifecycle(context: Context) {
+        this.context = context
+        if (fxLifecycleCallback == null) {
+            fxLifecycleCallback = FxLifecycleCallbackImpl()
+        }
+        (context as Application).apply {
+            unregisterActivityLifecycleCallbacks(fxLifecycleCallback)
+            registerActivityLifecycleCallbacks(fxLifecycleCallback)
+        }
+    }
+
+    @JvmSynthetic
+    internal fun getHelper(): AppHelper? = helper
+
+    @JvmSynthetic
+    internal fun getContext(): Context = context
+
+    @JvmSynthetic
+    internal fun getControl(): FxAppControlImpl? = fxControl
+
+    @JvmSynthetic
+    internal fun reset() {
+        fxControl = null
+    }
 }

@@ -42,8 +42,8 @@ interface IFxHelperControl {
     }
 
     /** 设置点击事件监听器 */
-    fun setClickListener(clickListener: (View) -> Unit) {
-        getConfigHelper().clickListener = clickListener
+    fun setClickListener(clickListener: View.OnClickListener) {
+        getConfigHelper().iFxClickListener = clickListener
     }
 
     /** 设置是否启用点击事件 */

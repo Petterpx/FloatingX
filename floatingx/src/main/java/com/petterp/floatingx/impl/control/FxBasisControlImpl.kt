@@ -8,6 +8,8 @@ import androidx.core.view.ViewCompat
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.listener.control.IFxHelperControl
+import com.petterp.floatingx.listener.provider.IFxContextProvider
+import com.petterp.floatingx.listener.provider.IFxHolderProvider
 import com.petterp.floatingx.util.lazyLoad
 import com.petterp.floatingx.view.FxMagnetView
 import com.petterp.floatingx.view.FxViewHolder
@@ -17,22 +19,20 @@ import java.lang.ref.WeakReference
 abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFxHelperControl {
     private var managerView: FxMagnetView? = null
     private var viewHolder: FxViewHolder? = null
-    protected var mContainer: WeakReference<ViewGroup>? = null
-
+    private var mContainer: WeakReference<ViewGroup>? = null
     private val cancelAnimationRunnable by lazyLoad { Runnable { reset() } }
     private val hideAnimationRunnable by lazyLoad { Runnable { detach() } }
 
-    override val helperControl: IFxHelperControl
-        get() = this
+    override val helperControl: IFxHelperControl get() = this
 
     override fun isShow(): Boolean =
-        managerView != null && ViewCompat.isAttachedToWindow(managerView!!) && managerView?.visibility == View.VISIBLE
+        managerView != null && ViewCompat.isAttachedToWindow(managerView!!) && managerView!!.visibility == View.VISIBLE
 
-    override fun getView(): View? = managerView?.childView
-
-    override fun getManagerView(): FxMagnetView? = managerView
+    override fun getView(): View? = managerView?.childFxView
 
     override fun getManagerViewHolder(): FxViewHolder? = viewHolder
+
+    override fun getManagerView(): FxMagnetView? = managerView
 
     override fun updateManagerView(@LayoutRes resource: Int) {
         if (resource == 0) throw IllegalArgumentException("resource cannot be 0!")
@@ -46,21 +46,21 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
         updateMangerView(0)
     }
 
-    override fun updateManagerView(obj: (context: Context) -> View) {
-        val view = obj(context())
+    override fun updateManagerView(provider: IFxContextProvider) {
+        val view = provider.build(context())
         updateManagerView(view)
     }
 
-    override fun updateView(obj: (FxViewHolder) -> Unit) {
-        viewHolder?.let(obj)
+    override fun updateView(provider: IFxHolderProvider) {
+        provider.apply(viewHolder ?: return)
     }
 
-    override fun updateParams(params: ViewGroup.LayoutParams) {
+    override fun updateManagerParams(params: ViewGroup.LayoutParams) {
         managerView?.layoutParams = params
     }
 
-    override fun setClickListener(time: Long, obj: (View) -> Unit) {
-        helper.clickListener = obj
+    override fun setClickListener(time: Long, clickListener: View.OnClickListener) {
+        helper.iFxClickListener = clickListener
         helper.clickTime = time
         helper.enableClickListener = true
     }
@@ -87,10 +87,8 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
     override fun hide() {
         if (!isShow()) return
         helper.enableFx = false
-        if (helper.enableAnimation &&
-            helper.fxAnimation != null
-        ) {
-            if (helper.fxAnimation!!.endJobRunning) {
+        if (helper.enableAnimation && helper.fxAnimation != null) {
+            if (helper.fxAnimation!!.endJobIsRunning()) {
                 helper.fxLog?.d("fxView->Animation ,endAnimation Executing, cancel this operation!")
                 return
             }
@@ -116,13 +114,21 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
         if (isEnable && !lazyStart) managerView?.moveToEdge()
     }
 
+    private fun animatorCallback(long: Long, runnable: Runnable) {
+        val magnetView = managerView ?: return
+        magnetView.removeCallbacks(runnable)
+        magnetView.postDelayed(
+            runnable,
+            long
+        )
+    }
+
     /*
     * 以下方法作为基础实现,供子类自行调用
     * */
-
     protected open fun updateMangerView(@LayoutRes layout: Int = 0) {
         helper.layoutId = layout
-        if (getContainer() == null) throw NullPointerException("FloatingX window The parent container cannot be null!")
+        if (getContainerGroup() == null) throw NullPointerException("FloatingX window The parent container cannot be null!")
         val isShow = isShow()
         if (helper.iFxConfigStorage?.hasConfig() != true) {
             val x = managerView?.x ?: 0f
@@ -134,15 +140,13 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
         }
         // 如果当前显示,再添加到parent里
         if (isShow) {
-            getContainer()?.addView(managerView)
+            getContainerGroup()?.addView(managerView)
         }
     }
 
     protected fun initManagerView() {
         if (helper.layoutId == 0 && helper.layoutView == null) throw RuntimeException("The layout id cannot be 0 ,and layoutView==null")
-        getContainer()?.removeView(managerView)
-        viewHolder?.clear()
-        // 在初始化前,需要做一些清除工作
+        getContainerGroup()?.removeView(managerView)
         initManager()
     }
 
@@ -151,31 +155,12 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
         viewHolder = FxViewHolder(managerView!!)
     }
 
-    protected open fun reset() {
-        helper.enableFx = false
-        helper.fxAnimation?.cancelAnimation()
-        managerView?.removeCallbacks(hideAnimationRunnable)
-        managerView?.removeCallbacks(cancelAnimationRunnable)
-        mContainer?.get()?.let {
-            detach(it)
-        }
-        managerView = null
-        viewHolder?.clear()
-        viewHolder = null
-        clearContainer()
-        helper.fxLog?.d("fxView-lifecycle-> code->cancelFx")
-    }
-
-    private fun animatorCallback(long: Long, runnable: Runnable) {
-        managerView?.removeCallbacks(runnable)
-        managerView?.postDelayed(
-            runnable,
-            long
-        )
-    }
-
-    protected fun getContainer(): ViewGroup? {
+    protected fun getContainerGroup(): ViewGroup? {
         return mContainer?.get()
+    }
+
+    protected fun setContainerGroup(viewGroup: ViewGroup) {
+        mContainer = WeakReference(viewGroup)
     }
 
     protected open fun detach(container: ViewGroup?) {
@@ -187,9 +172,8 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
     }
 
     protected fun detach() {
-        getContainer()?.let {
-            detach(it)
-        }
+        val containerGroup = getContainerGroup() ?: return
+        detach(containerGroup)
     }
 
     protected open fun context(): Context {
@@ -204,18 +188,30 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
         mContainer = null
     }
 
+    @JvmSynthetic
     protected fun FxMagnetView.show() {
         helper.enableFx = true
         visibility = View.VISIBLE
-        if (helper.enableAnimation &&
-            helper.fxAnimation != null && !helper.fxAnimation!!.fromJobRunning
-        ) {
-            if (helper.fxAnimation?.fromJobRunning == true) {
+        val fxAnimation = helper.fxAnimation ?: return
+        if (helper.enableAnimation) {
+            if (fxAnimation.fromJobIsRunning()) {
                 helper.fxLog?.d("fxView->Animation ,startAnimation Executing, cancel this operation!")
                 return
             }
             helper.fxLog?.d("fxView->Animation ,startAnimation Executing, cancel this operation.")
-            helper.fxAnimation?.fromStartAnimator(this)
+            fxAnimation.fromStartAnimator(this)
         }
+    }
+
+    protected open fun reset() {
+        helper.enableFx = false
+        helper.fxAnimation?.cancelAnimation()
+        managerView?.removeCallbacks(hideAnimationRunnable)
+        managerView?.removeCallbacks(cancelAnimationRunnable)
+        detach(mContainer?.get())
+        managerView = null
+        viewHolder = null
+        clearContainer()
+        helper.fxLog?.d("fxView-lifecycle-> code->cancelFx")
     }
 }
