@@ -2,6 +2,7 @@ package com.petterp.floatingx.app.kotlin
 
 import android.app.Activity
 import android.app.Application
+import android.graphics.Color
 import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.TextView
@@ -31,7 +32,14 @@ class CustomKtApplication : Application() {
 //            )
 
             // 传递自定义的View,layoutParams(可选参数,不传递默认使用wrap-wrap)
-            setLayoutView(TextView(applicationContext))
+            setLayoutView(
+                TextView(applicationContext).apply {
+                    text = "App"
+                    textSize = 15f
+                    setBackgroundColor(Color.GRAY)
+                    setPadding(10, 10, 10, 10)
+                }
+            )
 
             // 设置悬浮窗默认方向
             setGravity(Direction.RIGHT_OR_BOTTOM)

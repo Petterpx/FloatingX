@@ -8,14 +8,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.petterp.floatingx.FloatingX;
-import com.petterp.floatingx.app.MainActivity;
 import com.petterp.floatingx.app.R;
-import com.petterp.floatingx.app.ScopeActivity;
 import com.petterp.floatingx.app.simple.FxAnimationImpl;
 import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl;
 import com.petterp.floatingx.assist.helper.AppHelper;
+import com.petterp.floatingx.assist.helper.BasisHelper;
 import com.petterp.floatingx.assist.helper.ScopeHelper;
 import com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * java 中的配置示例

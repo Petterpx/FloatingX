@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.util.createFx
 
@@ -107,7 +106,7 @@ class ScopeActivity : AppCompatActivity() {
                     }
                     addItemView("设置浮窗子view点击事件") {
                         scopeFx.updateView {
-                            it.getView<View>(R.id.cardItemFx)?.setOnClickListener {
+                            it.getViewOrNull<View>(R.id.cardItemFx)?.setOnClickListener {
                                 Toast.makeText(
                                     this@ScopeActivity,
                                     "点击了内部cardView",

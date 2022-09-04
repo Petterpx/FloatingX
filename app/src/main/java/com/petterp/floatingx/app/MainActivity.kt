@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
                 FloatingX.control().apply {
                     updateManagerView(R.layout.item_floating)
                     updateView {
-                        it.text(R.id.tvItemFx, "App")
+                        it.setText(R.id.tvItemFx, "App")
                     }
                 }.show()
             }
@@ -67,14 +67,14 @@ class MainActivity : AppCompatActivity() {
             addItemView("显示Activity悬浮窗-(展示与多指触摸)") {
                 activityFx.show()
                 activityFx.updateView {
-                    it.text(R.id.tvItemFx, "Act")
+                    it.setText(R.id.tvItemFx, "Act")
                     it.getView<CardView>(R.id.cardItemFx)?.setCardBackgroundColor(Color.BLUE)
                 }
             }
             addItemView("显示View级别悬浮窗-(展示与多指触摸)") {
                 viewFx.show()
                 viewFx.updateView {
-                    it.text(R.id.tvItemFx, "view")
+                    it.setText(R.id.tvItemFx, "view")
                     it.getView<CardView>(R.id.cardItemFx)?.setCardBackgroundColor(Color.GREEN)
                 }
             }
