@@ -10,6 +10,8 @@
 
 [中文简介](https://github.com/Petterpx/FloatingX/READDME.md)
 
+[中午使用文档见这里](https://github.com/Petterpx/FloatingX/wiki)
+
 ## 👏 Features 
 
 - Single instance holding floating window view

@@ -10,7 +10,7 @@
 
 [English Introduction](https://github.com/Petterpx/FloatingX/blob/main/README_EN.md)
 
-[中文文档](https://github.com/Petterpx/FloatingX/wiki)
+[具体使用文档见这里](https://github.com/Petterpx/FloatingX/wiki)
 
 ## 👏 特性 
 
