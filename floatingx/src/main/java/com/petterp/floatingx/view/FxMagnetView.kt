@@ -331,13 +331,12 @@ class FxMagnetView @JvmOverloads constructor(
         // 允许边缘回弹
         if (helper.enableEdgeRebound) {
             val configEdge = helper.edgeOffset
-            val edgeMaxX = mParentWidth - helper.borderMargin.r - configEdge
-            val edgeMaxY =
-                mParentHeight - helper.borderMargin.b - configEdge - helper.navigationBarHeight
-            val edgeMinY = helper.borderMargin.t + configEdge + helper.statsBarHeight
-            val currentX =
-                x.coerceAtLeast(configEdge + helper.borderMargin.l).coerceAtMost(edgeMaxX)
-            val currentY = y.coerceAtLeast(edgeMinY).coerceAtMost(edgeMaxY)
+            val currentX = x
+                .coerceAtLeast(configEdge + helper.borderMargin.l)
+                .coerceAtMost(mParentWidth - helper.borderMargin.r - configEdge)
+            val currentY = y
+                .coerceAtLeast(helper.borderMargin.t + configEdge + helper.statsBarHeight)
+                .coerceAtMost(mParentHeight - helper.borderMargin.b - configEdge - helper.navigationBarHeight)
             if (currentX != x || currentY != y) {
                 isMoveLoading = true
                 moveLocation(currentX, currentY)
@@ -347,18 +346,20 @@ class FxMagnetView @JvmOverloads constructor(
 
     private fun autoMove(isLeft: Boolean, isLandscape: Boolean) {
         isMoveLoading = true
+        val configEnableEdge = helper.enableEdgeRebound
+        val edgeOffset = if (configEnableEdge) helper.edgeOffset else 0f
         var moveY = y
-        val moveX = if (isLeft) helper.edgeOffset + helper.borderMargin.l
-        else mParentWidth - helper.edgeOffset - helper.borderMargin.r
+        val moveX = if (isLeft) edgeOffset + helper.borderMargin.l
+        else mParentWidth - edgeOffset - helper.borderMargin.r
         // 对于重建之后的位置保存
         if (isLandscape && mPortraitY != 0f) {
             moveY = mPortraitY
             clearPortraitY()
         }
         // 拿到y轴目前应该在的距离
-        moveY = (helper.borderMargin.t + helper.edgeOffset + helper.statsBarHeight)
+        moveY = (helper.borderMargin.t + edgeOffset + helper.statsBarHeight)
             .coerceAtLeast(moveY)
-            .coerceAtMost((mParentHeight - helper.borderMargin.b - helper.edgeOffset - helper.navigationBarHeight))
+            .coerceAtMost((mParentHeight - helper.borderMargin.b - edgeOffset - helper.navigationBarHeight))
         moveLocation(moveX, moveY)
     }
 
