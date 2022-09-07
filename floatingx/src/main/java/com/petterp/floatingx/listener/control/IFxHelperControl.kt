@@ -63,8 +63,14 @@ interface IFxHelperControl {
     /** 启用边缘回弹
      * */
     fun setEnableEdgeRebound(isEnable: Boolean) {
-        getConfigHelper().enableEdgeRebound = isEnable
+        setEnableEdgeRebound(isEnable, false)
     }
+
+    /** 是否启用边缘回弹
+     * @param isEnable 是否启用,默认true
+     * @param lazyStart 是否下次拖动再生效,false 代表立即生效,即立即边缘吸附
+     * */
+    fun setEnableEdgeRebound(isEnable: Boolean, lazyStart: Boolean)
 
     /** 设置是否启用触摸事件
      * @param isEnable  true,则允许悬浮窗拖动
@@ -73,11 +79,18 @@ interface IFxHelperControl {
         getConfigHelper().enableTouch = isEnable
     }
 
+    /**
+     * 启用边缘吸附
+     * */
+    fun setEnableEdgeAdsorption(isEnable: Boolean) {
+        setEnableEdgeAdsorption(isEnable, false)
+    }
+
     /** 是否启用边缘吸附
      * @param isEnable 是否启用,默认true
      * @param lazyStart 是否下次拖动再生效,false 代表立即生效,即立即边缘吸附
      * */
-    fun setEnableEdgeAdsorption(isEnable: Boolean, lazyStart: Boolean = false)
+    fun setEnableEdgeAdsorption(isEnable: Boolean, lazyStart: Boolean)
 
     /** 设置滑动监听 */
     fun setScrollListener(listener: IFxScrollListener) {

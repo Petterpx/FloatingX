@@ -210,7 +210,7 @@ class FxMagnetView @JvmOverloads constructor(
             // 按下时的坐标+当前手指距离屏幕的坐标-最开始距离屏幕的坐标
             var desX = mOriginalX + event.rawX - mOriginalRawX
             var desY = mOriginalY + event.rawY - mOriginalRawY
-            // 如果允许边界外滚动，则Y轴只需要考虑状态栏与导航栏,即可超出的范围为提供的边界与marginEdge
+            // 如果允许边缘回弹，则Y轴只需要考虑状态栏与导航栏
             if (helper.enableEdgeRebound) {
                 if (desX < 0f) desX = 0f
                 else if (desX > mParentWidth) desX = mParentWidth
@@ -223,11 +223,11 @@ class FxMagnetView @JvmOverloads constructor(
                     desY = statusY
                 }
             } else {
-                val moveMinX = helper.borderMargin.l + helper.edgeOffset
-                val moveMaxX = mParentWidth - helper.borderMargin.r - helper.edgeOffset
-                val moveMinY = helper.statsBarHeight + helper.borderMargin.t + helper.edgeOffset
+                val moveMinX = helper.borderMargin.l
+                val moveMaxX = mParentWidth - helper.borderMargin.r
+                val moveMinY = helper.statsBarHeight + helper.borderMargin.t
                 val moveMaxY =
-                    mParentHeight - helper.navigationBarHeight - helper.edgeOffset - helper.borderMargin.b
+                    mParentHeight - helper.navigationBarHeight - helper.borderMargin.b
                 if (desX < moveMinX) desX = moveMinX
                 if (desX > moveMaxX) desX = moveMaxX
                 if (desY < moveMinY) desY = moveMinY
@@ -321,8 +321,31 @@ class FxMagnetView @JvmOverloads constructor(
     @JvmSynthetic
     internal fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
         if (isMoveLoading) return
-        // 如果禁止边缘吸附或者边缘反弹
-        if (!helper.enableEdgeAdsorption && !helper.enableEdgeRebound) return
+
+        // 允许边缘吸附
+        if (helper.enableEdgeAdsorption) {
+            autoMove(isLeft, isLandscape)
+            return
+        }
+
+        // 允许边缘回弹
+        if (helper.enableEdgeRebound) {
+            val configEdge = helper.edgeOffset
+            val edgeMaxX = mParentWidth - helper.borderMargin.r - configEdge
+            val edgeMaxY =
+                mParentHeight - helper.borderMargin.b - configEdge - helper.navigationBarHeight
+            val edgeMinY = helper.borderMargin.t + configEdge + helper.statsBarHeight
+            val currentX =
+                x.coerceAtLeast(configEdge + helper.borderMargin.l).coerceAtMost(edgeMaxX)
+            val currentY = y.coerceAtLeast(edgeMinY).coerceAtMost(edgeMaxY)
+            if (currentX != x || currentY != y) {
+                isMoveLoading = true
+                moveLocation(currentX, currentY)
+            }
+        }
+    }
+
+    private fun autoMove(isLeft: Boolean, isLandscape: Boolean) {
         isMoveLoading = true
         var moveY = y
         val moveX = if (isLeft) helper.edgeOffset + helper.borderMargin.l

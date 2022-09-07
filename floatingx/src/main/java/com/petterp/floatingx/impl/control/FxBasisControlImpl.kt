@@ -114,6 +114,11 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
         if (isEnable && !lazyStart) managerView?.moveToEdge()
     }
 
+    override fun setEnableEdgeRebound(isEnable: Boolean, lazyStart: Boolean) {
+        getConfigHelper().enableEdgeRebound = isEnable
+        if (!lazyStart) managerView?.moveToEdge()
+    }
+
     private fun animatorCallback(long: Long, runnable: Runnable) {
         val magnetView = managerView ?: return
         magnetView.removeCallbacks(runnable)
