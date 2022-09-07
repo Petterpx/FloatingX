@@ -14,13 +14,27 @@ import com.petterp.floatingx.util.createFx
 /** @author petterp */
 class ScopeActivity : AppCompatActivity() {
 
-    private lateinit var viewGroup: ViewGroup
+    private val viewGroup by lazy(LazyThreadSafetyMode.NONE) {
+        FrameLayout(this).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                600
+            ).apply {
+                leftMargin = 50
+                topMargin = 50
+                rightMargin = 50
+                bottomMargin = 50
+            }
+            setBackgroundColor(Color.YELLOW)
+        }
+    }
 
     private val scopeFx by createFx {
         setLayout(R.layout.item_floating)
         setEnableScrollOutsideScreen(false)
         setEnableEdgeAdsorption(false)
         setEdgeOffset(40f)
+        setBottomBorderMargin(40f)
         setAnimationImpl(FxAnimationImpl())
         setEnableAnimation(false)
         setEnableLog(true)
@@ -31,7 +45,7 @@ class ScopeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         createLinearLayoutToParent {
-            viewGroup = addScopeViewGroup()
+            addView(viewGroup)
             addTextView {
                 text = "api列表可拖动"
                 gravity = Gravity.CENTER
@@ -92,11 +106,17 @@ class ScopeActivity : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                    addItemView("允许边缘吸附,立即生效") {
+                    addItemView("允许边缘吸附") {
                         scopeFx.helperControl.setEnableEdgeAdsorption(true)
+                    }
+                    addItemView("禁止边缘吸附") {
+                        scopeFx.helperControl.setEnableEdgeAdsorption(false)
                     }
                     addItemView("允许边缘回弹") {
                         scopeFx.helperControl.setEnableEdgeRebound(true)
+                    }
+                    addItemView("禁止边缘回弹") {
+                        scopeFx.helperControl.setEnableEdgeRebound(false)
                     }
                     addItemView("开启动画") {
                         scopeFx.helperControl.setEnableAnimation(true)
@@ -118,22 +138,6 @@ class ScopeActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun ViewGroup.addScopeViewGroup(): ViewGroup {
-        val viewGroup = FrameLayout(context).apply {
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                300
-            ).apply {
-                leftMargin = 50
-                topMargin = 50
-                rightMargin = 50
-                bottomMargin = 50
-            }
-            setBackgroundColor(Color.YELLOW)
-        }
-        addView(viewGroup)
-        return viewGroup
+        scopeFx.show()
     }
 }
