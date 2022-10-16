@@ -8,9 +8,7 @@ import com.petterp.floatingx.impl.control.FxAppControlImpl
 import com.petterp.floatingx.impl.lifecycle.FxLifecycleCallbackImpl
 import com.petterp.floatingx.listener.control.IFxAppControl
 
-/**
- * Single Control To Fx
- */
+/** Single Control To Fx */
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
     private lateinit var context: Context
@@ -24,9 +22,10 @@ object FloatingX {
         init(AppHelper.builder().apply(obj).build())
 
     @JvmStatic
-    fun init(helper: AppHelper) {
+    fun init(helper: AppHelper): IFxAppControl {
         this.helper = helper
-        if (helper.enableFx) initControl()
+        initControl()
+        return fxControl!!
     }
 
     /** 浮窗控制器 */
