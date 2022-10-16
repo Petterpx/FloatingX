@@ -8,7 +8,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.petterp.floatingx.FloatingX;
+import com.petterp.floatingx.app.MainActivity;
 import com.petterp.floatingx.app.R;
+import com.petterp.floatingx.app.ScopeActivity;
 import com.petterp.floatingx.app.simple.FxAnimationImpl;
 import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl;
 import com.petterp.floatingx.assist.helper.AppHelper;
@@ -33,13 +35,12 @@ public class CustomJavaApplication extends Application {
                 // 设置启用日志,tag可以自定义，最终显示为FloatingX-xxx
                 .setEnableLog(true, "自定义的tag")
 
-                //指定浮窗可显示的activity方式
-                //1. 允许插入的Activity列表
-//                .addBlackClass(MainActivity.class)
-                //2. 设置允许插入所有activity,默认true
-                .setEnableAllBlackClass(true)
-                //3. 设置允许插入所有activity,并增加过滤列表
-//                .setEnableAllBlackClass(true, MainActivity.class, ScopeActivity.class)
+                //1. 是否允许全局显示悬浮窗,默认true
+//                .setEnableAllInstall(true)
+                //2. 禁止插入Activity的页面, setEnableAllBlackClass(true)时,此方法生效
+//                .addInstallBlackClass(BlackActivity.class)
+                //3. 允许插入Activity的页面, setEnableAllBlackClass(false)时,此方法生效
+//                .addInstallWhiteClass(MainActivity.class, ScopeActivity.class)
 
                 // 启用辅助方向
                 .setEnableAssistDirection(0f, 0f, 0f, 100f)

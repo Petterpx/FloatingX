@@ -41,6 +41,9 @@ class MainActivity : AppCompatActivity() {
 //                FloatingX.control().show(this@MainActivity)
                 FloatingX.control().show()
             }
+            addItemView("进入黑名单页面(禁止显示浮窗)") {
+                BlackActivity::class.java.start(context)
+            }
             addItemView("更新当前全局浮窗显示View-(layoutId)") {
                 FloatingX.control().apply {
                     updateManagerView(R.layout.item_floating)
@@ -68,14 +71,14 @@ class MainActivity : AppCompatActivity() {
                 activityFx.show()
                 activityFx.updateView {
                     it.setText(R.id.tvItemFx, "Act")
-                    it.getView<CardView>(R.id.cardItemFx)?.setCardBackgroundColor(Color.BLUE)
+                    it.getView<CardView>(R.id.cardItemFx).setCardBackgroundColor(Color.BLUE)
                 }
             }
             addItemView("显示View级别悬浮窗-(展示与多指触摸)") {
                 viewFx.show()
                 viewFx.updateView {
                     it.setText(R.id.tvItemFx, "view")
-                    it.getView<CardView>(R.id.cardItemFx)?.setCardBackgroundColor(Color.GREEN)
+                    it.getView<CardView>(R.id.cardItemFx).setCardBackgroundColor(Color.GREEN)
                 }
             }
             addItemView("调整到无状态栏页面-(测试状态栏影响)") {

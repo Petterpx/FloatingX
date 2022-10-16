@@ -13,8 +13,8 @@
         <activity
             android:name="com.petterp.floatingx.app.MainActivity"
             android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
-            android:windowSoftInputMode="adjustPan"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,6 +27,7 @@
         <activity
             android:name=".ScopeActivity"
             android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
+        <activity android:name=".BlackActivity" />
     </application>
 
 </manifest>

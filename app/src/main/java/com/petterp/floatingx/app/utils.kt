@@ -13,10 +13,10 @@ import android.widget.TextView
 import androidx.core.widget.NestedScrollView
 
 /**
+ * 写示例页面的工具
  *
  * @author petterp
  */
-
 inline fun Activity.createLinearLayoutToParent(obj: LinearLayout.() -> Unit) {
     val view = createLinearLayout(obj)
     setContentView(view)

@@ -86,17 +86,17 @@ class CustomKtApplication : Application() {
             // 设置悬浮窗LayoutParams
 //            setLayoutParams()
 
-            // 指定浮窗可显示的activity方式
-            // 1.设置是否允许所有activity都进行显示,默认false
-//            setEnableAllBlackClass(false)
-            // 2.设置是否只允许显示在特定的页面
-            addBlackClass(
-                MainActivity::class.java,
-                ImmersedActivity::class.java,
-                ScopeActivity::class.java
-            )
-            // 3. 设置允许所有activity进行显示，同时增加过滤列表
-//            setEnableAllBlackClass(true, MainActivity::class.java)
+            /** 指定浮窗可显示的activity方式 */
+            // 1.设置是否允许所有activity都进行显示,默认true
+//            setEnableAllInstall(true)
+            // 2.禁止插入Activity的页面, setEnableAllBlackClass(true)时,此方法生效
+//            addInstallBlackClass(BlackActivity::class.java)
+            // 3.允许插入Activity的页面, setEnableAllBlackClass(false)时,此方法生效
+//            addInstallWhiteClass(
+//                MainActivity::class.java,
+//                ImmersedActivity::class.java,
+//                ScopeActivity::class.java
+//            )
 
             // 设置tag-Activity生命周期回调时的触发
             setTagActivityLifecycle(object : FxTagActivityLifecycleImpl() {
