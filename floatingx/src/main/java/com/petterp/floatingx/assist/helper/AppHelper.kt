@@ -8,9 +8,9 @@ import com.petterp.floatingx.util.statusBarHeight
 
 /** AppHelper构建器 */
 class AppHelper(
-    val blackList: MutableList<Class<*>>?,
-    val filterList: MutableList<Class<*>>?,
-    val enableAllBlackClass: Boolean,
+    val blackFilterList: MutableList<Class<*>>,
+    val whiteInsertList: MutableList<Class<*>>,
+    val isAllInstall: Boolean,
     val fxLifecycleExpand: IFxProxyTagActivityLifecycle?
 ) : BasisHelper() {
 
@@ -27,53 +27,63 @@ class AppHelper(
     }
 
     class Builder : BasisHelper.Builder<Builder, AppHelper>() {
-        private var insertList: MutableList<Class<*>>? = null
-        private var filterList: MutableList<Class<*>>? = null
+        private var whiteInsertList: MutableList<Class<*>> = mutableListOf()
+        private var blackFilterList: MutableList<Class<*>> = mutableListOf()
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
-        private var enableAllBlackClass: Boolean = false
+        private var isEnableAllInstall: Boolean = true
 
         /**
          * 设置显示悬浮窗的Activity生命周期回调
+         *
          * @param tagActivityLifecycle 生命周期实现类回调
-         * @sample [com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl] 空实现,便于直接object:XXX
-         * */
+         * @sample
+         *     [com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl]
+         *     空实现,便于直接object:XXX
+         */
         fun setTagActivityLifecycle(tagActivityLifecycle: IFxProxyTagActivityLifecycle): Builder {
             this.fxLifecycleExpand = tagActivityLifecycle
             return this
         }
 
-        /** 添加允许显示悬浮窗的activity类
-         * @param c 允许显示的activity类
-         * */
-        fun addBlackClass(vararg c: Class<out Activity>): Builder {
-            if (insertList == null) insertList = mutableListOf()
-            insertList?.addAll(c)
+        /**
+         * 添加禁止显示悬浮窗的activity
+         *
+         * @param c 禁止显示的activity
+         *
+         * [setEnableAllBlackClass(true)] 时,此方法生效
+         */
+        fun addInstallBlackClass(vararg c: Class<out Activity>): Builder {
+            blackFilterList.addAll(c)
             return this
         }
 
         /**
-         * 允许所有activity都显示全局悬浮窗,支持增加过滤列表
-         * @param isEnable 默认false
-         * @param filterClass 需要过滤掉的activity,即不会在以下activity中插入
-         * */
-        @JvmOverloads
-        fun setEnableAllBlackClass(
-            isEnable: Boolean,
-            vararg filterClass: Class<out Activity> = emptyArray()
-        ): Builder {
-            if (filterClass.isNotEmpty()) {
-                if (filterList == null) filterList = mutableListOf()
-                filterList?.addAll(filterClass)
-            }
-            enableAllBlackClass = isEnable
+         * 允许显示浮窗的activity
+         *
+         * @param c 允许显示的activity
+         *
+         * [setEnableAllBlackClass(false)] 时,此方法生效
+         */
+        fun addInstallWhiteClass(vararg c: Class<out Activity>): Builder {
+            whiteInsertList.addAll(c)
+            return this
+        }
+
+        /**
+         * 是否允许给所有浮窗安装悬浮窗
+         *
+         * @param isEnable 是否允许,默认true
+         */
+        fun setEnableAllInstall(isEnable: Boolean): Builder {
+            isEnableAllInstall = isEnable
             return this
         }
 
         override fun buildHelper(): AppHelper =
             AppHelper(
-                insertList,
-                filterList,
-                enableAllBlackClass,
+                blackFilterList,
+                whiteInsertList,
+                isEnableAllInstall,
                 fxLifecycleExpand
             )
 

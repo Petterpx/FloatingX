@@ -12,9 +12,7 @@ import com.petterp.floatingx.util.decorView
 import com.petterp.floatingx.util.lazyLoad
 import java.lang.ref.WeakReference
 
-/**
- * App-lifecycle-CallBack
- */
+/** App-lifecycle-CallBack */
 class FxLifecycleCallbackImpl :
     Application.ActivityLifecycleCallbacks {
 
@@ -45,9 +43,9 @@ class FxLifecycleCallbackImpl :
 
     private fun isInsertActivity(cls: Class<*>): Boolean =
         helper?.let {
-            val isInsert =
-                (it.enableAllBlackClass && !(it.filterList?.contains(cls) ?: false)) ||
-                    it.blackList?.contains(cls) ?: false
+            // 条件 允许全局安装&&不在黑名单 || 禁止全局安装&&在白名单
+            val isInsert = (it.isAllInstall && !it.blackFilterList.contains(cls)) ||
+                (!it.isAllInstall && it.whiteInsertList.contains(cls))
             insertCls[cls] = isInsert
             return isInsert
         } ?: false
@@ -70,10 +68,7 @@ class FxLifecycleCallbackImpl :
         helper?.fxLifecycleExpand?.onStarted(activity)
     }
 
-    /**
-     * 最开始想到在onActivityPostStarted后插入,
-     * 但是最后发现在Android9及以下,此方法不会被调用,故选择了onResume
-     * */
+    /** 最开始想到在onActivityPostStarted后插入, 但是最后发现在Android9及以下,此方法不会被调用,故选择了onResume */
     override fun onActivityResumed(activity: Activity) {
         initTopActivity(activity)
         if (!enableFx) return
