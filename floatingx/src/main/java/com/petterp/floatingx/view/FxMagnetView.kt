@@ -9,6 +9,7 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.FxGravity
@@ -44,12 +45,14 @@ class FxMagnetView @JvmOverloads constructor(
 
     private var isClickEnable: Boolean = true
     private var isMoveLoading = false
+    private var scaledTouchSlop = 0
 
     private var _childFxView: View? = null
     val childFxView: View? get() = _childFxView
     private var mMoveAnimator: MoveAnimator = MoveAnimator()
 
     init {
+        scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
         initView()
     }
 
@@ -129,17 +132,26 @@ class FxMagnetView @JvmOverloads constructor(
         if (updateWidgetSize() && helper.enableAbsoluteFix) moveToEdge()
     }
 
-    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        return true
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        var intercepted = false
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                intercepted = false
+                initTouchDown(ev)
+                helper.fxLog?.e("fxView---onInterceptTouchEvent-[down],interceptedTouch-$intercepted")
+            }
+            MotionEvent.ACTION_MOVE -> {
+                intercepted = kotlin.math.abs(downTouchX - ev.x) >= scaledTouchSlop
+                helper.fxLog?.v("fxView---onInterceptTouchEvent-[move], interceptedTouch-$intercepted")
+            }
+        }
+        return intercepted
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         helper.iFxScrollListener?.eventIng(event)
         when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                initTouchDown(event)
-            }
             MotionEvent.ACTION_POINTER_DOWN -> {
                 if (touchDownId == INVALID_TOUCH_ID) {
                     val eventX = event.getX(event.actionIndex)
@@ -215,12 +227,11 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     private fun clickManagerView() {
-        if (helper.enableClickListener && isClickEnable && isOnClickEvent()) {
+        if (helper.enableClickListener && isClickEnable && helper.iFxClickListener != null && isOnClickEvent()) {
             isClickEnable = false
-            helper.fxLog?.d("fxView -> click")
-            helper.iFxClickListener?.onClick(this)
-                ?: helper.fxLog?.e("fxView -> click, clickListener = null!!!")
+            helper.iFxClickListener!!.onClick(this)
             postDelayed({ isClickEnable = true }, helper.clickTime)
+            helper.fxLog?.d("fxView -> click")
         }
     }
 
