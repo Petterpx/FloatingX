@@ -2,17 +2,16 @@ package com.petterp.floatingx.app.kotlin
 
 import android.app.Activity
 import android.app.Application
-import android.graphics.Color
 import android.os.Bundle
 import android.view.MotionEvent
-import android.widget.TextView
+import android.view.View
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.*
 import com.petterp.floatingx.app.simple.FxAnimationImpl
-import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
-import com.petterp.floatingx.assist.Direction
+import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.impl.FxScrollImpl
 import com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl
+import com.petterp.floatingx.listener.IFxViewLifecycle
 
 /** Kotlin-Application */
 class CustomKtApplication : Application() {
@@ -22,32 +21,26 @@ class CustomKtApplication : Application() {
         FloatingX.init {
             // TODO: 浮窗layout设置方式二选一,后者会替换前者方式
             setLayout(R.layout.item_floating)
-//            // 设置浮窗layoutId,同时增加layoutParams,一般情况下可以不用增加params
-//            setLayout(
-//                R.layout.item_floating,
-//                FrameLayout.LayoutParams(
-//                    ViewGroup.LayoutParams.WRAP_CONTENT,
-//                    ViewGroup.LayoutParams.WRAP_CONTENT
-//                )
+
+            // 传递自定义的View
+//            setLayoutView(
+//                TextView(applicationContext).apply {
+//                    text = "App"
+//                    textSize = 15f
+//                    setBackgroundColor(Color.GRAY)
+//                    setPadding(10, 10, 10, 10)
+//                }
 //            )
 
-            // 传递自定义的View,layoutParams(可选参数,不传递默认使用wrap-wrap)
-            setLayoutView(
-                TextView(applicationContext).apply {
-                    text = "App"
-                    textSize = 15f
-                    setBackgroundColor(Color.GRAY)
-                    setPadding(10, 10, 10, 10)
-                }
-            )
-
             // 设置悬浮窗默认方向
-            setGravity(Direction.RIGHT_OR_BOTTOM)
+            setGravity(FxGravity.RIGHT_OR_BOTTOM)
             // 设置是否启用日志
             setEnableLog(BuildConfig.DEBUG)
 
             // 启用辅助方向
-            setEnableAssistDirection(0f, 0f, 0f, 100f)
+//            setEnableAssistDirection(0f, 0f, 0f, 100f)
+            setX(100F)
+            setY(100f)
             // 设置x轴默认坐标
 //            setX()
             // 设置y轴默认坐标
@@ -70,8 +63,6 @@ class CustomKtApplication : Application() {
             // 设置启用动画实现
             setAnimationImpl(FxAnimationImpl())
             // 设置方向保存impl
-            setSaveDirectionImpl(FxConfigStorageToSpImpl(applicationContext))
-
             // 设置底部偏移量
             setBottomBorderMargin(100f)
             // 设置顶部偏移量
@@ -82,10 +73,6 @@ class CustomKtApplication : Application() {
             setRightBorderMargin(100f)
             // 设置允许触摸事件
             setEnableTouch(true)
-
-            // 设置悬浮窗LayoutParams
-//            setLayoutParams()
-
             /** 指定浮窗可显示的activity方式 */
             // 1.设置是否允许所有activity都进行显示,默认true
 //            setEnableAllInstall(true)
@@ -102,6 +89,11 @@ class CustomKtApplication : Application() {
             setTagActivityLifecycle(object : FxTagActivityLifecycleImpl() {
                 override fun onCreated(activity: Activity, bundle: Bundle?) {
                     // 允许插入的浮窗activity执行到onCreated时会回调相应方法
+                }
+            })
+            // 增加生命周期监听
+            setViewLifecycle(object : IFxViewLifecycle {
+                override fun initView(view: View) {
                 }
             })
             // 设置滑动监听

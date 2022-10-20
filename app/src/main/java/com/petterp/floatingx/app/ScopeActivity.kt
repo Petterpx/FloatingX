@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
-import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -67,7 +66,7 @@ class ScopeActivity : AppCompatActivity() {
                         scopeFx.hide()
                     }
                     addItemView("更换layout(通过布局更换)") {
-                        scopeFx.updateManagerView(R.layout.item_floating_new)
+                        scopeFx.updateManagerView(R.layout.item_floating)
                     }
                     addItemView("更换layoutView(通过传递View)") {
                         scopeFx.updateManagerView {
@@ -124,14 +123,11 @@ class ScopeActivity : AppCompatActivity() {
                     addItemView("边距调整为100f") {
                         scopeFx.helperControl.setBorderMargin(100f, 100f, 100f, 100f)
                     }
-                    addItemView("设置浮窗子view点击事件") {
+                    addItemView("设置浮窗子view点击事件(layoutId的示例)") {
                         scopeFx.updateView {
-                            it.getViewOrNull<View>(R.id.cardItemFx)?.setOnClickListener {
-                                Toast.makeText(
-                                    this@ScopeActivity,
-                                    "点击了内部cardView",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            it.getView<TextView>(R.id.tvItemFx).setOnClickListener {
+                                Toast.makeText(this@ScopeActivity, "123123", Toast.LENGTH_SHORT)
+                                    .show()
                             }
                         }
                     }

@@ -31,7 +31,7 @@ class FxConfigStorageToSpImpl(context: Context) : IFxConfigStorage {
             ?.putInt(CONFIG_VERSION_CODE, version + 1)?.commit()
     }
 
-    override fun hasConfig(): Boolean = sp?.getInt(CONFIG_VERSION_CODE, 0) ?: 0 > 0
+    override fun hasConfig(): Boolean = (sp?.getInt(CONFIG_VERSION_CODE, 0) ?: 0) > 0
 
     override fun clear() {
         spEdit?.clear()?.commit()
