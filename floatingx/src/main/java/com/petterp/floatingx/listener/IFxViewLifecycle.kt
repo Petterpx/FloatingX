@@ -1,14 +1,21 @@
 package com.petterp.floatingx.listener
 
-/**
- * fx-悬浮窗的生命周期扩展
- */
+import android.view.View
+
+/** fx-悬浮窗的生命周期扩展 */
 interface IFxViewLifecycle {
+
+    /**
+     * 初始化浮窗时调用,每次设置新的浮窗时都会调用
+     *
+     * @param view 浮窗view
+     */
+    fun initView(view: View) {}
 
     /** 安装悬浮窗到新窗口前调用 */
     fun postAttach() {}
 
-    /**  安装悬浮窗到新窗口时 */
+    /** 安装悬浮窗到新窗口时 */
     fun attach() {}
 
     /** 窗口可见性监听,即悬浮窗完全可见时 */

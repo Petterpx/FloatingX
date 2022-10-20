@@ -60,8 +60,8 @@ class FxMagnetView @JvmOverloads constructor(
             helper.fxLog?.e("fxView--> inflateView, Error")
             return
         }
-        // 初始化浮窗位置
         initLocation()
+        helper.iFxViewLifecycle?.initView(this)
     }
 
     private fun inflateLayoutView(): View? {
