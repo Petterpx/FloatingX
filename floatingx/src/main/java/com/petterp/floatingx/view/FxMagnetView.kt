@@ -103,15 +103,13 @@ class FxMagnetView @JvmOverloads constructor(
 
     private fun initDefaultXY(): Pair<Float, Float> {
         // 非辅助定位&&非默认位置,此时x,y不可信
-        return if (!helper.enableAssistLocation && helper.gravity != FxGravity.DEFAULT) {
+        if (!helper.enableAssistLocation && helper.gravity != FxGravity.DEFAULT) {
             helper.fxLog?.e(
                 "fxView--默认坐标初始化异常,已默认显示。请检查您的gravity是否为默认配置，当前gravity:${helper.gravity}。\n" +
                     "如果您要配置gravity,请启用辅助定位setEnableAssistDirection(),此方法将更符合需求。"
             )
-            -1F to checkDefaultY(0F)
-        } else {
-            helper.defaultX to checkDefaultY(helper.defaultY)
         }
+        return helper.defaultX to checkDefaultY(helper.defaultY)
     }
 
     private fun checkDefaultY(y: Float): Float {

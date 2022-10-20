@@ -70,7 +70,7 @@ open class BasisHelper {
         private var edgeOffset: Float = 0f
         private var enableFx: Boolean = false
         private var borderMargin: BorderMargin = BorderMargin()
-        private var assistDirection: BorderMargin? = null
+        private var assistLocation: BorderMargin = BorderMargin()
 
         private var enableAbsoluteFix: Boolean = false
         private var enableEdgeAdsorption: Boolean = true
@@ -80,6 +80,7 @@ open class BasisHelper {
         private var fxLogTag: String = ""
         private var enableTouch: Boolean = true
         private var enableClickListener: Boolean = false
+        private var enableAssistLocation: Boolean = false
 
         private var enableSaveDirection: Boolean = false
         private var enableDefaultSave: Boolean = false
@@ -93,7 +94,7 @@ open class BasisHelper {
 
         open fun build(): B =
             buildHelper().apply {
-                if (this@Builder.assistDirection != null) adtSizeViewDirection(this@Builder.assistDirection!!)
+                adtSizeViewDirection()
                 enableFx = this@Builder.enableFx
                 layoutId = this@Builder.layoutId
                 layoutView = this@Builder.layoutView
@@ -114,7 +115,7 @@ open class BasisHelper {
                 enableSaveDirection = this@Builder.enableSaveDirection
                 enableTouch = this@Builder.enableTouch
                 enableClickListener = this@Builder.enableClickListener
-                enableAssistLocation = this@Builder.assistDirection != null
+                enableAssistLocation = this@Builder.enableAssistLocation
 
                 enableDebugLog = this@Builder.enableDebugLog
                 fxLogTag = this@Builder.fxLogTag
@@ -298,7 +299,11 @@ open class BasisHelper {
             l: Float = 0f,
             r: Float = 0f
         ): T {
-            this.assistDirection = BorderMargin(abs(t), abs(l), abs(b), abs(r))
+            this.enableAssistLocation = true
+            this.assistLocation.t = t
+            this.assistLocation.b = b
+            this.assistLocation.l = l
+            this.assistLocation.r = r
             return this as T
         }
 
@@ -363,12 +368,14 @@ open class BasisHelper {
         }
 
         /** 辅助坐标的实现 采用坐标偏移位置,框架自行计算合适的x,y */
-        private fun adtSizeViewDirection(assetBorder: BorderMargin) {
+        private fun adtSizeViewDirection() {
+            // 如果坐标规则不符合要求,则按照默认规则
+            if (!enableAssistLocation && gravity == FxGravity.DEFAULT) return
             val edgeOffset = if (enableEdgeRebound) edgeOffset else 0f
-            val b = assetBorder.b + edgeOffset + borderMargin.b
-            val t = assetBorder.t + edgeOffset + borderMargin.t
-            val r = assetBorder.r + edgeOffset + borderMargin.r
-            val l = assetBorder.l + edgeOffset + borderMargin.l
+            val b = assistLocation.b + edgeOffset + borderMargin.b
+            val t = assistLocation.t + edgeOffset + borderMargin.t
+            val r = assistLocation.r + edgeOffset + borderMargin.r
+            val l = assistLocation.l + edgeOffset + borderMargin.l
             defaultX = 0f
             defaultY = 0f
             when (gravity) {
