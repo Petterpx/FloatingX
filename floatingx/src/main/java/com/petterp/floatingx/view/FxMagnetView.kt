@@ -4,25 +4,20 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Canvas
-import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.Direction
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.assist.helper.BasisHelper
+import com.petterp.floatingx.util.coerceInFx
 import com.petterp.floatingx.util.topActivity
 
-/**
- * 基础悬浮窗View 源自 ->
- *
- * https://github.com/shenzhen2017/EasyFloat/blob/main/easyfloat/src/main/java/com/zj/easyfloat/floatingview/FloatingMagnetView.java
- */
+/** 基础悬浮窗View */
 @SuppressLint("ViewConstructor")
 class FxMagnetView @JvmOverloads constructor(
     context: Context,
@@ -32,12 +27,6 @@ class FxMagnetView @JvmOverloads constructor(
     defStyleRes: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    private var mOriginalRawX = 0f
-    private var mOriginalRawY = 0f
-    private var mOriginalX = 0f
-    private var mOriginalY = 0f
-
-    // 最后触摸的时间
     private var mLastTouchDownTime: Long = 0
     private var mMoveAnimator: MoveAnimator? = null
     private var mParentWidth = 0f
@@ -45,13 +34,16 @@ class FxMagnetView @JvmOverloads constructor(
 
     private var isNearestLeft = true
     private var mPortraitY = 0f
-    private var touchDownX = 0f
+    private var downTouchX = 0f
+    private var downTouchY = 0f
     private var touchDownId: Int = 0
 
-    @Volatile
-    private var isClickEnable: Boolean = true
+    private var minHBoundary = 0f
+    private var maxHBoundary = 0f
+    private var minWBoundary = 0f
+    private var maxWBoundary = 0f
 
-    @Volatile
+    private var isClickEnable: Boolean = true
     private var isMoveLoading = false
 
     private var _childFxView: View? = null
@@ -65,14 +57,12 @@ class FxMagnetView @JvmOverloads constructor(
         mMoveAnimator = MoveAnimator()
         isClickable = true
         _childFxView = inflateLayoutView() ?: inflateLayoutId()
-        if (_childFxView == null) return
         if (_childFxView == null) helper.fxLog?.e("fxView--> inflateView, Error")
         val hasConfig = helper.iFxConfigStorage?.hasConfig() ?: false
         layoutParams = defaultLayoutParams(hasConfig)
         x = if (hasConfig) helper.iFxConfigStorage!!.getX() else helper.defaultX
         y = if (hasConfig) helper.iFxConfigStorage!!.getY() else initDefaultY()
         helper.fxLog?.d("fxView->x&&y   hasConfig-($hasConfig),x-($x),y-($y)")
-        setBackgroundColor(Color.TRANSPARENT)
     }
 
     private fun inflateLayoutView(): View? {
@@ -100,204 +90,52 @@ class FxMagnetView @JvmOverloads constructor(
         return null
     }
 
-    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        var intercepted = false
-        if (!helper.enableTouch) return intercepted
-        when (ev.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                intercepted = false
-                helper.fxLog?.v("fxView---onInterceptTouchEvent-[down],interceptedTouch-$intercepted")
-                touchDownX = ev.x
-                // 初始化按下后的信息
-                initTouchDown(ev)
-                helper.iFxScrollListener?.down()
-            }
-            MotionEvent.ACTION_MOVE -> {
-                // 判断是否要拦截事件
-                intercepted =
-                    kotlin.math.abs(touchDownX - ev.x) >= ViewConfiguration.get(
-                    context
-                ).scaledTouchSlop
-                helper.fxLog?.v("fxView---onInterceptTouchEvent-[move], interceptedTouch-$intercepted")
-            }
-            MotionEvent.ACTION_UP -> {
-                intercepted = false
-                helper.fxLog?.v("fxView---onInterceptTouchEvent-[up], interceptedTouch-$intercepted")
-            }
-        }
-        return intercepted
-    }
-
-    private fun initTouchDown(ev: MotionEvent) {
-        changeOriginalTouchParams(ev)
-        updateSize()
-        touchDownId = ev.getPointerId(0)
-        mMoveAnimator?.stop()
-    }
-
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        if (updateSize() && helper.enableAbsoluteFix) {
-            fixLocation()
-        }
+        if (updateWidgetSize() && helper.enableAbsoluteFix) moveToEdge()
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        return true
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         helper.iFxScrollListener?.eventIng(event)
-        when (event.action) {
-            MotionEvent.ACTION_MOVE ->
-                updateViewPosition(event)
-            MotionEvent.ACTION_UP -> {
-                helper.fxLog?.v("fxView---onTouchEvent--up")
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                initTouchDown(event)
+            }
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                // 证明此时是其他手指按下了
+                if (touchDownId == INVALID_TOUCH_ID) {
+                    val eventX = event.getX(event.actionIndex)
+                    val eventY = event.getY(event.actionIndex)
+                    if (eventX >= 0 && eventX <= width && eventY >= 0 && eventY <= height) {
+                        initTouchDown(event)
+                    }
+                }
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val pointIdx = event.findPointerIndex(touchDownId)
+                if (pointIdx != INVALID_TOUCH_ID && helper.enableTouch) {
+                    updateLocation(event, pointIdx)
+                }
+            }
+
+            MotionEvent.ACTION_POINTER_UP -> {
+                if (event.getPointerId(event.actionIndex) == touchDownId) {
+                    actionTouchCancel()
+                    helper.fxLog?.e("fxView---onTouchEvent--ACTION_POINTER_UP---clearTouchId->")
+                }
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                helper.fxLog?.e("fxView---onTouchEvent--End")
                 actionTouchCancel()
                 clickManagerView()
             }
-            MotionEvent.ACTION_POINTER_UP -> {
-                helper.fxLog?.v("fxView---onTouchEvent--POINTER_UP")
-                if (event.findPointerIndex(touchDownId) == 0) {
-                    moveToEdge()
-                }
-            }
-            MotionEvent.ACTION_CANCEL -> {
-                helper.fxLog?.v("fxView---onTouchEvent--CANCEL")
-                actionTouchCancel()
-            }
         }
-        return helper.enableTouch || super.onTouchEvent(event)
-    }
-
-    private fun clickManagerView() {
-        if (helper.enableClickListener && isClickEnable && isOnClickEvent()) {
-            isClickEnable = false
-            helper.fxLog?.d("fxView -> click")
-            helper.iFxClickListener?.onClick(this)
-                ?: helper.fxLog?.e("fxView -> click, clickListener = null!!!")
-            postDelayed({ isClickEnable = true }, helper.clickTime)
-        }
-    }
-
-    private fun actionTouchCancel() {
-        helper.iFxScrollListener?.up()
-        clearPortraitY()
-        touchDownId = 0
-        moveToEdge()
-    }
-
-    private fun initDefaultY(): Float {
-        var defaultY = helper.defaultY
-        if (helper.defaultY > 0 || helper.gravity == Direction.RIGHT_OR_TOP || helper.gravity == Direction.LEFT_OR_TOP) {
-            defaultY += helper.statsBarHeight + helper.borderMargin.t
-        } else if (helper.defaultY < 0 || helper.gravity == Direction.LEFT_OR_BOTTOM || helper.gravity == Direction.RIGHT_OR_BOTTOM) {
-            defaultY -= helper.navigationBarHeight - helper.borderMargin.b
-        }
-        return defaultY
-    }
-
-    private fun isOnClickEvent(): Boolean {
-        return System.currentTimeMillis() - mLastTouchDownTime < TOUCH_TIME_THRESHOLD
-    }
-
-    private fun updateViewPosition(event: MotionEvent) {
-        event.findPointerIndex(touchDownId).takeIf {
-            it == 0
-        }?.let {
-            if (!helper.enableTouch) {
-                helper.iFxScrollListener?.dragIng(event, x, y)
-                helper.fxLog?.v("fxView---scrollListener--drag-event--x(${event.x})-y(${event.y})")
-                return
-            }
-            // 按下时的坐标+当前手指距离屏幕的坐标-最开始距离屏幕的坐标
-            var desX = mOriginalX + event.rawX - mOriginalRawX
-            var desY = mOriginalY + event.rawY - mOriginalRawY
-            // 如果允许边缘回弹，则Y轴只需要考虑状态栏与导航栏
-            if (helper.enableEdgeRebound) {
-                if (desX < 0f) desX = 0f
-                else if (desX > mParentWidth) desX = mParentWidth
-
-                if (desY < helper.statsBarHeight) {
-                    desY = helper.statsBarHeight.toFloat()
-                }
-                val statusY = mParentHeight - helper.navigationBarHeight
-                if (desY > statusY) {
-                    desY = statusY
-                }
-            } else {
-                val moveMinX = helper.borderMargin.l
-                val moveMaxX = mParentWidth - helper.borderMargin.r
-                val moveMinY = helper.statsBarHeight + helper.borderMargin.t
-                val moveMaxY =
-                    mParentHeight - helper.navigationBarHeight - helper.borderMargin.b
-                if (desX < moveMinX) desX = moveMinX
-                if (desX > moveMaxX) desX = moveMaxX
-                if (desY < moveMinY) desY = moveMinY
-                if (desY > moveMaxY) desY = moveMaxY
-            }
-            x = desX
-            y = desY
-            helper.fxLog?.v("fxView---scrollListener--drag--x($desX)-y($desY)")
-            helper.iFxScrollListener?.dragIng(event, desX, desY)
-        }
-    }
-
-    private fun changeOriginalTouchParams(event: MotionEvent) {
-        mOriginalX = x
-        mOriginalY = y
-        mOriginalRawX = event.rawX
-        mOriginalRawY = event.rawY
-        mLastTouchDownTime = System.currentTimeMillis()
-    }
-
-    private fun updateSize(): Boolean {
-        // 如果此时浮窗被父布局移除,parent将为null,此时就别更新位置了,没意义
-        val parentGroup = (parent as? ViewGroup) ?: return false
-
-        // 这里先减掉自身大小可以避免后期再重复减掉
-        val parentWidth = (parentGroup.width - this@FxMagnetView.width).toFloat()
-        val parentHeight = (parentGroup.height - this@FxMagnetView.height).toFloat()
-        helper.fxLog?.d("fxView->size oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)")
-        if (mParentHeight != parentHeight || mParentWidth != parentWidth) {
-            mParentWidth = parentWidth
-            mParentHeight = parentHeight
-            return true
-        }
-        return false
-    }
-
-    private fun clearPortraitY() {
-        mPortraitY = 0f
-    }
-
-    private fun isNearestLeft(): Boolean {
-        val middle = mParentWidth / 2
-        isNearestLeft = x < middle
-        return isNearestLeft
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        helper.fxLog?.d("fxView--lifecycle-> onConfigurationChanged--")
-        val parentGroup = (parent as? ViewGroup) ?: return
-
-        val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
-        var isNavigationCHanged = false
-        // 对于全局的处理
-        if (helper is AppHelper) {
-            val navigationBarHeight = helper.navigationBarHeight
-            helper.updateNavigationBar(topActivity)
-            isNavigationCHanged = navigationBarHeight != helper.navigationBarHeight
-        }
-        if (isLandscape || isNavigationCHanged) {
-            mPortraitY = y
-        }
-        isMoveLoading = false
-
-        // 如果视图大小改变,则更新位置
-        parentGroup.post {
-            if (updateSize()) {
-                moveToEdge(isLandscape = isLandscape)
-            }
-        }
+        return super.onTouchEvent(event)
     }
 
     override fun onAttachedToWindow() {
@@ -318,25 +156,135 @@ class FxMagnetView @JvmOverloads constructor(
         helper.fxLog?.d("fxView-lifecycle-> onWindowVisibilityChanged")
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        helper.fxLog?.d("fxView--lifecycle-> onConfigurationChanged--")
+        val parentGroup = (parent as? ViewGroup) ?: return
+        val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
+        var isNavigationCHanged = false
+        // 对于全局的处理
+        if (helper is AppHelper) {
+            val navigationBarHeight = helper.navigationBarHeight
+            helper.updateNavigationBar(topActivity)
+            isNavigationCHanged = navigationBarHeight != helper.navigationBarHeight
+        }
+        if (isLandscape || isNavigationCHanged) {
+            mPortraitY = y
+        }
+        isMoveLoading = false
+
+        // 如果视图大小改变,则更新位置
+        parentGroup.post {
+            if (updateWidgetSize()) {
+                moveToEdge(isLandscape = isLandscape)
+            }
+        }
+    }
+
+    private fun clickManagerView() {
+        if (helper.enableClickListener && isClickEnable && isOnClickEvent()) {
+            isClickEnable = false
+            helper.fxLog?.d("fxView -> click")
+            helper.iFxClickListener?.onClick(this)
+                ?: helper.fxLog?.e("fxView -> click, clickListener = null!!!")
+            postDelayed({ isClickEnable = true }, helper.clickTime)
+        }
+    }
+
+    private fun actionTouchCancel() {
+        helper.iFxScrollListener?.up()
+        mPortraitY = 0f
+        touchDownId = -1
+        moveToEdge()
+    }
+
+    private fun initDefaultY(): Float {
+        var defaultY = helper.defaultY
+        if (helper.defaultY > 0 || helper.gravity == Direction.RIGHT_OR_TOP || helper.gravity == Direction.LEFT_OR_TOP) {
+            defaultY += helper.statsBarHeight + helper.borderMargin.t
+        } else if (helper.defaultY < 0 || helper.gravity == Direction.LEFT_OR_BOTTOM || helper.gravity == Direction.RIGHT_OR_BOTTOM) {
+            defaultY -= helper.navigationBarHeight - helper.borderMargin.b
+        }
+        return defaultY
+    }
+
+    private fun isOnClickEvent(): Boolean {
+        return System.currentTimeMillis() - mLastTouchDownTime < TOUCH_TIME_THRESHOLD
+    }
+
+    private fun initBoundary(isDown: Boolean) {
+        if (helper.enableEdgeRebound) {
+            val edgeOffset = if (isDown) 0f else helper.edgeOffset
+            minWBoundary = edgeOffset
+            maxWBoundary = mParentWidth - edgeOffset
+            minHBoundary = helper.statsBarHeight.toFloat() + edgeOffset
+            maxHBoundary = mParentHeight - helper.navigationBarHeight - edgeOffset
+        } else {
+            minWBoundary = helper.borderMargin.l
+            maxWBoundary = mParentWidth - helper.borderMargin.r
+            minHBoundary = helper.statsBarHeight + helper.borderMargin.t
+            maxHBoundary = mParentHeight - helper.navigationBarHeight - helper.borderMargin.b
+        }
+    }
+
+    private fun initTouchDown(ev: MotionEvent) {
+        updateWidgetSize()
+        initBoundary(true)
+        touchDownId = ev.getPointerId(ev.actionIndex)
+        downTouchX = ev.getX(ev.actionIndex)
+        downTouchY = ev.getY(ev.actionIndex)
+        // init width and height boundary
+        mMoveAnimator?.stop()
+        helper.iFxScrollListener?.down()
+        mLastTouchDownTime = System.currentTimeMillis()
+        helper.fxLog?.e("fxView----newTouchDown:$touchDownId")
+    }
+
+    private fun updateLocation(event: MotionEvent, pointIndex: Int) {
+        val disX = x.plus(event.getX(pointIndex)).minus(downTouchX)
+            .coerceInFx(minWBoundary, maxWBoundary)
+        val disY = y.plus(event.getY(pointIndex)).minus(downTouchY)
+            .coerceInFx(minHBoundary, maxHBoundary)
+        x = disX
+        y = disY
+        helper.iFxScrollListener?.dragIng(event, disX, disY)
+        helper.fxLog?.v("fxView---scrollListener--drag-event--x($disX)-y($disY)")
+    }
+
+    private fun updateWidgetSize(): Boolean {
+        // 如果此时浮窗被父布局移除,parent将为null,此时就别更新位置了,没意义
+        val parentGroup = (parent as? ViewGroup) ?: return false
+        // 这里先减掉自身大小可以避免后期再重复减掉
+        val parentWidth = (parentGroup.width - this@FxMagnetView.width).toFloat()
+        val parentHeight = (parentGroup.height - this@FxMagnetView.height).toFloat()
+        if (mParentHeight != parentHeight || mParentWidth != parentWidth) {
+            mParentWidth = parentWidth
+            mParentHeight = parentHeight
+            helper.fxLog?.d("fxView->size oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)")
+            return true
+        }
+        return false
+    }
+
+    private fun isNearestLeft(): Boolean {
+        val middle = mParentWidth / 2
+        isNearestLeft = x < middle
+        return isNearestLeft
+    }
+
     @JvmSynthetic
     internal fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
         if (isMoveLoading) return
-
+        initBoundary(false)
         // 允许边缘吸附
         if (helper.enableEdgeAdsorption) {
             autoMove(isLeft, isLandscape)
             return
         }
-
         // 允许边缘回弹
         if (helper.enableEdgeRebound) {
-            val configEdge = helper.edgeOffset
-            val currentX = x
-                .coerceAtLeast(configEdge + helper.borderMargin.l)
-                .coerceAtMost(mParentWidth - helper.borderMargin.r - configEdge)
-            val currentY = y
-                .coerceAtLeast(helper.borderMargin.t + configEdge + helper.statsBarHeight)
-                .coerceAtMost(mParentHeight - helper.borderMargin.b - configEdge - helper.navigationBarHeight)
+            val currentX = x.coerceInFx(minWBoundary, maxWBoundary)
+            val currentY = y.coerceInFx(minHBoundary, maxHBoundary)
             if (currentX != x || currentY != y) {
                 isMoveLoading = true
                 moveLocation(currentX, currentY)
@@ -346,20 +294,14 @@ class FxMagnetView @JvmOverloads constructor(
 
     private fun autoMove(isLeft: Boolean, isLandscape: Boolean) {
         isMoveLoading = true
-        val configEnableEdge = helper.enableEdgeRebound
-        val edgeOffset = if (configEnableEdge) helper.edgeOffset else 0f
         var moveY = y
-        val moveX = if (isLeft) edgeOffset + helper.borderMargin.l
-        else mParentWidth - edgeOffset - helper.borderMargin.r
+        val moveX = if (isLeft) minWBoundary else maxWBoundary
         // 对于重建之后的位置保存
         if (isLandscape && mPortraitY != 0f) {
             moveY = mPortraitY
-            clearPortraitY()
+            mPortraitY = 0f
         }
-        // 拿到y轴目前应该在的距离
-        moveY = (helper.borderMargin.t + edgeOffset + helper.statsBarHeight)
-            .coerceAtLeast(moveY)
-            .coerceAtMost((mParentHeight - helper.borderMargin.b - edgeOffset - helper.navigationBarHeight))
+        moveY = moveY.coerceInFx(minHBoundary, maxHBoundary)
         moveLocation(moveX, moveY)
     }
 
@@ -369,24 +311,6 @@ class FxMagnetView @JvmOverloads constructor(
         this.x = x
         this.y = y
         helper.fxLog?.d("fxView-updateManagerView-> RestoreLocation  x->$x,y->$y")
-    }
-
-    /** 修复位置显示 */
-    @JvmSynthetic
-    internal fun fixLocation() {
-        if (helper.enableEdgeAdsorption) {
-            moveToEdge()
-            return
-        }
-        var moveX = x
-        var moveY = y
-        val minX = helper.borderMargin.l
-        val maxX = mParentWidth - helper.borderMargin.r
-        val minY = helper.borderMargin.t + helper.statsBarHeight
-        val maxY = mParentHeight - helper.borderMargin.b - helper.navigationBarHeight
-        if (x < minX) moveX = minX else if (x > maxX) moveX = maxX
-        if (y < minY) moveY = minY else if (y > maxY) moveY = maxY
-        moveLocation(moveX, moveY)
     }
 
     private fun moveLocation(moveX: Float, moveY: Float) {
@@ -452,6 +376,7 @@ class FxMagnetView @JvmOverloads constructor(
     }
 
     companion object {
+        private const val INVALID_TOUCH_ID = -1
         private const val TOUCH_TIME_THRESHOLD = 150L
         private const val MAX_PROGRESS = 1f
         private val HANDLER = Handler(Looper.getMainLooper())
