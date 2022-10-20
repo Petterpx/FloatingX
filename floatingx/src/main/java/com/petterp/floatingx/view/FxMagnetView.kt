@@ -11,7 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import com.petterp.floatingx.assist.Direction
+import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.util.coerceInFx
@@ -28,7 +28,6 @@ class FxMagnetView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     private var mLastTouchDownTime: Long = 0
-    private var mMoveAnimator: MoveAnimator? = null
     private var mParentWidth = 0f
     private var mParentHeight = 0f
 
@@ -48,46 +47,83 @@ class FxMagnetView @JvmOverloads constructor(
 
     private var _childFxView: View? = null
     val childFxView: View? get() = _childFxView
+    private var mMoveAnimator: MoveAnimator = MoveAnimator()
 
     init {
         initView()
     }
 
     private fun initView() {
-        mMoveAnimator = MoveAnimator()
         isClickable = true
         _childFxView = inflateLayoutView() ?: inflateLayoutId()
-        if (_childFxView == null) helper.fxLog?.e("fxView--> inflateView, Error")
-        val hasConfig = helper.iFxConfigStorage?.hasConfig() ?: false
-        layoutParams = defaultLayoutParams(hasConfig)
-        x = if (hasConfig) helper.iFxConfigStorage!!.getX() else helper.defaultX
-        y = if (hasConfig) helper.iFxConfigStorage!!.getY() else initDefaultY()
-        helper.fxLog?.d("fxView->x&&y   hasConfig-($hasConfig),x-($x),y-($y)")
+        if (_childFxView == null) {
+            helper.fxLog?.e("fxView--> inflateView, Error")
+            return
+        }
+        // 初始化浮窗位置
+        initLocation()
     }
 
     private fun inflateLayoutView(): View? {
-        val view = helper.layoutView?.get()
-        if (view != null) {
-            val lp = layoutParams ?: LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            addViewInLayout(view, -1, lp, true)
-            helper.fxLog?.d("fxView-->init, way-[layoutView]")
-        }
+        helper.fxLog?.d("fxView-->init, way-[layoutView]")
+        val view = helper.layoutView?.get() ?: return null
+        val lp = layoutParams ?: LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        addViewInLayout(view, -1, lp, true)
         return view
     }
 
     private fun inflateLayoutId(): View? {
-        if (helper.layoutId != 0) {
-            helper.fxLog?.d("fxView-->init, way-[layoutId]")
-            val view = inflate(context, helper.layoutId, this)
-            helper.layoutParams?.let {
-                view.layoutParams = it
-            }
-            return view
+        helper.fxLog?.d("fxView-->init, way-[layoutId]")
+        if (helper.layoutId == 0) return null
+        return inflate(context, helper.layoutId, this)
+    }
+
+    private fun initLocation() {
+        // 初始化lp
+        val hasConfig = helper.iFxConfigStorage?.hasConfig() ?: false
+        val lp = helper.layoutParams ?: LayoutParams(
+            LayoutParams.WRAP_CONTENT,
+            LayoutParams.WRAP_CONTENT
+        )
+        // 不存在历史坐标时,设置gravity,默认右下角
+        if (!hasConfig) lp.gravity = helper.gravity.value
+        layoutParams = lp
+
+        // 获得浮窗的位置
+        // 存在历史位置 || 根据配置去获取
+        val (initX, initY) = if (hasConfig) helper.iFxConfigStorage!!.getX() to helper.iFxConfigStorage!!.getY()
+        else initDefaultXY()
+        if (initX != -1F) x = initX
+        if (initY != -1F) y = initY
+        helper.fxLog?.d("fxView->x&&y   hasConfig-($hasConfig),x-($initX),y-($initY)")
+    }
+
+    private fun initDefaultXY(): Pair<Float, Float> {
+        // 非辅助定位&&非默认位置,此时x,y不可信
+        return if (!helper.enableAssistLocation && helper.gravity != FxGravity.DEFAULT) {
+            helper.fxLog?.e(
+                "fxView--默认坐标初始化异常,已默认显示。请检查您的gravity是否为默认配置，当前gravity:${helper.gravity}。\n" +
+                    "如果您要配置gravity,请启用辅助定位setEnableAssistDirection(),此方法将更符合需求。"
+            )
+            -1F to checkDefaultY(0F)
+        } else {
+            helper.defaultX to checkDefaultY(helper.defaultY)
         }
-        return null
+    }
+
+    private fun checkDefaultY(y: Float): Float {
+        // 单独处理状态栏和底部导航栏
+        var defaultY = y
+        val configGravity = helper.gravity
+        if (configGravity == FxGravity.DEFAULT || configGravity == FxGravity.RIGHT_OR_TOP || configGravity == FxGravity.LEFT_OR_TOP) {
+            defaultY += helper.statsBarHeight
+        } else if (configGravity == FxGravity.LEFT_OR_BOTTOM || configGravity == FxGravity.RIGHT_OR_BOTTOM) {
+            defaultY -= helper.navigationBarHeight
+        }
+        return defaultY
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -107,7 +143,6 @@ class FxMagnetView @JvmOverloads constructor(
                 initTouchDown(event)
             }
             MotionEvent.ACTION_POINTER_DOWN -> {
-                // 证明此时是其他手指按下了
                 if (touchDownId == INVALID_TOUCH_ID) {
                     val eventX = event.getX(event.actionIndex)
                     val eventY = event.getY(event.actionIndex)
@@ -194,31 +229,26 @@ class FxMagnetView @JvmOverloads constructor(
     private fun actionTouchCancel() {
         helper.iFxScrollListener?.up()
         mPortraitY = 0f
-        touchDownId = -1
+        touchDownId = INVALID_TOUCH_ID
         moveToEdge()
-    }
-
-    private fun initDefaultY(): Float {
-        var defaultY = helper.defaultY
-        if (helper.defaultY > 0 || helper.gravity == Direction.RIGHT_OR_TOP || helper.gravity == Direction.LEFT_OR_TOP) {
-            defaultY += helper.statsBarHeight + helper.borderMargin.t
-        } else if (helper.defaultY < 0 || helper.gravity == Direction.LEFT_OR_BOTTOM || helper.gravity == Direction.RIGHT_OR_BOTTOM) {
-            defaultY -= helper.navigationBarHeight - helper.borderMargin.b
-        }
-        return defaultY
     }
 
     private fun isOnClickEvent(): Boolean {
         return System.currentTimeMillis() - mLastTouchDownTime < TOUCH_TIME_THRESHOLD
     }
 
-    private fun initBoundary(isDown: Boolean) {
+    private fun updateBoundary(isDownTouchInit: Boolean) {
+        // 开启边缘回弹时,浮窗允许移动到边界外
         if (helper.enableEdgeRebound) {
-            val edgeOffset = if (isDown) 0f else helper.edgeOffset
-            minWBoundary = edgeOffset
-            maxWBoundary = mParentWidth - edgeOffset
-            minHBoundary = helper.statsBarHeight.toFloat() + edgeOffset
-            maxHBoundary = mParentHeight - helper.navigationBarHeight - edgeOffset
+            val edgeOffset = if (isDownTouchInit) 0f else helper.edgeOffset
+            val marginTop = if (isDownTouchInit) 0f else helper.borderMargin.t + edgeOffset
+            val marginBto = if (isDownTouchInit) 0f else helper.borderMargin.b + edgeOffset
+            val marginLef = if (isDownTouchInit) 0f else helper.borderMargin.l + edgeOffset
+            val marginRig = if (isDownTouchInit) 0f else helper.borderMargin.r + edgeOffset
+            minWBoundary = marginLef
+            maxWBoundary = mParentWidth - marginRig
+            minHBoundary = helper.statsBarHeight.toFloat() + marginTop
+            maxHBoundary = mParentHeight - helper.navigationBarHeight - marginBto
         } else {
             minWBoundary = helper.borderMargin.l
             maxWBoundary = mParentWidth - helper.borderMargin.r
@@ -229,12 +259,12 @@ class FxMagnetView @JvmOverloads constructor(
 
     private fun initTouchDown(ev: MotionEvent) {
         updateWidgetSize()
-        initBoundary(true)
+        updateBoundary(true)
         touchDownId = ev.getPointerId(ev.actionIndex)
         downTouchX = ev.getX(ev.actionIndex)
         downTouchY = ev.getY(ev.actionIndex)
         // init width and height boundary
-        mMoveAnimator?.stop()
+        mMoveAnimator.stop()
         helper.iFxScrollListener?.down()
         mLastTouchDownTime = System.currentTimeMillis()
         helper.fxLog?.e("fxView----newTouchDown:$touchDownId")
@@ -275,14 +305,15 @@ class FxMagnetView @JvmOverloads constructor(
     @JvmSynthetic
     internal fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
         if (isMoveLoading) return
-        initBoundary(false)
         // 允许边缘吸附
         if (helper.enableEdgeAdsorption) {
+            updateBoundary(false)
             autoMove(isLeft, isLandscape)
             return
         }
         // 允许边缘回弹
         if (helper.enableEdgeRebound) {
+            updateBoundary(false)
             val currentX = x.coerceInFx(minWBoundary, maxWBoundary)
             val currentY = y.coerceInFx(minHBoundary, maxHBoundary)
             if (currentX != x || currentY != y) {
@@ -307,7 +338,7 @@ class FxMagnetView @JvmOverloads constructor(
 
     @JvmSynthetic
     internal fun updateLocation(x: Float, y: Float) {
-        (layoutParams as LayoutParams).gravity = Direction.DEFAULT.value
+        (layoutParams as LayoutParams).gravity = FxGravity.DEFAULT.value
         this.x = x
         this.y = y
         helper.fxLog?.d("fxView-updateManagerView-> RestoreLocation  x->$x,y->$y")
@@ -318,11 +349,20 @@ class FxMagnetView @JvmOverloads constructor(
             isMoveLoading = false
             return
         }
-        mMoveAnimator?.start(moveX, moveY)
+        mMoveAnimator.start(moveX, moveY)
         helper.fxLog?.d("fxView-->moveToEdge---x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
         if (helper.enableSaveDirection) {
             saveConfig(moveX, moveY)
         }
+    }
+
+    private fun saveConfig(moveX: Float, moveY: Float) {
+        if (helper.iFxConfigStorage == null) {
+            helper.fxLog?.e("fxView-->saveDirection---iFxConfigStorageImpl does not exist, save failed!")
+            return
+        }
+        helper.iFxConfigStorage?.update(moveX, moveY)
+        helper.fxLog?.d("fxView-->saveDirection---x-($moveX)，y-($moveY)")
     }
 
     private inner class MoveAnimator : Runnable {
@@ -337,9 +377,7 @@ class FxMagnetView @JvmOverloads constructor(
         }
 
         override fun run() {
-            if (childFxView == null || childFxView?.parent == null) {
-                return
-            }
+            if (childFxView == null || childFxView?.parent == null) return
             val progress =
                 MAX_PROGRESS.coerceAtMost((System.currentTimeMillis() - startingTime) / 400f)
             x += (destinationX - x) * progress
@@ -355,24 +393,6 @@ class FxMagnetView @JvmOverloads constructor(
             isMoveLoading = false
             HANDLER.removeCallbacks(this)
         }
-    }
-
-    private fun defaultLayoutParams(hasConfig: Boolean) = LayoutParams(
-        LayoutParams.WRAP_CONTENT,
-        LayoutParams.WRAP_CONTENT
-    ).apply {
-        if (!hasConfig) {
-            gravity = helper.gravity.value
-        }
-    }
-
-    private fun saveConfig(moveX: Float, moveY: Float) {
-        if (helper.iFxConfigStorage == null) {
-            helper.fxLog?.e("fxView-->saveDirection---iFxConfigStorageImpl does not exist, save failed!")
-            return
-        }
-        helper.iFxConfigStorage?.update(moveX, moveY)
-        helper.fxLog?.d("fxView-->saveDirection---x-($moveX)，y-($moveY)")
     }
 
     companion object {
