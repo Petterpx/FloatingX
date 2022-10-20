@@ -1,5 +1,6 @@
 package com.petterp.floatingx.assist.helper
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
@@ -17,7 +18,7 @@ open class BasisHelper {
     @LayoutRes
     internal var layoutId: Int = 0
     internal var layoutView: WeakReference<View>? = null
-    internal var gravity: Direction = Direction.LEFT_OR_TOP
+    internal var gravity: FxGravity = FxGravity.DEFAULT
     internal var clickTime: Long = 500L
     internal var layoutParams: FrameLayout.LayoutParams? = null
     internal var fxAnimation: FxAnimation? = null
@@ -36,6 +37,7 @@ open class BasisHelper {
     internal var enableDebugLog: Boolean = false
     internal var enableTouch: Boolean = true
     internal var enableClickListener: Boolean = false
+    internal var enableAssistLocation: Boolean = false
 
     internal var iFxScrollListener: IFxScrollListener? = null
     internal var iFxViewLifecycle: IFxViewLifecycle? = null
@@ -59,7 +61,7 @@ open class BasisHelper {
         @LayoutRes
         private var layoutId: Int = 0
         private var layoutView: WeakReference<View>? = null
-        private var gravity: Direction = Direction.RIGHT_OR_BOTTOM
+        private var gravity: FxGravity = FxGravity.RIGHT_OR_BOTTOM
         private var clickTime: Long = 500L
         private var layoutParams: FrameLayout.LayoutParams? = null
         private var fxAnimation: FxAnimation? = null
@@ -69,6 +71,7 @@ open class BasisHelper {
         private var edgeOffset: Float = 0f
         private var enableFx: Boolean = false
         private var borderMargin: BorderMargin = BorderMargin()
+        private var assistLocation: BorderMargin = BorderMargin()
 
         private var enableAbsoluteFix: Boolean = false
         private var enableEdgeAdsorption: Boolean = true
@@ -78,6 +81,7 @@ open class BasisHelper {
         private var fxLogTag: String = ""
         private var enableTouch: Boolean = true
         private var enableClickListener: Boolean = false
+        private var enableAssistLocation: Boolean = false
 
         private var enableSaveDirection: Boolean = false
         private var enableDefaultSave: Boolean = false
@@ -91,11 +95,8 @@ open class BasisHelper {
 
         open fun build(): B =
             buildHelper().apply {
-                if (this@Builder.defaultX == 0f && this@Builder.defaultY == 0f && this@Builder.edgeOffset != 0f) {
-                    sizeViewDirection()
-                }
+                adtSizeViewDirection()
                 enableFx = this@Builder.enableFx
-
                 layoutId = this@Builder.layoutId
                 layoutView = this@Builder.layoutView
                 gravity = this@Builder.gravity
@@ -115,6 +116,7 @@ open class BasisHelper {
                 enableSaveDirection = this@Builder.enableSaveDirection
                 enableTouch = this@Builder.enableTouch
                 enableClickListener = this@Builder.enableClickListener
+                enableAssistLocation = this@Builder.enableAssistLocation
 
                 enableDebugLog = this@Builder.enableDebugLog
                 fxLogTag = this@Builder.fxLogTag
@@ -138,20 +140,16 @@ open class BasisHelper {
         }
 
         /** 设置悬浮窗view的layout */
-        @JvmOverloads
-        fun setLayout(@LayoutRes layoutId: Int, layoutParams: FrameLayout.LayoutParams? = null): T {
+        fun setLayout(@LayoutRes layoutId: Int): T {
             this.layoutView?.clear()
             this.layoutView = null
             this.layoutId = layoutId
-            this.layoutParams = layoutParams
             return this as T
         }
 
         /** 设置悬浮窗View */
-        @JvmOverloads
-        fun setLayoutView(view: View, layoutParams: FrameLayout.LayoutParams? = null): T {
+        fun setLayoutView(view: View): T {
             layoutId = 0
-            if (view.layoutParams != null) view.layoutParams = layoutParams
             this.layoutView = WeakReference(view)
             return this as T
         }
@@ -211,9 +209,14 @@ open class BasisHelper {
             return this as T
         }
 
-        /** 设置悬浮窗的layoutParams,只会与[setLayout]匹配使用 */
-        @Deprecated("后期会逐渐移除,建议通过[setLayout]时一起设置")
-        fun setLayoutParams(layoutParams: FrameLayout.LayoutParams): T {
+        /**
+         * 设置悬浮窗的layoutParams,即浮窗容器,非自己传递进去的用于显示的View
+         *
+         * 默认wrap-wrap
+         *
+         * ps: 不建议自行调用,此方法会影响浮窗的正常滑动效果
+         */
+        fun setManagerParams(layoutParams: FrameLayout.LayoutParams): T {
             this.layoutParams = layoutParams
             return this as T
         }
@@ -265,22 +268,22 @@ open class BasisHelper {
             return this as T
         }
 
-        /** 设置默认的x坐标,以用户可触摸视图开始，不包含系统导航栏与状态栏 注意: 直接调用setX,框架将忽略对位置的优化,直接使用此x */
+        /** 设置默认的x坐标 */
         fun setX(x: Float): T {
             this.defaultX = x
             return this as T
         }
 
-        /** 设置默认的y坐标,以用户可触摸视图开始，不包含系统导航栏与状态栏 */
+        /** 设置默认的y坐标 */
         fun setY(y: Float): T {
             this.defaultY = y
             return this as T
         }
 
         /**
-         * 调用此方法,x,y的坐标将根据 传递进来的 [gravity] 进行相对应调整 比如当[gravity]=
-         * [Direction.LEFT_OR_BOTTOM] 则相对应的([defaultX], [defaultY]) 最终会根据 t,b,l,r
-         * 偏移量计算，而非直接坐标
+         * 调用此方法,将忽视传递的(x,y)。 浮窗的坐标将根据 传递进来的 [gravity] + 此方法传入的偏移量
+         * 计算，而非直接坐标。 这样的好处是,你不用去关注具体浮窗坐标应该是什么，而是可以依靠参照物的方式摆放。
+         * 比如默认你的浮窗在右下角，但是想增加一点在右侧偏移，此时就可以依靠此方法，将浮窗位置设置在右下角，然后增加相应方向的偏移量即可。
          *
          * @param t 设置可移动范围内的相对屏幕顶部偏移量 App级别时
          *     不包含状态栏,框架会自行计算高度并减去,即顶部偏移量最终=topMargin+框架计算好的状态栏+moveEdg。
@@ -297,7 +300,11 @@ open class BasisHelper {
             l: Float = 0f,
             r: Float = 0f
         ): T {
-            sizeViewDirection(abs(t), abs(b), abs(l), abs(r))
+            this.enableAssistLocation = true
+            this.assistLocation.t = t
+            this.assistLocation.b = b
+            this.assistLocation.l = l
+            this.assistLocation.r = r
             return this as T
         }
 
@@ -307,8 +314,12 @@ open class BasisHelper {
             return this as T
         }
 
-        /** 设置悬浮窗视图默认位置,默认右下角 */
-        fun setGravity(gravity: Direction): T {
+        /**
+         * 设置悬浮窗视图默认位置,默认右下角,
+         *
+         * 注意：此方法会影响setX()||setY()
+         */
+        fun setGravity(gravity: FxGravity): T {
             this.gravity = gravity
             return this as T
         }
@@ -351,46 +362,47 @@ open class BasisHelper {
          *     如果某次边框变动或者其他影响导致原视图范围改变,现有的历史坐标位置不准确，请先移除历史坐标信息
          *     -> 即调用外部的FloatingX.clearConfig()清除历史坐标信息
          */
+        @Deprecated("此方法的调用需要确保页面固定不变,暂时不建议使用,后续会考虑更新逻辑")
         fun setSaveDirectionImpl(iFxConfigStorage: IFxConfigStorage): T {
-            this.enableSaveDirection = true
-            this.iFxConfigStorage = iFxConfigStorage
+//            this.enableSaveDirection = true
+//            this.iFxConfigStorage = iFxConfigStorage
             return this as T
         }
 
         /** 辅助坐标的实现 采用坐标偏移位置,框架自行计算合适的x,y */
-        private fun sizeViewDirection(
-            t: Float = 0f,
-            b: Float = 0f,
-            l: Float = 0f,
-            r: Float = 0f
-        ) {
+        private fun adtSizeViewDirection() {
+            // 如果坐标规则不符合要求,则按照默认规则
+            if (!enableAssistLocation && gravity == FxGravity.DEFAULT) return
+            val edgeOffset = if (enableEdgeRebound) edgeOffset else 0f
+            val b = assistLocation.b + edgeOffset + borderMargin.b
+            val t = assistLocation.t + edgeOffset + borderMargin.t
+            val r = assistLocation.r + edgeOffset + borderMargin.r
+            val l = assistLocation.l + edgeOffset + borderMargin.l
             defaultX = 0f
             defaultY = 0f
-            val marginEdgeTox = edgeOffset
-            val marginEdgeToy = edgeOffset
             when (gravity) {
-                Direction.LEFT_OR_BOTTOM -> {
-                    defaultY = -(marginEdgeToy + b)
-                    defaultX = marginEdgeTox + l
+                FxGravity.LEFT_OR_BOTTOM -> {
+                    defaultY = -b
+                    defaultX = l
                 }
-                Direction.RIGHT_OR_BOTTOM -> {
-                    defaultY = -(marginEdgeToy + b)
-                    defaultX = -(marginEdgeTox + r)
+                FxGravity.RIGHT_OR_BOTTOM -> {
+                    defaultY = -b
+                    defaultX = -r
                 }
-                Direction.RIGHT_OR_TOP -> {
-                    defaultX = -(marginEdgeTox + r)
-                    defaultY = marginEdgeToy + t
+                FxGravity.RIGHT_OR_TOP -> {
+                    defaultX = -r
+                    defaultY = t
                 }
-                Direction.RIGHT_OR_CENTER -> {
-                    defaultX = -(marginEdgeTox + r)
+                FxGravity.RIGHT_OR_CENTER -> {
+                    defaultX = -r
                 }
-                Direction.LEFT_OR_CENTER -> {
-                    defaultX = marginEdgeTox + l
+                FxGravity.LEFT_OR_CENTER -> {
+                    defaultX = l
                 }
-                Direction.DEFAULT,
-                Direction.LEFT_OR_TOP -> {
-                    defaultX = marginEdgeTox + l
-                    defaultY = marginEdgeToy + t
+                FxGravity.DEFAULT,
+                FxGravity.LEFT_OR_TOP -> {
+                    defaultX = l
+                    defaultY = t
                 }
             }
         }

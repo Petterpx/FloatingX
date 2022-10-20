@@ -9,17 +9,17 @@ import androidx.fragment.app.Fragment
 import com.petterp.floatingx.assist.helper.ScopeHelper
 import com.petterp.floatingx.listener.control.IFxControl
 
-/** 创建一个fx,自行初始化并控制插入位置
+/**
+ * 创建一个fx,自行初始化并控制插入位置
  *
- *   val builder by createFx {
+ * val builder by createFx {
  *
- *     setLayout(R.layout.item_floating)
- *     setEnableScrollOutsideScreen(false)
- *     setAnimationImpl(FxAnimationImpl())
- *     build().toControl().init(this@MainActivity)
+ * setLayout(R.layout.item_floating) setEnableScrollOutsideScreen(false)
+ * setAnimationImpl(FxAnimationImpl())
+ * build().toControl().init(this@MainActivity)
  *
- *   }
- * */
+ * }
+ */
 @JvmSynthetic
 inline fun <T> createFx(crossinline obj: ScopeHelper.Builder.() -> T) =
     lazy(LazyThreadSafetyMode.NONE) {
@@ -80,6 +80,13 @@ internal inline fun <reified T : Any> lazyLoad(
     lazy(mode) {
         obj()
     }
+
+@JvmSynthetic
+internal fun Float.coerceInFx(min: Float, max: Float): Float {
+    if (this < min) return min
+    if (this > max) return max
+    return this
+}
 
 @JvmSynthetic
 internal fun Context.findActivity(): Activity? {

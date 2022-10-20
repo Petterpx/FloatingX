@@ -18,7 +18,7 @@ interface IFxScrollListener {
     fun up()
 
     /**
-     * 首个手指按下后的事件move回调
+     * 监测当前移动浮窗的手指 move回调
      *
      * @param event 当前手势事件
      * @param x 当前浮窗相对于父View的x坐标
@@ -29,7 +29,7 @@ interface IFxScrollListener {
      *
      * 注意：[com.petterp.floatingx.assist.helper.BasisHelper.enableTouch]=false时，x,y不会变化
      *
-     * 注意：这个方法仅会回调首个按下的手指事件哦
+     * 注意：这个方法仅会回调当前正在按压的手指事件
      *
      * */
     fun dragIng(event: MotionEvent, x: Float, y: Float)

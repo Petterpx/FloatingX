@@ -101,7 +101,7 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
 
     override fun setBorderMargin(t: Float, l: Float, b: Float, r: Float) {
         super.setBorderMargin(t, l, b, r)
-        managerView?.fixLocation()
+        managerView?.moveToEdge()
     }
 
     override fun setEdgeOffset(edgeOffset: Float) {
