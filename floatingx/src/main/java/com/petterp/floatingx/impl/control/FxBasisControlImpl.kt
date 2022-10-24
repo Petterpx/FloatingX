@@ -23,7 +23,7 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
     private val cancelAnimationRunnable by lazyLoad { Runnable { reset() } }
     private val hideAnimationRunnable by lazyLoad { Runnable { detach() } }
 
-    override val helperControl: IFxConfigControl get() = this
+    override val configControl: IFxConfigControl get() = this
 
     override fun isShow(): Boolean =
         managerView != null && ViewCompat.isAttachedToWindow(managerView!!) && managerView!!.visibility == View.VISIBLE
