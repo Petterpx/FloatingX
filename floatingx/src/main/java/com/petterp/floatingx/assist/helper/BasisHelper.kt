@@ -14,40 +14,89 @@ import kotlin.math.abs
 
 /** 通用构建器helper */
 open class BasisHelper {
-    @LayoutRes
+    @JvmField
     internal var layoutId: Int = 0
+
+    @JvmField
     internal var layoutView: WeakReference<View>? = null
+
+    @JvmField
     internal var gravity: FxGravity = FxGravity.DEFAULT
-    internal var clickTime: Long = 500L
+
+    @JvmField
+    internal var clickTime: Long = 300L
+
+    @JvmField
     internal var layoutParams: FrameLayout.LayoutParams? = null
+
+    @JvmField
     internal var fxAnimation: FxAnimation? = null
 
+    @JvmField
     internal var defaultY: Float = 0f
+
+    @JvmField
     internal var defaultX: Float = 0f
+
+    @JvmField
     internal var edgeOffset: Float = 0f
+
+    @JvmField
     internal var borderMargin: BorderMargin = BorderMargin()
 
+    @JvmField
     internal var enableFx: Boolean = false
+
+    @JvmField
     internal var enableAbsoluteFix: Boolean = false
+
+    @JvmField
     internal var enableEdgeAdsorption: Boolean = true
+
+    @JvmField
     internal var enableEdgeRebound: Boolean = true
+
+    @JvmField
     internal var enableAnimation: Boolean = false
+
+    @JvmField
     internal var enableSaveDirection: Boolean = false
+
+    @JvmField
     internal var enableDebugLog: Boolean = false
+
+    @JvmField
     internal var enableTouch: Boolean = true
+
+    @JvmField
     internal var enableClickListener: Boolean = false
+
+    @JvmField
     internal var enableAssistLocation: Boolean = false
 
+    @JvmField
     internal var iFxScrollListener: IFxScrollListener? = null
+
+    @JvmField
     internal var iFxViewLifecycle: IFxViewLifecycle? = null
+
+    @JvmField
     internal var iFxConfigStorage: IFxConfigStorage? = null
+
+    @JvmField
     internal var iFxClickListener: View.OnClickListener? = null
 
+    @JvmField
     internal var fxLog: FxLog? = null
-    private var fxLogTag: String = ""
 
+    @JvmField
+    internal var fxLogTag: String = ""
+
+    @JvmField
     /** 底部导航栏与状态栏测量高度 */
     internal var navigationBarHeight: Int = 0
+
+    @JvmField
     internal var statsBarHeight: Int = 0
 
     internal fun initLog(scope: String) {
@@ -60,8 +109,8 @@ open class BasisHelper {
         @LayoutRes
         private var layoutId: Int = 0
         private var layoutView: WeakReference<View>? = null
-        private var gravity: FxGravity = FxGravity.RIGHT_OR_BOTTOM
-        private var clickTime: Long = 500L
+        private var gravity: FxGravity = FxGravity.DEFAULT
+        private var clickTime: Long = 300L
         private var layoutParams: FrameLayout.LayoutParams? = null
         private var fxAnimation: FxAnimation? = null
 
