@@ -1,6 +1,5 @@
 package com.petterp.floatingx.assist.helper
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import android.widget.FrameLayout

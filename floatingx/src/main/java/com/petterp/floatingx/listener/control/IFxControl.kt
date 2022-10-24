@@ -13,7 +13,7 @@ import com.petterp.floatingx.view.FxViewHolder
 interface IFxControl {
 
     /** 获取配置层控制器,以便运行时动态调整某些基础配置 */
-    val helperControl: IFxHelperControl
+    val helperControl: IFxConfigControl
 
     /** 显示悬浮窗 */
     fun show()

@@ -12,7 +12,7 @@ import com.petterp.floatingx.listener.IFxViewLifecycle
  * 配置更改接口,使用此接口运行时更改配置层
  * @author petterp
  */
-interface IFxHelperControl {
+interface IFxConfigControl {
 
     /** 获取配置helper */
     fun getConfigHelper(): BasisHelper
