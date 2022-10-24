@@ -14,7 +14,6 @@ import androidx.annotation.StringRes
 /** FxManagerView对应的ViewHolder */
 class FxViewHolder(private val itemView: View) {
 
-    @JvmSynthetic
     private val views: SparseArray<View> = SparseArray()
 
     fun <T : View> getView(@IdRes viewId: Int): T {

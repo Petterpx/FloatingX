@@ -17,7 +17,7 @@ private var screenHeightBf: Int = 0
 private var navigationHeightBf: Int = 0
 
 /** 真实屏幕高度,往往不会改变 */
-val Context.realScreenHeight: Int
+internal val Context.realScreenHeight: Int
     get() {
         val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val display = wm.defaultDisplay
@@ -28,7 +28,7 @@ val Context.realScreenHeight: Int
 
 /** 当前屏幕高度,一般情况下不会包含底部导航栏 [navigationBarHeight]
  * 在全面屏机型不能直接使用 */
-val Context.screenHeight: Int
+internal val Context.screenHeight: Int
     get() {
         val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val display = wm.defaultDisplay
@@ -38,7 +38,7 @@ val Context.screenHeight: Int
     }
 
 /** 状态栏高度,直接使用AppContext测量,部分情况会不准确 */
-val Activity.statusBarHeight: Int
+internal val Activity.statusBarHeight: Int
     get() {
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInMultiWindowMode) {
@@ -52,7 +52,7 @@ val Activity.statusBarHeight: Int
     }
 
 /** 获取底部导航栏高度 */
-val Activity.navigationBarHeight: Int
+internal val Activity.navigationBarHeight: Int
     get() {
         // 获取底部导航栏内部会用到反射,这里进行缓存,尽可能避免多余损耗
         // 当导航栏改变时，往往屏幕高度会发生变化,故可以借此进行判断
@@ -103,8 +103,9 @@ private fun getNavigationFromAndroid(activity: Activity): Pair<Int, Int> {
         val vp = activity.window.decorView as? ViewGroup ?: return -1 to 0
         (0 until vp.childCount).forEach lit@{ i ->
             val id = vp.getChildAt(i)?.id
-            if (id == android.R.id.navigationBarBackground)
+            if (id == android.R.id.navigationBarBackground) {
                 return 1 to vp.findViewById<View>(id).height
+            }
         }
     } catch (e: Exception) {
         return -1 to 0
@@ -152,7 +153,8 @@ private fun checkNavigationBarShow(context: Context): Boolean {
         hasNavigationBar = rs.getBoolean(id)
     }
     try {
-        @SuppressLint("PrivateApi") val systemPropertiesClass =
+        @SuppressLint("PrivateApi")
+        val systemPropertiesClass =
             Class.forName("android.os.SystemProperties")
         val m = systemPropertiesClass.getMethod("get", String::class.java)
         val navBarOverride = m.invoke(systemPropertiesClass, "qemu.hw.mainkeys") as String
@@ -160,7 +162,8 @@ private fun checkNavigationBarShow(context: Context): Boolean {
         var navigationBarIsMin = 0
         navigationBarIsMin = Settings.Global.getInt(
             context.contentResolver,
-            "navigationbar_is_min", 0
+            "navigationbar_is_min",
+            0
         )
         if ("1" == navBarOverride || 1 == navigationBarIsMin) {
             hasNavigationBar = false
