@@ -7,7 +7,7 @@ import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.listener.control.IFxControl
-import com.petterp.floatingx.listener.control.IFxHelperControl
+import com.petterp.floatingx.listener.control.IFxConfigControl
 import com.petterp.floatingx.listener.provider.IFxContextProvider
 import com.petterp.floatingx.listener.provider.IFxHolderProvider
 import com.petterp.floatingx.util.lazyLoad
@@ -16,14 +16,14 @@ import com.petterp.floatingx.view.FxViewHolder
 import java.lang.ref.WeakReference
 
 /** 基础控制器实现 */
-abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFxHelperControl {
+abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFxConfigControl {
     private var managerView: FxMagnetView? = null
     private var viewHolder: FxViewHolder? = null
     private var mContainer: WeakReference<ViewGroup>? = null
     private val cancelAnimationRunnable by lazyLoad { Runnable { reset() } }
     private val hideAnimationRunnable by lazyLoad { Runnable { detach() } }
 
-    override val helperControl: IFxHelperControl get() = this
+    override val helperControl: IFxConfigControl get() = this
 
     override fun isShow(): Boolean =
         managerView != null && ViewCompat.isAttachedToWindow(managerView!!) && managerView!!.visibility == View.VISIBLE
