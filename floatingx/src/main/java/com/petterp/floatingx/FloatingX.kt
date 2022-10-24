@@ -7,6 +7,7 @@ import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.impl.control.FxAppControlImpl
 import com.petterp.floatingx.impl.lifecycle.FxLifecycleCallbackImpl
 import com.petterp.floatingx.listener.control.IFxAppControl
+import com.petterp.floatingx.listener.control.IFxConfigControl
 
 /** Single Control To Fx */
 @SuppressLint("StaticFieldLeak")
@@ -24,26 +25,20 @@ object FloatingX {
     @JvmStatic
     fun init(helper: AppHelper): IFxAppControl {
         this.helper = helper
-        initControl()
-        return fxControl!!
+        return checkInitFxControl()
     }
 
     /** 浮窗控制器 */
     @JvmStatic
     fun control(): IFxAppControl {
-        initControl()
-        return fxControl!!
+        return checkInitFxControl()
     }
 
-    private fun initControl() {
-        if (fxControl == null) {
-            fxControl = FxAppControlImpl(config())
-        }
+    /** 浮窗配置控制器 */
+    @JvmStatic
+    fun configControl(): IFxConfigControl {
+        return checkInitFxControl().configControl
     }
-
-    private fun config(): AppHelper =
-        helper
-            ?: throw NullPointerException("helper==null!!!,AppHelper Cannot be null,Please check if init() is called.")
 
     @JvmSynthetic
     internal fun initAppLifecycle(context: Context) {
@@ -70,4 +65,13 @@ object FloatingX {
     internal fun reset() {
         fxControl = null
     }
+
+    private fun checkInitFxControl(): IFxAppControl {
+        if (fxControl == null) fxControl = FxAppControlImpl(config())
+        return fxControl!!
+    }
+
+    private fun config(): AppHelper =
+        helper
+            ?: throw NullPointerException("helper==null!!!,AppHelper Cannot be null,Please check if init() is called.")
 }

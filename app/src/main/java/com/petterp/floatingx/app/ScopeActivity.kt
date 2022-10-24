@@ -57,10 +57,10 @@ class ScopeActivity : AppCompatActivity() {
                         scopeFx.show()
                     }
                     addItemView("禁止触摸事件(禁止拖动)") {
-                        scopeFx.helperControl.setEnableTouch(false)
+                        scopeFx.configControl.setEnableTouch(false)
                     }
                     addItemView("允许触摸事件(允许拖动)-默认允许") {
-                        scopeFx.helperControl.setEnableTouch(true)
+                        scopeFx.configControl.setEnableTouch(true)
                     }
                     addItemView("隐藏悬浮窗") {
                         scopeFx.hide()
@@ -93,10 +93,10 @@ class ScopeActivity : AppCompatActivity() {
                         }
                     }
                     addItemView("关闭点击事件响应") {
-                        scopeFx.helperControl.setEnableClick(false)
+                        scopeFx.configControl.setEnableClick(false)
                     }
                     addItemView("打开点击事件响应") {
-                        scopeFx.helperControl.setEnableClick(true)
+                        scopeFx.configControl.setEnableClick(true)
                     }
                     addItemView("当前是否显示") {
                         Toast.makeText(
@@ -106,22 +106,22 @@ class ScopeActivity : AppCompatActivity() {
                         ).show()
                     }
                     addItemView("允许边缘吸附") {
-                        scopeFx.helperControl.setEnableEdgeAdsorption(true)
+                        scopeFx.configControl.setEnableEdgeAdsorption(true)
                     }
                     addItemView("禁止边缘吸附") {
-                        scopeFx.helperControl.setEnableEdgeAdsorption(false)
+                        scopeFx.configControl.setEnableEdgeAdsorption(false)
                     }
                     addItemView("允许边缘回弹") {
-                        scopeFx.helperControl.setEnableEdgeRebound(true)
+                        scopeFx.configControl.setEnableEdgeRebound(true)
                     }
                     addItemView("禁止边缘回弹") {
-                        scopeFx.helperControl.setEnableEdgeRebound(false)
+                        scopeFx.configControl.setEnableEdgeRebound(false)
                     }
                     addItemView("开启动画") {
-                        scopeFx.helperControl.setEnableAnimation(true)
+                        scopeFx.configControl.setEnableAnimation(true)
                     }
                     addItemView("边距调整为100f") {
-                        scopeFx.helperControl.setBorderMargin(100f, 100f, 100f, 100f)
+                        scopeFx.configControl.setBorderMargin(100f, 100f, 100f, 100f)
                     }
                     addItemView("设置浮窗子view点击事件(layoutId的示例)") {
                         scopeFx.updateView {
