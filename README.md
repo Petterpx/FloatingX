@@ -10,22 +10,21 @@
 
 [English Introduction](https://github.com/Petterpx/FloatingX/blob/main/README_EN.md)
 
-[具体使用文档见这里](https://github.com/Petterpx/FloatingX/wiki)
+[具体使用文档见这里]()
 
 ## 👏 特性 
 
-- 单例持有浮窗view
-- 支持各项回调监听
-- 链式调用，无感插入
-- 支持自定义是否保存历史位置及还原
-- 支持插入 `ViewGroup` , `Fragment` , `Activity`
-- 允许自定义悬浮窗各项指标，自定义隐藏显示动画
-- 支持 越界回弹，多指触摸，小屏适配，屏幕旋转
-- 支持自定义位置方向,自带辅助定位显示坐标
-- 完善的 `kotlin` 构建扩展,及对 `Java` 的友好兼容
+- 支持 **自定义隐藏显示动画**;
+- 支持 **多指触摸**，精准决策触摸手势;
+- 支持 自定义是否保存历史位置及还原;
+- 支持 **越界回弹**，**边缘悬停**，**边界设置**;
+- 支持 以 **layout**, **View**  的方式设置浮窗内容；
+- 支持 自定义浮窗显示位置，**支持辅助定位**;
+- 支持 **黑名单与白名单** 功能，指定页面禁止显示浮窗等;
+- 支持 `kotlin` 构建扩展, 及对 `Java` 的友好兼容;
 - 支持显示位置[强行修复],应对特殊机型(需要单独开启)
+- 支持 **局部浮窗**，可在`ViewGroup` , `Fragment` , `Activity` 中进行显示；
 - 完善的日志系统，打开即可看到不同级别的Fx运行过程,更利于发现问题
-- ...
 
 ## 👨‍💻‍ 依赖方式
 
@@ -66,15 +65,16 @@ dependencies {
 }
 ```
 
+
 ## 🏄‍♀️ 效果图
 
 | 全屏,activity,fragment,单view                                | 小屏展示                                                     | 非正常比例缩放屏幕                                           |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![效果-展示1](https://github.com/Petterpx/FloatingX/blob/master/image/fx-api-simple.gif) | ![演示-小屏](https://github.com/Petterpx/FloatingX/blob/master/image/fx-small-gif.gif) | ![非正常比例缩放](https://github.com/Petterpx/FloatingX/blob/master/image/fx-view-deformed-simple.gif) |
+| ![效果-展示1](https://github.com/Petterpx/FloatingX/blob/main/image/fx-api-simple.gif?raw=true) | ![演示-小屏](https://github.com/Petterpx/FloatingX/blob/main/image/fx-small-gif.gif?raw=true) | ![非正常比例缩放](https://github.com/Petterpx/FloatingX/blob/main/image/fx-view-deformed-simple.gif?raw=true) |
 
 | 屏幕旋转                                                     | 功能演示                                                     |      |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
-| ![演示-旋转](https://github.com/Petterpx/FloatingX/blob/master/image/fx-rotate-simple.gif) | ![演示-局部功能](https://github.com/Petterpx/FloatingX/blob/master/image/fx-api-simple.gif) |      |
+| ![演示-旋转](https://github.com/Petterpx/FloatingX/blob/main/image/fx-rotate-simple.gif?raw=true) | ![演示-局部功能](https://github.com/Petterpx/FloatingX/blob/main/image/fx-api-simple.gif?raw=true) |      |
 
 ### 完善的日志-查看器
 

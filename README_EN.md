@@ -10,7 +10,7 @@
 
 [中文简介](https://github.com/Petterpx/FloatingX/READDME.md)
 
-[中午使用文档见这里](https://github.com/Petterpx/FloatingX/wiki)
+[中午使用文档见这里](https://cskf7l0wab.feishu.cn/wiki/wikcnLLBCe3fIDUTAzrEg754tzc)
 
 ## 👏 Features 
 
@@ -62,19 +62,22 @@ allprojects {
 
 ```groovy
 dependencies {
-	  implementation 'com.github.Petterpx:FloatingX:1.0.7'
+	  implementation 'com.github.Petterpx:FloatingX:1.1.0'
 }
 ```
 
-## 🏄‍♀️ Render
 
-| fullscreen,activity,fragment,singleview                      | small-screen display                                         | non-normal-scaled screen                                     |
+## 🏄‍♀️ 效果图
+
+| 全屏,activity,fragment,单view                                | 小屏展示                                                     | 非正常比例缩放屏幕                                           |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![效果-展示1](https://github.com/Petterpx/FloatingX/blob/master/image/fx-api-simple.gif) | ![演示-小屏](https://github.com/Petterpx/FloatingX/blob/master/image/fx-small-gif.gif) | ![非正常比例缩放](https://github.com/Petterpx/FloatingX/blob/master/image/fx-view-deformed-simple.gif) |
+| ![效果-展示1](https://github.com/Petterpx/FloatingX/blob/main/image/fx-api-simple.gif?raw=true) | ![演示-小屏](https://github.com/Petterpx/FloatingX/blob/main/image/fx-small-gif.gif?raw=true) | ![非正常比例缩放](https://github.com/Petterpx/FloatingX/blob/main/image/fx-view-deformed-simple.gif?raw=true) |
 
-| Screen Rotation                                              | Function Demo                                                |      |
+| 屏幕旋转                                                     | 功能演示                                                     |      |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ---- |
-| ![演示-旋转](https://github.com/Petterpx/FloatingX/blob/master/image/fx-rotate-simple.gif) | ![演示-局部功能](https://github.com/Petterpx/FloatingX/blob/master/image/fx-api-simple.gif) |      |
+| ![演示-旋转](https://github.com/Petterpx/FloatingX/blob/main/image/fx-rotate-simple.gif?raw=true) | ![演示-局部功能](https://github.com/Petterpx/FloatingX/blob/main/image/fx-api-simple.gif?raw=true) |      |
+
+
 
 ### Complete log-viewer
 
