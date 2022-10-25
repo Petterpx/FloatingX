@@ -99,6 +99,7 @@ open class BasisHelper {
     @JvmField
     internal var statsBarHeight: Int = 0
 
+    @JvmSynthetic
     internal fun initLog(scope: String) {
         if (enableDebugLog) fxLog = FxLog.builder("$scope$fxLogTag")
     }

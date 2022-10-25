@@ -25,6 +25,7 @@ class ScopeHelper : BasisHelper() {
         @JvmStatic
         fun builder(): Builder = Builder()
 
+        @JvmSynthetic
         inline fun build(obj: Builder.() -> Unit) = builder().apply(obj).build()
     }
 
