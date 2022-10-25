@@ -9,24 +9,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.simple.FxAnimationImpl
-import com.petterp.floatingx.util.activityToFx
 import com.petterp.floatingx.util.createFx
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var viewGroup: ViewGroup
 
-    private val activityFx by activityToFx(this) {
+    private val activityFx by createFx {
         setLayout(R.layout.item_floating)
+        build().toControl(this@MainActivity)
     }
 
-    private val viewFx by createFx({
-        toControl(viewGroup)
-    }) {
+    private val viewFx by createFx {
         setLayout(R.layout.item_floating)
         setEnableScrollOutsideScreen(false)
         setAnimationImpl(FxAnimationImpl())
         setEnableLog(true, "main_fx")
+        build().toControl(viewGroup)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,14 +45,14 @@ class MainActivity : AppCompatActivity() {
             }
             addItemView("更新当前全局浮窗显示View-(layoutId)") {
                 FloatingX.control().apply {
-                    updateManagerView(R.layout.item_floating)
-                    updateView {
+                    updateView(R.layout.item_floating)
+                    this.updateViewContent {
                         it.setText(R.id.tvItemFx, "App")
                     }
                 }.show()
             }
             addItemView("更新当前全局浮窗显示View-(layoutView)") {
-                FloatingX.control().updateManagerView {
+                FloatingX.control().updateView {
                     TextView(it).apply {
                         layoutParams = ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -69,14 +68,14 @@ class MainActivity : AppCompatActivity() {
             }
             addItemView("显示Activity悬浮窗-(展示与多指触摸)") {
                 activityFx.show()
-                activityFx.updateView {
+                activityFx.updateViewContent {
                     it.setText(R.id.tvItemFx, "Act")
                     it.getView<CardView>(R.id.cardItemFx).setCardBackgroundColor(Color.BLUE)
                 }
             }
             addItemView("显示View级别悬浮窗-(展示与多指触摸)") {
                 viewFx.show()
-                viewFx.updateView {
+                viewFx.updateViewContent {
                     it.setText(R.id.tvItemFx, "view")
                     it.getView<CardView>(R.id.cardItemFx).setCardBackgroundColor(Color.GREEN)
                 }

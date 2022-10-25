@@ -50,11 +50,11 @@ open class FxAppControlImpl(private val helper: AppHelper) :
     }
 
     /** 注意,全局浮窗下,view必须是全局application对应的context! */
-    override fun updateManagerView(view: View) {
+    override fun updateView(view: View) {
         if (view.context !is Application) {
             throw IllegalArgumentException("view.context != Application,The global floating window must use application as context!")
         }
-        super.updateManagerView(view)
+        super.updateView(view)
     }
 
     override fun context(): Context = FloatingX.getContext()
