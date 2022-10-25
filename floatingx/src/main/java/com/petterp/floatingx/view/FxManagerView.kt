@@ -20,14 +20,14 @@ import com.petterp.floatingx.util.topActivity
 
 /** 基础悬浮窗View */
 @SuppressLint("ViewConstructor")
-class FxMagnetView @JvmOverloads constructor(
+class FxManagerView @JvmOverloads constructor(
     context: Context,
-    private val helper: BasisHelper,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr, defStyleRes) {
 
+    private lateinit var helper: BasisHelper
     private var mLastTouchDownTime: Long = 0
     private var mParentWidth = 0f
     private var mParentHeight = 0f
@@ -51,19 +51,18 @@ class FxMagnetView @JvmOverloads constructor(
     val childFxView: View? get() = _childFxView
     private var mMoveAnimator: MoveAnimator = MoveAnimator()
 
-    init {
-        scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
+    fun init(config: BasisHelper): FxManagerView {
+        this.helper = config
         initView()
+        return this
     }
 
     private fun initView() {
-        isClickable = true
         _childFxView = inflateLayoutView() ?: inflateLayoutId()
-        if (_childFxView == null) {
-            helper.fxLog?.e("fxView--> inflateView, Error")
-            return
-        }
+        checkNotNull(_childFxView) { "FloatingX-contentView == null" }
         initLocation()
+        isClickable = true
+        scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
         helper.iFxViewLifecycle?.initView(this)
     }
 
@@ -210,7 +209,7 @@ class FxMagnetView @JvmOverloads constructor(
         // 对于全局的处理
         if (helper is AppHelper) {
             val navigationBarHeight = helper.navigationBarHeight
-            helper.updateNavigationBar(topActivity)
+            (helper as AppHelper).updateNavigationBar(topActivity)
             isNavigationCHanged = navigationBarHeight != helper.navigationBarHeight
         }
         if (isLandscape || isNavigationCHanged) {
@@ -294,8 +293,8 @@ class FxMagnetView @JvmOverloads constructor(
         // 如果此时浮窗被父布局移除,parent将为null,此时就别更新位置了,没意义
         val parentGroup = (parent as? ViewGroup) ?: return false
         // 这里先减掉自身大小可以避免后期再重复减掉
-        val parentWidth = (parentGroup.width - this@FxMagnetView.width).toFloat()
-        val parentHeight = (parentGroup.height - this@FxMagnetView.height).toFloat()
+        val parentWidth = (parentGroup.width - this@FxManagerView.width).toFloat()
+        val parentHeight = (parentGroup.height - this@FxManagerView.height).toFloat()
         if (mParentHeight != parentHeight || mParentWidth != parentWidth) {
             mParentWidth = parentWidth
             mParentHeight = parentHeight

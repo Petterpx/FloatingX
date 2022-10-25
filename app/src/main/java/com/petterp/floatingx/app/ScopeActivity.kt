@@ -40,6 +40,18 @@ class ScopeActivity : AppCompatActivity() {
         build().toControl(viewGroup)
     }
 
+    private val activityFx by createFx {
+        setLayout(R.layout.item_floating)
+        setEnableScrollOutsideScreen(false)
+        setEnableEdgeAdsorption(false)
+        setEdgeOffset(40f)
+        setBottomBorderMargin(40f)
+        setAnimationImpl(FxAnimationImpl())
+        setEnableAnimation(false)
+        setEnableLog(true)
+        build().toControl(this@ScopeActivity)
+    }
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,10 +78,10 @@ class ScopeActivity : AppCompatActivity() {
                         scopeFx.hide()
                     }
                     addItemView("更换layout(通过布局更换)") {
-                        scopeFx.updateManagerView(R.layout.item_floating)
+                        scopeFx.updateView(R.layout.item_floating)
                     }
                     addItemView("更换layoutView(通过传递View)") {
-                        scopeFx.updateManagerView {
+                        scopeFx.updateView {
                             TextView(it).apply {
                                 layoutParams = ViewGroup.LayoutParams(
                                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -124,7 +136,7 @@ class ScopeActivity : AppCompatActivity() {
                         scopeFx.configControl.setBorderMargin(100f, 100f, 100f, 100f)
                     }
                     addItemView("设置浮窗子view点击事件(layoutId的示例)") {
-                        scopeFx.updateView {
+                        scopeFx.updateViewContent {
                             it.getView<TextView>(R.id.tvItemFx).setOnClickListener {
                                 Toast.makeText(this@ScopeActivity, "123123", Toast.LENGTH_SHORT)
                                     .show()

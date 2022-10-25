@@ -12,7 +12,7 @@ import androidx.annotation.IdRes
 import androidx.annotation.StringRes
 
 /** FxManagerView对应的ViewHolder */
-class FxViewHolder(private val itemView: View) {
+class FxViewHolder(private val itemView: View?) {
 
     private val views: SparseArray<View> = SparseArray()
 
@@ -26,7 +26,7 @@ class FxViewHolder(private val itemView: View) {
     fun <T : View> getViewOrNull(@IdRes viewId: Int): T? {
         val view = views.get(viewId)
         return if (view == null) {
-            itemView.findViewById<T>(viewId)?.let {
+            itemView?.findViewById<T>(viewId)?.let {
                 views.put(viewId, it)
                 it
             }

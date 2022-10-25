@@ -45,10 +45,10 @@ class FxScopeControl(private val helper: BasisHelper) :
         return this
     }
 
-    override fun updateManagerView(view: View) {
+    override fun updateView(view: View) {
         if (view.context is Application) {
             throw IllegalArgumentException("view == Application,Scope floating windows cannot use application-level views!")
         }
-        super.updateManagerView(view)
+        super.updateView(view)
     }
 }

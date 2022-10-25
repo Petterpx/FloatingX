@@ -6,18 +6,18 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
 import com.petterp.floatingx.assist.helper.BasisHelper
-import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.listener.control.IFxConfigControl
+import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.listener.provider.IFxContextProvider
 import com.petterp.floatingx.listener.provider.IFxHolderProvider
 import com.petterp.floatingx.util.lazyLoad
-import com.petterp.floatingx.view.FxMagnetView
+import com.petterp.floatingx.view.FxManagerView
 import com.petterp.floatingx.view.FxViewHolder
 import java.lang.ref.WeakReference
 
 /** 基础控制器实现 */
 abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFxConfigControl {
-    private var managerView: FxMagnetView? = null
+    private var managerView: FxManagerView? = null
     private var viewHolder: FxViewHolder? = null
     private var mContainer: WeakReference<ViewGroup>? = null
     private val cancelAnimationRunnable by lazyLoad { Runnable { reset() } }
@@ -30,33 +30,29 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
 
     override fun getView(): View? = managerView?.childFxView
 
-    override fun getManagerViewHolder(): FxViewHolder? = viewHolder
+    override fun getViewHolder(): FxViewHolder? = viewHolder
 
-    override fun getManagerView(): FxMagnetView? = managerView
+    override fun getManagerView(): FxManagerView? = managerView
 
-    override fun updateManagerView(@LayoutRes resource: Int) {
+    override fun updateView(@LayoutRes resource: Int) {
         if (resource == 0) throw IllegalArgumentException("resource cannot be 0!")
         helper.layoutView?.clear()
         helper.layoutView = null
         updateMangerView(resource)
     }
 
-    override fun updateManagerView(view: View) {
+    override fun updateView(view: View) {
         helper.layoutView = WeakReference(view)
         updateMangerView(0)
     }
 
-    override fun updateManagerView(provider: IFxContextProvider) {
+    override fun updateView(provider: IFxContextProvider) {
         val view = provider.build(context())
-        updateManagerView(view)
+        updateView(view)
     }
 
-    override fun updateView(provider: IFxHolderProvider) {
+    override fun updateViewContent(provider: IFxHolderProvider) {
         provider.apply(viewHolder ?: return)
-    }
-
-    override fun updateManagerParams(params: ViewGroup.LayoutParams) {
-        managerView?.layoutParams = params
     }
 
     override fun setClickListener(time: Long, clickListener: View.OnClickListener) {
@@ -156,8 +152,8 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
     }
 
     protected open fun initManager() {
-        managerView = FxMagnetView(context(), helper)
-        viewHolder = FxViewHolder(managerView!!)
+        managerView = FxManagerView(context()).init(helper)
+        viewHolder = FxViewHolder(managerView?.childFxView!!)
     }
 
     protected fun getContainerGroup(): ViewGroup? {
@@ -194,7 +190,7 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
     }
 
     @JvmSynthetic
-    protected fun FxMagnetView.show() {
+    protected fun FxManagerView.show() {
         helper.enableFx = true
         visibility = View.VISIBLE
         val fxAnimation = helper.fxAnimation ?: return
