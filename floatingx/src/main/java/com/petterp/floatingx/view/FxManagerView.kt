@@ -135,7 +135,6 @@ class FxManagerView @JvmOverloads constructor(
         var intercepted = false
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                intercepted = false
                 initTouchDown(ev)
                 helper.fxLog?.e("fxView---onInterceptTouchEvent-[down],interceptedTouch-$intercepted")
             }
@@ -161,8 +160,11 @@ class FxManagerView @JvmOverloads constructor(
                 }
             }
             MotionEvent.ACTION_MOVE -> {
+                if (touchDownId == INVALID_TOUCH_ID || !helper.enableTouch) {
+                    return super.onTouchEvent(event)
+                }
                 val pointIdx = event.findPointerIndex(touchDownId)
-                if (pointIdx != INVALID_TOUCH_ID && helper.enableTouch) {
+                if (pointIdx != INVALID_TOUCH_IDX) {
                     updateLocation(event, pointIdx)
                 }
             }
@@ -387,7 +389,7 @@ class FxManagerView @JvmOverloads constructor(
         override fun run() {
             if (childFxView == null || childFxView?.parent == null) return
             val progress =
-                MAX_PROGRESS.coerceAtMost((System.currentTimeMillis() - startingTime) / 400f)
+                MAX_PROGRESS.coerceAtMost((System.currentTimeMillis() - startingTime) / DEFAULT_MOVE_ANIMATOR_DURATION)
             x += (destinationX - x) * progress
             y += (destinationY - y) * progress
             if (progress < MAX_PROGRESS) {
@@ -405,8 +407,10 @@ class FxManagerView @JvmOverloads constructor(
 
     companion object {
         private const val INVALID_TOUCH_ID = -1
+        private const val INVALID_TOUCH_IDX = -1
         private const val TOUCH_TIME_THRESHOLD = 150L
         private const val MAX_PROGRESS = 1f
+        private const val DEFAULT_MOVE_ANIMATOR_DURATION = 400f
         private val HANDLER = Handler(Looper.getMainLooper())
     }
 }
