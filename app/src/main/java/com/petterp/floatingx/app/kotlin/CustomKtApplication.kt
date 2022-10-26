@@ -5,6 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.*
 import com.petterp.floatingx.app.simple.FxAnimationImpl
@@ -19,7 +20,6 @@ class CustomKtApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         FloatingX.init {
-            // TODO: 浮窗layout设置方式二选一,后者会替换前者方式
             setLayout(R.layout.item_floating)
 
             // 传递自定义的View
@@ -34,17 +34,8 @@ class CustomKtApplication : Application() {
 
             // 设置悬浮窗默认方向
             setGravity(FxGravity.RIGHT_OR_BOTTOM)
-            // 设置是否启用日志
-            setEnableLog(BuildConfig.DEBUG)
-
-            // 启用辅助方向
-//            setEnableAssistDirection(0f, 0f, 0f, 100f)
-            setX(100F)
-            setY(100f)
-            // 设置x轴默认坐标
-//            setX()
-            // 设置y轴默认坐标
-//            setY()
+            // 启用辅助方向,具体参加方法注释
+            setEnableAssistDirection(r = 100f)
             // 设置启用边缘吸附
             setEnableEdgeAdsorption(true)
             // 设置边缘偏移量
@@ -52,32 +43,18 @@ class CustomKtApplication : Application() {
             // 设置启用悬浮窗可屏幕外回弹
             setEnableScrollOutsideScreen(true)
             // 设置辅助方向辅助
-            // 设置点击事件
-//            setOnClickListener { }
-            // 设置view-lifecycle监听
-//            setViewLifecycle()
-            // 设置启用悬浮窗位置修复
-            setEnableAbsoluteFix(true)
             // 设置启用动画
             setEnableAnimation(true)
             // 设置启用动画实现
             setAnimationImpl(FxAnimationImpl())
-            // 设置方向保存impl
-            // 设置底部偏移量
-            setBottomBorderMargin(100f)
-            // 设置顶部偏移量
-//            setTopBorderMargin(100f)
-            // 设置左侧偏移量
-            setLeftBorderMargin(100f)
-            // 设置右侧偏移量
-            setRightBorderMargin(100f)
-            // 设置允许触摸事件
-            setEnableTouch(true)
+            // 设置移动边框
+            setBorderMargin(50f, 50f, 50f, 50f)
+
             /** 指定浮窗可显示的activity方式 */
             // 1.设置是否允许所有activity都进行显示,默认true
-//            setEnableAllInstall(true)
+            setEnableAllInstall(true)
             // 2.禁止插入Activity的页面, setEnableAllBlackClass(true)时,此方法生效
-//            addInstallBlackClass(BlackActivity::class.java)
+            addInstallBlackClass(BlackActivity::class.java)
             // 3.允许插入Activity的页面, setEnableAllBlackClass(false)时,此方法生效
 //            addInstallWhiteClass(
 //                MainActivity::class.java,
@@ -85,6 +62,10 @@ class CustomKtApplication : Application() {
 //                ScopeActivity::class.java
 //            )
 
+            // 设置点击事件
+            setOnClickListener {
+                Toast.makeText(this@CustomKtApplication, "浮窗被点击", Toast.LENGTH_SHORT).show()
+            }
             // 设置tag-Activity生命周期回调时的触发
             setTagActivityLifecycle(object : FxTagActivityLifecycleImpl() {
                 override fun onCreated(activity: Activity, bundle: Bundle?) {
@@ -114,6 +95,8 @@ class CustomKtApplication : Application() {
                     // 接收所有事件传递
                 }
             })
+            // 设置是否启用日志
+            setEnableLog(BuildConfig.DEBUG)
             // 只有调用了enableFx,默认才会启用fx,否则fx不会自动插入activity
             // ps: 这里的只有调用了enableFx仅仅只是配置工具层的标记,后续使用control.show()也会默认启用
             enableFx()
