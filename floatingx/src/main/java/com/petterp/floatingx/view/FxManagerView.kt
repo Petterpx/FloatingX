@@ -274,7 +274,7 @@ class FxManagerView @JvmOverloads constructor(
         // init width and height boundary
         mMoveAnimator.stop()
         helper.iFxScrollListener?.down()
-        mLastTouchDownTime = System.currentTimeMillis()
+        if (helper.enableClickListener) mLastTouchDownTime = System.currentTimeMillis()
         helper.fxLog?.e("fxView----newTouchDown:$touchDownId")
     }
 

@@ -69,7 +69,7 @@ open class BasisHelper {
     internal var enableTouch: Boolean = true
 
     @JvmField
-    internal var enableClickListener: Boolean = false
+    internal var enableClickListener: Boolean = true
 
     @JvmField
     internal var enableAssistLocation: Boolean = false
