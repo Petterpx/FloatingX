@@ -22,13 +22,11 @@ import com.petterp.floatingx.util.topActivity
 @SuppressLint("ViewConstructor")
 class FxManagerView @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0,
-    defStyleRes: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr, defStyleRes) {
+    attrs: AttributeSet? = null
+) : FrameLayout(context, attrs) {
 
     private lateinit var helper: BasisHelper
-    private var mLastTouchDownTime: Long = 0
+    private var mLastTouchDownTime = 0L
     private var mParentWidth = 0f
     private var mParentHeight = 0f
 
@@ -36,14 +34,14 @@ class FxManagerView @JvmOverloads constructor(
     private var mPortraitY = 0f
     private var downTouchX = 0f
     private var downTouchY = 0f
-    private var touchDownId: Int = 0
+    private var touchDownId = 0
 
     private var minHBoundary = 0f
     private var maxHBoundary = 0f
     private var minWBoundary = 0f
     private var maxWBoundary = 0f
 
-    private var isClickEnable: Boolean = true
+    private var isClickEnable = true
     private var isMoveLoading = false
     private var scaledTouchSlop = 0
 
