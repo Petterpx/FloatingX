@@ -61,7 +61,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	  implementation 'com.github.Petterpx:FloatingX:1.1.0'
+	  implementation 'com.github.Petterpx:FloatingX:1.1.1'
 }
 ```
 
@@ -105,7 +105,7 @@ FloatingX.init {
 ```java
 AppHelper helper = AppHelper.builder()
         .setLayout(R.layout.item_floating)
-	    .enableFx()
+	.enableFx()
         .build();
 FloatingX.init(helper);
 ```
@@ -140,38 +140,28 @@ ScopeHelper.builder()
 ##### activity创建悬浮窗
 
 ```kotlin
-private val activityFx by activityToFx(activity) {
+private val scopeFx by createFx {
     setLayout(R.layout.item_floating)
+    build().toControl(this/Activity)
 }
+
 ```
 
 ##### fragment创建悬浮窗
 
 ```kotlin
-private val fragment by fragmentToFx(fragment) {
+private val activityFx by createFx {
     setLayout(R.layout.item_floating)
+    build().toControl(this/Fragment)
 }
 ```
 
 ##### viewGroup创建悬浮窗
 
 ```kotlin
-private val viewFx by createFx({
-        init(viewGroup)
-    }) {
-        setLayout(R.layout.item_floating)
-        setEnableLog(true, "main_fx")
-    }
-```
-
-##### 快速创建任意作用域悬浮窗
-
-```kotlin
-private val customCreateFx by createFx {
+private val activityFx by createFx {
     setLayout(R.layout.item_floating)
-    build().toControl(activity)
-    build().toControl(fragment)
-    build().toControl(viewgroup)
+    build().toControl(this/Viewgroup)
 }
 ```
 
