@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Canvas
+import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
@@ -62,6 +63,8 @@ class FxManagerView @JvmOverloads constructor(
         isClickable = true
         scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
         helper.iFxViewLifecycle?.initView(this)
+        // 注意这句代码非常重要,可以避免某些情况下View被隐藏掉
+        setBackgroundColor(Color.TRANSPARENT)
     }
 
     private fun inflateLayoutView(): View? {
