@@ -95,7 +95,7 @@ class ScopeActivity : AppCompatActivity() {
                         }
                     }
                     addItemView("增加点击事件") {
-                        scopeFx.configControl.setClickListener {
+                        scopeFx.setClickListener {
                             Toast.makeText(
                                 this@ScopeActivity,
                                 "被点击",
