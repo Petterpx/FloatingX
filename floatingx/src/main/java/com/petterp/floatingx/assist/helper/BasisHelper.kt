@@ -413,8 +413,8 @@ open class BasisHelper {
          */
         @Deprecated("此方法的调用需要确保页面固定不变,暂时不建议使用,后续会考虑更新逻辑")
         fun setSaveDirectionImpl(iFxConfigStorage: IFxConfigStorage): T {
-//            this.enableSaveDirection = true
-//            this.iFxConfigStorage = iFxConfigStorage
+            this.enableSaveDirection = true
+            this.iFxConfigStorage = iFxConfigStorage
             return this as T
         }
 
