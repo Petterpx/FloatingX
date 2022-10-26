@@ -1,5 +1,6 @@
 package com.petterp.floatingx.listener.control
 
+import android.view.View
 import com.petterp.floatingx.assist.FxAnimation
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
@@ -16,6 +17,12 @@ interface IFxConfigControl {
      * @param animationImpl 具体实现实例
      * */
     fun setEnableAnimation(isEnable: Boolean, animationImpl: FxAnimation)
+
+    /** 设置点击事件,同时增加防重 */
+    fun setClickListener(time: Long = 300L, clickListener: View.OnClickListener)
+
+    /** 设置点击事件 */
+    fun setClickListener(clickListener: View.OnClickListener)
 
     /** 是否启用动画 */
     fun setEnableAnimation(isEnable: Boolean)
