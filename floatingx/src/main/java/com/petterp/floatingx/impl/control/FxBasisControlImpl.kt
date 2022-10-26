@@ -153,7 +153,8 @@ abstract class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl,
 
     protected open fun initManager() {
         managerView = FxManagerView(context()).init(helper)
-        viewHolder = FxViewHolder(managerView?.childFxView!!)
+        val fxContentView = managerView?.childFxView ?: return
+        viewHolder = FxViewHolder(fxContentView)
     }
 
     protected fun getContainerGroup(): ViewGroup? {

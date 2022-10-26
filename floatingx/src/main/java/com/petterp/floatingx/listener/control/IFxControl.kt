@@ -30,6 +30,7 @@ interface IFxControl {
     /** 获取正在显示的浮窗内容视图,即通过layoutId或者自定义View传递进来的 View */
     fun getView(): View?
 
+    /** 获取浮窗内容视图所对应的Holder */
     fun getViewHolder(): FxViewHolder?
 
     /**
