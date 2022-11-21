@@ -1,7 +1,7 @@
 package com.petterp.floatingx.assist.helper
 
 import android.app.Activity
-import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import com.petterp.floatingx.impl.control.FxScopeControl
 import com.petterp.floatingx.listener.control.IFxControl
@@ -19,7 +19,7 @@ class ScopeHelper : BasisHelper() {
         toControl().init(fragment)
 
     /** 插入到ViewGroup中 */
-    fun toControl(group: ViewGroup): IFxControl =
+    fun toControl(group: FrameLayout): IFxControl =
         toControl().init(group)
 
     private fun toControl(): IFxScopeControl<IFxControl> = FxScopeControl(this)
