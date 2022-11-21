@@ -44,6 +44,17 @@ inline fun ViewGroup.addLinearLayout(obj: LinearLayout.() -> Unit) =
         }
     )
 
+inline fun ViewGroup.addFrameLayout(obj: FrameLayout.() -> Unit) =
+    addView(
+        FrameLayout(context).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+            obj.invoke(this)
+        }
+    )
+
 inline fun ViewGroup.addNestedScrollView(obj: NestedScrollView.() -> Unit) {
     addView(
         NestedScrollView(context).apply {

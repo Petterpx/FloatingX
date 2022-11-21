@@ -3,7 +3,7 @@ package com.petterp.floatingx.impl.control
 import android.app.Activity
 import android.app.Application
 import android.view.View
-import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.listener.control.IFxControl
@@ -24,24 +24,27 @@ class FxScopeControl(private val helper: BasisHelper) :
         getManagerView()?.show()
     }
 
-    override fun init(viewGroup: ViewGroup): IFxControl {
+    override fun init(group: FrameLayout): IFxControl {
         helper.initLog(FxScopeEnum.VIEW_GROUP_SCOPE.tag)
-        setContainerGroup(viewGroup)
+        setContainerGroup(group)
         return this
     }
 
     override fun init(fragment: Fragment): IFxControl {
         helper.initLog(FxScopeEnum.FRAGMENT_SCOPE.tag)
-        val parent = fragment.requireView() as ViewGroup
-        init(parent)
+        val rootView = fragment.view as? FrameLayout
+        checkNotNull(rootView) {
+            "Check if your root layout is FrameLayout, or if the init call timing is after onCreateView()!"
+        }
+        setContainerGroup(rootView)
         return this
     }
 
     override fun init(activity: Activity): IFxControl {
         helper.initLog(FxScopeEnum.ACTIVITY_SCOPE.tag)
         activity.contentView?.let {
-            init(it)
-        }
+            setContainerGroup(it)
+        } ?: helper.fxLog?.e("install to Activity the Error,current contentView(R.id.content) = null!")
         return this
     }
 

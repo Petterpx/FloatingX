@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.util.createFx
 
 /** @author petterp */
@@ -32,6 +33,7 @@ class ScopeActivity : AppCompatActivity() {
         setLayout(R.layout.item_floating)
         setEnableScrollOutsideScreen(false)
         setEnableEdgeAdsorption(false)
+        setGravity(FxGravity.RIGHT_OR_TOP)
         setEdgeOffset(40f)
         setBottomBorderMargin(40f)
         setAnimationImpl(FxAnimationImpl())
