@@ -58,7 +58,7 @@ class FxManagerView @JvmOverloads constructor(
 
     private fun initView() {
         _childFxView = inflateLayoutView() ?: inflateLayoutId()
-        checkNotNull(_childFxView) { "FloatingX-contentView == null" }
+        checkNotNull(_childFxView) { "initFxView -> Error,check your layoutId or layoutView." }
         initLocation()
         isClickable = true
         scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
@@ -68,8 +68,8 @@ class FxManagerView @JvmOverloads constructor(
     }
 
     private fun inflateLayoutView(): View? {
-        helper.fxLog?.d("fxView-->init, way-[layoutView]")
         val view = helper.layoutView?.get() ?: return null
+        helper.fxLog?.d("fxView-->init, way:[layoutView]")
         val lp = layoutParams ?: LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
@@ -79,14 +79,15 @@ class FxManagerView @JvmOverloads constructor(
     }
 
     private fun inflateLayoutId(): View? {
-        helper.fxLog?.d("fxView-->init, way-[layoutId]")
         if (helper.layoutId == 0) return null
+        helper.fxLog?.d("fxView-->init, way:[layoutId]")
         return inflate(context, helper.layoutId, this)
     }
 
     private fun initLocation() {
         // 初始化lp
-        val hasConfig = helper.iFxConfigStorage?.hasConfig() ?: false
+        val configImpl = helper.iFxConfigStorage
+        val hasConfig = configImpl?.hasConfig() ?: false
         val lp = helper.layoutParams ?: LayoutParams(
             LayoutParams.WRAP_CONTENT,
             LayoutParams.WRAP_CONTENT
@@ -97,19 +98,19 @@ class FxManagerView @JvmOverloads constructor(
 
         // 获得浮窗的位置
         // 存在历史位置 || 根据配置去获取
-        val (initX, initY) = if (hasConfig) helper.iFxConfigStorage!!.getX() to helper.iFxConfigStorage!!.getY()
+        val (initX, initY) = if (hasConfig) configImpl!!.getX() to configImpl.getY()
         else initDefaultXY()
         if (initX != -1F) x = initX
         if (initY != -1F) y = initY
-        helper.fxLog?.d("fxView->x&&y   hasConfig-($hasConfig),x-($initX),y-($initY)")
+        helper.fxLog?.d("fxView->initLocation,isHasConfig-($hasConfig),defaultX-($initX),defaultY-($initY)")
     }
 
     private fun initDefaultXY(): Pair<Float, Float> {
         // 非辅助定位&&非默认位置,此时x,y不可信
-        if (!helper.enableAssistLocation && helper.gravity != FxGravity.DEFAULT) {
+        if (!helper.enableAssistLocation && !helper.gravity.isDefault()) {
             helper.fxLog?.e(
-                "fxView--默认坐标初始化异常,已默认显示。请检查您的gravity是否为默认配置，当前gravity:${helper.gravity}。\n" +
-                    "如果您要配置gravity,请启用辅助定位setEnableAssistDirection(),此方法将更符合需求。"
+                "fxView--默认坐标可能初始化异常,如果显示位置异常,请检查您的gravity是否为默认配置，当前gravity:${helper.gravity}。\n" +
+                    "如果您要配置gravity,建议您启用辅助定位setEnableAssistDirection(),此方法将更便于定位。"
             )
         }
         return helper.defaultX to checkDefaultY(helper.defaultY)
@@ -119,7 +120,7 @@ class FxManagerView @JvmOverloads constructor(
         // 单独处理状态栏和底部导航栏
         var defaultY = y
         val configGravity = helper.gravity
-        if (configGravity == FxGravity.DEFAULT || configGravity == FxGravity.RIGHT_OR_TOP || configGravity == FxGravity.LEFT_OR_TOP) {
+        if (configGravity.isDefault() || configGravity == FxGravity.RIGHT_OR_TOP || configGravity == FxGravity.LEFT_OR_TOP) {
             defaultY += helper.statsBarHeight
         } else if (configGravity == FxGravity.LEFT_OR_BOTTOM || configGravity == FxGravity.RIGHT_OR_BOTTOM) {
             defaultY -= helper.navigationBarHeight
@@ -137,7 +138,7 @@ class FxManagerView @JvmOverloads constructor(
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 initTouchDown(ev)
-                helper.fxLog?.e("fxView---onInterceptTouchEvent-[down],interceptedTouch-$intercepted")
+                helper.fxLog?.d("fxView---onInterceptTouchEvent-[down],interceptedTouch-$intercepted")
             }
             MotionEvent.ACTION_MOVE -> {
                 intercepted = kotlin.math.abs(downTouchX - ev.x) >= scaledTouchSlop
@@ -173,11 +174,11 @@ class FxManagerView @JvmOverloads constructor(
             MotionEvent.ACTION_POINTER_UP -> {
                 if (event.getPointerId(event.actionIndex) == touchDownId) {
                     actionTouchCancel()
-                    helper.fxLog?.e("fxView---onTouchEvent--ACTION_POINTER_UP---clearTouchId->")
+                    helper.fxLog?.d("fxView---onTouchEvent--ACTION_POINTER_UP---clearTouchId->")
                 }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                helper.fxLog?.e("fxView---onTouchEvent--End")
+                helper.fxLog?.d("fxView---onTouchEvent--End")
                 actionTouchCancel()
                 clickManagerView()
             }
@@ -278,7 +279,7 @@ class FxManagerView @JvmOverloads constructor(
         mMoveAnimator.stop()
         helper.iFxScrollListener?.down()
         if (helper.enableClickListener) mLastTouchDownTime = System.currentTimeMillis()
-        helper.fxLog?.e("fxView----newTouchDown:$touchDownId")
+        helper.fxLog?.d("fxView---newTouchDown:$touchDownId")
     }
 
     private fun updateLocation(event: MotionEvent, pointIndex: Int) {
@@ -299,9 +300,9 @@ class FxManagerView @JvmOverloads constructor(
         val parentWidth = (parentGroup.width - this@FxManagerView.width).toFloat()
         val parentHeight = (parentGroup.height - this@FxManagerView.height).toFloat()
         if (mParentHeight != parentHeight || mParentWidth != parentWidth) {
+            helper.fxLog?.d("fxView->updateContainerSize: oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)")
             mParentWidth = parentWidth
             mParentHeight = parentHeight
-            helper.fxLog?.d("fxView->size oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)")
             return true
         }
         return false

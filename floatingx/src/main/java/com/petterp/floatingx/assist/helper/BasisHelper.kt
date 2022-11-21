@@ -420,8 +420,8 @@ open class BasisHelper {
 
         /** 辅助坐标的实现 采用坐标偏移位置,框架自行计算合适的x,y */
         private fun adtSizeViewDirection() {
-            // 如果坐标规则不符合要求,则按照默认规则
-            if (!enableAssistLocation && gravity == FxGravity.DEFAULT) return
+            // 如果坐标规则不符合要求,且未开启辅助定位,则直接返回
+            if (!enableAssistLocation && !gravity.isDefault()) return
             val edgeOffset = if (enableEdgeRebound) edgeOffset else 0f
             val b = assistLocation.b + edgeOffset + borderMargin.b
             val t = assistLocation.t + edgeOffset + borderMargin.t
