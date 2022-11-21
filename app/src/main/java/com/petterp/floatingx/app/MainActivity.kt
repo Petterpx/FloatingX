@@ -13,7 +13,7 @@ import com.petterp.floatingx.util.createFx
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var viewGroup: ViewGroup
+    private lateinit var viewGroup: FrameLayout
 
     private val activityFx by createFx {
         setLayout(R.layout.item_floating)
@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         createLinearLayoutToParent {
-            viewGroup = addScopeViewGroup()
+            viewGroup = addScopeFrameViewGroup()
             addItemView("隐藏全局悬浮窗") {
                 FloatingX.control().hide()
             }
@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun ViewGroup.addScopeViewGroup(): ViewGroup {
+    private fun ViewGroup.addScopeFrameViewGroup(): FrameLayout {
         val viewGroup = FrameLayout(context).apply {
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
