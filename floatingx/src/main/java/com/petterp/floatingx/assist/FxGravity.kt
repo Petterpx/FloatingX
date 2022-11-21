@@ -12,5 +12,6 @@ enum class FxGravity(val value: Int) {
     RIGHT_OR_CENTER(Gravity.END or Gravity.CENTER),
     RIGHT_OR_BOTTOM(Gravity.END or Gravity.BOTTOM);
 
+    /** 是否为默认位置 */
     fun isDefault() = this == DEFAULT
 }
