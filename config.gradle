@@ -1,0 +1,24 @@
+ext {
+    is_dev = false
+    kotlin_version = "1.5.21"
+    minsdk_version = 21
+    targetsdk_version = 31
+    compilesdk_version = 31
+    version_name = is_dev ? '9.9.9' : gitVersionTag()
+    versionCode = is_dev ? "999" : gitVersionCode()
+    group_id = 'com.petterp'
+    artifactId = 'floatingx'
+}
+println "isDev:$is_dev,versionName:$version_name,versionCode:$versionCode"
+
+static def gitVersionTag() {
+    def commit = 'git rev-list --tags --max-count=1'
+    def cmd = "git describe --tags ${commit.execute().text}"
+    def version = cmd.execute().text.trim()
+    return version
+}
+
+static def gitVersionCode() {
+    def cmd = 'git rev-list HEAD --count'
+    return cmd.execute().text.trim().toInteger()
+}

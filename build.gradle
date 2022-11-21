@@ -1,18 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    ext {
-        kotlin_version = "1.5.21"
-        minsdk_version = 21
-        targetsdk_version = 31
-        compilesdk_version = 31
-        version_name = '1.1.2'
-        versionCode = {
-            def cmd = 'git rev-list HEAD --count'
-            cmd.execute().text.trim().toInteger()
-        }
-        group_id = 'com.petterp'
-        artifactId = 'floatingx'
-    }
+    apply from: "config.gradle"
     repositories {
         google()
         mavenCentral()
