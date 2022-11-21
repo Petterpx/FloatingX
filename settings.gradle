@@ -3,9 +3,22 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url "https://jitpack.io" }
     }
 }
 rootProject.name = "FloatingX"
 include ':app'
 include ':floatingx'
+
+// 本地测试时,在 local.properties 新增 IS_DEV=true
+def localProperties = readPropertiesIfExist(new File(settingsDir, "local.properties"))
+gradle.ext.IS_DEV = localProperties.getProperty("IS_DEV", "false").toBoolean()
+
+static Properties readPropertiesIfExist(File propertiesFile) {
+    Properties result = new Properties()
+    if (propertiesFile.exists()) {
+        propertiesFile.withReader('UTF-8') { reader -> result.load(reader) }
+    }
+    return result
+}
 
