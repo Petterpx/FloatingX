@@ -16,6 +16,8 @@ import android.widget.FrameLayout
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.assist.helper.BasisHelper
+import com.petterp.floatingx.util.FX_GRAVITY_BOTTOM
+import com.petterp.floatingx.util.FX_GRAVITY_TOP
 import com.petterp.floatingx.util.coerceInFx
 import com.petterp.floatingx.util.topActivity
 
@@ -92,7 +94,7 @@ class FxManagerView @JvmOverloads constructor(
             LayoutParams.WRAP_CONTENT,
             LayoutParams.WRAP_CONTENT
         )
-        // 不存在历史坐标时,设置gravity,默认右下角
+        // 不存在历史坐标时,设置gravity,默认左上角
         if (!hasConfig) lp.gravity = helper.gravity.value
         layoutParams = lp
 
@@ -119,11 +121,10 @@ class FxManagerView @JvmOverloads constructor(
     private fun checkDefaultY(y: Float): Float {
         // 单独处理状态栏和底部导航栏
         var defaultY = y
-        val configGravity = helper.gravity
-        if (configGravity.isDefault() || configGravity == FxGravity.RIGHT_OR_TOP || configGravity == FxGravity.LEFT_OR_TOP) {
-            defaultY += helper.statsBarHeight
-        } else if (configGravity == FxGravity.LEFT_OR_BOTTOM || configGravity == FxGravity.RIGHT_OR_BOTTOM) {
-            defaultY -= helper.navigationBarHeight
+        when (helper.gravity.scope) {
+            FX_GRAVITY_TOP -> defaultY += helper.statsBarHeight
+            FX_GRAVITY_BOTTOM -> defaultY -= helper.navigationBarHeight
+            else -> {}
         }
         return defaultY
     }

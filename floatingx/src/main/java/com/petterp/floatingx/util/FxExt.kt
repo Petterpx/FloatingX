@@ -5,6 +5,15 @@ import android.content.Context
 import android.content.ContextWrapper
 import com.petterp.floatingx.assist.helper.ScopeHelper
 
+@JvmSynthetic
+internal const val FX_GRAVITY_TOP = 0x00000001
+
+@JvmSynthetic
+internal const val FX_GRAVITY_CENTER = 0x00000002
+
+@JvmSynthetic
+internal const val FX_GRAVITY_BOTTOM = 0x00000003
+
 /**
  * 创建一个fx,自行初始化并控制插入位置
  *
