@@ -34,6 +34,7 @@ class ScopeActivity : AppCompatActivity() {
         setEnableScrollOutsideScreen(false)
         setEnableEdgeAdsorption(false)
         setGravity(FxGravity.RIGHT_OR_TOP)
+        setEnableAssistDirection(t = 10f, r = 10f)
         setEdgeOffset(40f)
         setBottomBorderMargin(40f)
         setAnimationImpl(FxAnimationImpl())

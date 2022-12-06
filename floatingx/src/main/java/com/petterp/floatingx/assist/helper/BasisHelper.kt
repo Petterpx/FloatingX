@@ -404,12 +404,12 @@ open class BasisHelper {
         /**
          * 设置存储坐标保存实现逻辑
          *
-         * @param [iFxConfigStorage] 传入IFxConfig对象, 也可自行实现接口，自定义具体实现逻辑
+         * @param iFxConfigStorage 传入IFxConfig对象, 也可自行实现接口，自定义具体实现逻辑
          * @sample com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
          *     如果使用默认实现,需自行传入context PS: 当启用并且存在历史坐标,
          *     gravity以及自定义的x,y坐标将会失效，优先使用历史坐标
-         *     如果某次边框变动或者其他影响导致原视图范围改变,现有的历史坐标位置不准确，请先移除历史坐标信息
-         *     -> 即调用外部的FloatingX.clearConfig()清除历史坐标信息
+         *     如果某次边框变动或者其他影响导致原视图范围改变,现有的历史坐标位置不准确，请先移除历史坐标信息 ->
+         *     即调用外部的FloatingX.clearConfig()清除历史坐标信息
          */
         @Deprecated("此方法的调用需要确保页面固定不变,暂时不建议使用,后续会考虑更新逻辑")
         fun setSaveDirectionImpl(iFxConfigStorage: IFxConfigStorage): T {
@@ -423,13 +423,18 @@ open class BasisHelper {
             // 如果坐标规则不符合要求,且未开启辅助定位,则直接返回
             if (!enableAssistLocation && !gravity.isDefault()) return
             val edgeOffset = if (enableEdgeRebound) edgeOffset else 0f
-            val b = assistLocation.b + edgeOffset + borderMargin.b
-            val t = assistLocation.t + edgeOffset + borderMargin.t
-            val r = assistLocation.r + edgeOffset + borderMargin.r
-            val l = assistLocation.l + edgeOffset + borderMargin.l
+            val b = assistLocation.b + borderMargin.b + edgeOffset
+            val t = assistLocation.t + borderMargin.t + edgeOffset
+            val r = assistLocation.r + borderMargin.r + edgeOffset
+            val l = assistLocation.l + borderMargin.l + edgeOffset
             defaultX = 0f
             defaultY = 0f
             when (gravity) {
+                FxGravity.DEFAULT,
+                FxGravity.LEFT_OR_TOP -> {
+                    defaultX = l
+                    defaultY = t
+                }
                 FxGravity.LEFT_OR_BOTTOM -> {
                     defaultY = -b
                     defaultX = l
@@ -448,11 +453,13 @@ open class BasisHelper {
                 FxGravity.LEFT_OR_CENTER -> {
                     defaultX = l
                 }
-                FxGravity.DEFAULT,
-                FxGravity.LEFT_OR_TOP -> {
-                    defaultX = l
+                FxGravity.TOP_OR_CENTER -> {
                     defaultY = t
                 }
+                FxGravity.BOTTOM_OR_CENTER -> {
+                    defaultY = -b
+                }
+                else -> {}
             }
         }
     }
