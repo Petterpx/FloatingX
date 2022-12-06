@@ -10,7 +10,6 @@ rootProject.name = "FloatingX"
 include ':app'
 include ':floatingx'
 
-// 依赖远程测试时,在 local.properties 新增 IS_DEV=false,然后sync project
 def localProperties = readPropertiesIfExist(new File(settingsDir, "local.properties"))
 gradle.ext.IS_DEV = localProperties.getProperty("IS_DEV", "true").toBoolean()
 
