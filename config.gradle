@@ -4,8 +4,8 @@ ext {
     minsdk_version = 21
     targetsdk_version = 31
     compilesdk_version = 31
-    version_name = isDev ? '9.9.9' : gitVersionTag()
-    versionCode = isDev ? "999" : gitVersionCode()
+    version_name = gitVersionTag()
+    versionCode = gitVersionCode()
     group_id = 'com.petterp'
     artifactId = 'floatingx'
 }
