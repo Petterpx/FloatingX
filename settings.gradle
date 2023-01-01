@@ -10,8 +10,10 @@ rootProject.name = "FloatingX"
 include ':app'
 include ':floatingx'
 
+// 开发模式请在local.properties下新增
+// IS_DEV=true
 def localProperties = readPropertiesIfExist(new File(settingsDir, "local.properties"))
-gradle.ext.IS_DEV = localProperties.getProperty("IS_DEV", "true").toBoolean()
+gradle.ext.IS_DEV = localProperties.getProperty("IS_DEV", "false").toBoolean()
 
 static Properties readPropertiesIfExist(File propertiesFile) {
     Properties result = new Properties()
