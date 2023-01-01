@@ -48,8 +48,8 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     }
 
     override fun hide() {
+        if (helper.enableFx) helper.enableFx = false
         if (!isShow()) return
-        helper.enableFx = false
         if (helper.enableAnimation && helper.fxAnimation != null) {
             if (helper.fxAnimation!!.endJobIsRunning()) {
                 helper.fxLog?.d("fxView->Animation ,endAnimation Executing, cancel this operation!")
