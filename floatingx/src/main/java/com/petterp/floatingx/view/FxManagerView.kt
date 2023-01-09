@@ -70,7 +70,7 @@ class FxManagerView @JvmOverloads constructor(
     }
 
     private fun inflateLayoutView(): View? {
-        val view = helper.layoutView?.get() ?: return null
+        val view = helper.layoutView ?: return null
         helper.fxLog?.d("fxView-->init, way:[layoutView]")
         val lp = layoutParams ?: LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
