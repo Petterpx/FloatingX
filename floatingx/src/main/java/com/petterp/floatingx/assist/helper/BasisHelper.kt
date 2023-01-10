@@ -9,7 +9,6 @@ import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.util.FxLog
-import java.lang.ref.WeakReference
 import kotlin.math.abs
 
 /** 通用构建器helper */
@@ -18,7 +17,7 @@ open class BasisHelper {
     internal var layoutId: Int = 0
 
     @JvmField
-    internal var layoutView: WeakReference<View>? = null
+    internal var layoutView: View? = null
 
     @JvmField
     internal var gravity: FxGravity = FxGravity.DEFAULT
@@ -104,12 +103,19 @@ open class BasisHelper {
         if (enableDebugLog) fxLog = FxLog.builder("$scope$fxLogTag")
     }
 
+    @JvmSynthetic
+    internal fun clear() {
+        layoutView = null
+        enableFx = false
+        fxAnimation?.cancelAnimation()
+    }
+
     abstract class Builder<T, B : BasisHelper> {
         private var context: Context? = null
 
         @LayoutRes
         private var layoutId: Int = 0
-        private var layoutView: WeakReference<View>? = null
+        private var layoutView: View? = null
         private var gravity: FxGravity = FxGravity.DEFAULT
         private var clickTime: Long = 300L
         private var layoutParams: FrameLayout.LayoutParams? = null
@@ -190,7 +196,6 @@ open class BasisHelper {
 
         /** 设置悬浮窗view的layout */
         fun setLayout(@LayoutRes layoutId: Int): T {
-            this.layoutView?.clear()
             this.layoutView = null
             this.layoutId = layoutId
             return this as T
@@ -199,7 +204,7 @@ open class BasisHelper {
         /** 设置悬浮窗View */
         fun setLayoutView(view: View): T {
             layoutId = 0
-            this.layoutView = WeakReference(view)
+            this.layoutView = view
             return this as T
         }
 

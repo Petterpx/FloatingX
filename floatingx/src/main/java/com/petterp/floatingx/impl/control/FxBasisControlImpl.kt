@@ -73,13 +73,12 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
 
     override fun updateView(@LayoutRes resource: Int) {
         if (resource == 0) throw IllegalArgumentException("resource cannot be 0!")
-        helper.layoutView?.clear()
         helper.layoutView = null
         updateMangerView(resource)
     }
 
     override fun updateView(view: View) {
-        helper.layoutView = WeakReference(view)
+        helper.layoutView = view
         updateMangerView(0)
     }
 
@@ -261,13 +260,12 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     }
 
     protected open fun reset() {
-        helper.enableFx = false
-        helper.fxAnimation?.cancelAnimation()
         managerView?.removeCallbacks(hideAnimationRunnable)
         managerView?.removeCallbacks(cancelAnimationRunnable)
         detach(mContainer?.get())
         managerView = null
         viewHolder = null
+        helper.clear()
         clearContainer()
         helper.fxLog?.d("fxView-lifecycle-> code->cancelFx")
     }
