@@ -73,20 +73,17 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
         if (isActivityInValid) appLifecycleCallBack?.onResumes(activity)
         else {
             fxLog?.d("fxApp->insert, insert [$activityName] Fail ,This activity is not in the list of allowed inserts.")
-            fxLog?.d("fxApp->insert, insert [$activityName] End ----------->")
             return
         }
         val isParent = activity.isParent
         if (isParent) {
             fxLog?.d("fxApp->insert, insert [$activityName] Fail ,The current Activity has been inserted.")
-            fxLog?.d("fxApp->insert, insert [$activityName] End ----------->")
             return
         }
         appControl?.let {
             it.attach(activity)
             fxLog?.d("fxApp->insert, insert [$activityName] Success--------------->")
         } ?: fxLog?.d("fxApp->insert, insert [$activityName] Fail ,appControl = null.")
-        fxLog?.d("fxApp->insert, insert [$activityName] End ----------->")
     }
 
     override fun onActivityPaused(activity: Activity) {
