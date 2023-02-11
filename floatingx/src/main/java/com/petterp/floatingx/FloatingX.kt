@@ -118,8 +118,10 @@ object FloatingX {
     @JvmStatic
     fun uninstallAll() {
         if (fxs.isEmpty()) return
-        for (fx in fxs.values) {
-            fx.cancel()
+        // 这里需要避免 ConcurrentModificationException
+        val keys = fxs.keys.toList()
+        keys.forEach {
+            fxs[it]?.cancel()
         }
     }
 
