@@ -8,6 +8,7 @@ import com.petterp.floatingx.util.statusBarHeight
 
 /** AppHelper构建器 */
 class AppHelper(
+    var tag: String,
     val blackFilterList: MutableList<Class<*>>,
     val whiteInsertList: MutableList<Class<*>>,
     val isAllInstall: Boolean,
@@ -31,6 +32,7 @@ class AppHelper(
         private var blackFilterList: MutableList<Class<*>> = mutableListOf()
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
         private var isEnableAllInstall: Boolean = true
+        private var tag = ""
 
         /**
          * 设置显示悬浮窗的Activity生命周期回调
@@ -58,6 +60,18 @@ class AppHelper(
         }
 
         /**
+         * 设置悬浮窗的tag，用于区分不同的悬浮窗
+         *
+         * 注意：tag 不能为 [""]
+         */
+        @Throws(IllegalArgumentException::class)
+        fun setTag(tag: String): Builder {
+            if (tag.isEmpty()) throw IllegalArgumentException("浮窗 tag 不能为 [\"\"],请设置一个合法的tag")
+            this.tag = tag
+            return this
+        }
+
+        /**
          * 允许显示浮窗的activity
          *
          * @param c 允许显示的activity
@@ -81,6 +95,7 @@ class AppHelper(
 
         override fun buildHelper(): AppHelper =
             AppHelper(
+                tag,
                 blackFilterList,
                 whiteInsertList,
                 isEnableAllInstall,
@@ -89,6 +104,9 @@ class AppHelper(
 
         override fun build(): AppHelper {
             val helper = super.build()
+            if (tag.isNotEmpty() && helper.fxLogTag.isEmpty()) {
+                helper.fxLogTag = tag
+            }
             helper.initLog(FxScopeEnum.APP_SCOPE.tag)
             return helper
         }

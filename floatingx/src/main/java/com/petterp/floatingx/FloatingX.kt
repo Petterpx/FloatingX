@@ -6,6 +6,7 @@ import android.content.Context
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.impl.control.FxAppControlImpl
 import com.petterp.floatingx.impl.lifecycle.FxLifecycleCallbackImpl
+import com.petterp.floatingx.impl.lifecycle.FxProxyLifecycleCallBackImpl
 import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.listener.control.IFxConfigControl
 
@@ -13,31 +14,61 @@ import com.petterp.floatingx.listener.control.IFxConfigControl
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
     private lateinit var context: Context
-    private var helper: AppHelper? = null
-    private var fxControl: FxAppControlImpl? = null
+    private const val FX_FIRST_ONE = "FX_FIRST_ONE"
     private var fxLifecycleCallback: FxLifecycleCallbackImpl? = null
+    private var fxs = mutableMapOf<String, FxAppControlImpl>()
 
     /** 悬浮窗初始化 */
+    @Deprecated(
+        "In order to be compatible with multi-floating windows,Please Use init() instead.",
+        ReplaceWith("", "")
+    )
     @JvmSynthetic
-    fun init(obj: AppHelper.Builder.() -> Unit) =
-        init(AppHelper.builder().apply(obj).build())
+    fun init(obj: AppHelper.Builder.() -> Unit) = create(obj)
+
+    @Deprecated(
+        "In order to be compatible with multi-floating windows,Please Use init() instead.",
+        ReplaceWith("FloatingX.create(helper)", "com.petterp.floatingx.FloatingX.create")
+    )
+    @JvmStatic
+    fun init(helper: AppHelper): IFxAppControl = create(helper)
+
+    @JvmSynthetic
+    fun create(obj: AppHelper.Builder.() -> Unit) = create(AppHelper.builder().apply(obj).build())
 
     @JvmStatic
-    fun init(helper: AppHelper): IFxAppControl {
-        this.helper = helper
-        return checkInitFxControl()
+    fun create(helper: AppHelper): IFxAppControl {
+        // 虽然我们map中可以保存 [""]，但是这并不是好的做法
+        val tag = helper.tag.ifEmpty {
+            FX_FIRST_ONE
+        }
+        fxs[tag]?.cancel()
+        val fxAppControlImpl = FxAppControlImpl(helper, FxProxyLifecycleCallBackImpl())
+        fxs[tag] = fxAppControlImpl
+        return fxAppControlImpl
     }
 
     /** 浮窗控制器 */
     @JvmStatic
-    fun control(): IFxAppControl {
-        return checkInitFxControl()
+    @JvmOverloads
+    fun control(tag: String = FX_FIRST_ONE): IFxAppControl {
+        return getTagFxControl(tag)
     }
 
     /** 浮窗配置控制器 */
     @JvmStatic
-    fun configControl(): IFxConfigControl {
-        return checkInitFxControl().configControl
+    @JvmOverloads
+    fun configControl(tag: String = FX_FIRST_ONE): IFxConfigControl {
+        return getTagFxControl(tag).configControl
+    }
+
+    /** 关闭所有浮窗 */
+    @JvmStatic
+    fun cancelAll() {
+        if (fxs.isEmpty()) return
+        for (fx in fxs.values) {
+            fx.cancel()
+        }
     }
 
     @JvmSynthetic
@@ -53,25 +84,18 @@ object FloatingX {
     }
 
     @JvmSynthetic
-    internal fun getHelper(): AppHelper? = helper
+    internal fun getFxList(): Map<String, FxAppControlImpl> = fxs
 
     @JvmSynthetic
     internal fun getContext(): Context = context
 
     @JvmSynthetic
-    internal fun getControl(): FxAppControlImpl? = fxControl
-
-    @JvmSynthetic
-    internal fun reset() {
-        fxControl = null
+    internal fun reset(tag: String) {
+        fxs.remove(tag)
     }
 
-    private fun checkInitFxControl(): IFxAppControl {
-        if (fxControl == null) fxControl = FxAppControlImpl(config())
-        return fxControl!!
+    private fun getTagFxControl(tag: String): FxAppControlImpl {
+        return fxs[tag]
+            ?: throw NullPointerException("fxs[$tag]==null!,Please check if create() is called.")
     }
-
-    private fun config(): AppHelper =
-        helper
-            ?: throw NullPointerException("helper==null!!!,AppHelper Cannot be null,Please check if init() is called.")
 }
