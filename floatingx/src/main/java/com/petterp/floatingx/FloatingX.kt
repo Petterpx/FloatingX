@@ -114,9 +114,9 @@ object FloatingX {
         return fxs[tag] != null
     }
 
-    /** 关闭当前所有全局浮窗 */
+    /** 卸载所有全局浮窗,后续使用需要重新install */
     @JvmStatic
-    fun cancelAll() {
+    fun uninstallAll() {
         if (fxs.isEmpty()) return
         for (fx in fxs.values) {
             fx.cancel()
@@ -148,6 +148,6 @@ object FloatingX {
 
     private fun getTagFxControl(tag: String): FxAppControlImpl {
         return fxs[tag]
-            ?: throw NullPointerException("fxs[$tag]==null!,Please check if install() is called.")
+            ?: throw NullPointerException("fxs[$tag]==null!,Please check if FloatingX.install() or AppHelper.setTag() is called.")
     }
 }
