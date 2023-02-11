@@ -51,7 +51,6 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         if (!enableFx) return
-        fxLog?.d("AppLifecycle--[${activity.name}]-onActivityCreated")
         appLifecycleCallBack?.let {
             if (activity.isActivityInValid) it.onCreated(activity, savedInstanceState)
         }
@@ -59,7 +58,6 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityStarted(activity: Activity) {
         if (!enableFx) return
-        helper?.fxLog?.d("AppLifecycle--[${activity.name}]-onActivityStarted")
         helper?.fxLifecycleExpand?.onStarted(activity)
     }
 
@@ -67,7 +65,6 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
     override fun onActivityResumed(activity: Activity) {
         if (!enableFx) return
         val activityName = activity.name
-        fxLog?.d("AppLifecycle--[$activityName]-onActivityResumed")
         fxLog?.d("fxApp->insert, insert [$activityName] Start ---------->")
         val isActivityInValid = activity.isActivityInValid
         if (isActivityInValid) appLifecycleCallBack?.onResumes(activity)
@@ -88,7 +85,6 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityPaused(activity: Activity) {
         if (!enableFx) return
-        fxLog?.d("AppLifecycle--[${activity.name}]-onActivityPaused")
         appLifecycleCallBack?.let {
             if (activity.isActivityInValid) it.onPaused(activity)
         }
@@ -96,7 +92,6 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityStopped(activity: Activity) {
         if (!enableFx) return
-        fxLog?.d("AppLifecycle--[${activity.name}]-onActivityStopped")
         appLifecycleCallBack?.let {
             if (activity.isActivityInValid) it.onStopped(activity)
         }
@@ -104,7 +99,6 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityDestroyed(activity: Activity) {
         if (!enableFx) return
-        fxLog?.d("AppLifecycle--[${activity.name}]-onActivityDestroyed")
         appLifecycleCallBack?.let {
             if (activity.isActivityInValid) it.onDestroyed(activity)
         }
@@ -115,7 +109,6 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
 
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
         if (!enableFx) return
-        fxLog?.d("AppLifecycle--[${activity.name}]-onActivityDestroyed")
         appLifecycleCallBack?.let {
             if (activity.isActivityInValid) it.onSaveInstanceState(activity, outState)
         }
