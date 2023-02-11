@@ -5,18 +5,17 @@
     android:id="@+id/cardItemFx"
     android:layout_width="60dp"
     android:layout_height="60dp"
-    app:cardBackgroundColor="@android:color/darker_gray"
-    app:cardCornerRadius="100dp"
+    app:cardBackgroundColor="@android:color/holo_red_dark"
+    app:cardCornerRadius="30dp"
     app:cardElevation="0dp">
 
     <TextView
         android:id="@+id/tvItemFx"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:gravity="center"
         android:padding="5dp"
-        android:text="浮窗"
-        android:background="@color/teal_200"
+        android:text="浮窗1"
+        android:textColor="@color/white"
         android:textSize="14sp" />
 </androidx.cardview.widget.CardView>

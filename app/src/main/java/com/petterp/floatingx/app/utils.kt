@@ -3,6 +3,8 @@ package com.petterp.floatingx.app
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -89,3 +91,9 @@ inline fun ViewGroup.addTextView(obj: TextView.() -> Unit) {
 fun Class<*>.start(context: Context) {
     context.startActivity(Intent(context, this))
 }
+
+val Number.dp: Int
+    get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, toFloat(), Resources.getSystem().displayMetrics).toInt()
+
+val Number.dpF: Float
+    get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, toFloat(), Resources.getSystem().displayMetrics)
