@@ -62,7 +62,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	  implementation 'com.github.Petterpx:FloatingX:1.1.7'
+	  implementation 'com.github.Petterpx:FloatingX:1.2.0'
 }
 ```
 
@@ -98,7 +98,7 @@ Open the log viewer, you will see the whole track of Fx, which is easier to find
 **kt**
 
 ```kotlin
-FloatingX.init {
+FloatingX.install {
         setContext(this@CustomApplication)
         setLayout(R.layout.item_floating_new)
   			addBlackClass(
@@ -118,7 +118,7 @@ AppHelper helper = AppHelper.builder()
         .setContext(application)
         .setLayout(R.layout.item_floating)
         .build();
-FloatingX.init(helper);
+FloatingX.install(helper);
 ```
 
 
