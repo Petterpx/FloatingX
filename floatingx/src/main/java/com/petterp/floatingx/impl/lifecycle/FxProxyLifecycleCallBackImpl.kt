@@ -44,6 +44,7 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
             return insertCls[cls] ?: isInsertActivity(cls)
         }
 
+    /** 初始化helper与app控制器 */
     fun init(helper: AppHelper, control: FxAppControlImpl) {
         this.helper = helper
         this.appControl = control

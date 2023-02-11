@@ -9,15 +9,15 @@ import com.petterp.floatingx.util.statusBarHeight
 
 /** AppHelper构建器 */
 class AppHelper(
-    // 浮窗tag,默认为 [FX_DEFAULT_TAG]
+    /** 浮窗tag,默认为 [FX_DEFAULT_TAG] */
     var tag: String,
-    // 黑名单list
+    /** 黑名单list */
     val blackFilterList: MutableList<Class<*>>,
-    // 白名单list
+    /** 白名单list */
     val whiteInsertList: MutableList<Class<*>>,
-    // 是否允许插入全部Activity
+    /** 是否允许插入全部Activity */
     val isAllInstall: Boolean,
-    // 显示悬浮窗的Activity生命周期回调
+    /** 显示悬浮窗的Activity生命周期回调 */
     val fxLifecycleExpand: IFxProxyTagActivityLifecycle?
 ) : BasisHelper() {
 
