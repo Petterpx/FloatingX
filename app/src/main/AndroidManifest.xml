@@ -28,6 +28,7 @@
             android:name=".ScopeActivity"
             android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
         <activity android:name=".BlackActivity" />
+        <activity android:name=".MultipleFxActivity" />
     </application>
 
 </manifest>

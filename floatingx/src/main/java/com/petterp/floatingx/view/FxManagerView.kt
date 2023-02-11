@@ -29,6 +29,7 @@ class FxManagerView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs) {
 
     private lateinit var helper: BasisHelper
+    private var isNeedFixLocation = true
     private var mLastTouchDownTime = 0L
     private var mParentWidth = 0f
     private var mParentHeight = 0f
@@ -131,7 +132,11 @@ class FxManagerView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        if (updateWidgetSize() && helper.enableAbsoluteFix) moveToEdge()
+        if (!isNeedFixLocation && !helper.enableAbsoluteFix) return
+        isNeedFixLocation = false
+        if (updateWidgetSize()) {
+            moveToEdge()
+        }
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
