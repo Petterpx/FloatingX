@@ -15,50 +15,50 @@ import com.petterp.floatingx.util.FX_DEFAULT_TAG
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
     private lateinit var context: Context
+    private var fxs = HashMap<String, FxAppControlImpl>(3)
     private var fxLifecycleCallback: FxLifecycleCallbackImpl? = null
-    private var fxs = mutableMapOf<String, FxAppControlImpl>()
 
     /**
      * 初始化全局悬浮窗,以dsl方式
      *
-     * 该方法已弃用，请使用 [create(obj: AppHelper.Builder.() -> Unit)]
+     * 该方法已弃用，请使用 [install(obj: AppHelper.Builder.() -> Unit)]
      */
     @Deprecated(
         "In order to be compatible with multi-floating windows,Please Use init() instead.",
         ReplaceWith("", "")
     )
     @JvmSynthetic
-    fun init(obj: AppHelper.Builder.() -> Unit) = create(obj)
+    fun init(obj: AppHelper.Builder.() -> Unit) = install(obj)
 
     /**
      * 初始化全局悬浮窗
      *
-     * 该方法已弃用，请使用 [create(helper: AppHelper)]
+     * 该方法已弃用，请使用 [install(helper: AppHelper)]
      */
     @Deprecated(
         "In order to be compatible with multi-floating windows,Please Use init() instead.",
-        ReplaceWith("FloatingX.create(helper)", "com.petterp.floatingx.FloatingX.create")
+        ReplaceWith("FloatingX.install(helper)", "com.petterp.floatingx.FloatingX.install")
     )
     @JvmStatic
-    fun init(helper: AppHelper): IFxAppControl = create(helper)
+    fun init(helper: AppHelper): IFxAppControl = install(helper)
 
     /**
-     * 创建一个新的全局浮窗,以dsl方式
+     * 安装一个新的全局浮窗,以dsl方式
      *
-     * 方法含义见 [create(helper: AppHelper)]
+     * 方法含义见 [install(helper: AppHelper)]
      */
     @JvmSynthetic
-    fun create(obj: AppHelper.Builder.() -> Unit) = create(AppHelper.builder().apply(obj).build())
+    fun install(obj: AppHelper.Builder.() -> Unit) = install(AppHelper.builder().apply(obj).build())
 
     /**
-     * 创建一个新的全局浮窗
+     * 安装一个新的全局浮窗
      *
      * 如果你需要多个浮窗，记得调用AppHelper.setTag()方法，设置浮窗tag，如果没有调用setTag()方法，则默认tag为[FX_DEFAULT_TAG]
      *
-     * 多次调用create()时，如果当前tag对应的浮窗存在，则会取消上一个浮窗，重新创建一个新的浮窗
+     * 多次调用install()时，如果当前tag对应的浮窗存在，则会取消上一个浮窗，重新安装一个新的浮窗
      */
     @JvmStatic
-    fun create(helper: AppHelper): IFxAppControl {
+    fun install(helper: AppHelper): IFxAppControl {
         fxs[helper.tag]?.cancel()
         val fxAppControlImpl = FxAppControlImpl(helper, FxProxyLifecycleCallBackImpl())
         fxs[helper.tag] = fxAppControlImpl
@@ -66,7 +66,7 @@ object FloatingX {
     }
 
     /**
-     * 全局浮窗控制器
+     * 全局浮窗操作控制器
      *
      * @param tag 浮窗tag,默认是第一个浮窗
      */
@@ -74,6 +74,17 @@ object FloatingX {
     @JvmOverloads
     fun control(tag: String = FX_DEFAULT_TAG): IFxAppControl {
         return getTagFxControl(tag)
+    }
+
+    /**
+     * 获得全局浮窗操作控制器(可null)
+     *
+     * @param tag 浮窗tag,默认是第一个浮窗
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun controlOrNull(tag: String = FX_DEFAULT_TAG): IFxAppControl? {
+        return fxs[tag]
     }
 
     /**
@@ -85,6 +96,22 @@ object FloatingX {
     @JvmOverloads
     fun configControl(tag: String = FX_DEFAULT_TAG): IFxConfigControl {
         return getTagFxControl(tag).configControl
+    }
+
+    /**
+     * 全局浮窗配置控制器(可null)
+     *
+     * @param tag 浮窗tag,默认是第一个浮窗
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun configControlOrNull(tag: String = FX_DEFAULT_TAG): IFxConfigControl? {
+        return fxs[tag]?.configControl
+    }
+
+    /** 判断该tag对应的全局浮窗是否存在 */
+    fun isInstalled(tag: String): Boolean {
+        return fxs[tag] != null
     }
 
     /** 关闭当前所有全局浮窗 */
@@ -121,6 +148,6 @@ object FloatingX {
 
     private fun getTagFxControl(tag: String): FxAppControlImpl {
         return fxs[tag]
-            ?: throw NullPointerException("fxs[$tag]==null!,Please check if create() is called.")
+            ?: throw NullPointerException("fxs[$tag]==null!,Please check if install() is called.")
     }
 }
