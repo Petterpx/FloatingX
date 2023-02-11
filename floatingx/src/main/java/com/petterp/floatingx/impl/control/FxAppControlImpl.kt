@@ -9,14 +9,23 @@ import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.helper.AppHelper
+import com.petterp.floatingx.impl.lifecycle.FxProxyLifecycleCallBackImpl
 import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.util.decorView
 import com.petterp.floatingx.util.lazyLoad
 import com.petterp.floatingx.util.topActivity
 
 /** 全局控制器 */
-open class FxAppControlImpl(private val helper: AppHelper) :
-    FxBasisControlImpl(helper), IFxAppControl {
+class FxAppControlImpl(
+    private val helper: AppHelper,
+    private val proxyLifecycleImpl: FxProxyLifecycleCallBackImpl
+) : FxBasisControlImpl(helper),
+    IFxAppControl,
+    Application.ActivityLifecycleCallbacks by proxyLifecycleImpl {
+
+    init {
+        proxyLifecycleImpl.init(helper, this)
+    }
 
     /** 对于状态栏高度的实时监听,在小屏模式下,效果极好 */
     private val windowsInsetsListener by lazyLoad {
@@ -121,7 +130,7 @@ open class FxAppControlImpl(private val helper: AppHelper) :
         // 重置之前记得移除insets
         clearWindowsInsetsListener()
         super.reset()
-        FloatingX.reset()
+        FloatingX.reset(helper.tag)
     }
 
     private fun clearWindowsInsetsListener() {

@@ -50,6 +50,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation "androidx.lifecycle:lifecycle-common-java8:2.3.1"
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
+//    debugImplementation 'com.squareup.leakcanary:leakcanary-object-watcher-android-startup:2.10'
     implementation isDev ? project(path: ':floatingx') : "com.github.Petterpx:FloatingX:$version_name"
 }

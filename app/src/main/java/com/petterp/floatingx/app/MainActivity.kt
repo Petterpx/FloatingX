@@ -34,30 +34,16 @@ class MainActivity : AppCompatActivity() {
             viewGroup = addScopeFrameViewGroup()
             addNestedScrollView {
                 addLinearLayout {
-                    addItemView("显示全局悬浮窗") {
-                        FloatingX.control().show()
-                    }
-                    addItemView("隐藏全局悬浮窗") {
-                        FloatingX.control().hide()
-                    }
-                    addItemView("显示全局悬浮窗-(展示与多指触摸)") {
-                        // 虽然可以不传递activity,不传递时将使用当前栈顶activity
-//                FloatingX.control().show(this@MainActivity)
-                        FloatingX.control().show()
-                    }
-                    addItemView("进入黑名单页面(禁止显示浮窗)") {
-                        BlackActivity::class.java.start(context)
-                    }
-                    addItemView("更新当前全局浮窗显示View-(layoutId)") {
-                        FloatingX.control().apply {
+                    addItemView("更新当前[全局浮窗1]内容-(layoutId方式)") {
+                        FloatingX.control(MultipleFxActivity.TAG_1).apply {
                             updateView(R.layout.item_floating)
                             this.updateViewContent {
                                 it.setText(R.id.tvItemFx, "App")
                             }
                         }.show()
                     }
-                    addItemView("更新当前全局浮窗显示View-(layoutView)") {
-                        FloatingX.control().updateView {
+                    addItemView("更新当前[全局浮窗1]内容-(传递view方式)") {
+                        FloatingX.control(MultipleFxActivity.TAG_1).updateView {
                             TextView(it).apply {
                                 layoutParams = ViewGroup.LayoutParams(
                                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -69,16 +55,16 @@ class MainActivity : AppCompatActivity() {
                                 setPadding(10, 10, 10, 10)
                             }
                         }
-                        FloatingX.control().show()
+                        FloatingX.control(MultipleFxActivity.TAG_1).show()
                     }
-                    addItemView("显示Activity悬浮窗-(展示与多指触摸)") {
+                    addItemView("显示一个Activity悬浮窗-(展示与多指触摸)") {
                         activityFx.show()
                         activityFx.updateViewContent {
                             it.setText(R.id.tvItemFx, "Act")
                             it.getView<CardView>(R.id.cardItemFx).setCardBackgroundColor(Color.BLUE)
                         }
                     }
-                    addItemView("显示View级别悬浮窗-(展示与多指触摸)") {
+                    addItemView("显示一个View级别悬浮窗-(展示与多指触摸)") {
                         viewFx.show()
                         viewFx.updateViewContent {
                             it.setText(R.id.tvItemFx, "view")
@@ -86,10 +72,16 @@ class MainActivity : AppCompatActivity() {
                                 .setCardBackgroundColor(Color.GREEN)
                         }
                     }
-                    addItemView("调整到无状态栏页面-(测试状态栏影响)") {
+                    addItemView("进入多浮窗页面(测试多浮窗功能)") {
+                        MultipleFxActivity::class.java.start(context)
+                    }
+                    addItemView("进入黑名单页面(该页面禁止展示浮窗1)") {
+                        BlackActivity::class.java.start(context)
+                    }
+                    addItemView("进入无状态栏页面-(测试状态栏影响)") {
                         ImmersedActivity::class.java.start(context)
                     }
-                    addItemView("跳转到局部悬浮窗页面-(测试api功能)") {
+                    addItemView("进入局部悬浮窗页面-(测试api功能)") {
                         ScopeActivity::class.java.start(context)
                     }
 //            addItemView("跳转到测试页面-(测试申请权限的浮窗)") {

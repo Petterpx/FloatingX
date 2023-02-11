@@ -14,6 +14,9 @@ internal const val FX_GRAVITY_CENTER = 0x00000002
 @JvmSynthetic
 internal const val FX_GRAVITY_BOTTOM = 0x00000003
 
+@JvmSynthetic
+internal const val FX_DEFAULT_TAG = "FX_DEFAULT_TAG"
+
 /**
  * 创建一个fx,自行初始化并控制插入位置
  *
