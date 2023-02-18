@@ -82,5 +82,11 @@ class FxLifecycleCallbackImpl :
 
         @JvmSynthetic
         fun getTopActivity(): Activity? = topActivity?.get()
+
+        @JvmSynthetic
+        internal fun releaseTopActivity() {
+            topActivity?.clear()
+            topActivity = null
+        }
     }
 }

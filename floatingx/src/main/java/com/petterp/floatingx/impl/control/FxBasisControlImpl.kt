@@ -21,6 +21,7 @@ import java.lang.ref.WeakReference
 
 /** 基础控制器实现 */
 open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFxConfigControl {
+    private var isClosing = false
     private var managerView: FxManagerView? = null
     private var viewHolder: FxViewHolder? = null
     private var mContainer: WeakReference<ViewGroup>? = null
@@ -37,7 +38,8 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     }
 
     override fun cancel() {
-        if (managerView == null && viewHolder == null) return
+        if ((managerView == null && viewHolder == null) || isClosing) return
+        isClosing = true
         if (helper.enableAnimation &&
             helper.fxAnimation != null
         ) {
@@ -259,7 +261,9 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
         }
     }
 
+    @JvmSynthetic
     protected open fun reset() {
+        isClosing = false
         managerView?.removeCallbacks(hideAnimationRunnable)
         managerView?.removeCallbacks(cancelAnimationRunnable)
         detach(mContainer?.get())

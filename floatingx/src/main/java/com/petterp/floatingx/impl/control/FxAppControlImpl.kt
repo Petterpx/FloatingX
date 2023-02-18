@@ -130,7 +130,7 @@ class FxAppControlImpl(
         // 重置之前记得移除insets
         clearWindowsInsetsListener()
         super.reset()
-        FloatingX.reset(helper.tag)
+        FloatingX.uninstall(helper.tag, this)
     }
 
     private fun clearWindowsInsetsListener() {

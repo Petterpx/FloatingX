@@ -8,12 +8,13 @@ import com.petterp.floatingx.FloatingX
 
 /**
  * AppLifecycle全局绑定者
+ *
  * @author petterp
  */
 class FxLifecycleProvider : ContentProvider() {
     override fun onCreate(): Boolean {
         context?.let {
-            FloatingX.initAppLifecycle(it)
+            FloatingX.initContext(it)
         }
         return true
     }

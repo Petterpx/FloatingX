@@ -1,6 +1,5 @@
 package com.petterp.floatingx.assist.helper
 
-import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
@@ -111,8 +110,6 @@ open class BasisHelper {
     }
 
     abstract class Builder<T, B : BasisHelper> {
-        private var context: Context? = null
-
         @LayoutRes
         private var layoutId: Int = 0
         private var layoutView: View? = null
