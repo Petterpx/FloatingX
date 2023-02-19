@@ -13,18 +13,17 @@ interface IFxControl {
     /** 获取配置层控制器,以便运行时动态调整某些基础配置 */
     val configControl: IFxConfigControl
 
-    /** 显示悬浮窗 */
-    fun show()
-
     /** 隐藏悬浮窗-不会解绑app-lifecycle */
     fun hide()
 
-    /**
-     * 当前浮窗是否显示
-     */
+    /** 当前浮窗是否显示 */
     fun isShow(): Boolean
 
-    /** 关闭fx,并释放所有监听 在普通模式,这相当于干掉当前悬浮窗 在全局application,这等于只保留helper,移除其他所有监听 */
+    /**
+     * 关闭fx,并释放所有监听 在普通模式,这相当于干掉当前悬浮窗
+     *
+     * 在全局浮窗,如果当前浮窗个数为0时，我们将移除所有配置监听，比如取消AppLifecycle的订阅
+     */
     fun cancel()
 
     /** 获取正在显示的浮窗内容视图,即通过layoutId或者自定义View传递进来的 View */
@@ -33,9 +32,7 @@ interface IFxControl {
     /** 获取浮窗内容视图所对应的Holder */
     fun getViewHolder(): FxViewHolder?
 
-    /**
-     * 获取浮窗管理器view,即浮窗底层容器
-     */
+    /** 获取浮窗管理器view,即浮窗底层容器 */
     fun getManagerView(): FxManagerView?
 
     /** 用于快速刷新视图内容 */

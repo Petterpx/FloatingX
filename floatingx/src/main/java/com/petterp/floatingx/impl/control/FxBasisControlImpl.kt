@@ -21,7 +21,6 @@ import java.lang.ref.WeakReference
 
 /** 基础控制器实现 */
 open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFxConfigControl {
-    private var isClosing = false
     private var managerView: FxManagerView? = null
     private var viewHolder: FxViewHolder? = null
     private var mContainer: WeakReference<ViewGroup>? = null
@@ -33,16 +32,9 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     * */
     override val configControl: IFxConfigControl get() = this
 
-    override fun show() {
-        if (!helper.enableFx) helper.enableFx = true
-    }
-
     override fun cancel() {
-        if ((managerView == null && viewHolder == null) || isClosing) return
-        isClosing = true
-        if (helper.enableAnimation &&
-            helper.fxAnimation != null
-        ) {
+        if ((managerView == null && viewHolder == null)) return
+        if (isShow() && helper.enableAnimation && helper.fxAnimation != null) {
             managerView?.removeCallbacks(cancelAnimationRunnable)
             val duration = helper.fxAnimation!!.toEndAnimator(managerView)
             animatorCallback(duration, cancelAnimationRunnable)
@@ -50,8 +42,8 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     }
 
     override fun hide() {
-        if (helper.enableFx) helper.enableFx = false
         if (!isShow()) return
+        updateEnableStatus(false)
         if (helper.enableAnimation && helper.fxAnimation != null) {
             if (helper.fxAnimation!!.endJobIsRunning()) {
                 helper.fxLog?.d("fxView->Animation ,endAnimation Executing, cancel this operation!")
@@ -217,10 +209,6 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
         return mContainer?.get()
     }
 
-    protected fun setContainerGroup(viewGroup: ViewGroup) {
-        mContainer = WeakReference(viewGroup)
-    }
-
     protected open fun detach(container: ViewGroup?) {
         if (managerView != null && container != null) {
             helper.fxLog?.d("fxView-lifecycle-> code->removeView")
@@ -263,7 +251,6 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
 
     @JvmSynthetic
     protected open fun reset() {
-        isClosing = false
         managerView?.removeCallbacks(hideAnimationRunnable)
         managerView?.removeCallbacks(cancelAnimationRunnable)
         detach(mContainer?.get())
@@ -272,5 +259,15 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
         helper.clear()
         clearContainer()
         helper.fxLog?.d("fxView-lifecycle-> code->cancelFx")
+    }
+
+    /** 更新启用状态 */
+    protected fun updateEnableStatus(newStatus: Boolean) {
+        if (helper.enableFx == newStatus) return
+        helper.enableFx = newStatus
+    }
+
+    internal fun setContainerGroup(viewGroup: ViewGroup) {
+        mContainer = WeakReference(viewGroup)
     }
 }

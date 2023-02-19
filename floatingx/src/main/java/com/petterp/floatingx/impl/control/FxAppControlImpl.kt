@@ -38,10 +38,11 @@ class FxAppControlImpl(
     }
 
     override fun show(activity: Activity) {
-        super.show()
         if (isShow()) return
         if (attach(activity)) {
             getManagerView()?.show()
+            updateEnableStatus(true)
+            FloatingX.checkAppLifecycleInstall()
         }
     }
 
@@ -67,16 +68,6 @@ class FxAppControlImpl(
     }
 
     override fun context(): Context = FloatingX.getContext()
-
-    /** 请注意： 调用此方法前请确定在初始化fx时,调用了show方法,否则,fx默认不会插入到全局Activity */
-    override fun show() {
-        if (topActivity == null) {
-            helper.enableFx = true
-            helper.fxLog?.e("show-fx, topActivity=null,Do not call it during initialization in Application!")
-            return
-        }
-        show(topActivity!!)
-    }
 
     private fun initWindowsInsetsListener() {
         getManagerView()?.let {

@@ -4,25 +4,44 @@ import android.app.Activity
 import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import com.petterp.floatingx.impl.control.FxScopeControl
-import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.listener.control.IFxScopeControl
+import com.petterp.floatingx.util.FxScopeEnum
+import com.petterp.floatingx.util.contentView
 
 /** 特定范围的Helper构建器 */
 class ScopeHelper : BasisHelper() {
 
     /** 插入到Activity中 */
-    fun toControl(activity: Activity): IFxControl =
-        toControl().init(activity)
+    fun toControl(activity: Activity): IFxScopeControl {
+        initLog(FxScopeEnum.ACTIVITY_SCOPE.tag)
+        val control = initScopeControl()
+        activity.contentView?.let {
+            control.setContainerGroup(it)
+        } ?: fxLog?.e("install to Activity the Error,current contentView(R.id.content) = null!")
+        return control
+    }
 
     /** 插入到Fragment中 */
-    fun toControl(fragment: Fragment): IFxControl =
-        toControl().init(fragment)
+    fun toControl(fragment: Fragment): IFxScopeControl {
+        initLog(FxScopeEnum.FRAGMENT_SCOPE.tag)
+        val rootView = fragment.view as? FrameLayout
+        checkNotNull(rootView) {
+            "Check if your root layout is FrameLayout, or if the init call timing is after onCreateView()!"
+        }
+        val control = initScopeControl()
+        control.setContainerGroup(rootView)
+        return control
+    }
 
     /** 插入到ViewGroup中 */
-    fun toControl(group: FrameLayout): IFxControl =
-        toControl().init(group)
+    fun toControl(group: FrameLayout): IFxScopeControl {
+        initLog(FxScopeEnum.VIEW_GROUP_SCOPE.tag)
+        val control = initScopeControl()
+        control.setContainerGroup(group)
+        return control
+    }
 
-    private fun toControl(): IFxScopeControl<IFxControl> = FxScopeControl(this)
+    private fun initScopeControl() = FxScopeControl(this)
 
     companion object {
         @JvmStatic

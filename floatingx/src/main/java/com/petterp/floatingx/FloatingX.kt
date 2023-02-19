@@ -1,6 +1,7 @@
 package com.petterp.floatingx
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import com.petterp.floatingx.assist.helper.AppHelper
@@ -64,7 +65,7 @@ object FloatingX {
         if (fxs.isNotEmpty()) fxs[helper.tag]?.cancel()
         val fxAppControlImpl = FxAppControlImpl(helper, FxProxyLifecycleCallBackImpl())
         fxs[helper.tag] = fxAppControlImpl
-        checkAppLifecycleInstall()
+        if (helper.enableFx) checkAppLifecycleInstall()
         return fxAppControlImpl
     }
 
@@ -129,21 +130,6 @@ object FloatingX {
         }
     }
 
-    /**
-     * 清空配置，释放资源
-     *
-     * 注意：此操作目前只会取消全局lifecycle的监听
-     *
-     * 后续如果使用全局浮窗，show方法中需要传递(activity)，因为我们没法确定当前activity
-     */
-    @JvmStatic
-    fun release() {
-        if (fxLifecycleCallback == null && FxLifecycleCallbackImpl.topActivity == null) return
-        context.unregisterActivityLifecycleCallbacks(fxLifecycleCallback)
-        FxLifecycleCallbackImpl.releaseTopActivity()
-        fxLifecycleCallback = null
-    }
-
     @JvmSynthetic
     internal fun initContext(context: Context) {
         this.context = context as Application
@@ -158,10 +144,21 @@ object FloatingX {
     @JvmSynthetic
     internal fun uninstall(tag: String, control: FxAppControlImpl) {
         if (fxs.values.contains(control)) fxs.remove(tag)
+        // 如果全局浮窗为null，自动清空配置
+        if (fxs.isEmpty()) {
+            release()
+        }
     }
 
-    private fun checkAppLifecycleInstall() {
+    /**
+     * 检查AppLifecycle是否安装
+     *
+     * @param activity 初始化时的activity
+     */
+    @JvmSynthetic
+    internal fun checkAppLifecycleInstall(activity: Activity? = null) {
         if (fxLifecycleCallback != null) return
+        FxLifecycleCallbackImpl.updateTopActivity(activity)
         fxLifecycleCallback = FxLifecycleCallbackImpl()
         context.registerActivityLifecycleCallbacks(fxLifecycleCallback)
     }
@@ -169,5 +166,12 @@ object FloatingX {
     private fun getTagFxControl(tag: String): FxAppControlImpl {
         return fxs[tag]
             ?: throw NullPointerException("fxs[$tag]==null!,Please check if FloatingX.install() or AppHelper.setTag() is called.")
+    }
+
+    private fun release() {
+        if (fxLifecycleCallback == null && FxLifecycleCallbackImpl.topActivity == null) return
+        context.unregisterActivityLifecycleCallbacks(fxLifecycleCallback)
+        FxLifecycleCallbackImpl.releaseTopActivity()
+        fxLifecycleCallback = null
     }
 }
