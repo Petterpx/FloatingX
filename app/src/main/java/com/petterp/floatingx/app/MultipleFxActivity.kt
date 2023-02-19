@@ -16,33 +16,36 @@ class MultipleFxActivity : AppCompatActivity() {
         createLinearLayoutToParent {
             addNestedScrollView {
                 addLinearLayout {
-                    addItemView("显示全局悬浮窗-tag1") {
+                    addItemView("显示全局悬浮窗(tag1)") {
                         if (!FloatingX.isInstalled(TAG_1)) {
                             CustomKtApplication.installTag1(application)
                         }
                         FloatingX.control(TAG_1).show(this@MultipleFxActivity)
                     }
-                    addItemView("重复安装全局悬浮窗-tag1") {
-                        CustomKtApplication.installTag1(application)
-                        FloatingX.control(TAG_1).show(this@MultipleFxActivity)
-                    }
-                    addItemView("显示全局悬浮窗-tag2") {
+                    addItemView("显示全局悬浮窗(tag2)") {
                         if (!FloatingX.isInstalled(TAG_2)) {
                             CustomKtApplication.installTag2(application)
                         }
                         FloatingX.control(TAG_2).show(this@MultipleFxActivity)
                     }
-                    addItemView("隐藏全局悬浮窗-tag1") {
-                        FloatingX.control(TAG_1).hide()
+                    addItemView("重复安装全局悬浮窗(tag1)") {
+                        CustomKtApplication.installTag1(application)
+                        FloatingX.control(TAG_1).show(this@MultipleFxActivity)
                     }
-                    addItemView("隐藏全局悬浮窗-tag2") {
-                        FloatingX.control(TAG_2).hide()
+                    addItemView("隐藏全局悬浮窗(tag1)") {
+                        FloatingX.controlOrNull(TAG_1)?.hide()
                     }
-                    addItemView("卸载所有全局浮窗并清空配置") {
+                    addItemView("隐藏全局悬浮窗(tag2)") {
+                        FloatingX.controlOrNull(TAG_2)?.hide()
+                    }
+                    addItemView("关闭全局悬浮窗(tag1)") {
+                        FloatingX.controlOrNull(TAG_1)?.cancel()
+                    }
+                    addItemView("关闭全局悬浮窗(tag2)") {
+                        FloatingX.controlOrNull(TAG_2)?.cancel()
+                    }
+                    addItemView("卸载所有全局浮窗") {
                         FloatingX.uninstallAll()
-                        // 如果调用了FloatingX.release(),那么后续浮窗在该activity show()时就需要传递activity
-                        // 具体原因是install()浮窗时，会插入app-lifecycle监听，页面onResume()没再次调用时，FloatingX无法得知activity是什么？
-                        FloatingX.release()
                     }
                 }
             }

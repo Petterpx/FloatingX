@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
                             this.updateViewContent {
                                 it.setText(R.id.tvItemFx, "App")
                             }
-                        }.show()
+                        }.show(this@MainActivity)
                     }
                     addItemView("更新当前[全局浮窗1]内容-(传递view方式)") {
                         FloatingX.control(MultipleFxActivity.TAG_1).apply {
@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
                                     setPadding(10, 10, 10, 10)
                                 }
                             }
-                            show()
+                            show(this@MainActivity)
                         }
                     }
                     addItemView("显示一个Activity悬浮窗-(展示与多指触摸)") {
