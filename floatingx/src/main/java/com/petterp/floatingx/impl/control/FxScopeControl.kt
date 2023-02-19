@@ -6,9 +6,9 @@ import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.listener.control.IFxScopeControl
 
 /** Fx普通View控制器 */
-class FxScopeControl(helper: BasisHelper) :
+class FxScopeControl<T>(helper: BasisHelper) :
     FxBasisControlImpl(helper),
-    IFxScopeControl {
+    IFxScopeControl<T> {
 
     override fun show() {
         if (isShow()) return
