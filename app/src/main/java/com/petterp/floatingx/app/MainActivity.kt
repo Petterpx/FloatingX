@@ -40,22 +40,24 @@ class MainActivity : AppCompatActivity() {
                             this.updateViewContent {
                                 it.setText(R.id.tvItemFx, "App")
                             }
-                        }.show()
+                        }.show(this@MainActivity)
                     }
                     addItemView("更新当前[全局浮窗1]内容-(传递view方式)") {
-                        FloatingX.control(MultipleFxActivity.TAG_1).updateView {
-                            TextView(it).apply {
-                                layoutParams = ViewGroup.LayoutParams(
-                                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                                    ViewGroup.LayoutParams.WRAP_CONTENT
-                                )
-                                text = "App"
-                                textSize = 15f
-                                setBackgroundColor(Color.GRAY)
-                                setPadding(10, 10, 10, 10)
+                        FloatingX.control(MultipleFxActivity.TAG_1).apply {
+                            updateView {
+                                TextView(it).apply {
+                                    layoutParams = ViewGroup.LayoutParams(
+                                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                                        ViewGroup.LayoutParams.WRAP_CONTENT
+                                    )
+                                    text = "App"
+                                    textSize = 15f
+                                    setBackgroundColor(Color.GRAY)
+                                    setPadding(10, 10, 10, 10)
+                                }
                             }
+                            show(this@MainActivity)
                         }
-                        FloatingX.control(MultipleFxActivity.TAG_1).show()
                     }
                     addItemView("显示一个Activity悬浮窗-(展示与多指触摸)") {
                         activityFx.show()

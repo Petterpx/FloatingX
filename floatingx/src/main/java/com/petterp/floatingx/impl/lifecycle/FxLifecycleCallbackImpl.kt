@@ -8,8 +8,7 @@ import com.petterp.floatingx.impl.control.FxAppControlImpl
 import java.lang.ref.WeakReference
 
 /** App-lifecycle-CallBack */
-class FxLifecycleCallbackImpl :
-    Application.ActivityLifecycleCallbacks {
+class FxLifecycleCallbackImpl : Application.ActivityLifecycleCallbacks {
 
     private val fxList: Collection<FxAppControlImpl>
         get() = FloatingX.getFxList().values
@@ -30,7 +29,7 @@ class FxLifecycleCallbackImpl :
 
     /** 最开始想到在onActivityPostStarted后插入, 但是最后发现在Android9及以下,此方法不会被调用,故选择了onResume */
     override fun onActivityResumed(activity: Activity) {
-        initTopActivity(activity)
+        updateTopActivity(activity)
         if (isFxsNotAllow()) return
         for (fx in fxList) {
             fx.onActivityResumed(activity)
@@ -73,7 +72,7 @@ class FxLifecycleCallbackImpl :
         return fxList.isEmpty()
     }
 
-    private fun initTopActivity(activity: Activity) {
+    private fun updateTopActivity(activity: Activity) {
         if (topActivity?.get() != activity) topActivity = WeakReference(activity)
     }
 
@@ -82,5 +81,17 @@ class FxLifecycleCallbackImpl :
 
         @JvmSynthetic
         fun getTopActivity(): Activity? = topActivity?.get()
+
+        @JvmSynthetic
+        internal fun updateTopActivity(activity: Activity?) {
+            if (activity == null) return
+            topActivity = WeakReference(activity)
+        }
+
+        @JvmSynthetic
+        internal fun releaseTopActivity() {
+            topActivity?.clear()
+            topActivity = null
+        }
     }
 }
