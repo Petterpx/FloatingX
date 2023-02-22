@@ -164,8 +164,7 @@ object FloatingX {
     }
 
     private fun getTagFxControl(tag: String): FxAppControlImpl {
-        return fxs[tag]
-            ?: throw NullPointerException("fxs[$tag]==null!,Please check if FloatingX.install() or AppHelper.setTag() is called.")
+        return fxs[tag] ?: throw NullPointerException("fxs[$tag]==null!,Please check if FloatingX.install() or AppHelper.setTag() is called.")
     }
 
     private fun release() {

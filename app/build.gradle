@@ -1,6 +1,25 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'io.gitlab.arturbosch.detekt'
+}
+
+detekt {
+    toolVersion = "1.22.0"
+    basePath = rootProject.projectDir.path
+    source = files("$rootDir/app/src/main/java", "$rootDir/floatingx/src/main/java")
+    baseline = file("${rootDir}/check/detekt/baseline.xml")
+    config = files("$rootDir/check/detekt/detekt.yml")
+    // 开启并行检测
+    parallel = true
+    // 基于默认配置构建
+    buildUponDefaultConfig = false
+    // 自动格式化代码
+    autoCorrect = false
+    // 是否开启debug模式
+    debug = false
+    // 是否开启全部规则
+    allRules = false
 }
 
 android {
@@ -45,6 +64,8 @@ android {
 }
 
 dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    detektPlugins 'io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.4.0'

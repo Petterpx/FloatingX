@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ComplexCondition:FxManagerView.kt$FxManagerView$eventX &gt;= 0 &amp;&amp; eventX &lt;= width &amp;&amp; eventY &gt;= 0 &amp;&amp; eventY &lt;= height</ID>
+    <ID>ComplexCondition:FxManagerView.kt$FxManagerView$helper.enableClickListener &amp;&amp; isClickEnable &amp;&amp; helper.iFxClickListener != null &amp;&amp; isOnClickEvent()</ID>
+    <ID>EmptyFunctionBlock:CustomKtApplication.kt$CustomKtApplication.Companion.&lt;no name provided&gt;${ }</ID>
+    <ID>EmptyFunctionBlock:FxScrollImpl.kt$FxScrollImpl${ }</ID>
+    <ID>EmptyFunctionBlock:FxScrollImpl.kt$FxScrollImpl${}</ID>
+    <ID>EmptyFunctionBlock:FxTagActivityLifecycleImpl.kt$FxTagActivityLifecycleImpl${}</ID>
+    <ID>LongMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
+    <ID>LongMethod:ScopeActivity.kt$ScopeActivity$@SuppressLint("SetTextI18n") override fun onCreate(savedInstanceState: Bundle?)</ID>
+    <ID>MagicNumber:BasisHelper.kt$BasisHelper$300L</ID>
+    <ID>MagicNumber:BasisHelper.kt$BasisHelper.Builder$300L</ID>
+    <ID>MagicNumber:BlackActivity.kt$BlackActivity$50f</ID>
+    <ID>MagicNumber:CustomKtApplication.kt$CustomKtApplication.Companion$10f</ID>
+    <ID>MagicNumber:CustomKtApplication.kt$CustomKtApplication.Companion$15f</ID>
+    <ID>MagicNumber:CustomKtApplication.kt$CustomKtApplication.Companion$50f</ID>
+    <ID>MagicNumber:FxAnimationImpl.kt$FxAnimationImpl$0.85f</ID>
+    <ID>MagicNumber:FxAnimationImpl.kt$FxAnimationImpl$0.95f</ID>
+    <ID>MagicNumber:FxAnimationImpl.kt$FxAnimationImpl$0.9f</ID>
+    <ID>MagicNumber:MainActivity.kt$MainActivity$10</ID>
+    <ID>MagicNumber:MainActivity.kt$MainActivity$15f</ID>
+    <ID>MagicNumber:MainActivity.kt$MainActivity$300</ID>
+    <ID>MagicNumber:MainActivity.kt$MainActivity$50</ID>
+    <ID>MagicNumber:ScopeActivity.kt$ScopeActivity$10</ID>
+    <ID>MagicNumber:ScopeActivity.kt$ScopeActivity$100f</ID>
+    <ID>MagicNumber:ScopeActivity.kt$ScopeActivity$15f</ID>
+    <ID>MagicNumber:ScopeActivity.kt$ScopeActivity$19f</ID>
+    <ID>MagicNumber:ScopeActivity.kt$ScopeActivity$20</ID>
+    <ID>MagicNumber:ScopeActivity.kt$ScopeActivity$40f</ID>
+    <ID>MagicNumber:ScopeActivity.kt$ScopeActivity$50</ID>
+    <ID>MagicNumber:ScopeActivity.kt$ScopeActivity$600</ID>
+    <ID>MagicNumber:ScreenExt.kt$10</ID>
+    <ID>MagicNumber:utils.kt$2</ID>
+    <ID>MaxLineLength:FxAppControlImpl.kt$FxAppControlImpl$throw IllegalArgumentException("view.context != Application,The global floating window must use application as context!")</ID>
+    <ID>MaxLineLength:FxBasisControlImpl.kt$FxBasisControlImpl$if (getContainerGroup() == null) throw NullPointerException("FloatingX window The parent container cannot be null!")</ID>
+    <ID>MaxLineLength:FxBasisControlImpl.kt$FxBasisControlImpl$if (helper.layoutId == 0 &amp;&amp; helper.layoutView == null) throw RuntimeException("The layout id cannot be 0 ,and layoutView==null")</ID>
+    <ID>MaxLineLength:FxManagerView.kt$FxManagerView$helper.fxLog?.d("fxView-&gt;updateContainerSize: oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)")</ID>
+    <ID>MaxLineLength:FxProxyLifecycleCallBackImpl.kt$FxProxyLifecycleCallBackImpl$fxLog?.d("fxApp-&gt;detach? isContainActivity-${activity.isActivityInValid}--enableFx-$enableFx---isParent-$isParent")</ID>
+    <ID>MaxLineLength:FxScopeControl.kt$FxScopeControl$throw IllegalArgumentException("view == Application,Scope floating windows cannot use application-level views!")</ID>
+    <ID>MaxLineLength:MainActivity.kt$MainActivity$val</ID>
+    <ID>MaxLineLength:utils.kt$get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, toFloat(), Resources.getSystem().displayMetrics).toInt()</ID>
+    <ID>NewLineAtEndOfFile:utils.kt$com.petterp.floatingx.app.utils.kt</ID>
+    <ID>PrintStackTrace:ScreenExt.kt$e</ID>
+    <ID>PrintStackTrace:UiExt.kt$e</ID>
+    <ID>ReturnCount:FxExt.kt$@JvmSynthetic internal fun Float.coerceInFx(min: Float, max: Float): Float</ID>
+    <ID>ReturnCount:FxManagerView.kt$FxManagerView$private fun updateWidgetSize(): Boolean</ID>
+    <ID>ReturnCount:FxProxyLifecycleCallBackImpl.kt$FxProxyLifecycleCallBackImpl$override fun onActivityResumed(activity: Activity)</ID>
+    <ID>ReturnCount:ScreenExt.kt$private fun getNavigationFromAndroid(activity: Activity): Pair&lt;Int, Int&gt;</ID>
+    <ID>ReturnCount:ScreenExt.kt$private fun isNavBarVendorHide(context: Context): Int</ID>
+    <ID>SwallowedException:ScreenExt.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ScreenExt.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:UiExt.kt$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:FxBasisControlImpl.kt$FxBasisControlImpl$throw RuntimeException("The layout id cannot be 0 ,and layoutView==null")</ID>
+    <ID>TooManyFunctions:BasisHelper.kt$BasisHelper$Builder&lt;T, B : BasisHelper&gt;</ID>
+    <ID>TooManyFunctions:FloatingX.kt$FloatingX</ID>
+    <ID>TooManyFunctions:FxAppControlImpl.kt$FxAppControlImpl : FxBasisControlImplIFxAppControlActivityLifecycleCallbacks</ID>
+    <ID>TooManyFunctions:FxBasisControlImpl.kt$FxBasisControlImpl : IFxControlIFxConfigControl</ID>
+    <ID>TooManyFunctions:FxManagerView.kt$FxManagerView : FrameLayout</ID>
+    <ID>TooManyFunctions:FxViewHolder.kt$FxViewHolder</ID>
+    <ID>TooManyFunctions:IFxConfigControl.kt$IFxConfigControl</ID>
+    <ID>TooManyFunctions:IFxControl.kt$IFxControl</ID>
+    <ID>TooManyFunctions:ScreenExt.kt$com.petterp.floatingx.util.ScreenExt.kt</ID>
+    <ID>UnusedPrivateMember:BasisHelper.kt$BasisHelper.Builder$private var enableDefaultSave: Boolean = false</ID>
+    <ID>UnusedPrivateMember:ScopeActivity.kt$ScopeActivity$private val activityFx by createFx { setLayout(R.layout.item_floating) setEnableScrollOutsideScreen(false) setEnableEdgeAdsorption(false) setEdgeOffset(40f) setBottomBorderMargin(40f) setAnimationImpl(FxAnimationImpl()) setEnableAnimation(false) setEnableLog(true) build().toControl(this@ScopeActivity) }</ID>
+    <ID>UseRequire:AppHelper.kt$AppHelper.Builder$throw IllegalArgumentException("浮窗 tag 不能为 [\"\"],请设置一个合法的tag")</ID>
+    <ID>UseRequire:FxAppControlImpl.kt$FxAppControlImpl$throw IllegalArgumentException("view.context != Application,The global floating window must use application as context!")</ID>
+    <ID>UseRequire:FxBasisControlImpl.kt$FxBasisControlImpl$throw IllegalArgumentException("resource cannot be 0!")</ID>
+    <ID>UseRequire:FxScopeControl.kt$FxScopeControl$throw IllegalArgumentException("view == Application,Scope floating windows cannot use application-level views!")</ID>
+    <ID>WildcardImport:BasisHelper.kt$import com.petterp.floatingx.assist.*</ID>
+    <ID>WildcardImport:CustomKtApplication.kt$import com.petterp.floatingx.app.*</ID>
+    <ID>WildcardImport:ScopeActivity.kt$import android.widget.*</ID>
+  </CurrentIssues>
+</SmellBaseline>
