@@ -7,6 +7,11 @@
       </set>
     </option>
     <option name="enableFormatting" value="true" />
+    <option name="pluginJarPaths">
+      <set>
+        <option value="$PROJECT_DIR$/check/detekt-formatting-1.22.0.jar" />
+      </set>
+    </option>
   </component>
   <component name="DetektProjectConfiguration">
     <enableFormatting>true</enableFormatting>
