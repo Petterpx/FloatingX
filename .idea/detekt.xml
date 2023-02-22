@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DetektPluginSettings">
+    <option name="configurationFilePaths">
+      <set>
+        <option value="$PROJECT_DIR$/check/detekt/detekt.yml" />
+      </set>
+    </option>
+    <option name="enableFormatting" value="true" />
+  </component>
   <component name="DetektProjectConfiguration">
     <enableFormatting>true</enableFormatting>
   </component>
