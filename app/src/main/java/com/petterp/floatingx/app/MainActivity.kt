@@ -45,10 +45,7 @@ class MainActivity : AppCompatActivity() {
                     addItemView("更新当前[全局浮窗1]内容-(传递view方式)") {
                         FloatingX.control(MultipleFxActivity.TAG_1).apply {
                             updateView {
-                                TextView(it).apply {
-                                    layoutParams = ViewGroup.LayoutParams(
-                                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                                        ViewGroup.LayoutParams.WRAP_CONTENT
+                                TextView(it).apply { layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
                                     )
                                     text = "App"
                                     textSize = 15f
