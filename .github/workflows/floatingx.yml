@@ -27,7 +27,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: workspace
-        path: ${{ github.workspace }}
+        path: .
 
   code-style:
     name: Code Scanning
