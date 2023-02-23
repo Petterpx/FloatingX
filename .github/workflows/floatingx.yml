@@ -10,6 +10,7 @@ jobs:
   init:
     name: install Java and Gradle
     runs-on: ubuntu-latest
+    container:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -23,25 +24,14 @@ jobs:
       name: Cache gradle
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Save workspace
-      uses: actions/upload-artifact@v2
-      with:
-        name: workspace
-        path: ${{ github.workspace }}/config
 
   code-style:
     name: Code Scanning
-    runs-on: ubuntu-latest
+    container: ${{ needs.init.container }}
+    runs-on: ${{ needs.init.runner.os }}
     continue-on-error: true
     needs: [init]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Restore workspace
-      uses: actions/download-artifact@v2
-      with:
-        name: workspace
-        path: ${{ github.workspace }}/config
     - name: Run Detekt
       run: ./gradlew clean detekt
     - name: Upload SARIF to Github using the upload-sarif action
