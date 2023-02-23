@@ -27,7 +27,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: workspace
-        path: .
+        path: ${{ github.workspace }}/config
 
   code-style:
     name: Code Scanning
@@ -41,7 +41,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: workspace
-        path: ${{ github.workspace }}
+        path: ${{ github.workspace }}/config
     - name: Run Detekt
       run: ./gradlew clean detekt
     - name: Upload SARIF to Github using the upload-sarif action
