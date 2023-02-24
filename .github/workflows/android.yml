@@ -27,13 +27,15 @@ jobs:
       continue-on-error: true
       run: ./gradlew clean detekt
 
-    - name: Upload SARIF to Github using the upload-sarif action
-      continue-on-error: true
-      uses: github/codeql-action/upload-sarif@v2
-      if: success() || failure()
+    - uses: reviewdog/action-setup@v1
       with:
-        sarif_file: ${{ github.workspace }}/app/build/reports/detekt/detekt.sarif
-        checkout_path: ${{ github.workspace }}
+        reviewdog_version: latest # Optional. [latest,nightly,v.X.Y.Z]
+    - name: Run reviewdog
+      env:
+        REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        reviewdog -reporter=github-pr-check -f=${{ github.workspace }}/app/build/reports/detekt/detekt.sarif
+
 
     - name: Build with Gradle
       run: ./gradlew assembleRelease
