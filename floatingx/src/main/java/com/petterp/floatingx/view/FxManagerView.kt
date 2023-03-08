@@ -73,11 +73,11 @@ class FxManagerView @JvmOverloads constructor(
     private fun inflateLayoutView(): View? {
         val view = helper.layoutView ?: return null
         helper.fxLog?.d("fxView-->init, way:[layoutView]")
-        val lp = layoutParams ?: LayoutParams(
+        val lp = view.layoutParams ?: LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        addViewInLayout(view, -1, lp, true)
+        addView(view, lp)
         return view
     }
 
@@ -113,7 +113,7 @@ class FxManagerView @JvmOverloads constructor(
         if (!helper.enableAssistLocation && !helper.gravity.isDefault()) {
             helper.fxLog?.e(
                 "fxView--默认坐标可能初始化异常,如果显示位置异常,请检查您的gravity是否为默认配置，当前gravity:${helper.gravity}。\n" +
-                    "如果您要配置gravity,建议您启用辅助定位setEnableAssistDirection(),此方法将更便于定位。"
+                        "如果您要配置gravity,建议您启用辅助定位setEnableAssistDirection(),此方法将更便于定位。"
             )
         }
         return helper.defaultX to checkDefaultY(helper.defaultY)
@@ -146,6 +146,7 @@ class FxManagerView @JvmOverloads constructor(
                 initTouchDown(ev)
                 helper.fxLog?.d("fxView---onInterceptTouchEvent-[down],interceptedTouch-$intercepted")
             }
+
             MotionEvent.ACTION_MOVE -> {
                 intercepted = kotlin.math.abs(downTouchX - ev.x) >= scaledTouchSlop
                 helper.fxLog?.v("fxView---onInterceptTouchEvent-[move], interceptedTouch-$intercepted")
@@ -167,6 +168,7 @@ class FxManagerView @JvmOverloads constructor(
                     }
                 }
             }
+
             MotionEvent.ACTION_MOVE -> {
                 if (touchDownId == INVALID_TOUCH_ID || !helper.enableTouch) {
                     return super.onTouchEvent(event)
@@ -183,6 +185,7 @@ class FxManagerView @JvmOverloads constructor(
                     helper.fxLog?.d("fxView---onTouchEvent--ACTION_POINTER_UP---clearTouchId->")
                 }
             }
+
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 helper.fxLog?.d("fxView---onTouchEvent--End")
                 actionTouchCancel()
