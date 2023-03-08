@@ -99,7 +99,7 @@ open class BasisHelper {
 
     @JvmSynthetic
     internal fun initLog(scope: String) {
-        if (enableDebugLog) fxLog = FxLog.builder("$scope$fxLogTag")
+        if (enableDebugLog) fxLog = FxLog.builder("$scope-$fxLogTag")
     }
 
     @JvmSynthetic
@@ -437,30 +437,38 @@ open class BasisHelper {
                     defaultX = l
                     defaultY = t
                 }
+
                 FxGravity.LEFT_OR_BOTTOM -> {
                     defaultY = -b
                     defaultX = l
                 }
+
                 FxGravity.RIGHT_OR_BOTTOM -> {
                     defaultY = -b
                     defaultX = -r
                 }
+
                 FxGravity.RIGHT_OR_TOP -> {
                     defaultX = -r
                     defaultY = t
                 }
+
                 FxGravity.RIGHT_OR_CENTER -> {
                     defaultX = -r
                 }
+
                 FxGravity.LEFT_OR_CENTER -> {
                     defaultX = l
                 }
+
                 FxGravity.TOP_OR_CENTER -> {
                     defaultY = t
                 }
+
                 FxGravity.BOTTOM_OR_CENTER -> {
                     defaultY = -b
                 }
+
                 else -> {}
             }
         }
