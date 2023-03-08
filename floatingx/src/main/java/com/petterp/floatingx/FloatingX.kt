@@ -10,15 +10,17 @@ import com.petterp.floatingx.impl.lifecycle.FxLifecycleCallbackImpl
 import com.petterp.floatingx.impl.lifecycle.FxProxyLifecycleCallBackImpl
 import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.listener.control.IFxConfigControl
-import com.petterp.floatingx.util.FX_DEFAULT_TAG
 
 /** Single Control To Fx */
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
     private lateinit var context: Application
-    private const val DEFAULT_FXS_INITIAL_CAPACITY = 3
-    private var fxs = HashMap<String, FxAppControlImpl>(DEFAULT_FXS_INITIAL_CAPACITY)
+    private const val FX_DEFAULT_INITIAL_CAPACITY = 3
+    private var fxs = HashMap<String, FxAppControlImpl>(FX_DEFAULT_INITIAL_CAPACITY)
     private var fxLifecycleCallback: FxLifecycleCallbackImpl? = null
+
+    @JvmSynthetic
+    internal const val FX_DEFAULT_TAG = "FX_DEFAULT_TAG"
 
     /**
      * 初始化全局悬浮窗,以dsl方式
@@ -72,7 +74,7 @@ object FloatingX {
     /**
      * 全局浮窗操作控制器
      *
-     * @param tag 浮窗tag,默认是第一个浮窗
+     * @param tag 浮窗tag,默认是 [FX_DEFAULT_TAG]
      */
     @JvmStatic
     @JvmOverloads
@@ -83,7 +85,7 @@ object FloatingX {
     /**
      * 获得全局浮窗操作控制器(可null)
      *
-     * @param tag 浮窗tag,默认是第一个浮窗
+     * @param tag 浮窗tag,默认是 [FX_DEFAULT_TAG]
      */
     @JvmStatic
     @JvmOverloads
@@ -94,7 +96,7 @@ object FloatingX {
     /**
      * 全局浮窗配置控制器
      *
-     * @param tag 浮窗tag,默认是第一个浮窗
+     * @param tag 浮窗tag,默认是 [FX_DEFAULT_TAG]
      */
     @JvmStatic
     @JvmOverloads
@@ -105,7 +107,7 @@ object FloatingX {
     /**
      * 全局浮窗配置控制器(可null)
      *
-     * @param tag 浮窗tag,默认是第一个浮窗
+     * @param tag 浮窗tag,默认是 [FX_DEFAULT_TAG]
      */
     @JvmStatic
     @JvmOverloads
@@ -113,9 +115,12 @@ object FloatingX {
         return fxs[tag]?.configControl
     }
 
-    /** 判断该tag对应的全局浮窗是否存在 */
+    /** 判断该tag对应的全局浮窗是否存在
+     * @param tag 浮窗tag,默认是 [FX_DEFAULT_TAG]
+     * */
     @JvmStatic
-    fun isInstalled(tag: String): Boolean {
+    @JvmOverloads
+    fun isInstalled(tag: String = FX_DEFAULT_TAG): Boolean {
         return fxs[tag] != null
     }
 
@@ -164,7 +169,8 @@ object FloatingX {
     }
 
     private fun getTagFxControl(tag: String): FxAppControlImpl {
-        val errorMessage = "fxs[$tag]==null!,Please check if FloatingX.install() or AppHelper.setTag() is called."
+        val errorMessage =
+            "fxs[$tag]==null!,Please check if FloatingX.install() or AppHelper.setTag() is called."
         return fxs[tag] ?: throw NullPointerException(errorMessage)
     }
 

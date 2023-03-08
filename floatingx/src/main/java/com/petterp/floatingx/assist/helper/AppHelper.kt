@@ -1,8 +1,8 @@
 package com.petterp.floatingx.assist.helper
 
 import android.app.Activity
+import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
-import com.petterp.floatingx.util.FX_DEFAULT_TAG
 import com.petterp.floatingx.util.FxScopeEnum
 import com.petterp.floatingx.util.navigationBarHeight
 import com.petterp.floatingx.util.statusBarHeight
@@ -38,7 +38,7 @@ class AppHelper(
         private var blackFilterList: MutableList<Class<*>> = mutableListOf()
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
         private var isEnableAllInstall: Boolean = true
-        private var tag = FX_DEFAULT_TAG
+        private var tag = FloatingX.FX_DEFAULT_TAG
 
         /**
          * 设置显示悬浮窗的Activity生命周期回调
