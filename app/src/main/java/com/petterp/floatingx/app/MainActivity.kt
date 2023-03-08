@@ -2,6 +2,7 @@ package com.petterp.floatingx.app
 
 import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -46,14 +47,11 @@ class MainActivity : AppCompatActivity() {
                         FloatingX.control(MultipleFxActivity.TAG_1).apply {
                             updateView {
                                 TextView(it).apply {
-                                    layoutParams = ViewGroup.LayoutParams(
-                                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                                        ViewGroup.LayoutParams.WRAP_CONTENT
-                                    )
+                                    layoutParams = ViewGroup.LayoutParams(50.dp, 50.dp)
                                     text = "App"
+                                    gravity = Gravity.CENTER
                                     textSize = 15f
                                     setBackgroundColor(Color.GRAY)
-                                    setPadding(10, 10, 10, 10)
                                 }
                             }
                             show(this@MainActivity)
