@@ -1,7 +1,6 @@
 *.iml
 .gradle
 /local.properties
-/.idea/*
 !/.idea/detekt.xml
 !/.idea/ktlint.xml
 .DS_Store
@@ -10,3 +9,4 @@
 .externalNativeBuild
 .cxx
 /check/detekt/reports
+.idea
