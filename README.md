@@ -202,5 +202,5 @@ Ps: 为什么App级别悬浮窗 要插入到 `DecorView` ,而不是 **R.id.conte
 
 **微信**：**Petterpx**
 
-![扫码_搜索联合传播样式-标准色版](https://user-images.githubusercontent.com/41142188/226162520-93796619-81ca-4e61-bfff-4a5b95e4fa0b.png)
+![Petterp-wechat](https://user-images.githubusercontent.com/41142188/226162520-93796619-81ca-4e61-bfff-4a5b95e4fa0b.png)
 

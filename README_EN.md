@@ -193,6 +193,8 @@ For the measurement of the navigation bar part of the code from, wenlu, and on t
 
 ## About me
 
-Welcome to follow my public number, look forward to progress together, if there are any problems in use, you can also add me WeChat, Petterpx .
+Welcome to follow my public number, look forward to progress together, if there are any problems in use, you can also add me WeChat.
 
-<img src="https://img.tucang.cc/api/image/show/1e5e86bbebb31806e7228faf56584351"/>
+Wechat: **Petterpx**
+
+![Petterp-wechat](https://user-images.githubusercontent.com/41142188/226162520-93796619-81ca-4e61-bfff-4a5b95e4fa0b.png)
