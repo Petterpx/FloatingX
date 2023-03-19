@@ -200,4 +200,12 @@ Ps: 为什么App级别悬浮窗 要插入到 `DecorView` ,而不是 **R.id.conte
 
 欢迎关注我的公众号，期待一同进步，如果有使用上的问题，也可以加我微信，Petterpx 。
 
-<img src="https://picbed.qunarzz.com/2e083be46514e2aabfde027cd2740533.png"/>
+联系我
+
+如果你有使用上的问题，欢迎加我微信或者Github提问。
+
+**微信**：**Petterpx**
+
+也欢迎关注我的公众号，期待一共前进 :)
+
+<img src="https://img.tucang.cc/api/image/show/1e5e86bbebb31806e7228faf56584351"/>

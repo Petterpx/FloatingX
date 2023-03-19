@@ -195,4 +195,4 @@ For the measurement of the navigation bar part of the code from, wenlu, and on t
 
 Welcome to follow my public number, look forward to progress together, if there are any problems in use, you can also add me WeChat, Petterpx .
 
-<img src="https://picbed.qunarzz.com/2e083be46514e2aabfde027cd2740533.png"/>
+<img src="https://img.tucang.cc/api/image/show/1e5e86bbebb31806e7228faf56584351"/>
