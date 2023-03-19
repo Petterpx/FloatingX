@@ -185,9 +185,14 @@ private val customCreateFx by createFx {
     build().toControl(viewgroup)
 ```
 
-## 👍 Thanks
+## Thanks
 
 Base **HoverView** sourced from [FloatingMagnetView](https://github.com/leotyndale/EnFloatingView) of [EnFloatingView](EnFloatingView/blob/master/floatingview/src/main/java/com/imuxuan/floatingview/FloatingMagnetView.java) implementation with some improvements on top of it.
 
 For the measurement of the navigation bar part of the code from, wenlu, and on top of it added more adaptations, has covered 95% of the market models, can be said to be the only tool that can be searched for accurate measurement.
 
+## About me
+
+Welcome to follow my public number, look forward to progress together, if there are any problems in use, you can also add me WeChat, Petterpx .
+
+<img src="https://picbed.qunarzz.com/2e083be46514e2aabfde027cd2740533.png"/>

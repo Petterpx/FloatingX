@@ -195,3 +195,9 @@ Ps: 为什么App级别悬浮窗 要插入到 `DecorView` ,而不是 **R.id.conte
 基础 **悬浮窗View** 的思想源自 [EnFloatingView](https://github.com/leotyndale/EnFloatingView) 的 [FloatingMagnetView](https://github.com/leotyndale/EnFloatingView/blob/master/floatingview/src/main/java/com/imuxuan/floatingview/FloatingMagnetView.java) 实现方式，并在其之上重新梳理手势事件、动画、及大部分功能。
 
 对于导航栏的测量部分代码来自，wenlu,并在其之上增加了更多适配，已覆盖市场95%机型，可以说是目前能搜到的唯一可以准确测量的工具。
+
+## 关于我
+
+欢迎关注我的公众号，期待一同进步，如果有使用上的问题，也可以加我微信，Petterpx 。
+
+<img src="https://picbed.qunarzz.com/2e083be46514e2aabfde027cd2740533.png"/>
