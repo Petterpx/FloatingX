@@ -12,7 +12,6 @@ import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.impl.lifecycle.FxProxyLifecycleCallBackImpl
 import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.util.decorView
-import com.petterp.floatingx.util.lazyLoad
 import com.petterp.floatingx.util.topActivity
 
 /** 全局控制器 */
@@ -28,13 +27,11 @@ class FxAppControlImpl(
     }
 
     /** 对于状态栏高度的实时监听,在小屏模式下,效果极好 */
-    private val windowsInsetsListener by lazyLoad {
-        OnApplyWindowInsetsListener { _, insets ->
-            val statusBar = insets.stableInsetTop
-            helper.statsBarHeight = statusBar
-            helper.fxLog?.v("System--StatusBar---old-(${helper.statsBarHeight}),new-($statusBar))")
-            insets
-        }
+    private val windowsInsetsListener = OnApplyWindowInsetsListener { _, insets ->
+        val statusBar = insets.stableInsetTop
+        helper.statsBarHeight = statusBar
+        helper.fxLog?.v("System--StatusBar---old-(${helper.statsBarHeight}),new-($statusBar))")
+        insets
     }
 
     override fun show(activity: Activity) {

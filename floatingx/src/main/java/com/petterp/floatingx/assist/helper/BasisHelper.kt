@@ -40,7 +40,7 @@ open class BasisHelper {
     internal var edgeOffset: Float = 0f
 
     @JvmField
-    internal var borderMargin: BorderMargin = BorderMargin()
+    internal var fxBorderMargin: FxBorderMargin = FxBorderMargin()
 
     @JvmField
     internal var enableFx: Boolean = false
@@ -122,8 +122,8 @@ open class BasisHelper {
         private var defaultX: Float = 0f
         private var edgeOffset: Float = 0f
         private var enableFx: Boolean = false
-        private var borderMargin: BorderMargin = BorderMargin()
-        private var assistLocation: BorderMargin = BorderMargin()
+        private var fxBorderMargin: FxBorderMargin = FxBorderMargin()
+        private var assistLocation: FxBorderMargin = FxBorderMargin()
 
         private var enableAbsoluteFix: Boolean = false
         private var enableEdgeAdsorption: Boolean = true
@@ -164,7 +164,7 @@ open class BasisHelper {
                 enableEdgeAdsorption = this@Builder.enableEdgeAdsorption
                 enableEdgeRebound = this@Builder.enableEdgeRebound
                 enableAnimation = this@Builder.enableAnimation
-                borderMargin = this@Builder.borderMargin
+                fxBorderMargin = this@Builder.fxBorderMargin
                 enableSaveDirection = this@Builder.enableSaveDirection
                 enableTouch = this@Builder.enableTouch
                 enableClickListener = this@Builder.enableClickListener
@@ -280,7 +280,7 @@ open class BasisHelper {
 
         /** 设置悬浮窗可移动位置偏移 */
         fun setBorderMargin(t: Float, l: Float, b: Float, r: Float): T {
-            borderMargin.apply {
+            fxBorderMargin.apply {
                 this.t = t
                 this.l = l
                 this.b = b
@@ -291,24 +291,24 @@ open class BasisHelper {
 
         /** 设置可移动范围内相对屏幕顶部偏移量 */
         fun setTopBorderMargin(t: Float): T {
-            borderMargin.t = abs(t)
+            fxBorderMargin.t = abs(t)
             return this as T
         }
 
         /** 设置可移动范围内相对屏幕左侧偏移量 */
         fun setLeftBorderMargin(l: Float): T {
-            borderMargin.l = abs(l)
+            fxBorderMargin.l = abs(l)
             return this as T
         }
 
         /** 设置可移动范围内相对屏幕右侧偏移量 */
         fun setRightBorderMargin(r: Float): T {
-            borderMargin.r = abs(r)
+            fxBorderMargin.r = abs(r)
             return this as T
         }
 
         fun setBottomBorderMargin(b: Float): T {
-            borderMargin.b = abs(b)
+            fxBorderMargin.b = abs(b)
             return this as T
         }
 
@@ -425,10 +425,10 @@ open class BasisHelper {
             // 如果坐标规则不符合要求,且未开启辅助定位,则直接返回
             if (!enableAssistLocation && !gravity.isDefault()) return
             val edgeOffset = if (enableEdgeRebound) edgeOffset else 0f
-            val b = assistLocation.b + borderMargin.b + edgeOffset
-            val t = assistLocation.t + borderMargin.t + edgeOffset
-            val r = assistLocation.r + borderMargin.r + edgeOffset
-            val l = assistLocation.l + borderMargin.l + edgeOffset
+            val b = assistLocation.b + fxBorderMargin.b + edgeOffset
+            val t = assistLocation.t + fxBorderMargin.t + edgeOffset
+            val r = assistLocation.r + fxBorderMargin.r + edgeOffset
+            val l = assistLocation.l + fxBorderMargin.l + edgeOffset
             defaultX = 0f
             defaultY = 0f
             when (gravity) {

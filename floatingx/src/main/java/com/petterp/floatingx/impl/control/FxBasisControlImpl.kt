@@ -111,7 +111,7 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     }
 
     override fun setBorderMargin(t: Float, l: Float, b: Float, r: Float) {
-        helper.borderMargin.apply {
+        helper.fxBorderMargin.apply {
             this.t = t
             this.l = l
             this.b = b
