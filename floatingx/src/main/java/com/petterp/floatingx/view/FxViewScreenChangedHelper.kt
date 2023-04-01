@@ -3,6 +3,7 @@ package com.petterp.floatingx.view
 import android.content.res.Configuration
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.assist.helper.BasisHelper
+import com.petterp.floatingx.util.coerceInFx
 import com.petterp.floatingx.util.topActivity
 
 /**
@@ -15,8 +16,10 @@ class FxViewScreenChangedHelper {
     private var screenH = 0
 
     // 缓存浮窗位置相对于屏幕的比例
-    private var ratioX: Float = 0f
-    private var ratioY: Float = 0f
+    private var x: Float = 0f
+    private var y: Float = 0f
+    private var isNearestLeft = false
+    private var enableEdgeAdsorption = false
 
     // 屏幕大小是否已更新
     private var screenChanged: Boolean = false
@@ -27,10 +30,13 @@ class FxViewScreenChangedHelper {
         x: Float,
         y: Float,
         parentW: Float,
-        parentH: Float
+        config: BasisHelper
     ): FxViewScreenChangedHelper {
-        ratioX = x / parentW
-        ratioY = y / parentH
+        this.x = x
+        this.y = y
+        val middle = parentW / 2
+        isNearestLeft = x < middle
+        this.enableEdgeAdsorption = config.enableEdgeAdsorption
         return this
     }
 
@@ -56,15 +62,22 @@ class FxViewScreenChangedHelper {
         return screenChanged
     }
 
-    fun setOnScreenChangedFlag(changed: Boolean) {
-        this.screenChanged = changed
+    fun getXY(minW: Float, maxW: Float, minH: Float, maxH: Float): Pair<Float, Float> {
+        val newX = getX(minW, maxW)
+        val newY = getY(minH, maxH)
+        this.screenChanged = false
+        return newX to newY
     }
 
-    fun getPreX(parentW: Float): Float {
-        return parentW * ratioX
+    private fun getX(min: Float, max: Float): Float {
+        return if (enableEdgeAdsorption) {
+            if (isNearestLeft) min else max
+        } else {
+            x.coerceInFx(min, max)
+        }
     }
 
-    fun getPreY(parentH: Float): Float {
-        return parentH * ratioY
+    private fun getY(min: Float, max: Float): Float {
+        return y.coerceInFx(min, max)
     }
 }

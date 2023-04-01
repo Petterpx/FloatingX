@@ -29,8 +29,10 @@ class FxAppControlImpl(
     /** 对于状态栏高度的实时监听,在小屏模式下,效果极好 */
     private val windowsInsetsListener = OnApplyWindowInsetsListener { _, insets ->
         val statusBar = insets.stableInsetTop
-        helper.statsBarHeight = statusBar
-        helper.fxLog?.v("System--StatusBar---old-(${helper.statsBarHeight}),new-($statusBar))")
+        if (helper.statsBarHeight != statusBar) {
+            helper.fxLog?.v("System--StatusBar---old-(${helper.statsBarHeight}),new-($statusBar))")
+            helper.statsBarHeight = statusBar
+        }
         insets
     }
 
