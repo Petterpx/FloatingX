@@ -7,10 +7,10 @@ import com.petterp.floatingx.util.coerceInFx
 import com.petterp.floatingx.util.topActivity
 
 /**
- * FxView的状态
+ * Fx位置恢复助手，用于屏幕旋转后的逻辑延续
  * @author petterp
  */
-class FxViewScreenChangedHelper {
+class FxLocationRestoreHelper {
     // 当前屏幕的大小
     private var screenW = 0
     private var screenH = 0
@@ -31,7 +31,7 @@ class FxViewScreenChangedHelper {
         y: Float,
         parentW: Float,
         config: BasisHelper
-    ): FxViewScreenChangedHelper {
+    ): FxLocationRestoreHelper {
         this.x = x
         this.y = y
         val middle = parentW / 2
