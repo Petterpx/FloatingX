@@ -47,7 +47,7 @@ class FxManagerView @JvmOverloads constructor(
     private var scaledTouchSlop = 0
 
     // 浮窗位置恢复助手
-    private var restoreHelper: FxViewScreenChangedHelper = FxViewScreenChangedHelper()
+    private var restoreHelper: FxLocationRestoreHelper = FxLocationRestoreHelper()
     private var parentChangeListener = OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
         refreshLocation(v.width, v.height)
     }
@@ -307,22 +307,10 @@ class FxManagerView @JvmOverloads constructor(
     private fun updateWidgetSize(): Boolean {
         // 如果此时浮窗被父布局移除,parent将为null,此时就别更新位置了,没意义
         val parentGroup = (parent as? ViewGroup) ?: return false
-        // 这里先减掉自身大小可以避免后期再重复减掉
-        val parentWidth = (parentGroup.width - this@FxManagerView.width).toFloat()
-        val parentHeight = (parentGroup.height - this@FxManagerView.height).toFloat()
-        if (mParentHeight != parentHeight || mParentWidth != parentWidth) {
-            helper.fxLog?.d(
-                "fxView->updateContainerSize: oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)"
-            )
-            mParentWidth = parentWidth
-            mParentHeight = parentHeight
-            return true
-        }
-        return false
+        return updateWidgetSize(parentGroup.width, parentGroup.height)
     }
 
     private fun updateWidgetSize(parentW: Int, parentH: Int): Boolean {
-        // 如果此时浮窗被父布局移除,parent将为null,此时就别更新位置了,没意义
         val parentWidth = (parentW - this@FxManagerView.width).toFloat()
         val parentHeight = (parentH - this@FxManagerView.height).toFloat()
         if (mParentHeight != parentHeight || mParentWidth != parentWidth) {
