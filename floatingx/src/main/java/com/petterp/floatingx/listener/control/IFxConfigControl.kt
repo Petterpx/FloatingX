@@ -29,9 +29,6 @@ interface IFxConfigControl {
     /** 设置边缘偏移量 */
     fun setEdgeOffset(edgeOffset: Float)
 
-    /** 启用位置修复 */
-    fun setEnableAbsoluteFix(isEnable: Boolean)
-
     /** 启用边缘回弹
      * */
     fun setEnableEdgeRebound(isEnable: Boolean)

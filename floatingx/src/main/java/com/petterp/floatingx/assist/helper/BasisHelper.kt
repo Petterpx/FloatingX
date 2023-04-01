@@ -46,9 +46,6 @@ open class BasisHelper {
     internal var enableFx: Boolean = false
 
     @JvmField
-    internal var enableAbsoluteFix: Boolean = false
-
-    @JvmField
     internal var enableEdgeAdsorption: Boolean = true
 
     @JvmField
@@ -160,7 +157,6 @@ open class BasisHelper {
                 defaultX = this@Builder.defaultX
 
                 edgeOffset = this@Builder.edgeOffset
-                enableAbsoluteFix = this@Builder.enableAbsoluteFix
                 enableEdgeAdsorption = this@Builder.enableEdgeAdsorption
                 enableEdgeRebound = this@Builder.enableEdgeRebound
                 enableAnimation = this@Builder.enableAnimation

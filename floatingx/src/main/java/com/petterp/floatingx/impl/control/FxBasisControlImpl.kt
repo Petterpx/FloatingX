@@ -125,10 +125,6 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
         managerView?.moveToEdge()
     }
 
-    override fun setEnableAbsoluteFix(isEnable: Boolean) {
-        helper.enableAbsoluteFix = isEnable
-    }
-
     override fun setEnableEdgeRebound(isEnable: Boolean) {
         helper.enableEdgeRebound = isEnable
         managerView?.moveToEdge()
