@@ -5,7 +5,6 @@
         android:id="@+id/cardItemFx"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:clickable="true"
         app:cardBackgroundColor="@android:color/holo_red_dark"
         app:cardCornerRadius="30dp"
         app:cardElevation="0dp">
