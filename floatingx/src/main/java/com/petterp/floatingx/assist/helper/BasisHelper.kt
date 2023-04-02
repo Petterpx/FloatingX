@@ -122,7 +122,6 @@ open class BasisHelper {
         private var fxBorderMargin: FxBorderMargin = FxBorderMargin()
         private var assistLocation: FxBorderMargin = FxBorderMargin()
 
-        private var enableAbsoluteFix: Boolean = false
         private var enableEdgeAdsorption: Boolean = true
         private var enableEdgeRebound: Boolean = true
         private var enableAnimation: Boolean = false
@@ -202,12 +201,13 @@ open class BasisHelper {
         }
 
         /**
-         * 是否启用触摸事件-(onTouchEvent)
+         * 是否允许浮窗移动 -(onTouchEvent)
          *
-         * true -> 浮窗允许移动 , 并且主动消费所有onTouchEvent中的事件
+         * true -> 浮窗允许移动
          *
-         * false -> ,浮窗屏蔽移动 , 事件将遵循默认传递过程，将询问其子view是否需要消费,用户可自行处理
+         * false -> 浮窗屏蔽移动
          *
+         * Tips: 不影响原有手势事件的传递流程
          * @param isEnable 默认true
          */
         fun setEnableTouch(isEnable: Boolean): T {
@@ -231,20 +231,8 @@ open class BasisHelper {
             return this as T
         }
 
-        /**
-         * 启用位置修复 用于 onConfigurationChanged 不能被正常调用的情况下,比如特定机型 默认
-         * false 启用此开关,每一次onDraw,框架都会计算当前视图是否发生大小改变，如果改变，则强行修复当前错乱的位置
-         * 理论上,当屏幕旋转或者小窗模式,view会收到onConfigurationChanged 调用,框架内部会进行一次修复 ps:
-         * 部分机型，在小窗模式缩放窗口大小时,并不会触发 onConfigurationChanged ps: 此方法对性能有一定影响,如果
-         * onConfigurationChanged 不能正常调用,检查Activity-manifest 是否添加了以下
-         * android:configChanges="orientation|screenSize"
-         */
-        fun setEnableAbsoluteFix(isEnable: Boolean): T {
-            this.enableAbsoluteFix = isEnable
-            return this as T
-        }
-
-        /** 设置悬浮窗点击事件 [clickListener] 点击事件 [time] 重复时间-> default=500ms */
+        /** 设置悬浮窗点击事件 [clickListener] 点击事件 [time] 重复时间-> default=500ms
+         * */
         @JvmOverloads
         fun setOnClickListener(
             time: Long = 500L,

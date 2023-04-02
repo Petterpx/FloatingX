@@ -124,7 +124,7 @@ class CustomKtApplication : Application() {
                         Log.e("petterp", "eventIng,${event.x},${event.y}")
                     }
                 })
-                setEnableTouch(true)
+                setEnableTouch(false)
                 // 设置是否启用日志
                 setEnableLog(BuildConfig.DEBUG)
                 // 设置浮窗tag

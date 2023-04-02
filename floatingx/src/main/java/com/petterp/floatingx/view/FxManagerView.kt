@@ -234,7 +234,12 @@ class FxManagerView @JvmOverloads constructor(
 
     private fun restoreLocation() {
         updateBoundary(false)
-        val (x, y) = restoreHelper.getLocation(minWBoundary, maxWBoundary, minHBoundary, maxHBoundary)
+        val (x, y) = restoreHelper.getLocation(
+            minWBoundary,
+            maxWBoundary,
+            minHBoundary,
+            maxHBoundary
+        )
         this.x = x
         this.y = y
         helper.fxLog?.d("fxView--lifecycle-> restoreLocation:[x:$x,y:$y]")
