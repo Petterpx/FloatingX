@@ -57,6 +57,9 @@ class MainActivity : AppCompatActivity() {
                             show(this@MainActivity)
                         }
                     }
+                    addItemView("隐藏全局悬浮窗") {
+                        FloatingX.control(MultipleFxActivity.TAG_1).hide()
+                    }
                     addItemView("显示一个Activity悬浮窗-(展示与多指触摸)") {
                         activityFx.show()
                         activityFx.updateViewContent {

@@ -1,10 +1,21 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <ManuallySuppressedIssues>
+    <ID>MaxLineLength:FxManagerView.kt$FxManagerView$helper.fxLog?.d("fxView--lifecycle-> onConfigurationChanged--saveLocation:[${x.roundToInt()},${y.roundToInt()}]")</ID>
+    <ID>TooManyFunctions:FxScreenExt.kt$com.petterp.floatingx.util.FxScreenExt.kt</ID>
+    <ID>TooGenericExceptionCaught:FxUiExt.kt$e: Exception</ID>
+    <ID>PrintStackTrace:FxUiExt.kt$e</ID>
+    <ID>SwallowedException:FxScreenExt.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FxScreenExt.kt$e: Exception</ID>
+    <ID>SwallowedException:FxUiExt.kt$e: Exception</ID>
+    <ID>MagicNumber:FxScreenExt.kt$10</ID>
+    <ID>TooManyFunctions:IFxRunControl.kt$IFxRunControl</ID>
+    <ID>MaxLineLength:FxManagerView.kt$FxManagerView$"fxView->updateContainerSize: oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)"</ID>
+  </ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ComplexCondition:FxManagerView.kt$FxManagerView$eventX &gt;= 0 &amp;&amp; eventX &lt;= width &amp;&amp; eventY &gt;= 0 &amp;&amp; eventY &lt;= height</ID>
+    <ID>ComplexCondition:FxManagerView.kt$FxManagerView$eventX >= 0 &amp;&amp; eventX &lt;= width &amp;&amp; eventY >= 0 &amp;&amp; eventY &lt;= height</ID>
     <ID>ComplexCondition:FxManagerView.kt$FxManagerView$helper.enableClickListener &amp;&amp; isClickEnable &amp;&amp; helper.iFxClickListener != null &amp;&amp; isOnClickEvent()</ID>
-    <ID>EmptyFunctionBlock:CustomKtApplication.kt$CustomKtApplication.Companion.&lt;no name provided&gt;${ }</ID>
+    <ID>EmptyFunctionBlock:CustomKtApplication.kt$CustomKtApplication.Companion.&lt;no name provided>${ }</ID>
     <ID>EmptyFunctionBlock:FxScrollImpl.kt$FxScrollImpl${ }</ID>
     <ID>EmptyFunctionBlock:FxScrollImpl.kt$FxScrollImpl${}</ID>
     <ID>EmptyFunctionBlock:FxTagActivityLifecycleImpl.kt$FxTagActivityLifecycleImpl${}</ID>
@@ -36,8 +47,8 @@
     <ID>MaxLineLength:FxAppControlImpl.kt$FxAppControlImpl$throw IllegalArgumentException("view.context != Application,The global floating window must use application as context!")</ID>
     <ID>MaxLineLength:FxBasisControlImpl.kt$FxBasisControlImpl$if (getContainerGroup() == null) throw NullPointerException("FloatingX window The parent container cannot be null!")</ID>
     <ID>MaxLineLength:FxBasisControlImpl.kt$FxBasisControlImpl$if (helper.layoutId == 0 &amp;&amp; helper.layoutView == null) throw RuntimeException("The layout id cannot be 0 ,and layoutView==null")</ID>
-    <ID>MaxLineLength:FxManagerView.kt$FxManagerView$helper.fxLog?.d("fxView-&gt;updateContainerSize: oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)")</ID>
-    <ID>MaxLineLength:FxProxyLifecycleCallBackImpl.kt$FxProxyLifecycleCallBackImpl$fxLog?.d("fxApp-&gt;detach? isContainActivity-${activity.isActivityInValid}--enableFx-$enableFx---isParent-$isParent")</ID>
+    <ID>MaxLineLength:FxManagerView.kt$FxManagerView$helper.fxLog?.d("fxView->updateContainerSize: oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)")</ID>
+    <ID>MaxLineLength:FxProxyLifecycleCallBackImpl.kt$FxProxyLifecycleCallBackImpl$fxLog?.d("fxApp->detach? isContainActivity-${activity.isActivityInValid}--enableFx-$enableFx---isParent-$isParent")</ID>
     <ID>MaxLineLength:FxScopeControl.kt$FxScopeControl$throw IllegalArgumentException("view == Application,Scope floating windows cannot use application-level views!")</ID>
     <ID>MaxLineLength:MainActivity.kt$MainActivity$val</ID>
     <ID>MaxLineLength:utils.kt$get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, toFloat(), Resources.getSystem().displayMetrics).toInt()</ID>
@@ -47,13 +58,13 @@
     <ID>ReturnCount:FxExt.kt$@JvmSynthetic internal fun Float.coerceInFx(min: Float, max: Float): Float</ID>
     <ID>ReturnCount:FxManagerView.kt$FxManagerView$private fun updateWidgetSize(): Boolean</ID>
     <ID>ReturnCount:FxProxyLifecycleCallBackImpl.kt$FxProxyLifecycleCallBackImpl$override fun onActivityResumed(activity: Activity)</ID>
-    <ID>ReturnCount:ScreenExt.kt$private fun getNavigationFromAndroid(activity: Activity): Pair&lt;Int, Int&gt;</ID>
+    <ID>ReturnCount:ScreenExt.kt$private fun getNavigationFromAndroid(activity: Activity): Pair&lt;Int, Int></ID>
     <ID>ReturnCount:ScreenExt.kt$private fun isNavBarVendorHide(context: Context): Int</ID>
     <ID>SwallowedException:ScreenExt.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ScreenExt.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:UiExt.kt$e: Exception</ID>
     <ID>TooGenericExceptionThrown:FxBasisControlImpl.kt$FxBasisControlImpl$throw RuntimeException("The layout id cannot be 0 ,and layoutView==null")</ID>
-    <ID>TooManyFunctions:BasisHelper.kt$BasisHelper$Builder&lt;T, B : BasisHelper&gt;</ID>
+    <ID>TooManyFunctions:BasisHelper.kt$BasisHelper$Builder&lt;T, B : BasisHelper></ID>
     <ID>TooManyFunctions:FloatingX.kt$FloatingX</ID>
     <ID>TooManyFunctions:FxAppControlImpl.kt$FxAppControlImpl : FxBasisControlImplIFxAppControlActivityLifecycleCallbacks</ID>
     <ID>TooManyFunctions:FxBasisControlImpl.kt$FxBasisControlImpl : IFxControlIFxConfigControl</ID>

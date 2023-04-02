@@ -7,7 +7,7 @@ plugins {
 detekt {
     toolVersion = "1.22.0"
     basePath = rootProject.projectDir.path
-    source = files("$rootDir/app/src/main/java", "$rootDir/floatingx/src/main/java")
+    source = files("$rootDir/floatingx/src/main/java")
     baseline = file("${rootDir}/check/detekt/baseline.xml")
     config = files("$rootDir/check/detekt/detekt.yml")
     // 开启并行检测

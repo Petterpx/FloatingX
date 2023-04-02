@@ -138,6 +138,16 @@ class ScopeActivity : AppCompatActivity() {
                     addItemView("边距调整为100f") {
                         scopeFx.configControl.setBorderMargin(100f, 100f, 100f, 100f)
                     }
+                    addItemView("移动浮窗到(0,0)") {
+                        scopeFx.getManagerView()?.apply {
+                            moveLocation(0F, 0F)
+                        }
+                    }
+                    addItemView("浮窗向左移动20F") {
+                        scopeFx.getManagerView()?.apply {
+                            moveLocationByVector(-20F, 0F)
+                        }
+                    }
                     addItemView("设置浮窗子view点击事件(layoutId的示例)") {
                         scopeFx.updateViewContent {
                             it.getView<TextView>(R.id.tvItemFx).setOnClickListener {

@@ -50,8 +50,6 @@ public class CustomJavaApplication extends Application {
 //                .setOnClickListener()
                 // 设置view-lifecycle监听
 //            setViewLifecycle()
-                // 设置启用悬浮窗位置修复
-                .setEnableAbsoluteFix(true)
                 // 设置启用动画
                 .setEnableAnimation(true)
                 // 设置启用动画实现

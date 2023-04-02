@@ -40,13 +40,10 @@ open class BasisHelper {
     internal var edgeOffset: Float = 0f
 
     @JvmField
-    internal var borderMargin: BorderMargin = BorderMargin()
+    internal var fxBorderMargin: FxBorderMargin = FxBorderMargin()
 
     @JvmField
     internal var enableFx: Boolean = false
-
-    @JvmField
-    internal var enableAbsoluteFix: Boolean = false
 
     @JvmField
     internal var enableEdgeAdsorption: Boolean = true
@@ -122,10 +119,9 @@ open class BasisHelper {
         private var defaultX: Float = 0f
         private var edgeOffset: Float = 0f
         private var enableFx: Boolean = false
-        private var borderMargin: BorderMargin = BorderMargin()
-        private var assistLocation: BorderMargin = BorderMargin()
+        private var fxBorderMargin: FxBorderMargin = FxBorderMargin()
+        private var assistLocation: FxBorderMargin = FxBorderMargin()
 
-        private var enableAbsoluteFix: Boolean = false
         private var enableEdgeAdsorption: Boolean = true
         private var enableEdgeRebound: Boolean = true
         private var enableAnimation: Boolean = false
@@ -160,11 +156,10 @@ open class BasisHelper {
                 defaultX = this@Builder.defaultX
 
                 edgeOffset = this@Builder.edgeOffset
-                enableAbsoluteFix = this@Builder.enableAbsoluteFix
                 enableEdgeAdsorption = this@Builder.enableEdgeAdsorption
                 enableEdgeRebound = this@Builder.enableEdgeRebound
                 enableAnimation = this@Builder.enableAnimation
-                borderMargin = this@Builder.borderMargin
+                fxBorderMargin = this@Builder.fxBorderMargin
                 enableSaveDirection = this@Builder.enableSaveDirection
                 enableTouch = this@Builder.enableTouch
                 enableClickListener = this@Builder.enableClickListener
@@ -206,12 +201,13 @@ open class BasisHelper {
         }
 
         /**
-         * 是否启用触摸事件-(onTouchEvent)
+         * 是否允许浮窗移动 -(onTouchEvent)
          *
-         * true -> 浮窗允许移动 , 并且主动消费所有onTouchEvent中的事件
+         * true -> 浮窗允许移动
          *
-         * false -> ,浮窗屏蔽移动 , 事件将遵循默认传递过程，将询问其子view是否需要消费,用户可自行处理
+         * false -> 浮窗屏蔽移动
          *
+         * Tips: 不影响原有手势事件的传递流程
          * @param isEnable 默认true
          */
         fun setEnableTouch(isEnable: Boolean): T {
@@ -235,20 +231,8 @@ open class BasisHelper {
             return this as T
         }
 
-        /**
-         * 启用位置修复 用于 onConfigurationChanged 不能被正常调用的情况下,比如特定机型 默认
-         * false 启用此开关,每一次onDraw,框架都会计算当前视图是否发生大小改变，如果改变，则强行修复当前错乱的位置
-         * 理论上,当屏幕旋转或者小窗模式,view会收到onConfigurationChanged 调用,框架内部会进行一次修复 ps:
-         * 部分机型，在小窗模式缩放窗口大小时,并不会触发 onConfigurationChanged ps: 此方法对性能有一定影响,如果
-         * onConfigurationChanged 不能正常调用,检查Activity-manifest 是否添加了以下
-         * android:configChanges="orientation|screenSize"
-         */
-        fun setEnableAbsoluteFix(isEnable: Boolean): T {
-            this.enableAbsoluteFix = isEnable
-            return this as T
-        }
-
-        /** 设置悬浮窗点击事件 [clickListener] 点击事件 [time] 重复时间-> default=500ms */
+        /** 设置悬浮窗点击事件 [clickListener] 点击事件 [time] 重复时间-> default=500ms
+         * */
         @JvmOverloads
         fun setOnClickListener(
             time: Long = 500L,
@@ -280,7 +264,7 @@ open class BasisHelper {
 
         /** 设置悬浮窗可移动位置偏移 */
         fun setBorderMargin(t: Float, l: Float, b: Float, r: Float): T {
-            borderMargin.apply {
+            fxBorderMargin.apply {
                 this.t = t
                 this.l = l
                 this.b = b
@@ -291,24 +275,24 @@ open class BasisHelper {
 
         /** 设置可移动范围内相对屏幕顶部偏移量 */
         fun setTopBorderMargin(t: Float): T {
-            borderMargin.t = abs(t)
+            fxBorderMargin.t = abs(t)
             return this as T
         }
 
         /** 设置可移动范围内相对屏幕左侧偏移量 */
         fun setLeftBorderMargin(l: Float): T {
-            borderMargin.l = abs(l)
+            fxBorderMargin.l = abs(l)
             return this as T
         }
 
         /** 设置可移动范围内相对屏幕右侧偏移量 */
         fun setRightBorderMargin(r: Float): T {
-            borderMargin.r = abs(r)
+            fxBorderMargin.r = abs(r)
             return this as T
         }
 
         fun setBottomBorderMargin(b: Float): T {
-            borderMargin.b = abs(b)
+            fxBorderMargin.b = abs(b)
             return this as T
         }
 
@@ -425,10 +409,10 @@ open class BasisHelper {
             // 如果坐标规则不符合要求,且未开启辅助定位,则直接返回
             if (!enableAssistLocation && !gravity.isDefault()) return
             val edgeOffset = if (enableEdgeRebound) edgeOffset else 0f
-            val b = assistLocation.b + borderMargin.b + edgeOffset
-            val t = assistLocation.t + borderMargin.t + edgeOffset
-            val r = assistLocation.r + borderMargin.r + edgeOffset
-            val l = assistLocation.l + borderMargin.l + edgeOffset
+            val b = assistLocation.b + fxBorderMargin.b + edgeOffset
+            val t = assistLocation.t + fxBorderMargin.t + edgeOffset
+            val r = assistLocation.r + fxBorderMargin.r + edgeOffset
+            val l = assistLocation.l + fxBorderMargin.l + edgeOffset
             defaultX = 0f
             defaultY = 0f
             when (gravity) {

@@ -3,7 +3,6 @@ package com.petterp.floatingx.view
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
@@ -14,12 +13,10 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.FxGravity
-import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.util.FX_GRAVITY_BOTTOM
 import com.petterp.floatingx.util.FX_GRAVITY_TOP
 import com.petterp.floatingx.util.coerceInFx
-import com.petterp.floatingx.util.topActivity
 
 /** 基础悬浮窗View */
 @SuppressLint("ViewConstructor")
@@ -29,15 +26,15 @@ class FxManagerView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs) {
 
     private lateinit var helper: BasisHelper
-    private var isNeedFixLocation = true
     private var mLastTouchDownTime = 0L
     private var mParentWidth = 0f
     private var mParentHeight = 0f
 
     private var isNearestLeft = true
-    private var mPortraitY = 0f
     private var downTouchX = 0f
     private var downTouchY = 0f
+    private var currentX = 0f
+    private var currentY = 0f
     private var touchDownId = 0
 
     private var minHBoundary = 0f
@@ -49,11 +46,17 @@ class FxManagerView @JvmOverloads constructor(
     private var isMoveLoading = false
     private var scaledTouchSlop = 0
 
+    private var restoreHelper: FxLocationRestoreHelper = FxLocationRestoreHelper()
+    private var parentChangeListener = OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+        refreshLocation(v.width, v.height)
+    }
+
     private var _childFxView: View? = null
     val childFxView: View? get() = _childFxView
     private var mMoveAnimator: MoveAnimator = MoveAnimator()
 
-    fun init(config: BasisHelper): FxManagerView {
+    @JvmSynthetic
+    internal fun init(config: BasisHelper): FxManagerView {
         this.helper = config
         initView()
         return this
@@ -101,8 +104,11 @@ class FxManagerView @JvmOverloads constructor(
 
         // 获得浮窗的位置
         // 存在历史位置 || 根据配置去获取
-        val (initX, initY) = if (hasConfig) configImpl!!.getX() to configImpl.getY()
-        else initDefaultXY()
+        val (initX, initY) = if (hasConfig) {
+            configImpl!!.getX() to configImpl.getY()
+        } else {
+            initDefaultXY()
+        }
         if (initX != -1F) x = initX
         if (initY != -1F) y = initY
         helper.fxLog?.d("fxView->initLocation,isHasConfig-($hasConfig),defaultX-($initX),defaultY-($initY)")
@@ -130,13 +136,35 @@ class FxManagerView @JvmOverloads constructor(
         return defaultY
     }
 
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
-        if (!isNeedFixLocation && !helper.enableAbsoluteFix) return
-        isNeedFixLocation = false
-        if (updateWidgetSize()) {
-            moveToEdge()
+    /**
+     * 移动浮窗到指定位置，该方法会帮助你处理越界问题
+     * @param x 要移动到的x坐标
+     * @param y 要移动到的y坐标
+     * @param useAnimation 是否使用动画
+     * */
+    @JvmOverloads
+    fun moveLocation(x: Float, y: Float, useAnimation: Boolean = true) {
+        val newX = x.coerceInFx(minWBoundary, maxWBoundary)
+        val newY = y.coerceInFx(minHBoundary, maxHBoundary)
+        if (useAnimation) {
+            moveToLocation(newX, newY)
+        } else {
+            this.x = x
+            this.y = y
         }
+    }
+
+    /**
+     * 按照向量移动浮窗，该方法会帮你处理越界问题
+     * @param x x坐标要增加或减少的值
+     * @param y y坐标要增加或减少的值
+     * @param useAnimation 是否使用动画
+     * */
+    @JvmOverloads
+    fun moveLocationByVector(x: Float, y: Float, useAnimation: Boolean = true) {
+        val currentX = this.x.plus(x)
+        val currentY = this.y.plus(y)
+        moveLocation(currentX, currentY, useAnimation)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
@@ -198,12 +226,14 @@ class FxManagerView @JvmOverloads constructor(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         helper.iFxViewLifecycle?.attach()
+        (parent as? ViewGroup)?.addOnLayoutChangeListener(parentChangeListener)
         helper.fxLog?.d("fxView-lifecycle-> onAttachedToWindow")
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         helper.iFxViewLifecycle?.detached()
+        (parent as? ViewGroup)?.removeOnLayoutChangeListener(parentChangeListener)
         helper.fxLog?.d("fxView-lifecycle-> onDetachedFromWindow")
     }
 
@@ -215,27 +245,14 @@ class FxManagerView @JvmOverloads constructor(
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        helper.fxLog?.d("fxView--lifecycle-> onConfigurationChanged--")
-        val parentGroup = (parent as? ViewGroup) ?: return
-        val isLandscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
-        var isNavigationCHanged = false
-        // 对于全局的处理
-        if (helper is AppHelper) {
-            val navigationBarHeight = helper.navigationBarHeight
-            (helper as AppHelper).updateNavigationBar(topActivity)
-            isNavigationCHanged = navigationBarHeight != helper.navigationBarHeight
-        }
-        if (isLandscape || isNavigationCHanged) {
-            mPortraitY = y
-        }
-        isMoveLoading = false
-
-        // 如果视图大小改变,则更新位置
-        parentGroup.post {
-            if (updateWidgetSize()) {
-                moveToEdge(isLandscape = isLandscape)
-            }
-        }
+        helper.fxLog?.d("fxView--lifecycle-> onConfigurationChanged--->")
+        // use the configuration in Configuration first
+        val isScreenChanged = restoreHelper.updateConfig(newConfig)
+        if (!isScreenChanged) return
+        val x = x
+        val y = y
+        restoreHelper.saveLocation(x, y, mParentWidth, helper)
+        helper.fxLog?.d("fxView--lifecycle-> saveLocation:[x:$x,y:$y]")
     }
 
     private fun clickManagerView() {
@@ -249,7 +266,6 @@ class FxManagerView @JvmOverloads constructor(
 
     private fun actionTouchCancel() {
         helper.iFxScrollListener?.up()
-        mPortraitY = 0f
         touchDownId = INVALID_TOUCH_ID
         moveToEdge()
     }
@@ -262,19 +278,19 @@ class FxManagerView @JvmOverloads constructor(
         // 开启边缘回弹时,浮窗允许移动到边界外
         if (helper.enableEdgeRebound) {
             val edgeOffset = if (isDownTouchInit) 0f else helper.edgeOffset
-            val marginTop = if (isDownTouchInit) 0f else helper.borderMargin.t + edgeOffset
-            val marginBto = if (isDownTouchInit) 0f else helper.borderMargin.b + edgeOffset
-            val marginLef = if (isDownTouchInit) 0f else helper.borderMargin.l + edgeOffset
-            val marginRig = if (isDownTouchInit) 0f else helper.borderMargin.r + edgeOffset
+            val marginTop = if (isDownTouchInit) 0f else helper.fxBorderMargin.t + edgeOffset
+            val marginBto = if (isDownTouchInit) 0f else helper.fxBorderMargin.b + edgeOffset
+            val marginLef = if (isDownTouchInit) 0f else helper.fxBorderMargin.l + edgeOffset
+            val marginRig = if (isDownTouchInit) 0f else helper.fxBorderMargin.r + edgeOffset
             minWBoundary = marginLef
             maxWBoundary = mParentWidth - marginRig
             minHBoundary = helper.statsBarHeight.toFloat() + marginTop
             maxHBoundary = mParentHeight - helper.navigationBarHeight - marginBto
         } else {
-            minWBoundary = helper.borderMargin.l
-            maxWBoundary = mParentWidth - helper.borderMargin.r
-            minHBoundary = helper.statsBarHeight + helper.borderMargin.t
-            maxHBoundary = mParentHeight - helper.navigationBarHeight - helper.borderMargin.b
+            minWBoundary = helper.fxBorderMargin.l
+            maxWBoundary = mParentWidth - helper.fxBorderMargin.r
+            minHBoundary = helper.statsBarHeight + helper.fxBorderMargin.t
+            maxHBoundary = mParentHeight - helper.navigationBarHeight - helper.fxBorderMargin.b
         }
     }
 
@@ -291,6 +307,15 @@ class FxManagerView @JvmOverloads constructor(
         helper.fxLog?.d("fxView---newTouchDown:$touchDownId")
     }
 
+    private fun refreshLocation(w: Int, h: Int) {
+        if (!updateWidgetSize(w, h)) return
+        if (restoreHelper.isRestoreLocation()) {
+            restoreLocation()
+        } else {
+            moveToEdge(isUpdateBoundary = false)
+        }
+    }
+
     private fun updateLocation(event: MotionEvent, pointIndex: Int) {
         val disX = x.plus(event.getX(pointIndex)).minus(downTouchX)
             .coerceInFx(minWBoundary, maxWBoundary)
@@ -302,16 +327,40 @@ class FxManagerView @JvmOverloads constructor(
         helper.fxLog?.v("fxView---scrollListener--drag-event--x($disX)-y($disY)")
     }
 
+    @JvmSynthetic
+    internal fun restoreLocation(x: Float, y: Float) {
+        (layoutParams as LayoutParams).gravity = FxGravity.DEFAULT.value
+        this.x = x
+        this.y = y
+    }
+
+    private fun restoreLocation() {
+        val (x, y) = restoreHelper.getLocation(
+            minWBoundary,
+            maxWBoundary,
+            minHBoundary,
+            maxHBoundary
+        )
+        this.x = x
+        this.y = y
+        saveLocationToStorage(x, y)
+        helper.fxLog?.d("fxView--lifecycle-> restoreLocation:[x:$x,y:$y]")
+    }
+
     private fun updateWidgetSize(): Boolean {
         // 如果此时浮窗被父布局移除,parent将为null,此时就别更新位置了,没意义
         val parentGroup = (parent as? ViewGroup) ?: return false
-        // 这里先减掉自身大小可以避免后期再重复减掉
-        val parentWidth = (parentGroup.width - this@FxManagerView.width).toFloat()
-        val parentHeight = (parentGroup.height - this@FxManagerView.height).toFloat()
+        return updateWidgetSize(parentGroup.width, parentGroup.height)
+    }
+
+    private fun updateWidgetSize(parentW: Int, parentH: Int): Boolean {
+        val parentWidth = (parentW - this@FxManagerView.width).toFloat()
+        val parentHeight = (parentH - this@FxManagerView.height).toFloat()
         if (mParentHeight != parentHeight || mParentWidth != parentWidth) {
             helper.fxLog?.d("fxView->updateContainerSize: oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)")
             mParentWidth = parentWidth
             mParentHeight = parentHeight
+            updateBoundary(false)
             return true
         }
         return false
@@ -324,60 +373,36 @@ class FxManagerView @JvmOverloads constructor(
     }
 
     @JvmSynthetic
-    internal fun moveToEdge(isLeft: Boolean = isNearestLeft(), isLandscape: Boolean = false) {
+    internal fun moveToEdge(isLeft: Boolean = isNearestLeft(), isUpdateBoundary: Boolean = true) {
         if (isMoveLoading) return
+        if (isUpdateBoundary) updateBoundary(false)
         // 允许边缘吸附
         if (helper.enableEdgeAdsorption) {
-            updateBoundary(false)
-            autoMove(isLeft, isLandscape)
-            return
-        }
-        // 允许边缘回弹
-        if (helper.enableEdgeRebound) {
-            updateBoundary(false)
-            val currentX = x.coerceInFx(minWBoundary, maxWBoundary)
-            val currentY = y.coerceInFx(minHBoundary, maxHBoundary)
-            if (currentX != x || currentY != y) {
-                isMoveLoading = true
-                moveLocation(currentX, currentY)
-            }
+            val moveY = y.coerceInFx(minHBoundary, maxHBoundary)
+            val moveX = if (isLeft) minWBoundary else maxWBoundary
+            moveToLocation(moveX, moveY)
+        } else if (helper.enableEdgeRebound) {
+            val moveX = x.coerceInFx(minWBoundary, maxWBoundary)
+            val moveY = y.coerceInFx(minHBoundary, maxHBoundary)
+            moveToLocation(moveX, moveY)
         }
     }
 
-    private fun autoMove(isLeft: Boolean, isLandscape: Boolean) {
+    private fun moveToLocation(moveX: Float, moveY: Float) {
         isMoveLoading = true
-        var moveY = y
-        val moveX = if (isLeft) minWBoundary else maxWBoundary
-        // 对于重建之后的位置保存
-        if (isLandscape && mPortraitY != 0f) {
-            moveY = mPortraitY
-            mPortraitY = 0f
-        }
-        moveY = moveY.coerceInFx(minHBoundary, maxHBoundary)
-        moveLocation(moveX, moveY)
-    }
-
-    @JvmSynthetic
-    internal fun updateLocation(x: Float, y: Float) {
-        (layoutParams as LayoutParams).gravity = FxGravity.DEFAULT.value
-        this.x = x
-        this.y = y
-        helper.fxLog?.d("fxView-updateManagerView-> RestoreLocation  x->$x,y->$y")
-    }
-
-    private fun moveLocation(moveX: Float, moveY: Float) {
         if (moveX == x && moveY == y) {
             isMoveLoading = false
             return
         }
-        mMoveAnimator.start(moveX, moveY)
         helper.fxLog?.d("fxView-->moveToEdge---x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
-        if (helper.enableSaveDirection) {
-            saveConfig(moveX, moveY)
-        }
+        mMoveAnimator.start(moveX, moveY)
+        currentX = moveX
+        currentY = moveY
+        saveLocationToStorage(moveX, moveY)
     }
 
-    private fun saveConfig(moveX: Float, moveY: Float) {
+    private fun saveLocationToStorage(moveX: Float, moveY: Float) {
+        if (!helper.enableSaveDirection) return
         if (helper.iFxConfigStorage == null) {
             helper.fxLog?.e("fxView-->saveDirection---iFxConfigStorageImpl does not exist, save failed!")
             return
@@ -403,6 +428,8 @@ class FxManagerView @JvmOverloads constructor(
                 MAX_PROGRESS.coerceAtMost((System.currentTimeMillis() - startingTime) / DEFAULT_MOVE_ANIMATOR_DURATION)
             x += (destinationX - x) * progress
             y += (destinationY - y) * progress
+            currentX = x
+            currentY = y
             if (progress < MAX_PROGRESS) {
                 HANDLER.post(this)
             } else {
