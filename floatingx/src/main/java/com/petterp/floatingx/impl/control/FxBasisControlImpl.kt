@@ -159,34 +159,17 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
         helper.enableEdgeAdsorption = isEnable
     }
 
-    private fun animatorCallback(long: Long, runnable: Runnable) {
-        val magnetView = managerView ?: return
-        magnetView.removeCallbacks(runnable)
-        magnetView.postDelayed(
-            runnable,
-            long
-        )
-    }
-
     /*
     * 以下方法作为基础实现,供子类自行调用
     * */
     protected open fun updateMangerView(@LayoutRes layout: Int = 0) {
         helper.layoutId = layout
         if (getContainerGroup() == null) throw NullPointerException("FloatingX window The parent container cannot be null!")
-        val isShow = isShow()
-        if (helper.iFxConfigStorage?.hasConfig() != true) {
-            val x = managerView?.x ?: 0f
-            val y = managerView?.y ?: 0f
-            initManagerView()
-            managerView?.updateLocation(x, y)
-        } else {
-            initManagerView()
-        }
-        // 如果当前显示,再添加到parent里
-        if (isShow) {
-            getContainerGroup()?.addView(managerView)
-        }
+        val x = managerView?.x ?: 0f
+        val y = managerView?.y ?: 0f
+        initManagerView()
+        managerView?.restoreLocation(x, y)
+        getContainerGroup()?.addView(managerView)
     }
 
     protected fun initManagerView() {
@@ -199,6 +182,11 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
         managerView = FxManagerView(context()).init(helper)
         val fxContentView = managerView?.childFxView ?: return
         viewHolder = FxViewHolder(fxContentView)
+    }
+
+    protected fun getOrInitManagerView(): FxManagerView? {
+        if (managerView == null) initManagerView()
+        return managerView
     }
 
     protected fun getContainerGroup(): ViewGroup? {
@@ -265,5 +253,14 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
 
     internal fun setContainerGroup(viewGroup: ViewGroup) {
         mContainer = WeakReference(viewGroup)
+    }
+
+    private fun animatorCallback(long: Long, runnable: Runnable) {
+        val magnetView = managerView ?: return
+        magnetView.removeCallbacks(runnable)
+        magnetView.postDelayed(
+            runnable,
+            long
+        )
     }
 }

@@ -2,6 +2,7 @@ package com.petterp.floatingx.impl.control
 
 import android.app.Application
 import android.view.View
+import androidx.core.view.ViewCompat
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.listener.control.IFxScopeControl
 
@@ -12,10 +13,12 @@ class FxScopeControl<T>(helper: BasisHelper) :
 
     override fun show() {
         if (isShow()) return
-        if (getManagerView() == null) initManagerView()
+        val managerView = getOrInitManagerView() ?: return
         updateEnableStatus(true)
-        getContainerGroup()?.addView(getManagerView())
-        getManagerView()?.show()
+        if (!ViewCompat.isAttachedToWindow(managerView)) {
+            getContainerGroup()?.addView(managerView)
+        }
+        managerView.show()
     }
 
     override fun updateView(view: View) {
