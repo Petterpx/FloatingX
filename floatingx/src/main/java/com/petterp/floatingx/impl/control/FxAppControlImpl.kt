@@ -26,7 +26,6 @@ class FxAppControlImpl(
         proxyLifecycleImpl.init(helper, this)
     }
 
-    /** 对于状态栏高度的实时监听,在小屏模式下,效果极好 */
     private val windowsInsetsListener = OnApplyWindowInsetsListener { _, insets ->
         val statusBar = insets.stableInsetTop
         if (helper.statsBarHeight != statusBar) {

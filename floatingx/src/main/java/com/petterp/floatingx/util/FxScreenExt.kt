@@ -85,7 +85,9 @@ internal val Activity.navigationBarHeight: Int
         // 华为部分机型测量需要特别注意
         val newNavigationBarHeight = if (!isShow || realSize == newScreenHeight) {
             0
-        } else getNavigationBarHeightFromSystem(newScreenHeight, realSize, this)
+        } else {
+            getNavigationBarHeightFromSystem(newScreenHeight, realSize, this)
+        }
         navigationHeightBf = newNavigationBarHeight
         return newNavigationBarHeight
     }
@@ -170,8 +172,7 @@ private fun checkNavigationBarShow(context: Context): Boolean {
         } else if ("0" == navBarOverride) {
             hasNavigationBar = true
         }
-    } catch (e: Exception) {
-        e.printStackTrace()
+    } catch (_: Exception) {
     }
     return hasNavigationBar
 }
@@ -188,8 +189,12 @@ private fun getNavigationBarHeightFromSystem(
         // 超出系统默认的导航栏高度以上，则认为存在虚拟导航
         if (realSize - screenSize > height - 10) {
             height
-        } else 0
-    } else 0
+        } else {
+            0
+        }
+    } else {
+        0
+    }
 }
 
 private fun isNavBarVendorHide(context: Context): Int {
@@ -221,7 +226,9 @@ private fun isNavBarVendorHide(context: Context): Int {
     return if (isGoogle) {
         // navigation_mode 三种模式均有导航栏，只是高度不同。
         0
-    } else -1
+    } else {
+        -1
+    }
 }
 
 /**
@@ -278,17 +285,17 @@ private fun smartisanNavigationEnabled(context: Context): Int {
 
 private fun nokiaNavigationEnabled(context: Context): Int {
     val result = (
-        Settings.Secure.getInt(
-            context.contentResolver,
-            "swipe_up_to_switch_apps_enabled",
-            0
-        ) != 0 ||
-            Settings.System.getInt(
-            context.contentResolver,
-            "navigation_bar_can_hiden",
-            0
-        ) != 0
-        )
+            Settings.Secure.getInt(
+                context.contentResolver,
+                "swipe_up_to_switch_apps_enabled",
+                0
+            ) != 0 ||
+                    Settings.System.getInt(
+                        context.contentResolver,
+                        "navigation_bar_can_hiden",
+                        0
+                    ) != 0
+            )
     return if (result) {
         1
     } else {

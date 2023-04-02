@@ -46,7 +46,6 @@ class FxManagerView @JvmOverloads constructor(
     private var isMoveLoading = false
     private var scaledTouchSlop = 0
 
-    // 浮窗位置恢复助手
     private var restoreHelper: FxLocationRestoreHelper = FxLocationRestoreHelper()
     private var parentChangeListener = OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
         refreshLocation(v.width, v.height)
@@ -216,7 +215,7 @@ class FxManagerView @JvmOverloads constructor(
         super.onConfigurationChanged(newConfig)
         helper.fxLog?.d("fxView--lifecycle-> onConfigurationChanged--->")
         // use the configuration in Configuration first
-        val isScreenChanged = restoreHelper.updateConfig(newConfig, helper)
+        val isScreenChanged = restoreHelper.updateConfig(newConfig)
         if (!isScreenChanged) return
         val x = x
         val y = y
@@ -226,7 +225,7 @@ class FxManagerView @JvmOverloads constructor(
 
     private fun refreshLocation(w: Int, h: Int) {
         if (!updateWidgetSize(w, h)) return
-        if (restoreHelper.isScreenChanged()) {
+        if (restoreHelper.isRestoreLocation()) {
             restoreLocation()
         } else {
             moveToEdge()
@@ -235,7 +234,7 @@ class FxManagerView @JvmOverloads constructor(
 
     private fun restoreLocation() {
         updateBoundary(false)
-        val (x, y) = restoreHelper.getXY(minWBoundary, maxWBoundary, minHBoundary, maxHBoundary)
+        val (x, y) = restoreHelper.getLocation(minWBoundary, maxWBoundary, minHBoundary, maxHBoundary)
         this.x = x
         this.y = y
         helper.fxLog?.d("fxView--lifecycle-> restoreLocation:[x:$x,y:$y]")

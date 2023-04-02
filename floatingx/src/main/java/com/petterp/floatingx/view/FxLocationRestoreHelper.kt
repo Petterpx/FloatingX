@@ -1,31 +1,30 @@
 package com.petterp.floatingx.view
 
 import android.content.res.Configuration
-import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.util.coerceInFx
-import com.petterp.floatingx.util.topActivity
 
 /**
- * Fx位置恢复助手，用于屏幕旋转后的逻辑延续
+ * Fx location restore helper，Used to restore the location of the floating window after the screen is rotated
  * @author petterp
  */
 class FxLocationRestoreHelper {
-    // 当前屏幕的大小
     private var screenW = 0
     private var screenH = 0
-
-    // 缓存浮窗位置相对于屏幕的比例
     private var x: Float = 0f
     private var y: Float = 0f
     private var isNearestLeft = false
     private var enableEdgeAdsorption = false
-
-    // 屏幕大小是否已更新
     private var screenChanged: Boolean = false
 
-    fun isScreenChanged() = screenChanged
+    /**
+     * Whether to restore the position
+     * */
+    fun isRestoreLocation() = screenChanged
 
+    /**
+     * save location info
+     * */
     fun saveLocation(
         x: Float,
         y: Float,
@@ -40,7 +39,11 @@ class FxLocationRestoreHelper {
         return this
     }
 
-    fun updateConfig(config: Configuration, helper: BasisHelper): Boolean {
+    /**
+     * update screen size config
+     * @return Whether the screen rotation has occurred
+     * */
+    fun updateConfig(config: Configuration): Boolean {
         val isChangedScreen =
             if (config.screenWidthDp != screenW || config.screenHeightDp != screenH) {
                 this.screenW = config.screenWidthDp
@@ -49,20 +52,12 @@ class FxLocationRestoreHelper {
             } else {
                 false
             }
-
-        // check NavigationBar height and update
-        val isChangedNavBar = if (helper is AppHelper) {
-            val navigationBarHeight = helper.navigationBarHeight
-            helper.updateNavigationBar(topActivity)
-            navigationBarHeight != helper.navigationBarHeight
-        } else {
-            false
-        }
-        screenChanged = isChangedNavBar || isChangedScreen
+        screenChanged = isChangedScreen
         return screenChanged
     }
 
-    fun getXY(minW: Float, maxW: Float, minH: Float, maxH: Float): Pair<Float, Float> {
+    /** get location config  */
+    fun getLocation(minW: Float, maxW: Float, minH: Float, maxH: Float): Pair<Float, Float> {
         val newX = getX(minW, maxW)
         val newY = getY(minH, maxH)
         this.screenChanged = false

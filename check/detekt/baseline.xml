@@ -2,6 +2,13 @@
 <SmellBaseline>
   <ManuallySuppressedIssues>
     <ID>MaxLineLength:FxManagerView.kt$FxManagerView$helper.fxLog?.d("fxView--lifecycle-> onConfigurationChanged--saveLocation:[${x.roundToInt()},${y.roundToInt()}]")</ID>
+    <ID>TooManyFunctions:FxScreenExt.kt$com.petterp.floatingx.util.FxScreenExt.kt</ID>
+    <ID>TooGenericExceptionCaught:FxUiExt.kt$e: Exception</ID>
+    <ID>PrintStackTrace:FxUiExt.kt$e</ID>
+    <ID>SwallowedException:FxScreenExt.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FxScreenExt.kt$e: Exception</ID>
+    <ID>SwallowedException:FxUiExt.kt$e: Exception</ID>
+    <ID>MagicNumber:FxScreenExt.kt$10</ID>
   </ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>ComplexCondition:FxManagerView.kt$FxManagerView$eventX >= 0 &amp;&amp; eventX &lt;= width &amp;&amp; eventY >= 0 &amp;&amp; eventY &lt;= height</ID>
