@@ -26,7 +26,7 @@ android {
         targetSdk targetsdk_version
         versionCode versionCode
         versionName version_name
-        consumerProguardFiles "consumer-rules.pro"
+        consumerProguardFiles "proguard-floatingx.pro"
     }
 
     buildTypes {
