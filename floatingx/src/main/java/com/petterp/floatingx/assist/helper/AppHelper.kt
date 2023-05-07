@@ -75,8 +75,13 @@ class AppHelper(
          *
          * [setEnableAllBlackClass(true)] 时,此方法生效
          */
-        fun addInstallBlackClass(vararg c: Class<out Activity>): Builder {
+        fun addInstallBlackClass(vararg c: Class<Activity>): Builder {
             blackFilterList.addAll(c)
+            return this
+        }
+
+        fun addInstallBlackClass(cls: List<Class<Activity>>): Builder {
+            blackFilterList.addAll(cls)
             return this
         }
 
@@ -99,8 +104,13 @@ class AppHelper(
          *
          * [setEnableAllBlackClass(false)] 时,此方法生效
          */
-        fun addInstallWhiteClass(vararg c: Class<out Activity>): Builder {
+        fun addInstallWhiteClass(vararg c: Class<Activity>): Builder {
             whiteInsertList.addAll(c)
+            return this
+        }
+
+        fun addInstallWhiteClass(cls: List<Class<Activity>>): Builder {
+            whiteInsertList.addAll(cls)
             return this
         }
 
