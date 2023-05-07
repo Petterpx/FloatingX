@@ -46,6 +46,7 @@ class CustomKtApplication : Application() {
 
         fun installTag1(context: Application) {
             FloatingX.install {
+                setContext(context)
                 setLayout(R.layout.item_floating)
                 // 传递自定义的View
 //            setLayoutView(

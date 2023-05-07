@@ -1,10 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.petterp.floatingx">
-    <application>
-        <provider
-            android:name=".impl.lifecycle.FxLifecycleProvider"
-            android:authorities="${applicationId}.fx.provider"
-            android:exported="false" />
-    </application>
-</manifest>
+<manifest package="com.petterp.floatingx" />
