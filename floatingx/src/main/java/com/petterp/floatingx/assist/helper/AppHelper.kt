@@ -1,6 +1,8 @@
 package com.petterp.floatingx.assist.helper
 
 import android.app.Activity
+import android.app.Application
+import android.content.Context
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.util.FxScopeEnum
@@ -41,6 +43,19 @@ class AppHelper(
         private var tag = FloatingX.FX_DEFAULT_TAG
 
         /**
+         * 设置context
+         * @param context context
+         * */
+        fun setContext(context: Context): Builder {
+            if (context is Application) {
+                FloatingX.context = context
+            } else {
+                FloatingX.context = context.applicationContext as Application
+            }
+            return this
+        }
+
+        /**
          * 设置显示悬浮窗的Activity生命周期回调
          *
          * @param tagActivityLifecycle 生命周期实现类回调
@@ -62,6 +77,11 @@ class AppHelper(
          */
         fun addInstallBlackClass(vararg c: Class<out Activity>): Builder {
             blackFilterList.addAll(c)
+            return this
+        }
+
+        fun addInstallBlackClass(cls: List<Class<out Activity>>): Builder {
+            blackFilterList.addAll(cls)
             return this
         }
 
@@ -89,6 +109,11 @@ class AppHelper(
             return this
         }
 
+        fun addInstallWhiteClass(cls: List<Class<out Activity>>): Builder {
+            whiteInsertList.addAll(cls)
+            return this
+        }
+
         /**
          * 是否允许给所有浮窗安装悬浮窗
          *
@@ -111,9 +136,7 @@ class AppHelper(
         override fun build(): AppHelper {
             val helper = super.build()
             // 有可能用户会使用多个浮窗，这里为了防止日志混乱，将浮窗tag赋值给日志tag
-            if (helper.enableDebugLog && helper.fxLogTag.isEmpty()) {
-                helper.fxLogTag = tag
-            }
+            if (helper.enableDebugLog && helper.fxLogTag.isEmpty()) helper.fxLogTag = tag
             helper.initLog(FxScopeEnum.APP_SCOPE.tag)
             return helper
         }

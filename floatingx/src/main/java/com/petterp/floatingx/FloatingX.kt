@@ -3,7 +3,6 @@ package com.petterp.floatingx
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import com.petterp.floatingx.assist.helper.AppHelper
 import com.petterp.floatingx.impl.control.FxAppControlImpl
 import com.petterp.floatingx.impl.lifecycle.FxLifecycleCallbackImpl
@@ -14,10 +13,12 @@ import com.petterp.floatingx.listener.control.IFxConfigControl
 /** Single Control To Fx */
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
-    private lateinit var context: Application
     private const val FX_DEFAULT_INITIAL_CAPACITY = 3
     private var fxs = HashMap<String, FxAppControlImpl>(FX_DEFAULT_INITIAL_CAPACITY)
     private var fxLifecycleCallback: FxLifecycleCallbackImpl? = null
+
+    @JvmSynthetic
+    internal var context: Application? = null
 
     @JvmSynthetic
     internal const val FX_DEFAULT_TAG = "FX_DEFAULT_TAG"
@@ -61,9 +62,13 @@ object FloatingX {
      * 如果你需要多个浮窗，记得调用AppHelper.setTag()方法，设置浮窗tag，如果没有调用setTag()方法，则默认tag为[FX_DEFAULT_TAG]
      *
      * 多次调用install()时，如果当前tag对应的浮窗存在，则会取消上一个浮窗，重新安装一个新的浮窗
+     *
      */
     @JvmStatic
     fun install(helper: AppHelper): IFxAppControl {
+        if (context == null) {
+            throw NullPointerException("context == null, please call AppHelper.setContext(context) to set context")
+        }
         if (fxs.isNotEmpty()) fxs[helper.tag]?.cancel()
         val fxAppControlImpl = FxAppControlImpl(helper, FxProxyLifecycleCallBackImpl())
         fxs[helper.tag] = fxAppControlImpl
@@ -136,15 +141,7 @@ object FloatingX {
     }
 
     @JvmSynthetic
-    internal fun initContext(context: Context) {
-        this.context = context as Application
-    }
-
-    @JvmSynthetic
     internal fun getFxList(): Map<String, FxAppControlImpl> = fxs
-
-    @JvmSynthetic
-    internal fun getContext(): Context = context
 
     @JvmSynthetic
     internal fun uninstall(tag: String, control: FxAppControlImpl) {
@@ -165,7 +162,7 @@ object FloatingX {
         if (fxLifecycleCallback != null) return
         FxLifecycleCallbackImpl.updateTopActivity(activity)
         fxLifecycleCallback = FxLifecycleCallbackImpl()
-        context.registerActivityLifecycleCallbacks(fxLifecycleCallback)
+        context?.registerActivityLifecycleCallbacks(fxLifecycleCallback)
     }
 
     private fun getTagFxControl(tag: String): FxAppControlImpl {
@@ -176,7 +173,7 @@ object FloatingX {
 
     private fun release() {
         if (fxLifecycleCallback == null && FxLifecycleCallbackImpl.topActivity == null) return
-        context.unregisterActivityLifecycleCallbacks(fxLifecycleCallback)
+        context?.unregisterActivityLifecycleCallbacks(fxLifecycleCallback)
         FxLifecycleCallbackImpl.releaseTopActivity()
         fxLifecycleCallback = null
     }

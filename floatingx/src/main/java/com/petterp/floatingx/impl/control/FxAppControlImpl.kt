@@ -65,7 +65,7 @@ class FxAppControlImpl(
         super.updateView(view)
     }
 
-    override fun context(): Context = FloatingX.getContext()
+    override fun context(): Context = FloatingX.context!!
 
     private fun initWindowsInsetsListener() {
         getManagerView()?.let {
