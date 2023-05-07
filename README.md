@@ -62,7 +62,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	  implementation 'com.github.Petterpx:FloatingX:1.2.4'
+	  implementation 'com.github.Petterpx:FloatingX:1.2.5'
 }
 ```
 
@@ -95,6 +95,7 @@ dependencies {
 
 ```kotlin
 FloatingX.install {
+	setContext(context)
         setLayout(R.layout.item_floating_new)
   	//只有调用了enableFx(),后续才会自动插入activity中
         enableFx()
@@ -105,6 +106,7 @@ FloatingX.install {
 
 ```java
 AppHelper helper = AppHelper.builder()
+	.setContext(context)
         .setLayout(R.layout.item_floating)
 	.enableFx()
         .build();
