@@ -11,6 +11,7 @@
     <ID>MagicNumber:FxScreenExt.kt$10</ID>
     <ID>TooManyFunctions:IFxRunControl.kt$IFxRunControl</ID>
     <ID>MaxLineLength:FxManagerView.kt$FxManagerView$"fxView->updateContainerSize: oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)"</ID>
+    <ID>TooManyFunctions:AppHelper.kt$AppHelper$Builder : Builder</ID>
   </ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>ComplexCondition:FxManagerView.kt$FxManagerView$eventX >= 0 &amp;&amp; eventX &lt;= width &amp;&amp; eventY >= 0 &amp;&amp; eventY &lt;= height</ID>

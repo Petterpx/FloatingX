@@ -174,18 +174,6 @@ open class BasisHelper {
                 iFxClickListener = this@Builder.ifxClickListener
             }
 
-        /** 设置启用fx */
-        fun enableFx(): T {
-            this.enableFx = true
-            return this as T
-        }
-
-        @Deprecated("使用enableFx()替代show()", replaceWith = ReplaceWith("enableFx()"))
-        fun show(): T {
-            this.enableFx = true
-            return this as T
-        }
-
         /** 设置悬浮窗view的layout */
         fun setLayout(@LayoutRes layoutId: Int): T {
             this.layoutView = null
