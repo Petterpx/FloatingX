@@ -198,12 +198,11 @@ class FxManagerView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_MOVE -> {
-                if (touchDownId == INVALID_TOUCH_ID || !helper.enableTouch) {
-                    return super.onTouchEvent(event)
-                }
-                val pointIdx = event.findPointerIndex(touchDownId)
-                if (pointIdx != INVALID_TOUCH_IDX) {
-                    updateLocation(event, pointIdx)
+                if (touchDownId != INVALID_TOUCH_ID && helper.enableTouch) {
+                    val pointIdx = event.findPointerIndex(touchDownId)
+                    if (pointIdx != INVALID_TOUCH_IDX) {
+                        updateLocation(event, pointIdx)
+                    }
                 }
             }
 

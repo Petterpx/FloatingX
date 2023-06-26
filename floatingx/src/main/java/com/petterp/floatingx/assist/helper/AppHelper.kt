@@ -11,16 +11,21 @@ import com.petterp.floatingx.util.statusBarHeight
 
 /** AppHelper构建器 */
 class AppHelper(
-    /** 浮窗tag,默认为 [FX_DEFAULT_TAG] */
-    var tag: String,
+    /** 浮窗tag,默认为 [FloatingX.FX_DEFAULT_TAG] */
+    @JvmSynthetic
+    internal var tag: String,
     /** 黑名单list */
-    val blackFilterList: MutableList<Class<*>>,
+    @JvmSynthetic
+    internal val blackFilterList: MutableList<Class<*>>,
     /** 白名单list */
-    val whiteInsertList: MutableList<Class<*>>,
+    @JvmSynthetic
+    internal val whiteInsertList: MutableList<Class<*>>,
     /** 是否允许插入全部Activity */
-    val isAllInstall: Boolean,
+    @JvmSynthetic
+    internal val isAllInstall: Boolean,
     /** 显示悬浮窗的Activity生命周期回调 */
-    val fxLifecycleExpand: IFxProxyTagActivityLifecycle?
+    @JvmSynthetic
+    internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?
 ) : BasisHelper() {
 
     @JvmSynthetic
@@ -41,6 +46,13 @@ class AppHelper(
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
         private var isEnableAllInstall: Boolean = true
         private var tag = FloatingX.FX_DEFAULT_TAG
+        private var enableFx = false
+
+        /** 设置启用fx */
+        fun enableFx(): Builder {
+            this.enableFx = true
+            return this
+        }
 
         /**
          * 设置context
@@ -134,11 +146,14 @@ class AppHelper(
             )
 
         override fun build(): AppHelper {
-            val helper = super.build()
-            // 有可能用户会使用多个浮窗，这里为了防止日志混乱，将浮窗tag赋值给日志tag
-            if (helper.enableDebugLog && helper.fxLogTag.isEmpty()) helper.fxLogTag = tag
-            helper.initLog(FxScopeEnum.APP_SCOPE.tag)
-            return helper
+            return super.build().apply {
+                enableFx = this@Builder.enableFx
+                // 有可能用户会使用多个浮窗，这里为了防止日志混乱，将浮窗tag赋值给日志tag
+                if (enableDebugLog && fxLogTag.isEmpty()) {
+                    fxLogTag = tag
+                }
+                initLog(FxScopeEnum.APP_SCOPE.tag)
+            }
         }
     }
 

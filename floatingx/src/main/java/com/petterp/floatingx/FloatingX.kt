@@ -24,30 +24,6 @@ object FloatingX {
     internal const val FX_DEFAULT_TAG = "FX_DEFAULT_TAG"
 
     /**
-     * 初始化全局悬浮窗,以dsl方式
-     *
-     * 该方法已弃用，请使用 [install(obj: AppHelper.Builder.() -> Unit)]
-     */
-    @Deprecated(
-        "In order to be compatible with multi-floating windows,Please Use init() instead.",
-        ReplaceWith("", "")
-    )
-    @JvmSynthetic
-    inline fun init(obj: AppHelper.Builder.() -> Unit) = install(obj)
-
-    /**
-     * 初始化全局悬浮窗
-     *
-     * 该方法已弃用，请使用 [install(helper: AppHelper)]
-     */
-    @Deprecated(
-        "In order to be compatible with multi-floating windows,Please Use init() instead.",
-        ReplaceWith("FloatingX.install(helper)", "com.petterp.floatingx.FloatingX.install")
-    )
-    @JvmStatic
-    fun init(helper: AppHelper): IFxAppControl = install(helper)
-
-    /**
      * 安装一个新的全局浮窗,以dsl方式
      *
      * 方法含义见 [install(helper: AppHelper)]
