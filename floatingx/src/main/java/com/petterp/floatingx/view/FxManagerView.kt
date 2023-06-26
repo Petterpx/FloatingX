@@ -17,6 +17,7 @@ import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.util.FX_GRAVITY_BOTTOM
 import com.petterp.floatingx.util.FX_GRAVITY_TOP
 import com.petterp.floatingx.util.coerceInFx
+import kotlin.math.abs
 
 /** 基础悬浮窗View */
 @SuppressLint("ViewConstructor")
@@ -172,11 +173,17 @@ class FxManagerView @JvmOverloads constructor(
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 initTouchDown(ev)
-                helper.fxLog?.d("fxView---onInterceptTouchEvent-[down],interceptedTouch-$intercepted")
+                helper.fxLog?.d("fxView---onInterceptTouchEvent-[down]")
             }
 
             MotionEvent.ACTION_MOVE -> {
-                intercepted = kotlin.math.abs(downTouchX - ev.x) >= scaledTouchSlop
+                intercepted = if (touchDownId != INVALID_TOUCH_ID) {
+                    abs(ev.getX(touchDownId) - downTouchX) >= scaledTouchSlop ||
+                            abs(ev.getY(touchDownId) - downTouchY) >= scaledTouchSlop
+                } else {
+                    abs(ev.x - downTouchX) >= scaledTouchSlop ||
+                            abs(ev.y - downTouchY) >= scaledTouchSlop
+                }
                 helper.fxLog?.v("fxView---onInterceptTouchEvent-[move], interceptedTouch-$intercepted")
             }
         }
