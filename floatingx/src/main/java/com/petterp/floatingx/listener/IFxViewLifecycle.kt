@@ -1,6 +1,7 @@
 package com.petterp.floatingx.listener
 
 import android.view.View
+import com.petterp.floatingx.view.FxViewHolder
 
 /** fx-悬浮窗的生命周期扩展 */
 interface IFxViewLifecycle {
@@ -11,6 +12,13 @@ interface IFxViewLifecycle {
      * @param view 浮窗view
      */
     fun initView(view: View) {}
+
+    /**
+     * 初始化浮窗时调用,每次设置新的浮窗时都会调用
+     *
+     * @param holder 浮窗Holder
+     */
+    fun initView(holder: FxViewHolder) {}
 
     /** 安装悬浮窗到新窗口前调用 */
     fun postAttach() {}

@@ -69,7 +69,6 @@ class FxManagerView @JvmOverloads constructor(
         initLocation()
         isClickable = true
         scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
-        helper.iFxViewLifecycle?.initView(this)
         // 注意这句代码非常重要,可以避免某些情况下View被隐藏掉
         setBackgroundColor(Color.TRANSPARENT)
     }
@@ -178,13 +177,14 @@ class FxManagerView @JvmOverloads constructor(
 
             MotionEvent.ACTION_MOVE -> {
                 intercepted = if (touchDownId != INVALID_TOUCH_ID) {
-                    abs(ev.getX(touchDownId) - downTouchX) >= scaledTouchSlop ||
-                            abs(ev.getY(touchDownId) - downTouchY) >= scaledTouchSlop
+                    val touchIndex = ev.findPointerIndex(touchDownId)
+                    if (touchIndex != INVALID_TOUCH_IDX) {
+                        checkInterceptedEvent(ev.getX(touchIndex), ev.getY(touchIndex))
+                    } else checkInterceptedEvent(ev.x, ev.y)
                 } else {
-                    abs(ev.x - downTouchX) >= scaledTouchSlop ||
-                            abs(ev.y - downTouchY) >= scaledTouchSlop
+                    checkInterceptedEvent(ev.x, ev.y)
                 }
-                helper.fxLog?.v("fxView---onInterceptTouchEvent-[move], interceptedTouch-$intercepted")
+                helper.fxLog?.d("fxView---onInterceptTouchEvent-[move], interceptedTouch-$intercepted")
             }
         }
         return intercepted
@@ -416,6 +416,10 @@ class FxManagerView @JvmOverloads constructor(
         helper.iFxConfigStorage?.update(moveX, moveY)
         helper.fxLog?.d("fxView-->saveDirection---x-($moveX)，y-($moveY)")
     }
+
+    private fun checkInterceptedEvent(x: Float, y: Float) =
+        abs(x - downTouchX) >= scaledTouchSlop || abs(y - downTouchY) >= scaledTouchSlop
+
 
     private inner class MoveAnimator : Runnable {
         private var destinationX = 0f

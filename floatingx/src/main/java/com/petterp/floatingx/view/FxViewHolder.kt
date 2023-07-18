@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.SparseArray
 import android.view.View
+import android.view.View.OnClickListener
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
@@ -31,6 +32,11 @@ class FxViewHolder(private val itemView: View?) {
                 it
             }
         } else view as? T
+    }
+
+    fun setOnClickListener(@IdRes viewId: Int, listener: OnClickListener): FxViewHolder {
+        getView<View>(viewId).setOnClickListener(listener)
+        return this
     }
 
     fun setText(@IdRes viewId: Int, value: CharSequence?): FxViewHolder {

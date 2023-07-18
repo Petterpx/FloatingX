@@ -182,6 +182,10 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
         managerView = FxManagerView(context()).init(helper)
         val fxContentView = managerView?.childFxView ?: return
         viewHolder = FxViewHolder(fxContentView)
+        val fxViewLifecycle = helper.iFxViewLifecycle ?: return
+        // 后续此方法将会移除,建议进行过渡
+        fxViewLifecycle.initView(fxContentView)
+        fxViewLifecycle.initView(viewHolder!!)
     }
 
     protected fun getOrInitManagerView(): FxManagerView? {
