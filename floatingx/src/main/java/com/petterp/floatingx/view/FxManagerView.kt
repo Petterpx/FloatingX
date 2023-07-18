@@ -69,7 +69,6 @@ class FxManagerView @JvmOverloads constructor(
         initLocation()
         isClickable = true
         scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
-        helper.iFxViewLifecycle?.initView(this)
         // 注意这句代码非常重要,可以避免某些情况下View被隐藏掉
         setBackgroundColor(Color.TRANSPARENT)
     }
