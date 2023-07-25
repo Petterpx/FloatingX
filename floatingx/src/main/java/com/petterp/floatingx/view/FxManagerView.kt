@@ -23,19 +23,18 @@ import kotlin.math.abs
 @SuppressLint("ViewConstructor")
 class FxManagerView @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null
+    attrs: AttributeSet? = null,
 ) : FrameLayout(context, attrs) {
 
     private lateinit var helper: BasisHelper
-    private var mLastTouchDownTime = 0L
     private var mParentWidth = 0f
     private var mParentHeight = 0f
 
     private var isNearestLeft = true
-    private var downTouchX = 0f
-    private var downTouchY = 0f
     private var currentX = 0f
     private var currentY = 0f
+    private var downTouchX = 0f
+    private var downTouchY = 0f
     private var touchDownId = 0
 
     private var minHBoundary = 0f
@@ -43,10 +42,10 @@ class FxManagerView @JvmOverloads constructor(
     private var minWBoundary = 0f
     private var maxWBoundary = 0f
 
-    private var isClickEnable = true
     private var isMoveLoading = false
     private var scaledTouchSlop = 0
 
+    private var clickHelper = FxClickHelper()
     private var restoreHelper: FxLocationRestoreHelper = FxLocationRestoreHelper()
     private var parentChangeListener = OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
         refreshLocation(v.width, v.height)
@@ -69,6 +68,7 @@ class FxManagerView @JvmOverloads constructor(
         initLocation()
         isClickable = true
         scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
+        clickHelper.initConfig(scaledTouchSlop, helper)
         // 注意这句代码非常重要,可以避免某些情况下View被隐藏掉
         setBackgroundColor(Color.TRANSPARENT)
     }
@@ -78,7 +78,7 @@ class FxManagerView @JvmOverloads constructor(
         helper.fxLog?.d("fxView-->init, way:[layoutView]")
         val lp = view.layoutParams ?: LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            ViewGroup.LayoutParams.WRAP_CONTENT,
         )
         addView(view, lp)
         return view
@@ -96,7 +96,7 @@ class FxManagerView @JvmOverloads constructor(
         val hasConfig = configImpl?.hasConfig() ?: false
         val lp = helper.layoutParams ?: LayoutParams(
             LayoutParams.WRAP_CONTENT,
-            LayoutParams.WRAP_CONTENT
+            LayoutParams.WRAP_CONTENT,
         )
         // 不存在历史坐标时,设置gravity,默认左上角
         if (!hasConfig) lp.gravity = helper.gravity.value
@@ -119,7 +119,7 @@ class FxManagerView @JvmOverloads constructor(
         if (!helper.enableAssistLocation && !helper.gravity.isDefault()) {
             helper.fxLog?.e(
                 "fxView--默认坐标可能初始化异常,如果显示位置异常,请检查您的gravity是否为默认配置，当前gravity:${helper.gravity}。\n" +
-                        "如果您要配置gravity,建议您启用辅助定位setEnableAssistDirection(),此方法将更便于定位。"
+                    "如果您要配置gravity,建议您启用辅助定位setEnableAssistDirection(),此方法将更便于定位。",
             )
         }
         return helper.defaultX to checkDefaultY(helper.defaultY)
@@ -180,7 +180,9 @@ class FxManagerView @JvmOverloads constructor(
                     val touchIndex = ev.findPointerIndex(touchDownId)
                     if (touchIndex != INVALID_TOUCH_IDX) {
                         checkInterceptedEvent(ev.getX(touchIndex), ev.getY(touchIndex))
-                    } else checkInterceptedEvent(ev.x, ev.y)
+                    } else {
+                        checkInterceptedEvent(ev.x, ev.y)
+                    }
                 } else {
                     checkInterceptedEvent(ev.x, ev.y)
                 }
@@ -221,9 +223,8 @@ class FxManagerView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                helper.fxLog?.d("fxView---onTouchEvent--End")
                 actionTouchCancel()
-                clickManagerView()
+                helper.fxLog?.d("fxView---onTouchEvent--End")
             }
         }
         return super.onTouchEvent(event)
@@ -261,23 +262,11 @@ class FxManagerView @JvmOverloads constructor(
         helper.fxLog?.d("fxView--lifecycle-> saveLocation:[x:$x,y:$y]")
     }
 
-    private fun clickManagerView() {
-        if (helper.enableClickListener && isClickEnable && helper.iFxClickListener != null && isOnClickEvent()) {
-            isClickEnable = false
-            helper.iFxClickListener!!.onClick(this)
-            postDelayed({ isClickEnable = true }, helper.clickTime)
-            helper.fxLog?.d("fxView -> click")
-        }
-    }
-
     private fun actionTouchCancel() {
+        moveToEdge()
         helper.iFxScrollListener?.up()
         touchDownId = INVALID_TOUCH_ID
-        moveToEdge()
-    }
-
-    private fun isOnClickEvent(): Boolean {
-        return System.currentTimeMillis() - mLastTouchDownTime < TOUCH_TIME_THRESHOLD
+        clickHelper.performClick(this)
     }
 
     private fun updateBoundary(isDownTouchInit: Boolean) {
@@ -306,10 +295,10 @@ class FxManagerView @JvmOverloads constructor(
         touchDownId = ev.getPointerId(ev.actionIndex)
         downTouchX = ev.getX(ev.actionIndex)
         downTouchY = ev.getY(ev.actionIndex)
+        clickHelper.initDown(x, y)
         // init width and height boundary
         mMoveAnimator.stop()
         helper.iFxScrollListener?.down()
-        if (helper.enableClickListener) mLastTouchDownTime = System.currentTimeMillis()
         helper.fxLog?.d("fxView---newTouchDown:$touchDownId")
     }
 
@@ -329,6 +318,7 @@ class FxManagerView @JvmOverloads constructor(
             .coerceInFx(minHBoundary, maxHBoundary)
         x = disX
         y = disY
+        clickHelper.checkClickEvent(disX, disY)
         helper.iFxScrollListener?.dragIng(event, disX, disY)
         helper.fxLog?.v("fxView---scrollListener--drag-event--x($disX)-y($disY)")
     }
@@ -345,7 +335,7 @@ class FxManagerView @JvmOverloads constructor(
             minWBoundary,
             maxWBoundary,
             minHBoundary,
-            maxHBoundary
+            maxHBoundary,
         )
         this.x = x
         this.y = y
@@ -420,7 +410,6 @@ class FxManagerView @JvmOverloads constructor(
     private fun checkInterceptedEvent(x: Float, y: Float) =
         abs(x - downTouchX) >= scaledTouchSlop || abs(y - downTouchY) >= scaledTouchSlop
 
-
     private inner class MoveAnimator : Runnable {
         private var destinationX = 0f
         private var destinationY = 0f
@@ -456,8 +445,8 @@ class FxManagerView @JvmOverloads constructor(
     companion object {
         private const val INVALID_TOUCH_ID = -1
         private const val INVALID_TOUCH_IDX = -1
-        private const val TOUCH_TIME_THRESHOLD = 150L
         private const val MAX_PROGRESS = 1f
+        internal const val TOUCH_TIME_THRESHOLD = 150L
         private const val DEFAULT_MOVE_ANIMATOR_DURATION = 400f
         private val HANDLER = Handler(Looper.getMainLooper())
     }
