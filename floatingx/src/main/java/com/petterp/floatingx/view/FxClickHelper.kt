@@ -15,7 +15,6 @@ class FxClickHelper {
     private var clickEnable = true
     private var scaledTouchSlop = 0
     private var mLastTouchDownTime = 0L
-    private var touchTimeThreshold = 150L
     private lateinit var helper: BasisHelper
 
     fun initConfig(scaledTouchSlop: Int, helper: BasisHelper) {
@@ -54,9 +53,8 @@ class FxClickHelper {
     }
 
     private fun isClickEffective(): Boolean {
-        return isClickEvent && clickEnable
-                && helper.enableClickListener && helper.iFxClickListener != null
-                && System.currentTimeMillis() - mLastTouchDownTime < touchTimeThreshold
+        return isClickEvent && clickEnable && helper.enableClickListener &&
+            helper.iFxClickListener != null &&
+            System.currentTimeMillis() - mLastTouchDownTime < FxManagerView.TOUCH_TIME_THRESHOLD
     }
-
 }

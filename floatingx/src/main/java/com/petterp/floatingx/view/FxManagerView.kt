@@ -23,7 +23,7 @@ import kotlin.math.abs
 @SuppressLint("ViewConstructor")
 class FxManagerView @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null
+    attrs: AttributeSet? = null,
 ) : FrameLayout(context, attrs) {
 
     private lateinit var helper: BasisHelper
@@ -41,7 +41,6 @@ class FxManagerView @JvmOverloads constructor(
     private var maxHBoundary = 0f
     private var minWBoundary = 0f
     private var maxWBoundary = 0f
-
 
     private var isMoveLoading = false
     private var scaledTouchSlop = 0
@@ -79,7 +78,7 @@ class FxManagerView @JvmOverloads constructor(
         helper.fxLog?.d("fxView-->init, way:[layoutView]")
         val lp = view.layoutParams ?: LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            ViewGroup.LayoutParams.WRAP_CONTENT,
         )
         addView(view, lp)
         return view
@@ -97,7 +96,7 @@ class FxManagerView @JvmOverloads constructor(
         val hasConfig = configImpl?.hasConfig() ?: false
         val lp = helper.layoutParams ?: LayoutParams(
             LayoutParams.WRAP_CONTENT,
-            LayoutParams.WRAP_CONTENT
+            LayoutParams.WRAP_CONTENT,
         )
         // 不存在历史坐标时,设置gravity,默认左上角
         if (!hasConfig) lp.gravity = helper.gravity.value
@@ -120,7 +119,7 @@ class FxManagerView @JvmOverloads constructor(
         if (!helper.enableAssistLocation && !helper.gravity.isDefault()) {
             helper.fxLog?.e(
                 "fxView--默认坐标可能初始化异常,如果显示位置异常,请检查您的gravity是否为默认配置，当前gravity:${helper.gravity}。\n" +
-                        "如果您要配置gravity,建议您启用辅助定位setEnableAssistDirection(),此方法将更便于定位。"
+                    "如果您要配置gravity,建议您启用辅助定位setEnableAssistDirection(),此方法将更便于定位。",
             )
         }
         return helper.defaultX to checkDefaultY(helper.defaultY)
@@ -181,7 +180,9 @@ class FxManagerView @JvmOverloads constructor(
                     val touchIndex = ev.findPointerIndex(touchDownId)
                     if (touchIndex != INVALID_TOUCH_IDX) {
                         checkInterceptedEvent(ev.getX(touchIndex), ev.getY(touchIndex))
-                    } else checkInterceptedEvent(ev.x, ev.y)
+                    } else {
+                        checkInterceptedEvent(ev.x, ev.y)
+                    }
                 } else {
                     checkInterceptedEvent(ev.x, ev.y)
                 }
@@ -334,7 +335,7 @@ class FxManagerView @JvmOverloads constructor(
             minWBoundary,
             maxWBoundary,
             minHBoundary,
-            maxHBoundary
+            maxHBoundary,
         )
         this.x = x
         this.y = y
@@ -445,6 +446,7 @@ class FxManagerView @JvmOverloads constructor(
         private const val INVALID_TOUCH_ID = -1
         private const val INVALID_TOUCH_IDX = -1
         private const val MAX_PROGRESS = 1f
+        internal const val TOUCH_TIME_THRESHOLD = 150L
         private const val DEFAULT_MOVE_ANIMATOR_DURATION = 400f
         private val HANDLER = Handler(Looper.getMainLooper())
     }
