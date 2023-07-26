@@ -68,7 +68,7 @@ class FxManagerView @JvmOverloads constructor(
         initLocation()
         isClickable = true
         scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
-        clickHelper.initConfig(scaledTouchSlop, helper)
+        clickHelper.initConfig(helper)
         // 注意这句代码非常重要,可以避免某些情况下View被隐藏掉
         setBackgroundColor(Color.TRANSPARENT)
     }
@@ -443,10 +443,11 @@ class FxManagerView @JvmOverloads constructor(
     }
 
     companion object {
+        internal const val TOUCH_CLICK_OFFSET = 2F
+        internal const val TOUCH_TIME_THRESHOLD = 150L
         private const val INVALID_TOUCH_ID = -1
         private const val INVALID_TOUCH_IDX = -1
         private const val MAX_PROGRESS = 1f
-        internal const val TOUCH_TIME_THRESHOLD = 150L
         private const val DEFAULT_MOVE_ANIMATOR_DURATION = 400f
         private val HANDLER = Handler(Looper.getMainLooper())
     }

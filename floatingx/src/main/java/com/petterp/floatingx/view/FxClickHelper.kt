@@ -13,13 +13,11 @@ class FxClickHelper {
     private var initY = 0f
     private var isClickEvent = false
     private var clickEnable = true
-    private var scaledTouchSlop = 0
     private var mLastTouchDownTime = 0L
     private lateinit var helper: BasisHelper
 
-    fun initConfig(scaledTouchSlop: Int, helper: BasisHelper) {
+    fun initConfig(helper: BasisHelper) {
         reset()
-        this.scaledTouchSlop = scaledTouchSlop
         this.helper = helper
     }
 
@@ -33,7 +31,8 @@ class FxClickHelper {
 
     fun checkClickEvent(x: Float, y: Float) {
         if (!isClickEvent) return
-        isClickEvent = abs(x - initX) < scaledTouchSlop || abs(y - initY) < scaledTouchSlop
+        isClickEvent = abs(x - initX) < FxManagerView.TOUCH_CLICK_OFFSET &&
+            abs(y - initY) < FxManagerView.TOUCH_CLICK_OFFSET
     }
 
     @Keep
