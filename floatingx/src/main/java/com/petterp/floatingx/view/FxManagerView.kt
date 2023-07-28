@@ -188,34 +188,11 @@ class FxManagerView @JvmOverloads constructor(
         if (isMoveLoading) return false
         helper.iFxScrollListener?.eventIng(event)
         when (event.actionMasked) {
-            MotionEvent.ACTION_POINTER_DOWN -> {
-                if (touchDownId != INVALID_TOUCH_ID) {
-                    val eventX = event.getX(event.actionIndex)
-                    val eventY = event.getY(event.actionIndex)
-                    if (eventX >= 0 && eventX <= width && eventY >= 0 && eventY <= height) {
-                        initTouchDown(event)
-                    }
-                }
-            }
-
-            MotionEvent.ACTION_MOVE -> {
-                if (touchDownId != INVALID_TOUCH_ID && helper.enableTouch) {
-                    val pointIdx = event.findPointerIndex(touchDownId)
-                    if (pointIdx != INVALID_TOUCH_IDX) {
-                        updateLocation(event, pointIdx)
-                    }
-                }
-            }
-
-            MotionEvent.ACTION_POINTER_UP -> {
-                if (event.getPointerId(event.actionIndex) == touchDownId) {
-                    actionTouchCancel()
-                    helper.fxLog?.d("fxView---onTouchEvent--ACTION_POINTER_UP---clearTouchId->")
-                }
-            }
-
+            MotionEvent.ACTION_MOVE -> touchToMove(event)
+            MotionEvent.ACTION_POINTER_UP -> touchToPointerUp(event)
+            MotionEvent.ACTION_POINTER_DOWN -> touchToPointerDown(event)
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                actionTouchCancel()
+                touchToCancel()
                 helper.fxLog?.d("fxView---onTouchEvent--End")
             }
         }
@@ -256,13 +233,6 @@ class FxManagerView @JvmOverloads constructor(
         helper.fxLog?.d("fxView--lifecycle-> saveLocation:[x:$x,y:$y]")
     }
 
-    private fun actionTouchCancel() {
-        moveToEdge()
-        helper.iFxScrollListener?.up()
-        touchDownId = INVALID_TOUCH_ID
-        clickHelper.performClick(this)
-    }
-
     private fun updateBoundary(isDownTouchInit: Boolean) {
         // 开启边缘回弹时,浮窗允许移动到边界外
         if (helper.enableEdgeRebound) {
@@ -294,6 +264,37 @@ class FxManagerView @JvmOverloads constructor(
         mMoveAnimator.stop()
         helper.iFxScrollListener?.down()
         helper.fxLog?.d("fxView---newTouchDown:$touchDownId")
+    }
+
+    private fun touchToPointerDown(event: MotionEvent) {
+        if (touchDownId != INVALID_TOUCH_ID) {
+            val eventX = event.getX(event.actionIndex)
+            val eventY = event.getY(event.actionIndex)
+            if (eventX >= 0 && eventX <= width && eventY >= 0 && eventY <= height) {
+                initTouchDown(event)
+            }
+        }
+    }
+
+    private fun touchToMove(event: MotionEvent) {
+        if (touchDownId != INVALID_TOUCH_ID && helper.enableTouch) {
+            val pointIdx = event.findPointerIndex(touchDownId)
+            if (pointIdx != INVALID_TOUCH_IDX) updateLocation(event, pointIdx)
+        }
+    }
+
+    private fun touchToPointerUp(event: MotionEvent) {
+        if (event.getPointerId(event.actionIndex) == touchDownId) {
+            touchToCancel()
+            helper.fxLog?.d("fxView---onTouchEvent--ACTION_POINTER_UP---clearTouchId->")
+        }
+    }
+
+    private fun touchToCancel() {
+        moveToEdge()
+        helper.iFxScrollListener?.up()
+        touchDownId = INVALID_TOUCH_ID
+        clickHelper.performClick(this)
     }
 
     private fun refreshLocation(w: Int, h: Int) {
