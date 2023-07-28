@@ -40,7 +40,6 @@ interface IFxControl {
 
     /**
      * 更新当前view
-     *
      * @param resource 新的布局layout
      */
     fun updateView(@LayoutRes resource: Int)
@@ -56,4 +55,34 @@ interface IFxControl {
 
     /** 设置点击事件 */
     fun setClickListener(clickListener: View.OnClickListener)
+
+    /**
+     * 移动浮窗到指定位置，该方法会帮助你处理越界问题，默认带动画
+     * @param x 要移动到的x坐标
+     * @param y 要移动到的y坐标
+     * */
+    fun move(x: Float, y: Float)
+
+    /**
+     * 移动浮窗到指定位置，该方法会帮助你处理越界问题
+     * @param x 要移动到的x坐标
+     * @param y 要移动到的y坐标
+     * @param useAnimation 是否使用动画
+     * */
+    fun move(x: Float, y: Float, useAnimation: Boolean)
+
+    /**
+     * 按照向量移动浮窗，该方法会帮你处理越界问题
+     * @param x x坐标要增加或减少的值
+     * @param y y坐标要增加或减少的值
+     * */
+    fun moveByVector(x: Float, y: Float)
+
+    /**
+     * 按照向量移动浮窗，该方法会帮你处理越界问题
+     * @param x x坐标要增加或减少的值
+     * @param y y坐标要增加或减少的值
+     * @param useAnimation 是否使用动画
+     * */
+    fun moveByVector(x: Float, y: Float, useAnimation: Boolean)
 }

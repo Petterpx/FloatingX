@@ -18,7 +18,7 @@ class ScopeActivity : AppCompatActivity() {
         FrameLayout(this).apply {
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                600
+                600,
             ).apply {
                 leftMargin = 50
                 topMargin = 50
@@ -88,7 +88,7 @@ class ScopeActivity : AppCompatActivity() {
                             TextView(it).apply {
                                 layoutParams = ViewGroup.LayoutParams(
                                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                                    ViewGroup.LayoutParams.WRAP_CONTENT
+                                    ViewGroup.LayoutParams.WRAP_CONTENT,
                                 )
                                 text = "scope"
                                 textSize = 15f
@@ -102,7 +102,7 @@ class ScopeActivity : AppCompatActivity() {
                             Toast.makeText(
                                 this@ScopeActivity,
                                 "被点击",
-                                Toast.LENGTH_SHORT
+                                Toast.LENGTH_SHORT,
                             )
                                 .show()
                         }
@@ -117,7 +117,7 @@ class ScopeActivity : AppCompatActivity() {
                         Toast.makeText(
                             this@ScopeActivity,
                             "当前是否显示-${scopeFx.isShow()}",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_SHORT,
                         ).show()
                     }
                     addItemView("允许边缘吸附") {
@@ -139,14 +139,10 @@ class ScopeActivity : AppCompatActivity() {
                         scopeFx.configControl.setBorderMargin(100f, 100f, 100f, 100f)
                     }
                     addItemView("移动浮窗到(0,0)") {
-                        scopeFx.getManagerView()?.apply {
-                            moveLocation(0F, 0F)
-                        }
+                        scopeFx.move(0f, 0f)
                     }
                     addItemView("浮窗向左移动20F") {
-                        scopeFx.getManagerView()?.apply {
-                            moveLocationByVector(-20F, 0F)
-                        }
+                        scopeFx.moveByVector(-20F, 0f)
                     }
                     addItemView("设置浮窗子view点击事件(layoutId的示例)") {
                         scopeFx.updateViewContent {
