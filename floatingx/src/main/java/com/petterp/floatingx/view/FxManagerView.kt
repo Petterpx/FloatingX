@@ -136,13 +136,8 @@ class FxManagerView @JvmOverloads constructor(
         return defaultY
     }
 
-    /**
-     * 移动浮窗到指定位置，该方法会帮助你处理越界问题
-     * @param x 要移动到的x坐标
-     * @param y 要移动到的y坐标
-     * @param useAnimation 是否使用动画
-     * */
     @JvmOverloads
+    @Deprecated("use FloatingX.control().move()")
     fun moveLocation(x: Float, y: Float, useAnimation: Boolean = true) {
         val newX = x.coerceInFx(minWBoundary, maxWBoundary)
         val newY = y.coerceInFx(minHBoundary, maxHBoundary)
@@ -154,13 +149,8 @@ class FxManagerView @JvmOverloads constructor(
         }
     }
 
-    /**
-     * 按照向量移动浮窗，该方法会帮你处理越界问题
-     * @param x x坐标要增加或减少的值
-     * @param y y坐标要增加或减少的值
-     * @param useAnimation 是否使用动画
-     * */
     @JvmOverloads
+    @Deprecated("use FloatingX.control().moveByVector()")
     fun moveLocationByVector(x: Float, y: Float, useAnimation: Boolean = true) {
         val currentX = this.x.plus(x)
         val currentY = this.y.plus(y)
@@ -199,7 +189,7 @@ class FxManagerView @JvmOverloads constructor(
         helper.iFxScrollListener?.eventIng(event)
         when (event.actionMasked) {
             MotionEvent.ACTION_POINTER_DOWN -> {
-                if (touchDownId == INVALID_TOUCH_ID) {
+                if (touchDownId != INVALID_TOUCH_ID) {
                     val eventX = event.getX(event.actionIndex)
                     val eventY = event.getY(event.actionIndex)
                     if (eventX >= 0 && eventX <= width && eventY >= 0 && eventY <= height) {

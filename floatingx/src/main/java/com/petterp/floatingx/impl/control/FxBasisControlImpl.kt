@@ -19,7 +19,7 @@ import com.petterp.floatingx.view.FxManagerView
 import com.petterp.floatingx.view.FxViewHolder
 import java.lang.ref.WeakReference
 
-/** 基础控制器实现 */
+/** Fx基础控制器实现 */
 open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFxConfigControl {
     private var managerView: FxManagerView? = null
     private var viewHolder: FxViewHolder? = null
@@ -38,7 +38,9 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
             managerView?.removeCallbacks(cancelAnimationRunnable)
             val duration = helper.fxAnimation!!.toEndAnimator(managerView)
             animatorCallback(duration, cancelAnimationRunnable)
-        } else reset()
+        } else {
+            reset()
+        }
     }
 
     override fun hide() {
@@ -53,7 +55,9 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
             managerView?.removeCallbacks(hideAnimationRunnable)
             val duration = helper.fxAnimation!!.toEndAnimator(managerView)
             animatorCallback(duration, hideAnimationRunnable)
-        } else detach()
+        } else {
+            detach()
+        }
     }
 
     override fun isShow(): Boolean =
@@ -92,6 +96,22 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
 
     override fun setClickListener(clickListener: View.OnClickListener) {
         helper.iFxClickListener = clickListener
+    }
+
+    override fun move(x: Float, y: Float) {
+        move(x, y, true)
+    }
+
+    override fun moveByVector(x: Float, y: Float) {
+        moveByVector(x, y, true)
+    }
+
+    override fun move(x: Float, y: Float, useAnimation: Boolean) {
+        managerView?.moveLocation(x, y, useAnimation)
+    }
+
+    override fun moveByVector(x: Float, y: Float, useAnimation: Boolean) {
+        managerView?.moveLocationByVector(x, y, useAnimation)
     }
 
     /*
@@ -262,9 +282,6 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     private fun animatorCallback(long: Long, runnable: Runnable) {
         val magnetView = managerView ?: return
         magnetView.removeCallbacks(runnable)
-        magnetView.postDelayed(
-            runnable,
-            long
-        )
+        magnetView.postDelayed(runnable, long)
     }
 }
