@@ -168,6 +168,7 @@ class FxManagerView @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        if (isMoveLoading) return false
         var intercepted = false
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
@@ -194,6 +195,7 @@ class FxManagerView @JvmOverloads constructor(
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (isMoveLoading) return false
         helper.iFxScrollListener?.eventIng(event)
         when (event.actionMasked) {
             MotionEvent.ACTION_POINTER_DOWN -> {
@@ -232,6 +234,7 @@ class FxManagerView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        isMoveLoading = false
         helper.iFxViewLifecycle?.attach()
         (parent as? ViewGroup)?.addOnLayoutChangeListener(parentChangeListener)
         helper.fxLog?.d("fxView-lifecycle-> onAttachedToWindow")
@@ -239,6 +242,7 @@ class FxManagerView @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
+        isMoveLoading = false
         helper.iFxViewLifecycle?.detached()
         (parent as? ViewGroup)?.removeOnLayoutChangeListener(parentChangeListener)
         helper.fxLog?.d("fxView-lifecycle-> onDetachedFromWindow")
