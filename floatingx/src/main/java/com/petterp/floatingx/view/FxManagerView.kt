@@ -42,8 +42,9 @@ class FxManagerView @JvmOverloads constructor(
     private var minWBoundary = 0f
     private var maxWBoundary = 0f
 
-    private var isMoveLoading = false
     private var scaledTouchSlop = 0
+    private var isMoveLoading = false
+    private var isInitFxLocation = true
 
     private var clickHelper = FxClickHelper()
     private var restoreHelper: FxLocationRestoreHelper = FxLocationRestoreHelper()
@@ -299,6 +300,10 @@ class FxManagerView @JvmOverloads constructor(
 
     private fun refreshLocation(w: Int, h: Int) {
         if (!updateWidgetSize(w, h)) return
+        if (isInitFxLocation) {
+            isInitFxLocation = false
+            return
+        }
         if (restoreHelper.isRestoreLocation()) {
             restoreLocation()
         } else {
