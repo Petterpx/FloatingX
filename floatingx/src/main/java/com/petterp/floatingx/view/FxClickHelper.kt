@@ -32,14 +32,17 @@ class FxClickHelper {
     fun checkClickEvent(x: Float, y: Float) {
         if (!isClickEvent) return
         isClickEvent = abs(x - initX) < FxManagerView.TOUCH_CLICK_OFFSET &&
-            abs(y - initY) < FxManagerView.TOUCH_CLICK_OFFSET
+                abs(y - initY) < FxManagerView.TOUCH_CLICK_OFFSET
     }
 
     @Keep
     fun performClick(view: FxManagerView) {
         if (!isClickEffective()) return
         helper.iFxClickListener?.onClick(view)
-        view.postDelayed({ clickEnable = true }, helper.clickTime)
+        if (helper.clickTime > 0) {
+            clickEnable = false
+            view.postDelayed({ clickEnable = true }, helper.clickTime)
+        }
         helper.fxLog?.d("fxView -> click")
         reset()
     }
@@ -53,7 +56,7 @@ class FxClickHelper {
 
     private fun isClickEffective(): Boolean {
         return isClickEvent && clickEnable && helper.enableClickListener &&
-            helper.iFxClickListener != null &&
-            System.currentTimeMillis() - mLastTouchDownTime < FxManagerView.TOUCH_TIME_THRESHOLD
+                helper.iFxClickListener != null &&
+                System.currentTimeMillis() - mLastTouchDownTime < FxManagerView.TOUCH_TIME_THRESHOLD
     }
 }
