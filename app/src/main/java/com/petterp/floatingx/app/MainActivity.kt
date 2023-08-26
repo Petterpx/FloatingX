@@ -6,7 +6,6 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
@@ -108,9 +107,6 @@ class MainActivity : AppCompatActivity() {
                 bottomMargin = 50
             }
             setBackgroundColor(Color.YELLOW)
-            setOnClickListener {
-                Toast.makeText(context, "ajisdaosd", Toast.LENGTH_SHORT).show()
-            }
         }
         addView(viewGroup)
         return viewGroup
