@@ -175,7 +175,7 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
 
     override fun setEnableTouch(isEnable: Boolean) {
         val mode = if (isEnable) FxDisplayMode.Normal else FxDisplayMode.ClickOnly
-        helper.displayMode = mode
+        setDisplayMode(mode)
     }
 
     override fun setDisplayMode(mode: FxDisplayMode) {
