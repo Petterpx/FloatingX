@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.util.FX_GRAVITY_BOTTOM
@@ -67,7 +68,7 @@ class FxManagerView @JvmOverloads constructor(
         _childFxView = inflateLayoutView() ?: inflateLayoutId()
         checkNotNull(_childFxView) { "initFxView -> Error,check your layoutId or layoutView." }
         initLocation()
-        isClickable = true
+        updateDisplayMode()
         scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
         clickHelper.initConfig(helper)
         // 注意这句代码非常重要,可以避免某些情况下View被隐藏掉
@@ -120,7 +121,7 @@ class FxManagerView @JvmOverloads constructor(
         if (!helper.enableAssistLocation && !helper.gravity.isDefault()) {
             helper.fxLog?.e(
                 "fxView--默认坐标可能初始化异常,如果显示位置异常,请检查您的gravity是否为默认配置，当前gravity:${helper.gravity}。\n" +
-                    "如果您要配置gravity,建议您启用辅助定位setEnableAssistDirection(),此方法将更便于定位。",
+                        "如果您要配置gravity,建议您启用辅助定位setEnableAssistDirection(),此方法将更便于定位。",
             )
         }
         return helper.defaultX to checkDefaultY(helper.defaultY)
@@ -278,7 +279,7 @@ class FxManagerView @JvmOverloads constructor(
     }
 
     private fun touchToMove(event: MotionEvent) {
-        if (touchDownId != INVALID_TOUCH_ID && helper.enableTouch) {
+        if (touchDownId != INVALID_TOUCH_ID && helper.displayMode == FxDisplayMode.Normal) {
             val pointIdx = event.findPointerIndex(touchDownId)
             if (pointIdx != INVALID_TOUCH_IDX) updateLocation(event, pointIdx)
         }
@@ -384,6 +385,11 @@ class FxManagerView @JvmOverloads constructor(
         }
     }
 
+    @JvmSynthetic
+    internal fun updateDisplayMode() {
+        isClickable = helper.displayMode != FxDisplayMode.DisplayOnly
+    }
+
     private fun moveToLocation(moveX: Float, moveY: Float) {
         isMoveLoading = true
         if (moveX == x && moveY == y) {
@@ -440,6 +446,11 @@ class FxManagerView @JvmOverloads constructor(
             isMoveLoading = false
             HANDLER.removeCallbacks(this)
         }
+    }
+
+    override fun setOnClickListener(l: OnClickListener?) {
+        helper.iFxClickListener = l
+        helper.enableClickListener = true
     }
 
     companion object {

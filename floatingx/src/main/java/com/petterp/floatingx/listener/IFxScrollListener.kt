@@ -5,7 +5,7 @@ import android.view.MotionEvent
 /**
  * fx监听事件，用于监听浮窗上的一些手势事件
  *
- * 当选择了[com.petterp.floatingx.assist.helper.BasisHelper.enableTouch]=true,此时事件将完全被fx消费,向外输出这个接口用于查看。
+ * 当[displayMode == FxDisplayMode.ClickOnly],此时事件将完全被fx消费,向外输出这个接口用于查看。
  *
  * 默认提供了一些常见的事件场景，比如按下、松开、浮窗位置移动,如需监听所有，请在eventIng中监听所有事件
  * */
@@ -27,7 +27,7 @@ interface IFxScrollListener {
      * App与Activity级别时一般相当于其相对于屏幕的位置。
      * View级别相当于其相当于父ViewGroup
      *
-     * 注意：[com.petterp.floatingx.assist.helper.BasisHelper.enableTouch]=false时，x,y不会变化
+     * 注意：[displayMode == FxDisplayMode.ClickOnly] 时，x,y不会变化
      *
      * 注意：这个方法仅会回调当前正在按压的手指事件
      *

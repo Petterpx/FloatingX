@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
 import com.petterp.floatingx.assist.FxAnimation
+import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
@@ -90,12 +91,13 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     }
 
     override fun setClickListener(time: Long, clickListener: View.OnClickListener) {
-        helper.iFxClickListener = clickListener
         helper.clickTime = time
+        helper.enableClickListener = true
+        helper.iFxClickListener = clickListener
     }
 
     override fun setClickListener(clickListener: View.OnClickListener) {
-        helper.iFxClickListener = clickListener
+        setClickListener(0, clickListener)
     }
 
     override fun move(x: Float, y: Float) {
@@ -172,7 +174,13 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     }
 
     override fun setEnableTouch(isEnable: Boolean) {
-        helper.enableTouch = isEnable
+        val mode = if (isEnable) FxDisplayMode.Normal else FxDisplayMode.ClickOnly
+        setDisplayMode(mode)
+    }
+
+    override fun setDisplayMode(mode: FxDisplayMode) {
+        helper.displayMode = mode
+        managerView?.updateDisplayMode()
     }
 
     override fun setEnableEdgeAdsorption(isEnable: Boolean) {

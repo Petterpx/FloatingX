@@ -11,6 +11,7 @@ import com.petterp.floatingx.FloatingX;
 import com.petterp.floatingx.app.R;
 import com.petterp.floatingx.app.simple.FxAnimationImpl;
 import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl;
+import com.petterp.floatingx.assist.FxDisplayMode;
 import com.petterp.floatingx.assist.helper.AppHelper;
 import com.petterp.floatingx.assist.helper.ScopeHelper;
 import com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl;
@@ -65,8 +66,8 @@ public class CustomJavaApplication extends Application {
                 .setLeftBorderMargin(100f)
                 // 设置右侧偏移量
                 .setRightBorderMargin(100f)
-                // 设置允许触摸事件,默认为true
-                .setEnableTouch(true)
+                // 设置浮窗展示类型，默认可移动可点击，无需配置
+                .setDisplayMode(FxDisplayMode.Normal)
                 //启用悬浮窗,即默认会插入到允许的activity中
                 .setTagActivityLifecycle(new FxTagActivityLifecycleImpl() {
                     @Override

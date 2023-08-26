@@ -15,6 +15,7 @@ import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.*
 import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.impl.FxScrollImpl
 import com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl
@@ -125,7 +126,8 @@ class CustomKtApplication : Application() {
                         Log.e("petterp", "eventIng,${event.x},${event.y}")
                     }
                 })
-                setEnableTouch(true)
+                // 设置浮窗展示类型，默认可移动可点击，无需配置
+                setDisplayMode(FxDisplayMode.Normal)
                 // 设置是否启用日志
                 setEnableLog(BuildConfig.DEBUG)
                 // 设置浮窗tag

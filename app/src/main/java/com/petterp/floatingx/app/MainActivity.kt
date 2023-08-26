@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity() {
         val viewGroup = FrameLayout(context).apply {
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                300
+                300,
             ).apply {
                 leftMargin = 50
                 topMargin = 50

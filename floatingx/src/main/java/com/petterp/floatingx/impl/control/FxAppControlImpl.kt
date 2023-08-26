@@ -17,7 +17,7 @@ import com.petterp.floatingx.util.topActivity
 /** 全局控制器 */
 class FxAppControlImpl(
     private val helper: AppHelper,
-    private val proxyLifecycleImpl: FxProxyLifecycleCallBackImpl
+    private val proxyLifecycleImpl: FxProxyLifecycleCallBackImpl,
 ) : FxBasisControlImpl(helper),
     IFxAppControl,
     Application.ActivityLifecycleCallbacks by proxyLifecycleImpl {
@@ -86,8 +86,10 @@ class FxAppControlImpl(
                 initManagerView()
                 isAnimation = true
             } else {
-                if (getManagerView()?.visibility != View.VISIBLE) getManagerView()?.visibility =
-                    View.VISIBLE
+                if (getManagerView()?.visibility != View.VISIBLE) {
+                    getManagerView()?.visibility =
+                        View.VISIBLE
+                }
                 detach()
             }
             setContainerGroup(it)
