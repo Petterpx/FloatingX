@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.util.createFx
 
@@ -72,10 +73,10 @@ class ScopeActivity : AppCompatActivity() {
                         scopeFx.show()
                     }
                     addItemView("禁止触摸事件(禁止拖动)") {
-                        scopeFx.configControl.setEnableTouch(false)
+                        scopeFx.configControl.setDisplayMode(FxDisplayMode.ClickOnly)
                     }
                     addItemView("允许触摸事件(允许拖动)-默认允许") {
-                        scopeFx.configControl.setEnableTouch(true)
+                        scopeFx.configControl.setDisplayMode(FxDisplayMode.Normal)
                     }
                     addItemView("隐藏悬浮窗") {
                         scopeFx.hide()

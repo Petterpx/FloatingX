@@ -6,6 +6,7 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
@@ -99,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         val viewGroup = FrameLayout(context).apply {
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                300
+                300,
             ).apply {
                 leftMargin = 50
                 topMargin = 50
@@ -107,6 +108,9 @@ class MainActivity : AppCompatActivity() {
                 bottomMargin = 50
             }
             setBackgroundColor(Color.YELLOW)
+            setOnClickListener {
+                Toast.makeText(context, "ajisdaosd", Toast.LENGTH_SHORT).show()
+            }
         }
         addView(viewGroup)
         return viewGroup

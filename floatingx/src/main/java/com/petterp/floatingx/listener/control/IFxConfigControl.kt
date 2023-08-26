@@ -1,6 +1,7 @@
 package com.petterp.floatingx.listener.control
 
 import com.petterp.floatingx.assist.FxAnimation
+import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
@@ -36,7 +37,18 @@ interface IFxConfigControl {
     /** 设置是否启用触摸事件
      * @param isEnable  true,则允许悬浮窗拖动
      * */
+    @Deprecated("已废弃，建议使用[setDisplayMode()]")
     fun setEnableTouch(isEnable: Boolean)
+
+    /**
+     * 设置浮窗展示模式
+     *
+     * @param mode 展示模式
+     * - [FxDisplayMode.Normal] 默认模式，可以移动与点击
+     * - [FxDisplayMode.ClickOnly] 禁止移动，只能响应点击事件
+     * - [FxDisplayMode.DisplayOnly] 只能展示，不能移动与响应点击事件
+     * */
+    fun setDisplayMode(mode: FxDisplayMode)
 
     /**
      * 启用边缘吸附

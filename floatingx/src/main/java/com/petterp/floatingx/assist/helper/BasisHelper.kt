@@ -43,6 +43,9 @@ open class BasisHelper {
     internal var fxBorderMargin: FxBorderMargin = FxBorderMargin()
 
     @JvmField
+    internal var displayMode: FxDisplayMode = FxDisplayMode.Normal
+
+    @JvmField
     internal var enableFx: Boolean = false
 
     @JvmField
@@ -59,9 +62,6 @@ open class BasisHelper {
 
     @JvmField
     internal var enableDebugLog: Boolean = false
-
-    @JvmField
-    internal var enableTouch: Boolean = true
 
     @JvmField
     internal var enableClickListener: Boolean = true
@@ -110,10 +110,11 @@ open class BasisHelper {
         @LayoutRes
         private var layoutId: Int = 0
         private var layoutView: View? = null
-        private var gravity: FxGravity = FxGravity.DEFAULT
         private var clickTime: Long = 300L
-        private var layoutParams: FrameLayout.LayoutParams? = null
         private var fxAnimation: FxAnimation? = null
+        private var gravity: FxGravity = FxGravity.DEFAULT
+        private var layoutParams: FrameLayout.LayoutParams? = null
+        private var displayMode: FxDisplayMode = FxDisplayMode.Normal
 
         private var defaultY: Float = 0f
         private var defaultX: Float = 0f
@@ -122,21 +123,19 @@ open class BasisHelper {
         private var fxBorderMargin: FxBorderMargin = FxBorderMargin()
         private var assistLocation: FxBorderMargin = FxBorderMargin()
 
-        private var enableEdgeAdsorption: Boolean = true
-        private var enableEdgeRebound: Boolean = true
-        private var enableAnimation: Boolean = false
-        private var enableDebugLog: Boolean = false
         private var fxLogTag: String = ""
-        private var enableTouch: Boolean = true
+
+        private var enableDebugLog: Boolean = false
+        private var enableAnimation: Boolean = false
+        private var enableEdgeRebound: Boolean = true
+        private var enableSaveDirection: Boolean = false
         private var enableClickListener: Boolean = false
+        private var enableEdgeAdsorption: Boolean = true
         private var enableAssistLocation: Boolean = false
 
-        private var enableSaveDirection: Boolean = false
-        private var enableDefaultSave: Boolean = false
-
         private var iFxConfigStorage: IFxConfigStorage? = null
-        private var iFxScrollListener: IFxScrollListener? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
+        private var iFxScrollListener: IFxScrollListener? = null
         private var ifxClickListener: View.OnClickListener? = null
 
         protected abstract fun buildHelper(): B
@@ -152,6 +151,8 @@ open class BasisHelper {
                 layoutParams = this@Builder.layoutParams
                 fxAnimation = this@Builder.fxAnimation
 
+                displayMode = this@Builder.displayMode
+
                 defaultY = this@Builder.defaultY
                 defaultX = this@Builder.defaultX
 
@@ -161,7 +162,6 @@ open class BasisHelper {
                 enableAnimation = this@Builder.enableAnimation
                 fxBorderMargin = this@Builder.fxBorderMargin
                 enableSaveDirection = this@Builder.enableSaveDirection
-                enableTouch = this@Builder.enableTouch
                 enableClickListener = this@Builder.enableClickListener
                 enableAssistLocation = this@Builder.enableAssistLocation
 
@@ -198,8 +198,22 @@ open class BasisHelper {
          * Tips: 不影响原有手势事件的传递流程
          * @param isEnable 默认true
          */
+        @Deprecated("已废弃，建议使用 [setDisplayMode()]")
         fun setEnableTouch(isEnable: Boolean): T {
-            this.enableTouch = isEnable
+            if (isEnable) {
+                displayMode = FxDisplayMode.Normal
+            } else {
+                displayMode = FxDisplayMode.ClickOnly
+            }
+            return this as T
+        }
+
+        /**
+         * 设置浮窗展示模式
+         * @param mode 默认是[FxDisplayMode.Normal]
+         * */
+        fun setDisplayMode(mode: FxDisplayMode): T {
+            this.displayMode = mode
             return this as T
         }
 
@@ -224,7 +238,7 @@ open class BasisHelper {
         @JvmOverloads
         fun setOnClickListener(
             time: Long = 500L,
-            clickListener: View.OnClickListener
+            clickListener: View.OnClickListener,
         ): T {
             this.enableClickListener = true
             this.ifxClickListener = clickListener
@@ -321,7 +335,7 @@ open class BasisHelper {
             t: Float = 0f,
             b: Float = 0f,
             l: Float = 0f,
-            r: Float = 0f
+            r: Float = 0f,
         ): T {
             this.enableAssistLocation = true
             this.assistLocation.t = t
@@ -405,7 +419,8 @@ open class BasisHelper {
             defaultY = 0f
             when (gravity) {
                 FxGravity.DEFAULT,
-                FxGravity.LEFT_OR_TOP -> {
+                FxGravity.LEFT_OR_TOP,
+                -> {
                     defaultX = l
                     defaultY = t
                 }
