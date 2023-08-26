@@ -40,7 +40,7 @@ class CustomKtApplication : Application() {
 //            setTag(MultipleFxActivity.TAG_1)
 //        }
 
-        installTag1(this)
+//        installTag1(this)
     }
 
     companion object {
