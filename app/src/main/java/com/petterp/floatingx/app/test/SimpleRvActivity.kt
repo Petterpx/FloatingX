@@ -1,16 +1,18 @@
 package com.petterp.floatingx.app.test
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.petterp.floatingx.FloatingX
+import com.petterp.floatingx.app.MainActivity
 import com.petterp.floatingx.app.addItemView
 import com.petterp.floatingx.app.addLinearLayout
 import com.petterp.floatingx.app.addNestedScrollView
 import com.petterp.floatingx.app.createLinearLayoutToParent
-import com.petterp.floatingx.util.createFx
 
 /**
  *
@@ -22,7 +24,7 @@ class SimpleRvActivity : AppCompatActivity() {
         CustomAdapter(3)
     }
 
-    private val activityFx by createFx {
+    private val rv by lazy {
         val recyclerView = RecyclerView(this@SimpleRvActivity).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -33,8 +35,7 @@ class SimpleRvActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager =
             LinearLayoutManager(this@SimpleRvActivity, LinearLayoutManager.VERTICAL, false)
-        setLayoutView(recyclerView)
-        build().toControl(this@SimpleRvActivity)
+        recyclerView
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,10 +44,14 @@ class SimpleRvActivity : AppCompatActivity() {
             addNestedScrollView {
                 addLinearLayout {
                     addItemView("显示浮窗") {
-                        activityFx.show()
+                        FloatingX.install {
+                            setContext(this@SimpleRvActivity)
+                            setLayoutView(rv)
+                            enableFx()
+                        }
                     }
-                    addItemView("隐藏浮窗") {
-                        activityFx.hide()
+                    addItemView("MainActivity") {
+                        startActivity(Intent(this@SimpleRvActivity, MainActivity::class.java))
                     }
                     addItemView("增加rv数据") {
                         adapter.sum += 10
