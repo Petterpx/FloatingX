@@ -6,11 +6,11 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.addItemView
 import com.petterp.floatingx.app.addLinearLayout
 import com.petterp.floatingx.app.addNestedScrollView
 import com.petterp.floatingx.app.createLinearLayoutToParent
-import com.petterp.floatingx.util.createFx
 
 /**
  *
@@ -18,23 +18,20 @@ import com.petterp.floatingx.util.createFx
  */
 class SimpleRvActivity : AppCompatActivity() {
 
-    private val adapter by lazy {
+    private val customAdapter by lazy(LazyThreadSafetyMode.NONE) {
         CustomAdapter(3)
     }
 
-    private val activityFx by createFx {
-        val recyclerView = RecyclerView(this@SimpleRvActivity).apply {
+    private val rv by lazy(LazyThreadSafetyMode.NONE) {
+        RecyclerView(this@SimpleRvActivity).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+            setBackgroundColor(Color.GREEN)
+            adapter = customAdapter
+            layoutManager = LinearLayoutManager(this@SimpleRvActivity)
         }
-        recyclerView.setBackgroundColor(Color.GREEN)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager =
-            LinearLayoutManager(this@SimpleRvActivity, LinearLayoutManager.VERTICAL, false)
-        setLayoutView(recyclerView)
-        build().toControl(this@SimpleRvActivity)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,22 +40,32 @@ class SimpleRvActivity : AppCompatActivity() {
             addNestedScrollView {
                 addLinearLayout {
                     addItemView("显示浮窗") {
-                        activityFx.show()
+                        if (FloatingX.isInstalled(TAG)) return@addItemView
+                        FloatingX.install {
+                            setContext(this@SimpleRvActivity)
+                            setLayoutView(rv)
+                            setTag(TAG)
+                            enableFx()
+                        }.show(this@SimpleRvActivity)
                     }
                     addItemView("隐藏浮窗") {
-                        activityFx.hide()
+                        FloatingX.control(TAG).detach(this@SimpleRvActivity)
                     }
                     addItemView("增加rv数据") {
-                        adapter.sum += 10
-                        adapter.notifyDataSetChanged()
+                        customAdapter.sum += 10
+                        customAdapter.notifyDataSetChanged()
                     }
                     addItemView("减少rv数据") {
-                        adapter.sum -= 5
-                        if (adapter.sum < 0) adapter.sum = 1
-                        adapter.notifyDataSetChanged()
+                        customAdapter.sum -= 5
+                        if (customAdapter.sum < 0) customAdapter.sum = 1
+                        customAdapter.notifyDataSetChanged()
                     }
                 }
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "SimpleRvActivity"
     }
 }
