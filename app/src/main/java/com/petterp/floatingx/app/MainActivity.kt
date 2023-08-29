@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.app.test.MultipleFxActivity
 import com.petterp.floatingx.util.createFx
 
 class MainActivity : AppCompatActivity() {
@@ -35,7 +36,13 @@ class MainActivity : AppCompatActivity() {
             viewGroup = addScopeFrameViewGroup()
             addNestedScrollView {
                 addLinearLayout {
-                    addItemView("更新当前[全局浮窗1]内容-(layoutId方式)") {
+                    addItemView("显示全局悬浮窗") {
+                        FloatingX.control(MultipleFxActivity.TAG_1).show(this@MainActivity)
+                    }
+                    addItemView("隐藏全局悬浮窗") {
+                        FloatingX.control(MultipleFxActivity.TAG_1).hide()
+                    }
+                    addItemView("更新当前[全局浮窗]内容-(layoutId方式)") {
                         FloatingX.control(MultipleFxActivity.TAG_1).apply {
                             updateView(R.layout.item_floating)
                             this.updateViewContent {
@@ -43,7 +50,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         }.show(this@MainActivity)
                     }
-                    addItemView("更新当前[全局浮窗1]内容-(传递view方式)") {
+                    addItemView("更新当前[全局浮窗]内容-(传递view方式)") {
                         FloatingX.control(MultipleFxActivity.TAG_1).apply {
                             updateView {
                                 TextView(it).apply {
@@ -56,9 +63,6 @@ class MainActivity : AppCompatActivity() {
                             }
                             show(this@MainActivity)
                         }
-                    }
-                    addItemView("隐藏全局悬浮窗") {
-                        FloatingX.control(MultipleFxActivity.TAG_1).hide()
                     }
                     addItemView("显示一个Activity悬浮窗-(展示与多指触摸)") {
                         activityFx.show()
@@ -75,21 +79,9 @@ class MainActivity : AppCompatActivity() {
                                 .setCardBackgroundColor(Color.GREEN)
                         }
                     }
-                    addItemView("进入多浮窗页面(测试多浮窗功能)") {
-                        MultipleFxActivity::class.java.start(context)
+                    addItemView("进入测试页面") {
+                        TestActivity::class.java.start(this@MainActivity)
                     }
-                    addItemView("进入黑名单页面(该页面禁止展示浮窗1)") {
-                        BlackActivity::class.java.start(context)
-                    }
-                    addItemView("进入无状态栏页面-(测试状态栏影响)") {
-                        ImmersedActivity::class.java.start(context)
-                    }
-                    addItemView("进入局部悬浮窗页面-(测试api功能)") {
-                        ScopeActivity::class.java.start(context)
-                    }
-//            addItemView("跳转到测试页面-(测试申请权限的浮窗)") {
-//                SingleActivity::class.java.start(context)
-//            }
                 }
             }
         }

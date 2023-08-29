@@ -1,8 +1,12 @@
-package com.petterp.floatingx.app
+package com.petterp.floatingx.app.test
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.petterp.floatingx.FloatingX
+import com.petterp.floatingx.app.addItemView
+import com.petterp.floatingx.app.addLinearLayout
+import com.petterp.floatingx.app.addNestedScrollView
+import com.petterp.floatingx.app.createLinearLayoutToParent
 import com.petterp.floatingx.app.kotlin.CustomKtApplication
 
 /**

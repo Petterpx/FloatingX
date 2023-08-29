@@ -1,4 +1,4 @@
-package com.petterp.floatingx.app
+package com.petterp.floatingx.app.test
 
 import android.graphics.Color
 import android.os.Bundle
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import com.petterp.floatingx.app.createLinearLayoutToParent
 
 /** 全屏Activity */
 class ImmersedActivity : AppCompatActivity() {

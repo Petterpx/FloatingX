@@ -14,26 +14,27 @@
                 android:name="com.petterp.floatingx.app.MainActivity"
                 android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
                 android:exported="true"
-                android:windowSoftInputMode="adjustPan" />
-        <activity
-                android:name=".ImmersedActivity"
-                android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
-        <activity
-                android:name=".ScopeActivity"
-                android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
-        <activity android:name=".BlackActivity" />
-        <activity android:name=".MultipleFxActivity" />
-
-        <activity
-                android:name=".test.SimpleRvActivity"
-                android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
-                android:exported="true">
+                android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+                android:name=".test.ImmersedActivity"
+                android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
+        <activity
+                android:name=".test.ScopeActivity"
+                android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
+        <activity android:name=".test.BlackActivity" />
+        <activity android:name=".test.MultipleFxActivity" />
+
+        <activity android:name=".TestActivity" />
+        <activity
+                android:name=".test.SimpleRvActivity"
+                android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
+                android:exported="true" />
     </application>
 
 </manifest>

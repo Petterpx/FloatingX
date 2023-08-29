@@ -15,6 +15,8 @@ import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.*
 import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.app.test.BlackActivity
+import com.petterp.floatingx.app.test.MultipleFxActivity
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.impl.FxScrollImpl
@@ -40,7 +42,7 @@ class CustomKtApplication : Application() {
 //            setTag(MultipleFxActivity.TAG_1)
 //        }
 
-//        installTag1(this)
+        installTag1(this)
     }
 
     companion object {
