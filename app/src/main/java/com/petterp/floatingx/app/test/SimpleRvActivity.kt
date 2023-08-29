@@ -48,7 +48,7 @@ class SimpleRvActivity : AppCompatActivity() {
                             setContext(this@SimpleRvActivity)
                             setLayoutView(rv)
                             enableFx()
-                        }
+                        }.show(this@SimpleRvActivity)
                     }
                     addItemView("MainActivity") {
                         startActivity(Intent(this@SimpleRvActivity, MainActivity::class.java))
