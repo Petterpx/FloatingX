@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.petterp.floatingx.FloatingX
-import com.petterp.floatingx.app.MainActivity
 import com.petterp.floatingx.app.addItemView
 import com.petterp.floatingx.app.addLinearLayout
 import com.petterp.floatingx.app.addNestedScrollView
@@ -44,14 +43,16 @@ class SimpleRvActivity : AppCompatActivity() {
             addNestedScrollView {
                 addLinearLayout {
                     addItemView("显示浮窗") {
+                        if (FloatingX.isInstalled(TAG)) return@addItemView
                         FloatingX.install {
                             setContext(this@SimpleRvActivity)
                             setLayoutView(rv)
+                            setTag(TAG)
                             enableFx()
                         }.show(this@SimpleRvActivity)
                     }
-                    addItemView("MainActivity") {
-                        startActivity(Intent(this@SimpleRvActivity, MainActivity::class.java))
+                    addItemView("隐藏浮窗") {
+                        FloatingX.control(TAG).detach(this@SimpleRvActivity)
                     }
                     addItemView("增加rv数据") {
                         adapter.sum += 10
@@ -65,5 +66,9 @@ class SimpleRvActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "SimpleRvActivity"
     }
 }
