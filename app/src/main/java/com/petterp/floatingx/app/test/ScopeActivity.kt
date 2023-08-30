@@ -1,4 +1,4 @@
-package com.petterp.floatingx.app
+package com.petterp.floatingx.app.test
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -7,6 +7,12 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.petterp.floatingx.app.R
+import com.petterp.floatingx.app.addItemView
+import com.petterp.floatingx.app.addLinearLayout
+import com.petterp.floatingx.app.addNestedScrollView
+import com.petterp.floatingx.app.addTextView
+import com.petterp.floatingx.app.createLinearLayoutToParent
 import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
