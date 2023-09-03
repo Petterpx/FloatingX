@@ -200,10 +200,10 @@ open class BasisHelper {
          */
         @Deprecated("已废弃，建议使用 [setDisplayMode()]")
         fun setEnableTouch(isEnable: Boolean): T {
-            if (isEnable) {
-                displayMode = FxDisplayMode.Normal
+            displayMode = if (isEnable) {
+                FxDisplayMode.Normal
             } else {
-                displayMode = FxDisplayMode.ClickOnly
+                FxDisplayMode.ClickOnly
             }
             return this as T
         }
@@ -227,7 +227,7 @@ open class BasisHelper {
             return this as T
         }
 
-        /** 设置启用边缘自动吸附 */
+        /** 设置启用边缘自动吸附，默认启用 */
         fun setEnableEdgeAdsorption(isEnable: Boolean): T {
             this.enableEdgeAdsorption = isEnable
             return this as T
@@ -399,7 +399,6 @@ open class BasisHelper {
          *     如果某次边框变动或者其他影响导致原视图范围改变,现有的历史坐标位置不准确，请先移除历史坐标信息 ->
          *     即调用外部的FloatingX.clearConfig()清除历史坐标信息
          */
-        @Deprecated("此方法的调用需要确保页面固定不变,暂时不建议使用,后续会考虑更新逻辑")
         fun setSaveDirectionImpl(iFxConfigStorage: IFxConfigStorage): T {
             this.enableSaveDirection = true
             this.iFxConfigStorage = iFxConfigStorage

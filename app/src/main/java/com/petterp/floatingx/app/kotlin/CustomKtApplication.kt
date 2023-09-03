@@ -15,6 +15,7 @@ import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.*
 import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.app.test.BlackActivity
 import com.petterp.floatingx.app.test.MultipleFxActivity
 import com.petterp.floatingx.assist.FxDisplayMode
@@ -65,13 +66,14 @@ class CustomKtApplication : Application() {
                 setGravity(FxGravity.RIGHT_OR_BOTTOM)
                 // 启用辅助方向,具体参加方法注释
                 setEnableAssistDirection(r = 100f)
-                // 设置启用边缘吸附
+                // 设置启用边缘吸附,默认启用
                 setEnableEdgeAdsorption(true)
                 // 设置边缘偏移量
                 setEdgeOffset(10f)
                 // 设置启用悬浮窗可屏幕外回弹
                 setEnableScrollOutsideScreen(true)
-                // 设置辅助方向辅助
+                // 开启历史位置缓存
+                setSaveDirectionImpl(FxConfigStorageToSpImpl(context))
                 // 设置启用动画
                 setEnableAnimation(true)
                 // 设置启用动画实现
@@ -150,15 +152,15 @@ class CustomKtApplication : Application() {
                             TextView(this.context).apply {
                                 layoutParams = ViewGroup.LayoutParams(
                                     60.dp,
-                                    60.dp
+                                    60.dp,
                                 )
                                 gravity = Gravity.CENTER
                                 text = "浮窗2"
                                 setTextColor(Color.WHITE)
                                 textSize = 15f
-                            }
+                            },
                         )
-                    }
+                    },
                 )
                 setTag(MultipleFxActivity.TAG_2)
                 setEnableLog(true)
