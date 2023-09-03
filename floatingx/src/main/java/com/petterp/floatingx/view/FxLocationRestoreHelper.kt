@@ -16,11 +16,20 @@ class FxLocationRestoreHelper {
     private var isNearestLeft = false
     private var enableEdgeAdsorption = false
     private var screenChanged: Boolean = false
+    private var isInitLocation = true
 
     /**
      * Whether to restore the position
      * */
     fun isRestoreLocation() = screenChanged
+
+    fun isInitLocation(): Boolean {
+        if (isInitLocation) {
+            isInitLocation = false
+            return true
+        }
+        return false
+    }
 
     /**
      * save location info
