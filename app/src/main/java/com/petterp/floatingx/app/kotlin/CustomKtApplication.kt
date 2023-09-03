@@ -66,8 +66,8 @@ class CustomKtApplication : Application() {
                 setGravity(FxGravity.RIGHT_OR_BOTTOM)
                 // 启用辅助方向,具体参加方法注释
                 setEnableAssistDirection(r = 100f)
-                // 设置启用边缘吸附
-                setEnableEdgeAdsorption(false)
+                // 设置启用边缘吸附,默认启用
+                setEnableEdgeAdsorption(true)
                 // 设置边缘偏移量
                 setEdgeOffset(10f)
                 // 设置启用悬浮窗可屏幕外回弹

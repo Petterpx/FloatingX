@@ -227,7 +227,7 @@ open class BasisHelper {
             return this as T
         }
 
-        /** 设置启用边缘自动吸附 */
+        /** 设置启用边缘自动吸附，默认启用 */
         fun setEnableEdgeAdsorption(isEnable: Boolean): T {
             this.enableEdgeAdsorption = isEnable
             return this as T
