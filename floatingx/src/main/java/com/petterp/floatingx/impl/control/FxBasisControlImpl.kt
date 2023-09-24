@@ -15,6 +15,7 @@ import com.petterp.floatingx.listener.control.IFxConfigControl
 import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.listener.provider.IFxContextProvider
 import com.petterp.floatingx.listener.provider.IFxHolderProvider
+import com.petterp.floatingx.util.FxAdsorbDirection
 import com.petterp.floatingx.util.lazyLoad
 import com.petterp.floatingx.view.FxManagerView
 import com.petterp.floatingx.view.FxViewHolder
@@ -141,6 +142,16 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
         managerView?.moveToEdge()
     }
 
+    override fun setEnableEdgeAdsorption(isEnable: Boolean) {
+        helper.enableEdgeAdsorption = isEnable
+        managerView?.moveToEdge()
+    }
+
+    override fun setEdgeAdsorbDirection(direction: FxAdsorbDirection) {
+        helper.adsorbDirection = direction
+        managerView?.moveToEdge()
+    }
+
     override fun setEdgeOffset(edgeOffset: Float) {
         helper.edgeOffset = edgeOffset
         managerView?.moveToEdge()
@@ -180,10 +191,6 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     override fun setDisplayMode(mode: FxDisplayMode) {
         helper.displayMode = mode
         managerView?.updateDisplayMode()
-    }
-
-    override fun setEnableEdgeAdsorption(isEnable: Boolean) {
-        helper.enableEdgeAdsorption = isEnable
     }
 
     /*

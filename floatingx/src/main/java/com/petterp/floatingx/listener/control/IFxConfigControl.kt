@@ -5,6 +5,7 @@ import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
+import com.petterp.floatingx.util.FxAdsorbDirection
 
 /**
  * 配置更改接口,使用此接口运行时更改配置层
@@ -23,6 +24,9 @@ interface IFxConfigControl {
 
     /** 设置边框相对应父view的偏移量 */
     fun setBorderMargin(t: Float, l: Float, b: Float, r: Float)
+
+    /** 设置边缘吸附方向 */
+    fun setEdgeAdsorbDirection(direction: FxAdsorbDirection)
 
     /** 设置是否启用点击事件 */
     fun setEnableClick(isEnable: Boolean)

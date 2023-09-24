@@ -3,10 +3,14 @@ package com.petterp.floatingx.assist.helper
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
-import com.petterp.floatingx.assist.*
+import com.petterp.floatingx.assist.FxAnimation
+import com.petterp.floatingx.assist.FxBorderMargin
+import com.petterp.floatingx.assist.FxDisplayMode
+import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
+import com.petterp.floatingx.util.FxAdsorbDirection
 import com.petterp.floatingx.util.FxLog
 import kotlin.math.abs
 
@@ -44,6 +48,9 @@ open class BasisHelper {
 
     @JvmField
     internal var displayMode: FxDisplayMode = FxDisplayMode.Normal
+
+    @JvmField
+    internal var adsorbDirection: FxAdsorbDirection = FxAdsorbDirection.LEFT_OR_RIGHT
 
     @JvmField
     internal var enableFx: Boolean = false
@@ -115,6 +122,7 @@ open class BasisHelper {
         private var gravity: FxGravity = FxGravity.DEFAULT
         private var layoutParams: FrameLayout.LayoutParams? = null
         private var displayMode: FxDisplayMode = FxDisplayMode.Normal
+        private var edgeAdsorbDirection: FxAdsorbDirection = FxAdsorbDirection.LEFT_OR_RIGHT
 
         private var defaultY: Float = 0f
         private var defaultX: Float = 0f
@@ -157,10 +165,12 @@ open class BasisHelper {
                 defaultX = this@Builder.defaultX
 
                 edgeOffset = this@Builder.edgeOffset
+                fxBorderMargin = this@Builder.fxBorderMargin
+                adsorbDirection = this@Builder.edgeAdsorbDirection
+
+                enableAnimation = this@Builder.enableAnimation
                 enableEdgeAdsorption = this@Builder.enableEdgeAdsorption
                 enableEdgeRebound = this@Builder.enableEdgeRebound
-                enableAnimation = this@Builder.enableAnimation
-                fxBorderMargin = this@Builder.fxBorderMargin
                 enableSaveDirection = this@Builder.enableSaveDirection
                 enableClickListener = this@Builder.enableClickListener
                 enableAssistLocation = this@Builder.enableAssistLocation
@@ -230,6 +240,12 @@ open class BasisHelper {
         /** 设置启用边缘自动吸附，默认启用 */
         fun setEnableEdgeAdsorption(isEnable: Boolean): T {
             this.enableEdgeAdsorption = isEnable
+            return this as T
+        }
+
+        /** 设置边缘吸附方向，默认 [FxAdsorbDirection.LEFT_OR_RIGHT] */
+        fun setEdgeAdsorbDirection(direction: FxAdsorbDirection): T {
+            this.edgeAdsorbDirection = direction
             return this as T
         }
 
