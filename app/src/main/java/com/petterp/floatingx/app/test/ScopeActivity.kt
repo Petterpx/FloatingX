@@ -16,6 +16,7 @@ import com.petterp.floatingx.app.createLinearLayoutToParent
 import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
+import com.petterp.floatingx.util.FxAdsorbDirection
 import com.petterp.floatingx.util.createFx
 
 /** @author petterp */
@@ -132,6 +133,12 @@ class ScopeActivity : AppCompatActivity() {
                     }
                     addItemView("禁止边缘吸附") {
                         scopeFx.configControl.setEnableEdgeAdsorption(false)
+                    }
+                    addItemView("设置浮窗吸附方向为横向") {
+                        scopeFx.configControl.setEdgeAdsorbDirection(FxAdsorbDirection.LEFT_OR_RIGHT)
+                    }
+                    addItemView("设置浮窗吸附方向为竖向") {
+                        scopeFx.configControl.setEdgeAdsorbDirection(FxAdsorbDirection.TOP_OR_BOTTOM)
                     }
                     addItemView("允许边缘回弹") {
                         scopeFx.configControl.setEnableEdgeRebound(true)
