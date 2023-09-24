@@ -17,6 +17,7 @@ import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.util.FX_GRAVITY_BOTTOM
 import com.petterp.floatingx.util.FX_GRAVITY_TOP
+import com.petterp.floatingx.util.FxAdsorbDirection
 import com.petterp.floatingx.util.coerceInFx
 import kotlin.math.abs
 
@@ -31,7 +32,6 @@ class FxManagerView @JvmOverloads constructor(
     private var mParentWidth = 0f
     private var mParentHeight = 0f
 
-    private var isNearestLeft = true
     private var currentX = 0f
     private var currentY = 0f
     private var downTouchX = 0f
@@ -308,7 +308,7 @@ class FxManagerView @JvmOverloads constructor(
         if (restoreHelper.isRestoreLocation()) {
             restoreLocation()
         } else {
-            moveToEdge(isUpdateBoundary = false)
+            moveToEdge(false)
         }
     }
 
@@ -371,18 +371,29 @@ class FxManagerView @JvmOverloads constructor(
 
     private fun isNearestLeft(): Boolean {
         val middle = mParentWidth / 2
-        isNearestLeft = x < middle
-        return isNearestLeft
+        return x < middle
+    }
+
+    private fun isNearestTop(): Boolean {
+        val middle = mParentHeight / 2
+        return y < middle
     }
 
     @JvmSynthetic
-    internal fun moveToEdge(isLeft: Boolean = isNearestLeft(), isUpdateBoundary: Boolean = true) {
+    internal fun moveToEdge(isUpdateBoundary: Boolean = true) {
         if (isMoveLoading) return
         if (isUpdateBoundary) updateBoundary(false)
         // 允许边缘吸附
         if (helper.enableEdgeAdsorption) {
-            val moveY = y.coerceInFx(minHBoundary, maxHBoundary)
-            val moveX = if (isLeft) minWBoundary else maxWBoundary
+            val (moveX, moveY) = if (helper.adsorbDirection == FxAdsorbDirection.LEFT_OR_RIGHT) {
+                val moveX = if (isNearestLeft()) minWBoundary else maxWBoundary
+                val moveY = y.coerceInFx(minHBoundary, maxHBoundary)
+                moveX to moveY
+            } else {
+                val moveX = x.coerceInFx(minWBoundary, maxWBoundary)
+                val moveY = if (isNearestTop()) minHBoundary else maxHBoundary
+                moveX to moveY
+            }
             moveToLocation(moveX, moveY)
         } else if (helper.enableEdgeRebound) {
             val moveX = x.coerceInFx(minWBoundary, maxWBoundary)
