@@ -82,8 +82,7 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     }
 
     override fun updateView(provider: IFxContextProvider) {
-        val view = provider.build(context())
-        updateView(view)
+        updateView(provider.build(context()))
     }
 
     override fun updateViewContent(provider: IFxHolderProvider) {
@@ -207,7 +206,8 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     }
 
     protected open fun initManager() {
-        managerView = FxManagerView(context()).init(helper)
+        val context = context() ?: return
+        managerView = FxManagerView(context).init(helper)
         val fxContentView = managerView?.childFxView ?: return
         viewHolder = FxViewHolder(fxContentView)
         val fxViewLifecycle = helper.iFxViewLifecycle ?: return
@@ -238,11 +238,12 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
         detach(containerGroup)
     }
 
-    protected open fun context(): Context {
-        if (mContainer?.get()?.context == null) {
-            throw NullPointerException("context cannot be null")
+    protected open fun context(): Context? {
+        val context = mContainer?.get()?.context
+        if (context == null) {
+            helper.fxLog?.e("context = null,check your rule!")
         }
-        return mContainer?.get()?.context!!
+        return context
     }
 
     protected fun clearContainer() {
