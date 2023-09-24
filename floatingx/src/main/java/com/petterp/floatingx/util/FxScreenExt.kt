@@ -161,11 +161,10 @@ private fun checkNavigationBarShow(context: Context): Boolean {
         val m = systemPropertiesClass.getMethod("get", String::class.java)
         val navBarOverride = m.invoke(systemPropertiesClass, "qemu.hw.mainkeys") as String
         // 判断是否隐藏了底部虚拟导航
-        var navigationBarIsMin = 0
-        navigationBarIsMin = Settings.Global.getInt(
+        val navigationBarIsMin: Int = Settings.Global.getInt(
             context.contentResolver,
             "navigationbar_is_min",
-            0
+            0,
         )
         if ("1" == navBarOverride || 1 == navigationBarIsMin) {
             hasNavigationBar = false
@@ -262,7 +261,7 @@ private fun onePlusNavigationEnabled(context: Context): Int {
     if (result == 2 && Settings.System.getInt(
             context.contentResolver,
             "buttons_show_on_screen_navkeys",
-            0
+            0,
         ) != 0
     ) {
         // 两种手势 0有按钮， 1没有按钮
@@ -275,7 +274,7 @@ private fun samsungNavigationEnabled(context: Context): Int {
     return Settings.Global.getInt(
         context.contentResolver,
         "navigationbar_hide_bar_enabled",
-        0
+        0,
     )
 }
 
@@ -285,17 +284,17 @@ private fun smartisanNavigationEnabled(context: Context): Int {
 
 private fun nokiaNavigationEnabled(context: Context): Int {
     val result = (
-            Settings.Secure.getInt(
+        Settings.Secure.getInt(
+            context.contentResolver,
+            "swipe_up_to_switch_apps_enabled",
+            0,
+        ) != 0 ||
+            Settings.System.getInt(
                 context.contentResolver,
-                "swipe_up_to_switch_apps_enabled",
-                0
-            ) != 0 ||
-                    Settings.System.getInt(
-                        context.contentResolver,
-                        "navigation_bar_can_hiden",
-                        0
-                    ) != 0
-            )
+                "navigation_bar_can_hiden",
+                0,
+            ) != 0
+        )
     return if (result) {
         1
     } else {
