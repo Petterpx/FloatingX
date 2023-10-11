@@ -6,8 +6,6 @@ ext {
     compilesdk_version = 31
     version_name = gitVersionTag()
     versionCode = gitVersionCode()
-    group_id = 'com.petterp'
-    artifactId = 'floatingx'
 }
 println "isDev:$isDev,versionName:$version_name,versionCode:$versionCode"
 

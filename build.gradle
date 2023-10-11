@@ -1,15 +1,12 @@
 buildscript {
     apply from: "config.gradle"
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.2'
+        classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
 plugins {
     id 'io.gitlab.arturbosch.detekt' version '1.22.0' apply false
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    id "com.vanniktech.maven.publish" version "0.25.3"
 }

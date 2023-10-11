@@ -1,0 +1,25 @@
+name: Publish Maven
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+        cache: gradle
+    - uses: burrunan/gradle-cache-action@v1
+      name: Cache gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: publish maven
+      run: ./gradlew publishAllPublicationsToMavenCentral --no-configuration-cache closeAndReleaseRepository

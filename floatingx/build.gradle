@@ -1,22 +1,12 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
-    id 'maven-publish'
+    id 'com.vanniktech.maven.publish'
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                groupId = group_id
-                artifactId = artifactId
-                version = version_name
-            }
-        }
-    }
+mavenPublishing {
+    coordinates("io.github.petterpx", "floatingx", version_name)
 }
-
 
 android {
     compileSdk compilesdk_version
