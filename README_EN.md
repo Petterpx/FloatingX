@@ -2,11 +2,14 @@
 
 
 
-![image-20210810161316095](https://tva1.sinaimg.cn/large/008i3skNly1gwgttgkxlnj31040k840a.jpg)
+![image-20210810161316095](https://tva1.sinaimg.cn/large/008i3skNly1gtbrg85hlhj61040k80ui02.jpg)
 
-[![](https://jitpack.io/v/Petterpx/FloatingX.svg)](https://jitpack.io/#Petterpx/FloatingX)  [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/) 
-
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a9edd107b5444b7ca31738f5a96b3cb9)](https://app.codacy.com/gh/Petterpx/FloatingX?utm_source=github.com&utm_medium=referral&utm_content=Petterpx/FloatingX&utm_campaign=Badge_Grade_Settings)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.petterpx/floatingx)](https://search.maven.org/search?q=g:io.github.petterpx%20AND%20a:floatingx)
+[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 **FloatingX** A flexible and powerful ``permission-free`` hover window solution.
+
+> "Note: After version 1.3.4, the repository has been migrated to Maven. Make sure to update your dependency accordingly."
 
 [中文简介](https://github.com/Petterpx/FloatingX/READDME.md)
 
@@ -29,40 +32,11 @@
 
 ## 👨‍💻‍ Dependencies
 
-### Add jitpack repository
-
-**build.gradle**
-
-Gradle 7.0 and below
-
-```groovy
-allprojects {
-		repositories {
-			// ...
-			maven { url 'https://jitpack.io' }
-		}
-}
-```
-
-> AndroidStudio-Arctic Fox && Gradle7.0+, and have adjusted the dependency method, you may need to add to the following location.
->
-> **settings.gradle**
->
-> ```groovy
-> dependencyResolutionManagement {
-> repositories {
-> 
-> // ...
-> maven { url 'https://jitpack.io' }
-> }
-> }
-> ```
-
 ### Gradle
 
 ```groovy
 dependencies {
-	  implementation 'com.github.Petterpx:FloatingX:1.3.4'
+    implementation 'io.github.petterpx:floatingx:1.3.4'
 }
 ```
 

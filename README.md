@@ -6,13 +6,15 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a9edd107b5444b7ca31738f5a96b3cb9)](https://app.codacy.com/gh/Petterpx/FloatingX?utm_source=github.com&utm_medium=referral&utm_content=Petterpx/FloatingX&utm_campaign=Badge_Grade_Settings)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.petterpx/floatingx)](https://search.maven.org/search?q=g:io.github.petterpx%20AND%20a:floatingx)
-[![](https://jitpack.io/v/Petterpx/FloatingX.svg)](https://jitpack.io/#Petterpx/FloatingX)  [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/) 
+[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/) 
 
 **FloatingX** 一个灵活且强大的 `免权限` 悬浮窗解决方案。
 
 [English Introduction](https://github.com/Petterpx/FloatingX/blob/main/README_EN.md)
 
 [具体使用文档见这里](https://cskf7l0wab.feishu.cn/wiki/wikcnLLBCe3fIDUTAzrEg754tzc)
+
+> **注意**：**1.3.4** 之后，仓库已迁移至[Maven](https://img.shields.io/maven-central/v/io.github.petterpx/floatingx)，记得及时更新依赖方式。
 
 ## 👏 特性 
 
@@ -30,40 +32,11 @@
 
 ## 👨‍💻‍ 依赖方式
 
-### 添加jitpack仓库
-
-**build.gradle**
-
-Gradle7.0 以下
-
-```groovy
-allprojects {
-		repositories {
-			// ...
-			maven { url 'https://jitpack.io' }
-		}
-}
-```
-
-> AndroidStudio-Arctic Fox && Gradle7.0+,并且已经对依赖方式进行过调整，则可能需要添加到如下位置：
->
-> **settings.gradle**
->
-> ```groovy
-> dependencyResolutionManagement {
-> repositories {
-> 
->      // ...
->      maven { url 'https://jitpack.io' }
->  }
-> }
-> ```
-
 ### Gradle
 
 ```groovy
 dependencies {
-	  implementation 'com.github.Petterpx:FloatingX:1.3.4'
+    implementation 'io.github.petterpx:floatingx:1.3.4'
 }
 ```
 
