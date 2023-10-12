@@ -2,24 +2,30 @@ name: Publish Maven
 
 on:
   release:
-    types: [published]
+    types: [ published ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: set up JDK 11
-      uses: actions/setup-java@v2
-      with:
-        java-version: '11'
-        distribution: 'adopt'
-        cache: gradle
-    - uses: burrunan/gradle-cache-action@v1
-      name: Cache gradle
+      - uses: actions/checkout@v2
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: gradle
+      - uses: burrunan/gradle-cache-action@v1
+        name: Cache gradle
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-    - name: publish maven
-      run: ./gradlew publishAllPublicationsToMavenCentral --no-configuration-cache closeAndReleaseRepository
+      - name: publish maven
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVENUSERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVENPASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNINGKEY }}
+          SIGNING_KEY_ID: ${{ secrets.SIGNINGKEYID }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNINGPASSWORD }}
+        run: ./gradlew publish -PSONATYPE_AUTOMATIC_RELEASE=true -PmavenCentralUsername=$MAVEN_USERNAME -PmavenCentralPassword=$MAVEN_PASSWORD -PsigningInMemoryKeyId=$SIGNING_KEY_ID -PsigningInMemoryKeyPassword=$SIGNING_PASSWORD -PsigningInMemoryKey=$SIGNING_KEY
