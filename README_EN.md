@@ -11,7 +11,7 @@
 
 **FloatingX** A flexible and powerful ``permission-free`` hover window solution.
 
-> "Note: After version 1.3.4, the repository has been migrated to Maven. Make sure to update your dependency accordingly."
+> "Note: After version 1.3.4, the repository has been migrated to [Maven](https://central.sonatype.com/artifact/io.github.petterpx/floatingx). Make sure to update your dependency accordingly."
 
 [中文简介](https://github.com/Petterpx/FloatingX/READDME.md)
 

@@ -14,7 +14,7 @@
 
 [具体使用文档见这里](https://cskf7l0wab.feishu.cn/wiki/wikcnLLBCe3fIDUTAzrEg754tzc)
 
-> **注意**：**1.3.4** 之后，仓库已迁移至[Maven](https://img.shields.io/maven-central/v/io.github.petterpx/floatingx)，记得及时更新依赖方式。
+> **注意**：**1.3.4** 之后，仓库已迁移至[Maven](https://central.sonatype.com/artifact/io.github.petterpx/floatingx)，记得及时更新依赖方式。
 
 ## 👏 特性 
 
