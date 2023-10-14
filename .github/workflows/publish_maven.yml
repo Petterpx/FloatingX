@@ -23,9 +23,9 @@ jobs:
 
       - name: publish maven
         env:
-          MAVEN_USERNAME: ${{ secrets.MAVENUSERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.MAVENPASSWORD }}
-          SIGNING_KEY: ${{ secrets.SIGNINGKEY }}
-          SIGNING_KEY_ID: ${{ secrets.SIGNINGKEYID }}
-          SIGNING_PASSWORD: ${{ secrets.SIGNINGPASSWORD }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USER_NAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASS_WORD }}
+          SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY}}
+          SIGNING_KEY_ID: ${{ secrets.GPG_SIGNING_KEY_ID }}
+          SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASS_WORD }}
         run: ./gradlew publish -PSONATYPE_AUTOMATIC_RELEASE=true -PmavenCentralUsername=$MAVEN_USERNAME -PmavenCentralPassword=$MAVEN_PASSWORD -PsigningInMemoryKeyId=$SIGNING_KEY_ID -PsigningInMemoryKeyPassword=$SIGNING_PASSWORD -PsigningInMemoryKey=$SIGNING_KEY
