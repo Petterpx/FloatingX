@@ -17,6 +17,6 @@ static def gitVersionTag() {
 }
 
 static def gitVersionCode() {
-    def cmd = 'git rev-list main --count'
+    def cmd = 'git rev-list HEAD --count'
     return cmd.execute().text.trim().toInteger()
 }
