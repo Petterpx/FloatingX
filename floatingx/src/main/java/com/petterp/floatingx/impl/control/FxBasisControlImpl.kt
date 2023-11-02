@@ -3,11 +3,13 @@ package com.petterp.floatingx.impl.control
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
+import com.petterp.floatingx.assist.FxAdsorbDirection
 import com.petterp.floatingx.assist.FxAnimation
 import com.petterp.floatingx.assist.FxDisplayMode
-import com.petterp.floatingx.assist.helper.BasisHelper
+import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
@@ -15,30 +17,27 @@ import com.petterp.floatingx.listener.control.IFxConfigControl
 import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.listener.provider.IFxContextProvider
 import com.petterp.floatingx.listener.provider.IFxHolderProvider
-import com.petterp.floatingx.util.FxAdsorbDirection
 import com.petterp.floatingx.util.lazyLoad
 import com.petterp.floatingx.view.FxManagerView
 import com.petterp.floatingx.view.FxViewHolder
+import com.petterp.floatingx.view.IFxInternalViewControl
 import java.lang.ref.WeakReference
 
 /** Fx基础控制器实现 */
-open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFxConfigControl {
-    private var managerView: FxManagerView? = null
+open class FxBasisControlImpl(private val helper: FxBasisHelper) : IFxControl, IFxConfigControl {
     private var viewHolder: FxViewHolder? = null
     private var mContainer: WeakReference<ViewGroup>? = null
+    private var internalViewControl: IFxInternalViewControl? = null
     private val cancelAnimationRunnable by lazyLoad { Runnable { reset() } }
     private val hideAnimationRunnable by lazyLoad { Runnable { detach() } }
 
-    /*
-    * 控制接口相关实现
-    * */
     override val configControl: IFxConfigControl get() = this
 
     override fun cancel() {
-        if ((managerView == null && viewHolder == null)) return
+        if ((getManagerView() == null && viewHolder == null)) return
         if (isShow() && helper.enableAnimation && helper.fxAnimation != null) {
-            managerView?.removeCallbacks(cancelAnimationRunnable)
-            val duration = helper.fxAnimation!!.toEndAnimator(managerView)
+            getManagerView()?.removeCallbacks(cancelAnimationRunnable)
+            val duration = helper.fxAnimation!!.toEndAnimator(internalViewControl?.containerView)
             animatorCallback(duration, cancelAnimationRunnable)
         } else {
             reset()
@@ -54,22 +53,24 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
                 return
             }
             helper.fxLog?.d("fxView->Animation ,endAnimation Running")
-            managerView?.removeCallbacks(hideAnimationRunnable)
-            val duration = helper.fxAnimation!!.toEndAnimator(managerView)
+            getManagerView()?.removeCallbacks(hideAnimationRunnable)
+            val duration = helper.fxAnimation!!.toEndAnimator(getManagerView())
             animatorCallback(duration, hideAnimationRunnable)
         } else {
             detach()
         }
     }
 
-    override fun isShow(): Boolean =
-        managerView != null && ViewCompat.isAttachedToWindow(managerView!!) && managerView!!.visibility == View.VISIBLE
+    override fun isShow(): Boolean {
+        val managerView = getManagerView() ?: return false
+        return ViewCompat.isAttachedToWindow(managerView) && managerView.visibility == View.VISIBLE
+    }
 
-    override fun getView(): View? = managerView?.childFxView
+    override fun getView(): View? = internalViewControl?.childView
 
     override fun getViewHolder(): FxViewHolder? = viewHolder
 
-    override fun getManagerView(): FxManagerView? = managerView
+    override fun getManagerView(): FrameLayout? = internalViewControl?.containerView
 
     override fun updateView(@LayoutRes resource: Int) {
         if (resource == 0) throw IllegalArgumentException("resource cannot be 0!")
@@ -109,11 +110,11 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     }
 
     override fun move(x: Float, y: Float, useAnimation: Boolean) {
-        managerView?.moveLocation(x, y, useAnimation)
+        internalViewControl?.moveLocation(x, y, useAnimation)
     }
 
     override fun moveByVector(x: Float, y: Float, useAnimation: Boolean) {
-        managerView?.moveLocationByVector(x, y, useAnimation)
+        internalViewControl?.moveLocationByVector(x, y, useAnimation)
     }
 
     /*
@@ -139,27 +140,27 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
             this.b = b
             this.r = r
         }
-        managerView?.moveToEdge()
+        internalViewControl?.moveToEdge()
     }
 
     override fun setEnableEdgeAdsorption(isEnable: Boolean) {
         helper.enableEdgeAdsorption = isEnable
-        managerView?.moveToEdge()
+        internalViewControl?.moveToEdge()
     }
 
     override fun setEdgeAdsorbDirection(direction: FxAdsorbDirection) {
         helper.adsorbDirection = direction
-        managerView?.moveToEdge()
+        internalViewControl?.moveToEdge()
     }
 
     override fun setEdgeOffset(edgeOffset: Float) {
         helper.edgeOffset = edgeOffset
-        managerView?.moveToEdge()
+        internalViewControl?.moveToEdge()
     }
 
     override fun setEnableEdgeRebound(isEnable: Boolean) {
         helper.enableEdgeRebound = isEnable
-        managerView?.moveToEdge()
+        internalViewControl?.moveToEdge()
     }
 
     override fun setScrollListener(listener: IFxScrollListener) {
@@ -190,7 +191,11 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
 
     override fun setDisplayMode(mode: FxDisplayMode) {
         helper.displayMode = mode
-        managerView?.updateDisplayMode()
+    }
+
+    @JvmSynthetic
+    internal fun setContainerGroup(viewGroup: ViewGroup) {
+        mContainer = WeakReference(viewGroup)
     }
 
     /*
@@ -199,23 +204,23 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     protected open fun updateMangerView(@LayoutRes layout: Int = 0) {
         helper.layoutId = layout
         if (getContainerGroup() == null) throw NullPointerException("FloatingX window The parent container cannot be null!")
-        val x = managerView?.x ?: 0f
-        val y = managerView?.y ?: 0f
+        val x = internalViewControl?.getX() ?: 0f
+        val y = internalViewControl?.getY() ?: 0f
         initManagerView()
-        managerView?.restoreLocation(x, y)
-        getContainerGroup()?.addView(managerView)
+        internalViewControl?.restoreLocation(x, y)
+        getContainerGroup()?.addView(getManagerView())
     }
 
     protected fun initManagerView() {
         if (helper.layoutId == 0 && helper.layoutView == null) throw RuntimeException("The layout id cannot be 0 ,and layoutView==null")
-        getContainerGroup()?.removeView(managerView)
+        getContainerGroup()?.removeView(getManagerView())
         initManager()
     }
 
     protected open fun initManager() {
         val context = context() ?: return
-        managerView = FxManagerView(context).init(helper)
-        val fxContentView = managerView?.childFxView ?: return
+        internalViewControl = FxManagerView(context).initView(helper)
+        val fxContentView = internalViewControl?.childView ?: return
         viewHolder = FxViewHolder(fxContentView)
         val fxViewLifecycle = helper.iFxViewLifecycle ?: return
         // 后续此方法将会移除,建议进行过渡
@@ -223,9 +228,9 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
         fxViewLifecycle.initView(viewHolder!!)
     }
 
-    protected fun getOrInitManagerView(): FxManagerView? {
-        if (managerView == null) initManagerView()
-        return managerView
+    protected fun getOrInitManagerView(): FrameLayout? {
+        if (getManagerView() == null) initManagerView()
+        return getManagerView()
     }
 
     protected fun getContainerGroup(): ViewGroup? {
@@ -233,10 +238,10 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
     }
 
     protected open fun detach(container: ViewGroup?) {
-        if (managerView != null && container != null) {
+        if (internalViewControl != null && container != null) {
             helper.fxLog?.d("fxView-lifecycle-> code->removeView")
             helper.iFxViewLifecycle?.postDetached()
-            container.removeView(managerView)
+            container.removeView(getManagerView())
         }
     }
 
@@ -258,27 +263,13 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
         mContainer = null
     }
 
-    @JvmSynthetic
-    protected fun FxManagerView.show() {
-        helper.enableFx = true
-        visibility = View.VISIBLE
-        val fxAnimation = helper.fxAnimation ?: return
-        if (helper.enableAnimation) {
-            if (fxAnimation.fromJobIsRunning()) {
-                helper.fxLog?.d("fxView->Animation ,startAnimation Executing, cancel this operation!")
-                return
-            }
-            helper.fxLog?.d("fxView->Animation ,startAnimation Executing, cancel this operation.")
-            fxAnimation.fromStartAnimator(this)
-        }
-    }
-
-    @JvmSynthetic
     protected open fun reset() {
-        managerView?.removeCallbacks(hideAnimationRunnable)
-        managerView?.removeCallbacks(cancelAnimationRunnable)
+        getManagerView()?.apply {
+            removeCallbacks(hideAnimationRunnable)
+            removeCallbacks(cancelAnimationRunnable)
+        }
         detach(mContainer?.get())
-        managerView = null
+        internalViewControl = null
         viewHolder = null
         helper.clear()
         clearContainer()
@@ -291,12 +282,23 @@ open class FxBasisControlImpl(private val helper: BasisHelper) : IFxControl, IFx
         helper.enableFx = newStatus
     }
 
-    internal fun setContainerGroup(viewGroup: ViewGroup) {
-        mContainer = WeakReference(viewGroup)
+    protected open fun internalShow() {
+        val managerView = getManagerView() ?: return
+        helper.enableFx = true
+        managerView.visibility = View.VISIBLE
+        val fxAnimation = helper.fxAnimation ?: return
+        if (helper.enableAnimation) {
+            if (fxAnimation.fromJobIsRunning()) {
+                helper.fxLog?.d("fxView->Animation ,startAnimation Executing, cancel this operation!")
+                return
+            }
+            helper.fxLog?.d("fxView->Animation ,startAnimation Executing, cancel this operation.")
+            fxAnimation.fromStartAnimator(managerView)
+        }
     }
 
     private fun animatorCallback(long: Long, runnable: Runnable) {
-        val magnetView = managerView ?: return
+        val magnetView = getManagerView() ?: return
         magnetView.removeCallbacks(runnable)
         magnetView.postDelayed(runnable, long)
     }

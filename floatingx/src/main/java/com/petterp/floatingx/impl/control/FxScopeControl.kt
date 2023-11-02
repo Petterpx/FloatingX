@@ -3,11 +3,11 @@ package com.petterp.floatingx.impl.control
 import android.app.Application
 import android.view.View
 import androidx.core.view.ViewCompat
-import com.petterp.floatingx.assist.helper.BasisHelper
+import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.listener.control.IFxScopeControl
 
 /** Fx普通View控制器 */
-class FxScopeControl<T>(helper: BasisHelper) :
+class FxScopeControl<T>(helper: FxBasisHelper) :
     FxBasisControlImpl(helper),
     IFxScopeControl<T> {
 
@@ -18,12 +18,12 @@ class FxScopeControl<T>(helper: BasisHelper) :
         if (!ViewCompat.isAttachedToWindow(managerView)) {
             getContainerGroup()?.addView(managerView)
         }
-        managerView.show()
+        internalShow()
     }
 
     override fun updateView(view: View) {
         if (view.context is Application) {
-            throw IllegalArgumentException("view == Application,Scope floating windows cannot use application-level views!")
+            throw IllegalArgumentException("view = Application,Scope floating windows cannot use application-level views!")
         }
         super.updateView(view)
     }

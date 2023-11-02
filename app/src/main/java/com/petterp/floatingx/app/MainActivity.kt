@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
 
     private val activityFx by createFx {
         setLayout(R.layout.item_floating)
-        setEnableLog(true, "act")
+        setEnableLog(true, "activityFx")
         build().toControl(this@MainActivity)
     }
 
@@ -88,6 +88,37 @@ class MainActivity : AppCompatActivity() {
                                 .setCardBackgroundColor(Color.GREEN)
                         }
                     }
+                    addItemView("显示windows级别悬浮窗") {
+//                        val config =
+//                            FxAppHelper.builder().setLayout(R.layout.item_floating)
+//                                .setEnableLog(true, "windows")
+//                                .setContext(applicationContext).build()
+//                        val layoutParam = WindowManager.LayoutParams().apply {
+//                            // 设置大小 自适应
+//                            width = WindowManager.LayoutParams.WRAP_CONTENT
+//                            height = WindowManager.LayoutParams.WRAP_CONTENT
+//                            format = PixelFormat.TRANSPARENT
+//                            /**
+//                             * 注意，flag的值可以为：
+//                             * 下面的flags属性的效果形同“锁定”。
+//                             * 悬浮窗不可触摸，不接受任何事件,同时不影响后面的事件响应。
+//                             * LayoutParams.FLAG_NOT_TOUCH_MODAL 不影响后面的事件
+//                             * LayoutParams.FLAG_NOT_FOCUSABLE 不可聚焦
+//                             * LayoutParams.FLAG_NOT_TOUCHABLE 不可触摸
+//                             */
+//                            flags =
+//                                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+//                            type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+//                            } else {
+//                                WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+//                            }
+//                        }
+//                        val fx = FxManagerView(applicationContext).init(config)
+//                        fx.windowManager = windowManager
+//                        windowManager.addView(fx, layoutParam)
+                        windowManager
+                    }
                     addItemView("进入测试页面") {
                         TestActivity::class.java.start(this@MainActivity)
                     }
@@ -111,5 +142,38 @@ class MainActivity : AppCompatActivity() {
         }
         addView(viewGroup)
         return viewGroup
+    }
+}
+
+class ItemViewTouchListener(val wl: WindowManager.LayoutParams, val windowManager: WindowManager) :
+    View.OnTouchListener {
+    private var x = 0
+    private var y = 0
+    override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
+        when (motionEvent.action) {
+            MotionEvent.ACTION_DOWN -> {
+                x = motionEvent.rawX.toInt()
+                y = motionEvent.rawY.toInt()
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                val nowX = motionEvent.rawX.toInt()
+                val nowY = motionEvent.rawY.toInt()
+                val movedX = nowX - x
+                val movedY = nowY - y
+                x = nowX
+                y = nowY
+                wl.apply {
+                    x += movedX
+                    y += movedY
+                }
+                // 更新悬浮球控件位置
+                windowManager?.updateViewLayout(view, wl)
+            }
+
+            else -> {
+            }
+        }
+        return false
     }
 }

@@ -1,4 +1,4 @@
-package com.petterp.floatingx.util
+package com.petterp.floatingx.assist
 
 /**
  * Fx吸附方向

@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Application
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -115,22 +114,18 @@ class CustomKtApplication : Application() {
                 setScrollListener(object : FxScrollImpl() {
                     override fun down() {
                         // 按下
-                        Log.e("petterp", "down")
                     }
 
                     override fun up() {
                         // 释放
-                        Log.e("petterp", "up")
                     }
 
                     override fun dragIng(event: MotionEvent, x: Float, y: Float) {
                         // 正在拖动
-//                    Log.e("petterp", "dragIng-$x,$y")
                     }
 
                     override fun eventIng(event: MotionEvent) {
                         // 接收所有事件传递
-                        Log.e("petterp", "eventIng,${event.x},${event.y}")
                     }
                 })
                 // 设置浮窗展示类型，默认可移动可点击，无需配置

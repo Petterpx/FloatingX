@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import com.petterp.floatingx.FloatingX
-import com.petterp.floatingx.assist.helper.AppHelper
+import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.impl.lifecycle.FxProxyLifecycleCallBackImpl
 import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.util.decorView
@@ -16,7 +16,7 @@ import com.petterp.floatingx.util.topActivity
 
 /** 全局控制器 */
 class FxAppControlImpl(
-    private val helper: AppHelper,
+    private val helper: FxAppHelper,
     private val proxyLifecycleImpl: FxProxyLifecycleCallBackImpl,
 ) : FxBasisControlImpl(helper),
     IFxAppControl,
@@ -38,7 +38,7 @@ class FxAppControlImpl(
     override fun show(activity: Activity) {
         if (!helper.isCanInstall(activity) || isShow()) return
         if (attach(activity)) {
-            getManagerView()?.show()
+            internalShow()
             updateEnableStatus(true)
             FloatingX.checkAppLifecycleInstall()
         }

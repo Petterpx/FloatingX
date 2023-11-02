@@ -1,10 +1,12 @@
 package com.petterp.floatingx.util
 
+import android.os.Handler
+import android.os.Looper
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.MotionEvent
-import com.petterp.floatingx.assist.helper.ScopeHelper
+import com.petterp.floatingx.assist.helper.FxScopeHelper
 import java.lang.Exception
 
 @JvmSynthetic
@@ -22,6 +24,7 @@ internal const val INVALID_TOUCH_ID = -1
 internal const val INVALID_LAYOUT_ID = 0
 internal const val INVALID_TOUCH_IDX = -1
 internal const val DEFAULT_MOVE_ANIMATOR_DURATION = 200L
+internal val HANDLER = Handler(Looper.getMainLooper())
 
 /**
  * 创建一个fx,自行初始化并控制插入位置
@@ -35,9 +38,9 @@ internal const val DEFAULT_MOVE_ANIMATOR_DURATION = 200L
  * }
  */
 @JvmSynthetic
-inline fun <T> createFx(crossinline obj: ScopeHelper.Builder.() -> T) =
+inline fun <T> createFx(crossinline obj: FxScopeHelper.Builder.() -> T) =
     lazy(LazyThreadSafetyMode.NONE) {
-        ScopeHelper.Builder().run(obj)
+        FxScopeHelper.Builder().run(obj)
     }
 
 @JvmSynthetic

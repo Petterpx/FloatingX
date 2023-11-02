@@ -1,7 +1,7 @@
 package com.petterp.floatingx.view
 
 import androidx.annotation.Keep
-import com.petterp.floatingx.assist.helper.BasisHelper
+import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.TOUCH_CLICK_OFFSET
 import com.petterp.floatingx.util.TOUCH_TIME_THRESHOLD
 import kotlin.math.abs
@@ -16,12 +16,13 @@ class FxClickHelper {
     private var isClickEvent = false
     private var clickEnable = true
     private var mLastTouchDownTime = 0L
-    private lateinit var helper: BasisHelper
+    private lateinit var helper: FxBasisHelper
 
     private val canClick: Boolean
         get() = helper.enableClickListener && helper.iFxClickListener != null
 
-    fun initConfig(helper: BasisHelper) {
+
+    fun initConfig(helper: FxBasisHelper) {
         reset()
         this.helper = helper
     }

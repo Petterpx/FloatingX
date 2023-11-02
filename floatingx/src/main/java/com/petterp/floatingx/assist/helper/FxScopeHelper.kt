@@ -5,11 +5,11 @@ import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import com.petterp.floatingx.impl.control.FxScopeControl
 import com.petterp.floatingx.listener.control.IFxScopeControl
-import com.petterp.floatingx.util.FxScopeEnum
+import com.petterp.floatingx.assist.FxScopeEnum
 import com.petterp.floatingx.util.contentView
 
 /** 特定范围的Helper构建器 */
-class ScopeHelper : BasisHelper() {
+class FxScopeHelper : FxBasisHelper() {
 
     /** 插入到Activity中 */
     fun toControl(activity: Activity): IFxScopeControl<Activity> {
@@ -49,7 +49,7 @@ class ScopeHelper : BasisHelper() {
         inline fun build(obj: Builder.() -> Unit) = builder().apply(obj).build()
     }
 
-    class Builder : BasisHelper.Builder<Builder, ScopeHelper>() {
-        override fun buildHelper(): ScopeHelper = ScopeHelper()
+    class Builder : FxBasisHelper.Builder<Builder, FxScopeHelper>() {
+        override fun buildHelper(): FxScopeHelper = FxScopeHelper()
     }
 }

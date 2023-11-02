@@ -16,7 +16,7 @@ import com.petterp.floatingx.app.createLinearLayoutToParent
 import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
-import com.petterp.floatingx.util.FxAdsorbDirection
+import com.petterp.floatingx.assist.FxAdsorbDirection
 import com.petterp.floatingx.util.createFx
 
 /** @author petterp */

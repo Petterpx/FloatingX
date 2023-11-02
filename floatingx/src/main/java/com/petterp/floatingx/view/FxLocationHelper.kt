@@ -1,7 +1,7 @@
 package com.petterp.floatingx.view
 
 import android.content.res.Configuration
-import com.petterp.floatingx.assist.helper.BasisHelper
+import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.coerceInFx
 
 /**

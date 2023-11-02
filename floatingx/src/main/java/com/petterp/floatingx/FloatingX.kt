@@ -3,7 +3,7 @@ package com.petterp.floatingx
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
-import com.petterp.floatingx.assist.helper.AppHelper
+import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.impl.control.FxAppControlImpl
 import com.petterp.floatingx.impl.lifecycle.FxLifecycleCallbackImpl
 import com.petterp.floatingx.impl.lifecycle.FxProxyLifecycleCallBackImpl
@@ -29,8 +29,8 @@ object FloatingX {
      * 方法含义见 [install(helper: AppHelper)]
      */
     @JvmSynthetic
-    inline fun install(obj: AppHelper.Builder.() -> Unit) =
-        install(AppHelper.builder().apply(obj).build())
+    inline fun install(obj: FxAppHelper.Builder.() -> Unit) =
+        install(FxAppHelper.builder().apply(obj).build())
 
     /**
      * 安装一个新的全局浮窗
@@ -41,7 +41,7 @@ object FloatingX {
      *
      */
     @JvmStatic
-    fun install(helper: AppHelper): IFxAppControl {
+    fun install(helper: FxAppHelper): IFxAppControl {
         if (context == null) {
             throw NullPointerException("context == null, please call AppHelper.setContext(context) to set context")
         }
