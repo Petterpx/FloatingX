@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        package="com.petterp.floatingx.app">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.petterp.floatingx.app">
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
 
     <application
-            android:name=".kotlin.CustomKtApplication"
-            android:icon="@mipmap/ic_launcher"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:supportsRtl="true"
-            android:theme="@style/Theme.FloatingX">
+        android:name=".kotlin.CustomKtApplication"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.FloatingX">
         <activity
-                android:name="com.petterp.floatingx.app.MainActivity"
-                android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
-                android:exported="true"
-                android:windowSoftInputMode="adjustPan">
+            android:name="com.petterp.floatingx.app.MainActivity"
+            android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -22,19 +25,19 @@
             </intent-filter>
         </activity>
         <activity
-                android:name=".test.ImmersedActivity"
-                android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
+            android:name=".test.ImmersedActivity"
+            android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
         <activity
-                android:name=".test.ScopeActivity"
-                android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
+            android:name=".test.ScopeActivity"
+            android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
         <activity android:name=".test.BlackActivity" />
         <activity android:name=".test.MultipleFxActivity" />
 
         <activity android:name=".TestActivity" />
         <activity
-                android:name=".test.SimpleRvActivity"
-                android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
-                android:exported="true" />
+            android:name=".test.SimpleRvActivity"
+            android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
+            android:exported="true" />
     </application>
 
 </manifest>

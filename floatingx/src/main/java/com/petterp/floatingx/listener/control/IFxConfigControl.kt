@@ -5,7 +5,7 @@ import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
-import com.petterp.floatingx.util.FxAdsorbDirection
+import com.petterp.floatingx.assist.FxAdsorbDirection
 
 /**
  * 配置更改接口,使用此接口运行时更改配置层

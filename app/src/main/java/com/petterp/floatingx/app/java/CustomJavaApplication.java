@@ -12,8 +12,8 @@ import com.petterp.floatingx.app.R;
 import com.petterp.floatingx.app.simple.FxAnimationImpl;
 import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl;
 import com.petterp.floatingx.assist.FxDisplayMode;
-import com.petterp.floatingx.assist.helper.AppHelper;
-import com.petterp.floatingx.assist.helper.ScopeHelper;
+import com.petterp.floatingx.assist.helper.FxAppHelper;
+import com.petterp.floatingx.assist.helper.FxScopeHelper;
 import com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl;
 
 /**
@@ -25,7 +25,7 @@ public class CustomJavaApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        AppHelper helper = AppHelper.builder()
+        FxAppHelper helper = FxAppHelper.builder()
                 .setLayout(R.layout.item_floating)
                 // 设置启用日志,tag可以自定义，最终显示为FloatingX-xxx
                 .setEnableLog(true, "自定义的tag")
@@ -85,7 +85,7 @@ public class CustomJavaApplication extends Application {
      * 创建一个局部悬浮窗
      */
     public void createScopeFxSimple(Activity activity) {
-        ScopeHelper.builder()
+        FxScopeHelper.builder()
                 .setLayout(R.layout.item_floating)
                 .build()
                 .toControl(activity);

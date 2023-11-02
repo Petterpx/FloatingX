@@ -3,6 +3,7 @@ package com.petterp.floatingx.assist.helper
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
+import com.petterp.floatingx.assist.FxAdsorbDirection
 import com.petterp.floatingx.assist.FxAnimation
 import com.petterp.floatingx.assist.FxBorderMargin
 import com.petterp.floatingx.assist.FxDisplayMode
@@ -10,12 +11,11 @@ import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
-import com.petterp.floatingx.util.FxAdsorbDirection
 import com.petterp.floatingx.util.FxLog
 import kotlin.math.abs
 
 /** 通用构建器helper */
-open class BasisHelper {
+open class FxBasisHelper {
     @JvmField
     internal var layoutId: Int = 0
 
@@ -113,7 +113,7 @@ open class BasisHelper {
         fxAnimation?.cancelAnimation()
     }
 
-    abstract class Builder<T, B : BasisHelper> {
+    abstract class Builder<T, B : FxBasisHelper> {
         @LayoutRes
         private var layoutId: Int = 0
         private var layoutView: View? = null

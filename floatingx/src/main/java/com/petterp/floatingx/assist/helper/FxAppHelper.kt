@@ -5,12 +5,12 @@ import android.app.Application
 import android.content.Context
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
-import com.petterp.floatingx.util.FxScopeEnum
+import com.petterp.floatingx.assist.FxScopeEnum
 import com.petterp.floatingx.util.navigationBarHeight
 import com.petterp.floatingx.util.statusBarHeight
 
-/** AppHelper构建器 */
-class AppHelper(
+/** FxAppConfig 构建器 */
+class FxAppHelper(
     /** 浮窗tag,默认为 [FloatingX.FX_DEFAULT_TAG] */
     @JvmSynthetic
     internal var tag: String,
@@ -26,7 +26,7 @@ class AppHelper(
     /** 显示悬浮窗的Activity生命周期回调 */
     @JvmSynthetic
     internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?
-) : BasisHelper() {
+) : FxBasisHelper() {
 
     @JvmSynthetic
     internal fun updateNavigationBar(activity: Activity?) {
@@ -51,7 +51,7 @@ class AppHelper(
             (!isAllInstall && whiteInsertList.contains(cls))
     }
 
-    class Builder : BasisHelper.Builder<Builder, AppHelper>() {
+    class Builder : FxBasisHelper.Builder<Builder, FxAppHelper>() {
         private var whiteInsertList: MutableList<Class<*>> = mutableListOf()
         private var blackFilterList: MutableList<Class<*>> = mutableListOf()
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
@@ -147,8 +147,8 @@ class AppHelper(
             return this
         }
 
-        override fun buildHelper(): AppHelper =
-            AppHelper(
+        override fun buildHelper(): FxAppHelper =
+            FxAppHelper(
                 tag,
                 blackFilterList,
                 whiteInsertList,
@@ -156,7 +156,7 @@ class AppHelper(
                 fxLifecycleExpand,
             )
 
-        override fun build(): AppHelper {
+        override fun build(): FxAppHelper {
             return super.build().apply {
                 enableFx = this@Builder.enableFx
                 // 有可能用户会使用多个浮窗，这里为了防止日志混乱，将浮窗tag赋值给日志tag

@@ -12,5 +12,5 @@ enum class FxDisplayMode {
     ClickOnly,
 
     // 展示模式：只用于展示，不响应任何事件不能移动
-    DisplayOnly
+    DisplayOnly,
 }

@@ -3,7 +3,7 @@ package com.petterp.floatingx.impl.lifecycle
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import com.petterp.floatingx.assist.helper.AppHelper
+import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.impl.control.FxAppControlImpl
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.util.FxLog
@@ -17,7 +17,7 @@ import com.petterp.floatingx.util.lazyLoad
  */
 class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
 
-    private var helper: AppHelper? = null
+    private var helper: FxAppHelper? = null
     private var appControl: FxAppControlImpl? = null
 
     private val fxLog: FxLog?
@@ -45,7 +45,7 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
         }
 
     /** 初始化helper与app控制器 */
-    fun init(helper: AppHelper, control: FxAppControlImpl) {
+    fun init(helper: FxAppHelper, control: FxAppControlImpl) {
         this.helper = helper
         this.appControl = control
     }

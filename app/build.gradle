@@ -74,4 +74,5 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-object-watcher-android-startup:2.10'
     implementation isDev ? project(path: ':floatingx') : "io.github.petterpx:floatingx:$version_name"
+    debugImplementation "com.bytedance.tools.codelocator:codelocator-core:2.0.3"
 }
