@@ -31,7 +31,9 @@ class FxViewHolder(private val itemView: View?) {
                 views.put(viewId, it)
                 it
             }
-        } else view as? T
+        } else {
+            view as? T
+        }
     }
 
     fun setOnClickListener(@IdRes viewId: Int, listener: OnClickListener): FxViewHolder {
