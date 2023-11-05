@@ -1,10 +1,10 @@
 package com.petterp.floatingx.util
 
-import android.os.Handler
-import android.os.Looper
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.os.Handler
+import android.os.Looper
 import android.view.MotionEvent
 import com.petterp.floatingx.assist.helper.FxScopeHelper
 import java.lang.Exception
