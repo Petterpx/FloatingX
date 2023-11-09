@@ -84,7 +84,7 @@ class FxLifecycleCallbackImpl : Application.ActivityLifecycleCallbacks {
 
         @JvmSynthetic
         internal fun updateTopActivity(activity: Activity?) {
-            if (activity == null) return
+            if (activity == null || topActivity?.get() === activity) return
             topActivity = WeakReference(activity)
         }
 

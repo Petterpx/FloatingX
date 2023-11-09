@@ -36,7 +36,7 @@ class FxAppControlImpl(
     }
 
     override fun show(activity: Activity) {
-        if (isShow()) return
+        if (!helper.isCanInstall(activity) || isShow()) return
         if (attach(activity)) {
             getManagerView()?.show()
             updateEnableStatus(true)
