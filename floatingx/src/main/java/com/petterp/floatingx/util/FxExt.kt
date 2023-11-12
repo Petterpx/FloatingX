@@ -63,7 +63,7 @@ internal fun Float.withIn(min: Number, max: Number): Boolean {
 internal val MotionEvent.pointerId: Int
     get() = try {
         getPointerId(actionIndex)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         INVALID_TOUCH_ID
     }
 

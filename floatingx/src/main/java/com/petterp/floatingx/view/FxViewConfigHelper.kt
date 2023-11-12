@@ -84,7 +84,8 @@ class FxViewConfigHelper {
 
     fun checkInterceptedEvent(event: MotionEvent): Boolean {
         if (!isCurrentPointerId(event)) return false
-        return kotlin.math.abs(event.x - downTouchX) >= scaledTouchSlop || kotlin.math.abs(event.y - downTouchY) >= scaledTouchSlop
+        return kotlin.math.abs(event.x - downTouchX) >= scaledTouchSlop ||
+            kotlin.math.abs(event.y - downTouchY) >= scaledTouchSlop
     }
 
     fun getAdsorbDirectionLocation(x: Float, y: Float): Pair<Float, Float>? {
