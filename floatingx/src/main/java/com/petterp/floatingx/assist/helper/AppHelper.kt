@@ -40,6 +40,17 @@ class AppHelper(
         fxLog?.v("system-> statusBarHeight-$statsBarHeight")
     }
 
+    @JvmSynthetic
+    internal fun isCanInstall(act: Activity): Boolean {
+        return isCanInstall(act.javaClass)
+    }
+
+    @JvmSynthetic
+    internal fun isCanInstall(cls: Class<*>): Boolean {
+        return (isAllInstall && !blackFilterList.contains(cls)) ||
+            (!isAllInstall && whiteInsertList.contains(cls))
+    }
+
     class Builder : BasisHelper.Builder<Builder, AppHelper>() {
         private var whiteInsertList: MutableList<Class<*>> = mutableListOf()
         private var blackFilterList: MutableList<Class<*>> = mutableListOf()
@@ -142,7 +153,7 @@ class AppHelper(
                 blackFilterList,
                 whiteInsertList,
                 isEnableAllInstall,
-                fxLifecycleExpand
+                fxLifecycleExpand,
             )
 
         override fun build(): AppHelper {

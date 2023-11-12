@@ -40,7 +40,7 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
 
     private val Activity.isActivityInValid: Boolean
         get() {
-            val cls = this::class.java
+            val cls = this.javaClass
             return insertCls[cls] ?: isInsertActivity(cls)
         }
 
@@ -52,8 +52,8 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         if (!enableFx) return
-        appLifecycleCallBack?.let {
-            if (activity.isActivityInValid) it.onCreated(activity, savedInstanceState)
+        if (appLifecycleCallBack != null && activity.isActivityInValid) {
+            appLifecycleCallBack?.onCreated(activity, savedInstanceState)
         }
     }
 
@@ -68,8 +68,9 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
         val activityName = activity.name
         fxLog?.d("fxApp->insert, insert [$activityName] Start ---------->")
         val isActivityInValid = activity.isActivityInValid
-        if (isActivityInValid) appLifecycleCallBack?.onResumes(activity)
-        else {
+        if (isActivityInValid) {
+            appLifecycleCallBack?.onResumes(activity)
+        } else {
             fxLog?.d("fxApp->insert, insert [$activityName] Fail ,This activity is not in the list of allowed inserts.")
             return
         }
@@ -118,9 +119,8 @@ class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
     private fun isInsertActivity(cls: Class<*>): Boolean =
         helper?.let {
             // 条件 允许全局安装&&不在黑名单 || 禁止全局安装&&在白名单
-            val isInsert = (it.isAllInstall && !it.blackFilterList.contains(cls)) ||
-                (!it.isAllInstall && it.whiteInsertList.contains(cls))
+            val isInsert = it.isCanInstall(cls)
             insertCls[cls] = isInsert
-            return isInsert
+            isInsert
         } ?: false
 }
