@@ -8,15 +8,19 @@ import com.petterp.floatingx.util.coerceInFx
  * Fx location restore helper，Used to restore the location of the floating window after the screen is rotated
  * @author petterp
  */
-class FxLocationRestoreHelper {
+class FxLocationHelper {
+    private lateinit var config: BasisHelper
     private var screenW = 0
     private var screenH = 0
     private var x: Float = 0f
     private var y: Float = 0f
     private var isNearestLeft = false
-    private var enableEdgeAdsorption = false
     private var screenChanged: Boolean = false
     private var isInitLocation = true
+
+    fun initConfig(config: BasisHelper) {
+        this.config = config
+    }
 
     /**
      * Whether to restore the position
@@ -37,14 +41,11 @@ class FxLocationRestoreHelper {
     fun saveLocation(
         x: Float,
         y: Float,
-        parentW: Float,
-        config: BasisHelper
-    ): FxLocationRestoreHelper {
+        configHelper: FxViewConfigHelper,
+    ): FxLocationHelper {
         this.x = x
         this.y = y
-        val middle = parentW / 2
-        isNearestLeft = x < middle
-        this.enableEdgeAdsorption = config.enableEdgeAdsorption
+        isNearestLeft = configHelper.isNearestLeft(x)
         return this
     }
 
@@ -66,15 +67,15 @@ class FxLocationRestoreHelper {
     }
 
     /** get location config  */
-    fun getLocation(minW: Float, maxW: Float, minH: Float, maxH: Float): Pair<Float, Float> {
-        val newX = getX(minW, maxW)
-        val newY = getY(minH, maxH)
+    fun getLocation(viewConfig: FxViewConfigHelper): Pair<Float, Float> {
+        val newX = getX(viewConfig.minWBoundary, viewConfig.minWBoundary)
+        val newY = getY(viewConfig.minHBoundary, viewConfig.maxHBoundary)
         this.screenChanged = false
         return newX to newY
     }
 
     private fun getX(min: Float, max: Float): Float {
-        return if (enableEdgeAdsorption) {
+        return if (config.enableEdgeAdsorption) {
             if (isNearestLeft) min else max
         } else {
             x.coerceInFx(min, max)

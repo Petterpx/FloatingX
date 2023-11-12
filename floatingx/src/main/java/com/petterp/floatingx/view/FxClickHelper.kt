@@ -2,6 +2,8 @@ package com.petterp.floatingx.view
 
 import androidx.annotation.Keep
 import com.petterp.floatingx.assist.helper.BasisHelper
+import com.petterp.floatingx.util.TOUCH_CLICK_OFFSET
+import com.petterp.floatingx.util.TOUCH_TIME_THRESHOLD
 import kotlin.math.abs
 
 /**
@@ -31,8 +33,8 @@ class FxClickHelper {
 
     fun checkClickEvent(x: Float, y: Float) {
         if (!isClickEvent) return
-        isClickEvent = abs(x - initX) < FxManagerView.TOUCH_CLICK_OFFSET &&
-                abs(y - initY) < FxManagerView.TOUCH_CLICK_OFFSET
+        isClickEvent = abs(x - initX) < TOUCH_CLICK_OFFSET &&
+            abs(y - initY) < TOUCH_CLICK_OFFSET
     }
 
     @Keep
@@ -56,7 +58,7 @@ class FxClickHelper {
 
     private fun isClickEffective(): Boolean {
         return isClickEvent && clickEnable && helper.enableClickListener &&
-                helper.iFxClickListener != null &&
-                System.currentTimeMillis() - mLastTouchDownTime < FxManagerView.TOUCH_TIME_THRESHOLD
+            helper.iFxClickListener != null &&
+            System.currentTimeMillis() - mLastTouchDownTime < TOUCH_TIME_THRESHOLD
     }
 }

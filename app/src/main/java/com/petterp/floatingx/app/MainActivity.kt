@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
 
     private val activityFx by createFx {
         setLayout(R.layout.item_floating)
+        setEnableLog(true, "act")
         build().toControl(this@MainActivity)
     }
 
