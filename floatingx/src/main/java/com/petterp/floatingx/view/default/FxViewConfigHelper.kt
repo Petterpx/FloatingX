@@ -1,11 +1,11 @@
-package com.petterp.floatingx.view
+package com.petterp.floatingx.view.default
 
 import android.content.Context
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.view.ViewGroup
-import com.petterp.floatingx.assist.helper.BasisHelper
-import com.petterp.floatingx.util.FxAdsorbDirection
+import com.petterp.floatingx.assist.FxAdsorbDirection
+import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.INVALID_TOUCH_ID
 import com.petterp.floatingx.util.coerceInFx
 import com.petterp.floatingx.util.pointerId
@@ -16,7 +16,7 @@ class FxViewConfigHelper {
     private var downTouchY = 0f
     private var mParentWidth = 0f
     private var mParentHeight = 0f
-    private lateinit var helper: BasisHelper
+    private lateinit var helper: FxBasisHelper
     private var scaledTouchSlop = 0
 
     var minHBoundary = 0f
@@ -26,7 +26,7 @@ class FxViewConfigHelper {
 
     var touchDownId = INVALID_TOUCH_ID
 
-    fun initConfig(context: Context, helper: BasisHelper) {
+    fun initConfig(context: Context, helper: FxBasisHelper) {
         this.helper = helper
         scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
     }

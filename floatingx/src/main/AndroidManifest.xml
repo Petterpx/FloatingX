@@ -1,2 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.petterp.floatingx" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.petterp.floatingx">
+
+    <application>
+        <provider
+            android:name=".assist.FxContentProvider"
+            android:authorities="${applicationId}.fx.provider"
+            android:exported="false"
+            android:multiprocess="true" />
+    </application>
+</manifest>

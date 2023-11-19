@@ -1,4 +1,4 @@
-package com.petterp.floatingx.view
+package com.petterp.floatingx.view.default
 
 import android.content.res.Configuration
 import com.petterp.floatingx.assist.helper.FxBasisHelper
@@ -9,7 +9,7 @@ import com.petterp.floatingx.util.coerceInFx
  * @author petterp
  */
 class FxLocationHelper {
-    private lateinit var config: BasisHelper
+    private lateinit var config: FxBasisHelper
     private var screenW = 0
     private var screenH = 0
     private var x: Float = 0f
@@ -18,7 +18,7 @@ class FxLocationHelper {
     private var screenChanged: Boolean = false
     private var isInitLocation = true
 
-    fun initConfig(config: BasisHelper) {
+    fun initConfig(config: FxBasisHelper) {
         this.config = config
     }
 

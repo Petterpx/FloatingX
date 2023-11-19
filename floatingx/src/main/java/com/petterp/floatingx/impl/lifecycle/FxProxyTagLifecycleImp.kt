@@ -5,7 +5,7 @@ import android.os.Bundle
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 
 /** IFxProxyTagActivityLifecycle的空实现 */
-open class FxTagActivityLifecycleImpl : IFxProxyTagActivityLifecycle {
+open class FxProxyTagLifecycleImp : IFxProxyTagActivityLifecycle {
     override fun onCreated(activity: Activity, bundle: Bundle?) {}
 
     override fun onStarted(activity: Activity) {}

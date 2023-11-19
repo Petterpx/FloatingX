@@ -17,7 +17,7 @@ class BlackActivity : AppCompatActivity() {
                 textSize = 50f
             }
             addItemView("显示全局悬浮窗") {
-                FloatingX.control(MultipleFxActivity.TAG_1).show(this@BlackActivity)
+                FloatingX.control(MultipleFxActivity.TAG_1).show()
             }
         }
     }

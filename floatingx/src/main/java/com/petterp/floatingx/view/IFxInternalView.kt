@@ -7,7 +7,7 @@ import android.widget.FrameLayout
  *
  * @author petterp
  */
-internal interface IFxInternalViewControl {
+internal interface IFxInternalView {
 
     val containerView: FrameLayout
 
@@ -19,9 +19,5 @@ internal interface IFxInternalViewControl {
 
     fun moveToEdge()
 
-    fun getX(): Float
-
-    fun getY(): Float
-
-    fun restoreLocation(x: Float, y: Float)
+    fun updateView()
 }

@@ -36,7 +36,7 @@ class SimpleRvActivity : AppCompatActivity() {
                             }
                         }
                         FloatingX.controlOrNull(TAG)?.apply {
-                            if (!isShow()) show(this@SimpleRvActivity)
+                            if (!isShow()) show()
                         }
                     }
                     addItemView("隐藏浮窗") {

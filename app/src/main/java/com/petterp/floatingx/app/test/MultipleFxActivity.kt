@@ -24,17 +24,17 @@ class MultipleFxActivity : AppCompatActivity() {
                         if (!FloatingX.isInstalled(TAG_1)) {
                             CustomKtApplication.installTag1(application)
                         }
-                        FloatingX.control(TAG_1).show(this@MultipleFxActivity)
+                        FloatingX.control(TAG_1).show()
                     }
                     addItemView("显示全局悬浮窗(tag2)") {
                         if (!FloatingX.isInstalled(TAG_2)) {
                             CustomKtApplication.installTag2(application)
                         }
-                        FloatingX.control(TAG_2).show(this@MultipleFxActivity)
+                        FloatingX.control(TAG_2).show()
                     }
                     addItemView("重复安装全局悬浮窗(tag1)") {
                         CustomKtApplication.installTag1(application)
-                        FloatingX.control(TAG_1).show(this@MultipleFxActivity)
+                        FloatingX.control(TAG_1).show()
                     }
                     addItemView("隐藏全局悬浮窗(tag1)") {
                         FloatingX.controlOrNull(TAG_1)?.hide()

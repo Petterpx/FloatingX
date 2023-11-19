@@ -1,17 +1,17 @@
-package com.petterp.floatingx.view
+package com.petterp.floatingx.view.default
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.FxDisplayMode
-import com.petterp.floatingx.assist.FxGravity
-import com.petterp.floatingx.assist.helper.BasisHelper
+import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.DEFAULT_MOVE_ANIMATOR_DURATION
 import com.petterp.floatingx.util.FX_GRAVITY_BOTTOM
 import com.petterp.floatingx.util.FX_GRAVITY_TOP
@@ -19,24 +19,28 @@ import com.petterp.floatingx.util.INVALID_LAYOUT_ID
 import com.petterp.floatingx.util.INVALID_TOUCH_ID
 import com.petterp.floatingx.util.pointerId
 import com.petterp.floatingx.util.withIn
+import com.petterp.floatingx.view.IFxInternalView
 
 /** 基础悬浮窗View */
 @SuppressLint("ViewConstructor")
-class FxManagerView @JvmOverloads constructor(
+class FxDefaultContainerView @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null,
-) : FrameLayout(context, attrs), View.OnLayoutChangeListener {
+    attrs: AttributeSet? = null
+) : FrameLayout(context, attrs), View.OnLayoutChangeListener, IFxInternalView {
 
-    private lateinit var helper: BasisHelper
+    private lateinit var helper: FxBasisHelper
     private val clickHelper = FxClickHelper()
-    private val restoreHelper = FxLocationHelper()
+    private val locationHelper = FxLocationHelper()
     private val configHelper = FxViewConfigHelper()
 
     private var _childFxView: View? = null
-    val childFxView: View? get() = _childFxView
+    override val childView: View?
+        get() = _childFxView
+    override val containerView: FrameLayout
+        get() = this
 
     @JvmSynthetic
-    internal fun init(config: BasisHelper): FxManagerView {
+    internal fun init(config: FxBasisHelper): FxDefaultContainerView {
         this.helper = config
         initView()
         return this
@@ -45,7 +49,7 @@ class FxManagerView @JvmOverloads constructor(
     private fun initView() {
         _childFxView = inflateLayoutView() ?: inflateLayoutId()
         clickHelper.initConfig(helper)
-        restoreHelper.initConfig(helper)
+        locationHelper.initConfig(helper)
         configHelper.initConfig(context, helper)
         checkNotNull(_childFxView) { "initFxView -> Error,check your layoutId or layoutView." }
         initLocation()
@@ -68,7 +72,9 @@ class FxManagerView @JvmOverloads constructor(
     private fun inflateLayoutId(): View? {
         if (helper.layoutId == INVALID_LAYOUT_ID) return null
         helper.fxLog?.d("fxView-->init, way:[layoutId]")
-        return inflate(context, helper.layoutId, this)
+        val view = LayoutInflater.from(context).inflate(helper.layoutId, this, false)
+        addView(view)
+        return view
     }
 
     private fun initLocation() {
@@ -169,11 +175,11 @@ class FxManagerView @JvmOverloads constructor(
         super.onConfigurationChanged(newConfig)
         helper.fxLog?.d("fxView--lifecycle-> onConfigurationChanged--->")
         // use the configuration in Configuration first
-        val isScreenChanged = restoreHelper.updateConfig(newConfig)
+        val isScreenChanged = locationHelper.updateConfig(newConfig)
         if (!isScreenChanged) return
         val x = x
         val y = y
-        restoreHelper.saveLocation(x, y, configHelper)
+        locationHelper.saveLocation(x, y, configHelper)
         helper.fxLog?.d("fxView--lifecycle-> saveLocation:[x:$x,y:$y]")
     }
 
@@ -192,8 +198,7 @@ class FxManagerView @JvmOverloads constructor(
         helper.iFxScrollListener?.down()
     }
 
-    @JvmSynthetic
-    internal fun moveLocation(x: Float, y: Float, useAnimation: Boolean = true) {
+    override fun moveLocation(x: Float, y: Float, useAnimation: Boolean) {
         val newX = configHelper.safeX(x)
         val newY = configHelper.safeY(y)
         if (useAnimation) {
@@ -204,22 +209,22 @@ class FxManagerView @JvmOverloads constructor(
         }
     }
 
-    @JvmSynthetic
-    internal fun moveLocationByVector(x: Float, y: Float, useAnimation: Boolean = true) {
+    override fun moveLocationByVector(x: Float, y: Float, useAnimation: Boolean) {
         val currentX = this.x.plus(x)
         val currentY = this.y.plus(y)
         moveLocation(currentX, currentY, useAnimation)
     }
 
-    @JvmSynthetic
-    internal fun restoreLocation(x: Float, y: Float) {
-        (layoutParams as LayoutParams).gravity = FxGravity.DEFAULT.value
-        this.x = x
-        this.y = y
+    override fun updateView() {
+        removeView(_childFxView)
+        _childFxView = if (helper.layoutView != null) {
+            inflateLayoutView()
+        } else {
+            inflateLayoutId()
+        }
     }
 
-    @JvmSynthetic
-    internal fun moveToEdge() {
+    override fun moveToEdge() {
         configHelper.updateBoundary(false)
         configHelper.getAdsorbDirectionLocation(x, y)?.let { (x, y) ->
             moveToLocation(x, y)
@@ -249,7 +254,7 @@ class FxManagerView @JvmOverloads constructor(
     }
 
     private fun restoreLocation() {
-        val (x, y) = restoreHelper.getLocation(configHelper)
+        val (x, y) = locationHelper.getLocation(configHelper)
         this.x = x
         this.y = y
         saveLocationToStorage(x, y)
@@ -290,11 +295,11 @@ class FxManagerView @JvmOverloads constructor(
     private fun refreshLocation(w: Int, h: Int) {
         if (!configHelper.updateWidgetSize(w, h, this)) return
         // 初始化位置时，我们进行一次位置校准，避免浮窗位置异常
-        if (restoreHelper.isInitLocation()) {
+        if (locationHelper.isInitLocation()) {
             checkOrFixLocation()
             return
         }
-        if (restoreHelper.isRestoreLocation()) {
+        if (locationHelper.isRestoreLocation()) {
             restoreLocation()
         } else {
             moveToEdge()

@@ -4,8 +4,11 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import com.petterp.floatingx.FloatingX
-import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.assist.FxScopeEnum
+import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
+import com.petterp.floatingx.util.FX_APP_DEFAULT_TAG
+import com.petterp.floatingx.util.FX_INSTALL_SCOPE_APP_TAG
+import com.petterp.floatingx.util.FX_INSTALL_SCOPE_SYSTEM_TAG
 import com.petterp.floatingx.util.navigationBarHeight
 import com.petterp.floatingx.util.statusBarHeight
 
@@ -14,6 +17,8 @@ class FxAppHelper(
     /** 浮窗tag,默认为 [FloatingX.FX_DEFAULT_TAG] */
     @JvmSynthetic
     internal var tag: String,
+    @JvmSynthetic
+    internal var context: Application,
     /** 黑名单list */
     @JvmSynthetic
     internal val blackFilterList: MutableList<Class<*>>,
@@ -23,6 +28,8 @@ class FxAppHelper(
     /** 是否允许插入全部Activity */
     @JvmSynthetic
     internal val isAllInstall: Boolean,
+    @JvmSynthetic
+    internal val scope: FxScopeEnum,
     /** 显示悬浮窗的Activity生命周期回调 */
     @JvmSynthetic
     internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?
@@ -56,8 +63,10 @@ class FxAppHelper(
         private var blackFilterList: MutableList<Class<*>> = mutableListOf()
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
         private var isEnableAllInstall: Boolean = true
-        private var tag = FloatingX.FX_DEFAULT_TAG
+        private var context: Application? = null
+        private var tag = FX_APP_DEFAULT_TAG
         private var enableFx = false
+        private var scopeEnum: FxScopeEnum = FxScopeEnum.APP_ACTIVITY
 
         /** 设置启用fx */
         fun enableFx(): Builder {
@@ -71,9 +80,9 @@ class FxAppHelper(
          * */
         fun setContext(context: Context): Builder {
             if (context is Application) {
-                FloatingX.context = context
+                this.context = context
             } else {
-                FloatingX.context = context.applicationContext as Application
+                this.context = context.applicationContext as Application
             }
             return this
         }
@@ -115,8 +124,15 @@ class FxAppHelper(
          */
         @Throws(IllegalArgumentException::class)
         fun setTag(tag: String): Builder {
-            if (tag.isEmpty()) throw IllegalArgumentException("浮窗 tag 不能为 [\"\"],请设置一个合法的tag")
+            check(tag.isNotEmpty()) {
+                "浮窗 tag 不能为 [\"\"],请设置一个合法的tag"
+            }
             this.tag = tag
+            return this
+        }
+
+        fun setSystemScope(scope: FxScopeEnum): Builder {
+            this.scopeEnum = scope
             return this
         }
 
@@ -147,14 +163,18 @@ class FxAppHelper(
             return this
         }
 
-        override fun buildHelper(): FxAppHelper =
-            FxAppHelper(
+        override fun buildHelper(): FxAppHelper {
+            checkNotNull(context) { "context == null, please call AppHelper.setContext(context) to set context" }
+            return FxAppHelper(
                 tag,
+                context!!,
                 blackFilterList,
                 whiteInsertList,
                 isEnableAllInstall,
+                scopeEnum,
                 fxLifecycleExpand,
             )
+        }
 
         override fun build(): FxAppHelper {
             return super.build().apply {
@@ -163,7 +183,11 @@ class FxAppHelper(
                 if (enableDebugLog && fxLogTag.isEmpty()) {
                     fxLogTag = tag
                 }
-                initLog(FxScopeEnum.APP_SCOPE.tag)
+                if (scopeEnum == FxScopeEnum.SYSTEM) {
+                    initLog(FX_INSTALL_SCOPE_SYSTEM_TAG)
+                } else {
+                    initLog(FX_INSTALL_SCOPE_APP_TAG)
+                }
             }
         }
     }

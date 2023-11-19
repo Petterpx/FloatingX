@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
             addNestedScrollView {
                 addLinearLayout {
                     addItemView("显示全局悬浮窗") {
-                        FloatingX.control(MultipleFxActivity.TAG_1).show(this@MainActivity)
+                        FloatingX.control(MultipleFxActivity.TAG_1).show()
                     }
                     addItemView("隐藏全局悬浮窗") {
                         FloatingX.control(MultipleFxActivity.TAG_1).hide()
@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
                             this.updateViewContent {
                                 it.setText(R.id.tvItemFx, "App")
                             }
-                        }.show(this@MainActivity)
+                        }.show()
                     }
                     addItemView("更新当前[全局浮窗]内容-(传递view方式)") {
                         FloatingX.control(MultipleFxActivity.TAG_1).apply {
@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
                                     setBackgroundColor(Color.GRAY)
                                 }
                             }
-                            show(this@MainActivity)
+                            show()
                         }
                     }
                     addItemView("显示一个Activity悬浮窗-(展示与多指触摸)") {
@@ -137,35 +137,35 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-class ItemViewTouchListener(val wl: WindowManager.LayoutParams, val windowManager: WindowManager) :
-    View.OnTouchListener {
-    private var x = 0
-    private var y = 0
-    override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
-        when (motionEvent.action) {
-            MotionEvent.ACTION_DOWN -> {
-                x = motionEvent.rawX.toInt()
-                y = motionEvent.rawY.toInt()
-            }
-
-            MotionEvent.ACTION_MOVE -> {
-                val nowX = motionEvent.rawX.toInt()
-                val nowY = motionEvent.rawY.toInt()
-                val movedX = nowX - x
-                val movedY = nowY - y
-                x = nowX
-                y = nowY
-                wl.apply {
-                    x += movedX
-                    y += movedY
-                }
-                // 更新悬浮球控件位置
-                windowManager?.updateViewLayout(view, wl)
-            }
-
-            else -> {
-            }
-        }
-        return false
-    }
-}
+// class ItemViewTouchListener(val wl: WindowManager.LayoutParams, val windowManager: WindowManager) :
+//    View.OnTouchListener {
+//    private var x = 0
+//    private var y = 0
+//    override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
+//        when (motionEvent.action) {
+//            MotionEvent.ACTION_DOWN -> {
+//                x = motionEvent.rawX.toInt()
+//                y = motionEvent.rawY.toInt()
+//            }
+//
+//            MotionEvent.ACTION_MOVE -> {
+//                val nowX = motionEvent.rawX.toInt()
+//                val nowY = motionEvent.rawY.toInt()
+//                val movedX = nowX - x
+//                val movedY = nowY - y
+//                x = nowX
+//                y = nowY
+//                wl.apply {
+//                    x += movedX
+//                    y += movedY
+//                }
+//                // 更新悬浮球控件位置
+//                windowManager?.updateViewLayout(view, wl)
+//            }
+//
+//            else -> {
+//            }
+//        }
+//        return false
+//    }
+// }

@@ -1,3 +1,5 @@
+@file:JvmName("_FxScreenExt")
+
 package com.petterp.floatingx.util
 
 import android.annotation.SuppressLint
