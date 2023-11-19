@@ -1,12 +1,8 @@
 package com.petterp.floatingx
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.Application
 import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.impl.control.FxAppControlImpl
-import com.petterp.floatingx.impl.lifecycle.FxLifecycleCallbackImpl
-import com.petterp.floatingx.impl.lifecycle.FxProxyLifecycleCallBackImpl
 import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.listener.control.IFxConfigControl
 
@@ -14,14 +10,9 @@ import com.petterp.floatingx.listener.control.IFxConfigControl
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
     private const val FX_DEFAULT_INITIAL_CAPACITY = 3
-    private var fxLifecycleCallback: FxLifecycleCallbackImpl? = null
-    private var fxs = HashMap<String, FxAppControlImpl>(FX_DEFAULT_INITIAL_CAPACITY)
 
     @JvmSynthetic
-    internal var context: Application? = null
-
-    @JvmSynthetic
-    internal const val FX_DEFAULT_TAG = "FX_DEFAULT_TAG"
+    internal val fxs = HashMap<String, IFxAppControl>(FX_DEFAULT_INITIAL_CAPACITY)
 
     /**
      * 安装一个新的全局浮窗,以dsl方式
@@ -42,13 +33,9 @@ object FloatingX {
      */
     @JvmStatic
     fun install(helper: FxAppHelper): IFxAppControl {
-        if (context == null) {
-            throw NullPointerException("context == null, please call AppHelper.setContext(context) to set context")
-        }
-        if (fxs.isNotEmpty()) fxs[helper.tag]?.cancel()
-        val fxAppControlImpl = FxAppControlImpl(helper, FxProxyLifecycleCallBackImpl())
+        fxs[helper.tag]?.cancel()
+        val fxAppControlImpl = FxAppControlImpl(helper, FxTempAppLifecycleImp())
         fxs[helper.tag] = fxAppControlImpl
-        if (helper.enableFx) checkAppLifecycleInstall()
         return fxAppControlImpl
     }
 
@@ -59,7 +46,7 @@ object FloatingX {
      */
     @JvmStatic
     @JvmOverloads
-    fun control(tag: String = FX_DEFAULT_TAG): IFxAppControl {
+    fun control(tag: String = FX_APP_DEFAULT_TAG): IFxAppControl {
         return getTagFxControl(tag)
     }
 
@@ -70,7 +57,7 @@ object FloatingX {
      */
     @JvmStatic
     @JvmOverloads
-    fun controlOrNull(tag: String = FX_DEFAULT_TAG): IFxAppControl? {
+    fun controlOrNull(tag: String = FX_APP_DEFAULT_TAG): IFxAppControl? {
         return fxs[tag]
     }
 
@@ -81,7 +68,7 @@ object FloatingX {
      */
     @JvmStatic
     @JvmOverloads
-    fun configControl(tag: String = FX_DEFAULT_TAG): IFxConfigControl {
+    fun configControl(tag: String = FX_APP_DEFAULT_TAG): IFxConfigControl {
         return getTagFxControl(tag).configControl
     }
 
@@ -92,7 +79,7 @@ object FloatingX {
      */
     @JvmStatic
     @JvmOverloads
-    fun configControlOrNull(tag: String = FX_DEFAULT_TAG): IFxConfigControl? {
+    fun configControlOrNull(tag: String = FX_APP_DEFAULT_TAG): IFxConfigControl? {
         return fxs[tag]?.configControl
     }
 
@@ -101,7 +88,7 @@ object FloatingX {
      * */
     @JvmStatic
     @JvmOverloads
-    fun isInstalled(tag: String = FX_DEFAULT_TAG): Boolean {
+    fun isInstalled(tag: String = FX_APP_DEFAULT_TAG): Boolean {
         return fxs[tag] != null
     }
 
@@ -109,11 +96,10 @@ object FloatingX {
     @JvmStatic
     fun uninstallAll() {
         if (fxs.isEmpty()) return
-        // 这里需要避免 ConcurrentModificationException
-        val keys = fxs.keys.toList()
-        keys.forEach {
-            fxs[it]?.cancel()
+        fxs.values.forEach {
+            it.cancel()
         }
+        fxs.clear()
     }
 
     /**
@@ -125,41 +111,9 @@ object FloatingX {
         return fxs.keys.toList()
     }
 
-    @JvmSynthetic
-    internal fun uninstall(tag: String, control: FxAppControlImpl) {
-        if (fxs.values.contains(control)) fxs.remove(tag)
-        // 如果全局浮窗为null，自动清空配置
-        if (fxs.isEmpty()) {
-            release()
-        }
-    }
-
-    /**
-     * 检查AppLifecycle是否安装
-     *
-     * @param activity 初始化时的activity
-     */
-    @JvmSynthetic
-    internal fun checkAppLifecycleInstall(activity: Activity? = null) {
-        if (fxLifecycleCallback != null) return
-        FxLifecycleCallbackImpl.updateTopActivity(activity)
-        fxLifecycleCallback = FxLifecycleCallbackImpl()
-        context?.registerActivityLifecycleCallbacks(fxLifecycleCallback)
-    }
-
-    @JvmSynthetic
-    internal fun getFxList(): Map<String, FxAppControlImpl> = fxs
-
-    private fun getTagFxControl(tag: String): FxAppControlImpl {
-        val errorMessage =
-            "fxs[$tag]==null!,Please check if FloatingX.install() or AppHelper.setTag() is called."
-        return fxs[tag] ?: throw NullPointerException(errorMessage)
-    }
-
-    private fun release() {
-        if (fxLifecycleCallback == null && FxLifecycleCallbackImpl.topActivity == null) return
-        context?.unregisterActivityLifecycleCallbacks(fxLifecycleCallback)
-        FxLifecycleCallbackImpl.releaseTopActivity()
-        fxLifecycleCallback = null
+    private fun getTagFxControl(tag: String): IFxAppControl {
+        val control = fxs[tag]
+        checkNotNull(control) { "fxs[$tag]==null!,Please check if FloatingX.install() or AppHelper.setTag() is called." }
+        return control
     }
 }

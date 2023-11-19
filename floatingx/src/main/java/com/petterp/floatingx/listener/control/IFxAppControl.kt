@@ -14,11 +14,8 @@ interface IFxAppControl : IFxControl {
      *
      * ps:尽管我们可以做到不传递activity，但是这种方式需要以性能作为牺牲，比如需要永久维护一个顶级activity与AppLifecycle监听器
      */
-    fun show(activity: Activity)
+    fun show()
 
-    /** 从当前activity中移除 */
-    fun detach(activity: Activity)
-
-    /** 获得当前绑定的activity,不要手动保留此activity,以避免泄漏 */
+    /** 获得当前浮窗绑定的activity,不要手动保留此activity,以避免泄漏 */
     fun getBindActivity(): Activity?
 }

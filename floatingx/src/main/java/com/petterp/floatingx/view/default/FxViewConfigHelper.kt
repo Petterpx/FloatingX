@@ -1,12 +1,11 @@
-package com.petterp.floatingx.view
+package com.petterp.floatingx.view.default
 
 import android.content.Context
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.view.ViewGroup
-import com.petterp.floatingx.assist.FxDisplayMode
-import com.petterp.floatingx.assist.helper.BasisHelper
-import com.petterp.floatingx.util.FxAdsorbDirection
+import com.petterp.floatingx.assist.FxAdsorbDirection
+import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.INVALID_TOUCH_ID
 import com.petterp.floatingx.util.coerceInFx
 import com.petterp.floatingx.util.pointerId
@@ -17,7 +16,7 @@ class FxViewConfigHelper {
     private var downTouchY = 0f
     private var mParentWidth = 0f
     private var mParentHeight = 0f
-    private lateinit var helper: BasisHelper
+    private lateinit var helper: FxBasisHelper
     private var scaledTouchSlop = 0
 
     var minHBoundary = 0f
@@ -27,7 +26,7 @@ class FxViewConfigHelper {
 
     var touchDownId = INVALID_TOUCH_ID
 
-    fun initConfig(context: Context, helper: BasisHelper) {
+    fun initConfig(context: Context, helper: FxBasisHelper) {
         this.helper = helper
         scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
     }
@@ -94,42 +93,14 @@ class FxViewConfigHelper {
     fun getAdsorbDirectionLocation(x: Float, y: Float): Pair<Float, Float>? {
         // 允许边缘吸附
         return if (helper.enableEdgeAdsorption) {
-            when (helper.adsorbDirection) {
-                FxAdsorbDirection.TOP_OR_BOTTOM -> {
-                    val moveX = safeX(x)
-                    val moveY = if (isNearestTop(y)) minHBoundary else maxHBoundary
-                    moveX to moveY
-                }
-
-                FxAdsorbDirection.TOP -> {
-                    val moveX = safeX(x)
-                    val moveY = minHBoundary
-                    moveX to moveY
-                }
-
-                FxAdsorbDirection.BOTTOM -> {
-                    val moveX = safeX(x)
-                    val moveY = maxHBoundary
-                    moveX to moveY
-                }
-
-                FxAdsorbDirection.LEFT_OR_RIGHT -> {
-                    val moveX = if (isNearestLeft(x)) minWBoundary else maxWBoundary
-                    val moveY = safeY(y)
-                    moveX to moveY
-                }
-
-                FxAdsorbDirection.LEFT -> {
-                    val moveX = minWBoundary
-                    val moveY = safeY(y)
-                    moveX to moveY
-                }
-
-                FxAdsorbDirection.RIGHT -> {
-                    val moveX = maxWBoundary
-                    val moveY = safeY(y)
-                    moveX to moveY
-                }
+            if (helper.adsorbDirection == FxAdsorbDirection.LEFT_OR_RIGHT) {
+                val moveX = if (isNearestLeft(x)) minWBoundary else maxWBoundary
+                val moveY = safeY(y)
+                moveX to moveY
+            } else {
+                val moveX = safeX(x)
+                val moveY = if (isNearestTop(y)) minHBoundary else maxHBoundary
+                moveX to moveY
             }
         } else if (helper.enableEdgeRebound) {
             safeX(x) to safeY(y)

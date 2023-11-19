@@ -9,7 +9,7 @@ import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.helper.FxAppHelper
-import com.petterp.floatingx.impl.lifecycle.FxProxyLifecycleCallBackImpl
+import com.petterp.floatingx.impl.lifecycle.FxTempAppLifecycleImp
 import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.util.decorView
 import com.petterp.floatingx.util.topActivity
@@ -17,14 +17,19 @@ import com.petterp.floatingx.util.topActivity
 /** 全局控制器 */
 class FxAppControlImpl(
     private val helper: FxAppHelper,
-    private val proxyLifecycleImpl: FxProxyLifecycleCallBackImpl,
+    private val proxyLifecycleImpl: FxTempAppLifecycleImp,
 ) : FxBasisControlImpl(helper),
     IFxAppControl,
     Application.ActivityLifecycleCallbacks by proxyLifecycleImpl {
 
+    private var isRegisterAppLifecycle = false
+
     init {
         proxyLifecycleImpl.init(helper, this)
+        checkRegisterAppLifecycle()
     }
+
+    override fun context(): Context = helper.context
 
     private val windowsInsetsListener = OnApplyWindowInsetsListener { _, insets ->
         val statusBar = insets.stableInsetTop
@@ -35,18 +40,13 @@ class FxAppControlImpl(
         insets
     }
 
-    override fun show(activity: Activity) {
-        if (!helper.isCanInstall(activity) || isShow()) return
-        if (attach(activity)) {
+    override fun show() {
+        val act = topActivity ?: return
+        if (!helper.isCanInstall(act) || isShow()) return
+        checkRegisterAppLifecycle()
+        if (attach(act)) {
             internalShow()
             updateEnableStatus(true)
-            FloatingX.checkAppLifecycleInstall()
-        }
-    }
-
-    override fun detach(activity: Activity) {
-        activity.decorView?.let {
-            detach(it)
         }
     }
 
@@ -59,49 +59,17 @@ class FxAppControlImpl(
 
     /** 注意,全局浮窗下,view必须是全局application对应的context! */
     override fun updateView(view: View) {
-        if (view.context !is Application) {
-            throw IllegalArgumentException("view.context != Application,The global floating window must use application as context!")
+        check(view.context is Application) {
+            "view.context != Application,The global floating window must use application as context!"
         }
         super.updateView(view)
     }
 
-    override fun context(): Context = FloatingX.context!!
-
-    private fun initWindowsInsetsListener() {
-        getManagerView()?.let {
-            ViewCompat.setOnApplyWindowInsetsListener(it, windowsInsetsListener)
-            it.requestApplyInsets()
-        }
-    }
-
-    internal fun attach(activity: Activity): Boolean {
-        activity.decorView?.let {
-            if (getContainerGroup() === it) {
-                return false
-            }
-            var isAnimation = false
-            if (getManagerView() == null) {
-                helper.updateNavigationBar(activity)
-                helper.updateStatsBar(activity)
-                initManagerView()
-                isAnimation = true
-            } else {
-                if (getManagerView()?.visibility != View.VISIBLE) {
-                    getManagerView()?.visibility =
-                        View.VISIBLE
-                }
-                detach()
-            }
-            setContainerGroup(it)
-            helper.fxLog?.d("fxView-lifecycle-> code->addView")
-            helper.iFxViewLifecycle?.postAttach()
-            getContainerGroup()?.addView(getManagerView())
-            if (isAnimation && helper.enableAnimation && helper.fxAnimation != null) {
-                helper.fxLog?.d("fxView->Animation -----start")
-                helper.fxAnimation?.fromStartAnimator(getManagerView())
-            }
-        } ?: helper.fxLog?.e("system -> fxParentView==null")
-        return true
+    override fun cancel() {
+        super.cancel()
+        clearWindowsInsetsListener()
+        if (!FloatingX.fxs.containsValue(this)) return
+        FloatingX.fxs.remove(helper.tag)
     }
 
     override fun detach(container: ViewGroup?) {
@@ -117,15 +85,58 @@ class FxAppControlImpl(
         initWindowsInsetsListener()
     }
 
-    override fun reset() {
-        // 重置之前记得移除insets
-        clearWindowsInsetsListener()
-        super.reset()
-        FloatingX.uninstall(helper.tag, this)
+    @JvmSynthetic
+    internal fun attach(activity: Activity): Boolean {
+        activity.decorView?.let {
+            if (getContainerGroup() === it) {
+                return false
+            }
+            var isAnimation = false
+            if (getManagerView() == null) {
+                helper.updateNavigationBar(activity)
+                helper.updateStatsBar(activity)
+                initManagerView()
+                isAnimation = true
+            } else {
+                if (getManagerView()?.visibility != View.VISIBLE) {
+                    getManagerView()?.visibility = View.VISIBLE
+                }
+                detach()
+            }
+            setContainerGroup(it)
+            helper.fxLog?.d("fxView-lifecycle-> code->addView")
+            helper.iFxViewLifecycle?.postAttach()
+            getContainerGroup()?.addView(getManagerView())
+            if (isAnimation && helper.enableAnimation && helper.fxAnimation != null) {
+                helper.fxLog?.d("fxView->Animation -----start")
+                helper.fxAnimation?.fromStartAnimator(getManagerView())
+            }
+        } ?: helper.fxLog?.e("system -> fxParentView==null")
+        return true
+    }
+
+    @JvmSynthetic
+    internal fun detach(activity: Activity) {
+        detach(activity.decorView)
     }
 
     private fun clearWindowsInsetsListener() {
         val managerView = getManagerView() ?: return
         ViewCompat.setOnApplyWindowInsetsListener(managerView, null)
+    }
+
+    private fun initWindowsInsetsListener() {
+        getManagerView()?.let {
+            ViewCompat.setOnApplyWindowInsetsListener(it, windowsInsetsListener)
+            it.requestApplyInsets()
+        }
+    }
+
+    private fun checkRegisterAppLifecycle() {
+        if (!isRegisterAppLifecycle && helper.enableFx) {
+            isRegisterAppLifecycle = true
+            helper.context.unregisterActivityLifecycleCallbacks(this)
+            helper.context.registerActivityLifecycleCallbacks(this)
+        }
     }
 }

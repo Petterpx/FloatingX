@@ -17,17 +17,18 @@ import com.petterp.floatingx.listener.control.IFxConfigControl
 import com.petterp.floatingx.listener.control.IFxControl
 import com.petterp.floatingx.listener.provider.IFxContextProvider
 import com.petterp.floatingx.listener.provider.IFxHolderProvider
+import com.petterp.floatingx.util.INVALID_LAYOUT_ID
 import com.petterp.floatingx.util.lazyLoad
-import com.petterp.floatingx.view.FxManagerView
 import com.petterp.floatingx.view.FxViewHolder
-import com.petterp.floatingx.view.IFxInternalViewControl
+import com.petterp.floatingx.view.IFxInternalView
+import com.petterp.floatingx.view.default.FxDefaultContainerView
 import java.lang.ref.WeakReference
 
 /** Fx基础控制器实现 */
 open class FxBasisControlImpl(private val helper: FxBasisHelper) : IFxControl, IFxConfigControl {
     private var viewHolder: FxViewHolder? = null
     private var mContainer: WeakReference<ViewGroup>? = null
-    private var internalViewControl: IFxInternalViewControl? = null
+    private var internalView: IFxInternalView? = null
     private val cancelAnimationRunnable by lazyLoad { Runnable { reset() } }
     private val hideAnimationRunnable by lazyLoad { Runnable { detach() } }
 
@@ -37,7 +38,7 @@ open class FxBasisControlImpl(private val helper: FxBasisHelper) : IFxControl, I
         if ((getManagerView() == null && viewHolder == null)) return
         if (isShow() && helper.enableAnimation && helper.fxAnimation != null) {
             getManagerView()?.removeCallbacks(cancelAnimationRunnable)
-            val duration = helper.fxAnimation!!.toEndAnimator(internalViewControl?.containerView)
+            val duration = helper.fxAnimation!!.toEndAnimator(internalView?.containerView)
             animatorCallback(duration, cancelAnimationRunnable)
         } else {
             reset()
@@ -66,21 +67,23 @@ open class FxBasisControlImpl(private val helper: FxBasisHelper) : IFxControl, I
         return ViewCompat.isAttachedToWindow(managerView) && managerView.visibility == View.VISIBLE
     }
 
-    override fun getView(): View? = internalViewControl?.childView
+    override fun getView(): View? = internalView?.childView
 
     override fun getViewHolder(): FxViewHolder? = viewHolder
 
-    override fun getManagerView(): FrameLayout? = internalViewControl?.containerView
+    override fun getManagerView(): FrameLayout? = internalView?.containerView
 
     override fun updateView(@LayoutRes resource: Int) {
-        if (resource == 0) throw IllegalArgumentException("resource cannot be 0!")
+        check(resource != INVALID_LAYOUT_ID) { "resource cannot be INVALID_LAYOUT_ID!" }
         helper.layoutView = null
-        updateMangerView(resource)
+        helper.layoutId = resource
+        updateMangerView()
     }
 
     override fun updateView(view: View) {
+        helper.layoutId = INVALID_LAYOUT_ID
         helper.layoutView = view
-        updateMangerView(0)
+        updateMangerView()
     }
 
     override fun updateView(provider: IFxContextProvider) {
@@ -110,11 +113,11 @@ open class FxBasisControlImpl(private val helper: FxBasisHelper) : IFxControl, I
     }
 
     override fun move(x: Float, y: Float, useAnimation: Boolean) {
-        internalViewControl?.moveLocation(x, y, useAnimation)
+        internalView?.moveLocation(x, y, useAnimation)
     }
 
     override fun moveByVector(x: Float, y: Float, useAnimation: Boolean) {
-        internalViewControl?.moveLocationByVector(x, y, useAnimation)
+        internalView?.moveLocationByVector(x, y, useAnimation)
     }
 
     /*
@@ -140,27 +143,27 @@ open class FxBasisControlImpl(private val helper: FxBasisHelper) : IFxControl, I
             this.b = b
             this.r = r
         }
-        internalViewControl?.moveToEdge()
+        internalView?.moveToEdge()
     }
 
     override fun setEnableEdgeAdsorption(isEnable: Boolean) {
         helper.enableEdgeAdsorption = isEnable
-        internalViewControl?.moveToEdge()
+        internalView?.moveToEdge()
     }
 
     override fun setEdgeAdsorbDirection(direction: FxAdsorbDirection) {
         helper.adsorbDirection = direction
-        internalViewControl?.moveToEdge()
+        internalView?.moveToEdge()
     }
 
     override fun setEdgeOffset(edgeOffset: Float) {
         helper.edgeOffset = edgeOffset
-        internalViewControl?.moveToEdge()
+        internalView?.moveToEdge()
     }
 
     override fun setEnableEdgeRebound(isEnable: Boolean) {
         helper.enableEdgeRebound = isEnable
-        internalViewControl?.moveToEdge()
+        internalView?.moveToEdge()
     }
 
     override fun setScrollListener(listener: IFxScrollListener) {
@@ -201,26 +204,23 @@ open class FxBasisControlImpl(private val helper: FxBasisHelper) : IFxControl, I
     /*
     * 以下方法作为基础实现,供子类自行调用
     * */
-    protected open fun updateMangerView(@LayoutRes layout: Int = 0) {
-        helper.layoutId = layout
+    private fun updateMangerView() {
         if (getContainerGroup() == null) throw NullPointerException("FloatingX window The parent container cannot be null!")
-        val x = internalViewControl?.getX() ?: 0f
-        val y = internalViewControl?.getY() ?: 0f
-        initManagerView()
-        internalViewControl?.restoreLocation(x, y)
-        getContainerGroup()?.addView(getManagerView())
+        internalView?.updateView()
     }
 
     protected fun initManagerView() {
-        if (helper.layoutId == 0 && helper.layoutView == null) throw RuntimeException("The layout id cannot be 0 ,and layoutView==null")
+        check(helper.layoutId != INVALID_LAYOUT_ID || helper.layoutView != null) {
+            "The layout id cannot be 0 ,and layoutView==null"
+        }
         getContainerGroup()?.removeView(getManagerView())
         initManager()
     }
 
     protected open fun initManager() {
         val context = context() ?: return
-        internalViewControl = FxManagerView(context).initView(helper)
-        val fxContentView = internalViewControl?.childView ?: return
+        internalView = FxDefaultContainerView(context).init(helper)
+        val fxContentView = internalView?.childView ?: return
         viewHolder = FxViewHolder(fxContentView)
         val fxViewLifecycle = helper.iFxViewLifecycle ?: return
         // 后续此方法将会移除,建议进行过渡
@@ -238,7 +238,7 @@ open class FxBasisControlImpl(private val helper: FxBasisHelper) : IFxControl, I
     }
 
     protected open fun detach(container: ViewGroup?) {
-        if (internalViewControl != null && container != null) {
+        if (internalView != null && container != null) {
             helper.fxLog?.d("fxView-lifecycle-> code->removeView")
             helper.iFxViewLifecycle?.postDetached()
             container.removeView(getManagerView())
@@ -269,7 +269,7 @@ open class FxBasisControlImpl(private val helper: FxBasisHelper) : IFxControl, I
             removeCallbacks(cancelAnimationRunnable)
         }
         detach(mContainer?.get())
-        internalViewControl = null
+        internalView = null
         viewHolder = null
         helper.clear()
         clearContainer()

@@ -15,7 +15,7 @@ import com.petterp.floatingx.util.lazyLoad
  *
  * @author petterp
  */
-class FxProxyLifecycleCallBackImpl : Application.ActivityLifecycleCallbacks {
+class FxTempAppLifecycleImp : Application.ActivityLifecycleCallbacks {
 
     private var helper: FxAppHelper? = null
     private var appControl: FxAppControlImpl? = null

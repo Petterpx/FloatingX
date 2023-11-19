@@ -19,7 +19,7 @@ import com.petterp.floatingx.app.test.MultipleFxActivity
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.impl.FxScrollImpl
-import com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl
+import com.petterp.floatingx.impl.lifecycle.FxProxyTagLifecycleImp
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.view.FxViewHolder
 
@@ -97,7 +97,7 @@ class CustomKtApplication : Application() {
                     Toast.makeText(context, "浮窗被点击", Toast.LENGTH_SHORT).show()
                 }
                 // 设置tag-Activity生命周期回调时的触发
-                setTagActivityLifecycle(object : FxTagActivityLifecycleImpl() {
+                setTagActivityLifecycle(object : FxProxyTagLifecycleImp() {
                     override fun onCreated(activity: Activity, bundle: Bundle?) {
                         // 允许插入的浮窗activity执行到onCreated时会回调相应方法
                     }
@@ -142,6 +142,7 @@ class CustomKtApplication : Application() {
 
         fun installTag2(context: Application) {
             FloatingX.install {
+                setContext(context)
                 setLayoutView(
                     CardView(context).apply {
                         setCardBackgroundColor(Color.GRAY)

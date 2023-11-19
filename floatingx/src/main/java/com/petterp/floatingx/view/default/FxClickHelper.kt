@@ -1,4 +1,4 @@
-package com.petterp.floatingx.view
+package com.petterp.floatingx.view.default
 
 import androidx.annotation.Keep
 import com.petterp.floatingx.assist.helper.FxBasisHelper
@@ -42,7 +42,7 @@ class FxClickHelper {
     }
 
     @Keep
-    fun performClick(view: FxManagerView) {
+    fun performClick(view: FxDefaultContainerView) {
         if (!isClickEffective()) return
         helper.iFxClickListener?.onClick(view)
         if (helper.clickTime > 0) {
