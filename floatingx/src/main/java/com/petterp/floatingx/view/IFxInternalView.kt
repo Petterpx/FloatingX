@@ -7,11 +7,13 @@ import android.widget.FrameLayout
  *
  * @author petterp
  */
-internal interface IFxInternalView {
+interface IFxInternalView {
+
+    val childView: View?
 
     val containerView: FrameLayout
 
-    val childView: View?
+    val viewHolder: FxViewHolder?
 
     fun moveLocation(x: Float, y: Float, useAnimation: Boolean = true)
 

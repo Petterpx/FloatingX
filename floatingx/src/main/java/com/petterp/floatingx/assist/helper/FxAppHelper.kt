@@ -4,7 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import com.petterp.floatingx.FloatingX
-import com.petterp.floatingx.assist.FxScopeEnum
+import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.util.FX_APP_DEFAULT_TAG
 import com.petterp.floatingx.util.FX_INSTALL_SCOPE_APP_TAG
@@ -29,7 +29,7 @@ class FxAppHelper(
     @JvmSynthetic
     internal val isAllInstall: Boolean,
     @JvmSynthetic
-    internal val scope: FxScopeEnum,
+    internal val scope: FxScopeType,
     /** 显示悬浮窗的Activity生命周期回调 */
     @JvmSynthetic
     internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?
@@ -66,7 +66,7 @@ class FxAppHelper(
         private var context: Application? = null
         private var tag = FX_APP_DEFAULT_TAG
         private var enableFx = false
-        private var scopeEnum: FxScopeEnum = FxScopeEnum.APP_ACTIVITY
+        private var scopeEnum: FxScopeType = FxScopeType.APP_ACTIVITY
 
         /** 设置启用fx */
         fun enableFx(): Builder {
@@ -131,7 +131,7 @@ class FxAppHelper(
             return this
         }
 
-        fun setSystemScope(scope: FxScopeEnum): Builder {
+        fun setSystemScope(scope: FxScopeType): Builder {
             this.scopeEnum = scope
             return this
         }
@@ -183,7 +183,7 @@ class FxAppHelper(
                 if (enableDebugLog && fxLogTag.isEmpty()) {
                     fxLogTag = tag
                 }
-                if (scopeEnum == FxScopeEnum.SYSTEM) {
+                if (scopeEnum == FxScopeType.SYSTEM) {
                     initLog(FX_INSTALL_SCOPE_SYSTEM_TAG)
                 } else {
                     initLog(FX_INSTALL_SCOPE_APP_TAG)
