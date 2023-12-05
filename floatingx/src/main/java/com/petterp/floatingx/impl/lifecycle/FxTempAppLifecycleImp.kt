@@ -4,7 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import com.petterp.floatingx.assist.helper.FxAppHelper
-import com.petterp.floatingx.impl.control.FxAppControlImpl
+import com.petterp.floatingx.impl.provider.app.FxAppControlImp
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.util.FxLog
 import com.petterp.floatingx.util.decorView
@@ -15,19 +15,19 @@ import com.petterp.floatingx.util.lazyLoad
  *
  * @author petterp
  */
-class FxTempAppLifecycleImp : Application.ActivityLifecycleCallbacks {
-
-    private var helper: FxAppHelper? = null
-    private var appControl: FxAppControlImpl? = null
+class FxTempAppLifecycleImp(
+    private val helper: FxAppHelper,
+    private val appControl: FxAppControlImp
+) : Application.ActivityLifecycleCallbacks {
 
     private val fxLog: FxLog?
-        get() = helper?.fxLog
+        get() = helper.fxLog
 
     private val enableFx: Boolean
-        get() = helper?.enableFx ?: false
+        get() = helper.enableFx
 
     private val appLifecycleCallBack: IFxProxyTagActivityLifecycle?
-        get() = helper?.fxLifecycleExpand
+        get() = helper.fxLifecycleExpand
 
     private val insertCls by lazyLoad {
         mutableMapOf<Class<*>, Boolean>()
@@ -36,19 +36,13 @@ class FxTempAppLifecycleImp : Application.ActivityLifecycleCallbacks {
     private val Activity.name: String
         get() = javaClass.name.split(".").last()
     private val Activity.isParent: Boolean
-        get() = appControl?.getManagerView()?.parent === decorView
+        get() = appControl.getManagerView()?.parent === decorView
 
     private val Activity.isActivityInValid: Boolean
         get() {
             val cls = this.javaClass
             return insertCls[cls] ?: isInsertActivity(cls)
         }
-
-    /** 初始化helper与app控制器 */
-    fun init(helper: FxAppHelper, control: FxAppControlImpl) {
-        this.helper = helper
-        this.appControl = control
-    }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         if (!enableFx) return
@@ -59,7 +53,7 @@ class FxTempAppLifecycleImp : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityStarted(activity: Activity) {
         if (!enableFx) return
-        helper?.fxLifecycleExpand?.onStarted(activity)
+        helper.fxLifecycleExpand?.onStarted(activity)
     }
 
     /** 最开始想到在onActivityPostStarted后插入, 但是最后发现在Android9及以下,此方法不会被调用,故选择了onResume */
@@ -79,10 +73,7 @@ class FxTempAppLifecycleImp : Application.ActivityLifecycleCallbacks {
             fxLog?.d("fxApp->insert, insert [$activityName] Fail ,The current Activity has been inserted.")
             return
         }
-        appControl?.let {
-            it.attach(activity)
-            fxLog?.d("fxApp->insert, insert [$activityName] Success--------------->")
-        } ?: fxLog?.d("fxApp->insert, insert [$activityName] Fail ,appControl = null.")
+        appControl.reAttach(activity)
     }
 
     override fun onActivityPaused(activity: Activity) {
@@ -106,7 +97,7 @@ class FxTempAppLifecycleImp : Application.ActivityLifecycleCallbacks {
         }
         val isParent = activity.isParent
         fxLog?.d("fxApp->detach? isContainActivity-${activity.isActivityInValid}--enableFx-$enableFx---isParent-$isParent")
-        if (isParent) appControl?.detach(activity)
+        if (isParent) appControl.destroyToDetach(activity)
     }
 
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
@@ -117,7 +108,7 @@ class FxTempAppLifecycleImp : Application.ActivityLifecycleCallbacks {
     }
 
     private fun isInsertActivity(cls: Class<*>): Boolean =
-        helper?.let {
+        helper.let {
             // 条件 允许全局安装&&不在黑名单 || 禁止全局安装&&在白名单
             val isInsert = it.isCanInstall(cls)
             insertCls[cls] = isInsert

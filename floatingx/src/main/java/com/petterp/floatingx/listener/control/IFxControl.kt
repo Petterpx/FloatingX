@@ -13,6 +13,8 @@ interface IFxControl {
     /** 获取配置层控制器,以便运行时动态调整某些基础配置 */
     val configControl: IFxConfigControl
 
+    fun show()
+
     /** 隐藏悬浮窗-不会解绑app-lifecycle */
     fun hide()
 
@@ -85,4 +87,6 @@ interface IFxControl {
      * @param useAnimation 是否使用动画
      * */
     fun moveByVector(x: Float, y: Float, useAnimation: Boolean)
+
+    fun updateConfig(obj: IFxConfigControl.() -> Unit)
 }

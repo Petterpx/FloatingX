@@ -2,6 +2,7 @@ package com.petterp.floatingx.assist
 
 import android.animation.Animator
 import android.widget.FrameLayout
+import com.petterp.floatingx.util.SimpleAnimatorListener
 
 /**
  * fx的动画辅助类
@@ -11,9 +12,8 @@ abstract class FxAnimation {
 
     private var startAnimatorJob: Animator? = null
     private var endAnimatorJob: Animator? = null
-
-    private val Animator.animatorDuration: Long
-        get() = duration + startDelay
+    private val startListener = SimpleAnimatorListener()
+    private val endListener = SimpleAnimatorListener()
 
     /** 开始动画 */
     abstract fun fromAnimator(view: FrameLayout?): Animator
@@ -35,24 +35,36 @@ abstract class FxAnimation {
     internal fun endJobIsRunning(): Boolean = endAnimatorJob?.isRunning ?: false
 
     @JvmSynthetic
-    internal fun fromStartAnimator(view: FrameLayout?): Long {
-        startAnimatorJob?.cancel()
-        startAnimatorJob = fromAnimator(view)
-        if (startAnimatorJob?.isRunning == true) {
-            return startAnimatorJob?.duration ?: 0
+    internal fun fromStartAnimator(view: FrameLayout?): Boolean {
+        if (startAnimatorJob == null) {
+            startAnimatorJob = fromAnimator(view)
+            startAnimatorJob?.removeListener(startListener)
+            startAnimatorJob?.addListener(startListener)
         }
+        if (endJobIsRunning()) endAnimatorJob?.cancel()
         startAnimatorJob?.start()
-        return startAnimatorJob?.animatorDuration ?: 0
+        return true
     }
 
     @JvmSynthetic
-    internal fun toEndAnimator(view: FrameLayout?): Long {
-        endAnimatorJob?.cancel()
-        endAnimatorJob = toAnimator(view)
-        if (endAnimatorJob?.isRunning == true) {
-            return endAnimatorJob?.duration ?: 0
+    internal fun toEndAnimator(view: FrameLayout?): Boolean {
+        if (endAnimatorJob == null) {
+            endAnimatorJob = toAnimator(view)
+            endAnimatorJob?.removeListener(endListener)
+            endAnimatorJob?.addListener(endListener)
         }
+        if (fromJobIsRunning()) startAnimatorJob?.cancel()
         endAnimatorJob?.start()
-        return endAnimatorJob?.animatorDuration ?: 0
+        return true
+    }
+
+    @JvmSynthetic
+    internal fun setFromAnimatorListener(obj: (() -> Unit)?) {
+        startListener.end = obj
+    }
+
+    @JvmSynthetic
+    internal fun setEndAnimatorListener(obj: (() -> Unit)?) {
+        endListener.end = obj
     }
 }

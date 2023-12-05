@@ -1,4 +1,4 @@
-package com.petterp.floatingx.impl
+package com.petterp.floatingx.util
 
 import android.view.MotionEvent
 import com.petterp.floatingx.listener.IFxScrollListener

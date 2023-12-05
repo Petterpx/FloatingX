@@ -19,6 +19,7 @@ import com.petterp.floatingx.util.INVALID_LAYOUT_ID
 import com.petterp.floatingx.util.INVALID_TOUCH_ID
 import com.petterp.floatingx.util.pointerId
 import com.petterp.floatingx.util.withIn
+import com.petterp.floatingx.view.FxViewHolder
 import com.petterp.floatingx.view.IFxInternalView
 
 /** 基础悬浮窗View */
@@ -32,12 +33,18 @@ class FxDefaultContainerView @JvmOverloads constructor(
     private val clickHelper = FxClickHelper()
     private val locationHelper = FxLocationHelper()
     private val configHelper = FxViewConfigHelper()
+    private var _viewHolder: FxViewHolder? = null
 
     private var _childFxView: View? = null
     override val childView: View?
         get() = _childFxView
     override val containerView: FrameLayout
         get() = this
+    override val viewHolder: FxViewHolder?
+        get() {
+            if (_viewHolder == null) _viewHolder = FxViewHolder(this)
+            return _viewHolder
+        }
 
     @JvmSynthetic
     internal fun init(config: FxBasisHelper): FxDefaultContainerView {

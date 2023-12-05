@@ -19,7 +19,8 @@ import com.petterp.floatingx.app.test.BlackActivity
 import com.petterp.floatingx.app.test.MultipleFxActivity
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
-import com.petterp.floatingx.impl.FxScrollImpl
+import com.petterp.floatingx.assist.FxScopeType
+import com.petterp.floatingx.util.FxScrollImpl
 import com.petterp.floatingx.impl.lifecycle.FxProxyTagLifecycleImp
 import com.petterp.floatingx.listener.IFxViewLifecycle
 
@@ -50,6 +51,9 @@ class CustomKtApplication : Application() {
         fun installTag1(context: Application) {
             FloatingX.install {
                 setContext(context)
+                setSystemScope(FxScopeType.SYSTEM)
+                // 设置浮窗展示类型，默认可移动可点击，无需配置
+                setDisplayMode(FxDisplayMode.Normal)
                 setLayout(R.layout.item_floating)
                 // 传递自定义的View
 //            setLayoutView(
@@ -125,8 +129,6 @@ class CustomKtApplication : Application() {
                         // 接收所有事件传递
                     }
                 })
-                // 设置浮窗展示类型，默认可移动可点击，无需配置
-                setDisplayMode(FxDisplayMode.Normal)
                 // 设置是否启用日志
                 setEnableLog(BuildConfig.DEBUG)
                 // 设置浮窗tag
@@ -134,7 +136,7 @@ class CustomKtApplication : Application() {
                 // 只有调用了enableFx,默认才会启用fx,否则fx不会自动插入activity
                 // ps: 这里的只有调用了enableFx仅仅只是配置工具层的标记,后续使用control.show()也会默认启用
                 enableFx()
-            }
+            }.show()
         }
 
         fun installTag2(context: Application) {

@@ -1,9 +1,10 @@
 package com.petterp.floatingx
 
 import android.annotation.SuppressLint
+import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.assist.helper.FxAppHelper
-import com.petterp.floatingx.impl.control.FxAppControlImpl
-import com.petterp.floatingx.impl.lifecycle.FxTempAppLifecycleImp
+import com.petterp.floatingx.impl.provider.app.FxAppControlImp
+import com.petterp.floatingx.impl.provider.system.FxSystemControlImp
 import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.listener.control.IFxConfigControl
 import com.petterp.floatingx.util.FX_APP_DEFAULT_TAG
@@ -36,9 +37,14 @@ object FloatingX {
     @JvmStatic
     fun install(helper: FxAppHelper): IFxAppControl {
         fxs[helper.tag]?.cancel()
-        val fxAppControlImpl = FxAppControlImpl(helper, FxTempAppLifecycleImp())
-        fxs[helper.tag] = fxAppControlImpl
-        return fxAppControlImpl
+        val fxAppControlImp = if (helper.scope == FxScopeType.SYSTEM) {
+            FxSystemControlImp(helper)
+        } else {
+            FxAppControlImp(helper)
+        }
+        fxAppControlImp.initProvider()
+        fxs[helper.tag] = fxAppControlImp
+        return fxAppControlImp
     }
 
     /**
