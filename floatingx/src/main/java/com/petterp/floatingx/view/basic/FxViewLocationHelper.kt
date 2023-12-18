@@ -1,8 +1,9 @@
-package com.petterp.floatingx.view.default
+package com.petterp.floatingx.view.basic
 
 import android.content.res.Configuration
 import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.coerceInFx
+import com.petterp.floatingx.view.default.FxViewConfigHelper
 
 /**
  * Fx location restore helper，Used to restore the location of the floating window after the screen is rotated

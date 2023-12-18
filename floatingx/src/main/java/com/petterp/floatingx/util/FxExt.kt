@@ -3,9 +3,8 @@
 package com.petterp.floatingx.util
 
 import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.view.MotionEvent
+import android.view.View
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.helper.FxScopeHelper
 import com.petterp.floatingx.impl.lifecycle.FxAppLifecycleProvider
@@ -16,8 +15,6 @@ internal const val FX_GRAVITY_TOP = 0x00000001
 internal const val FX_GRAVITY_CENTER = 0x00000002
 
 internal const val FX_GRAVITY_BOTTOM = 0x00000003
-
-internal const val TOUCH_CLICK_OFFSET = 2F
 
 internal const val INVALID_TOUCH_ID = -1
 internal const val INVALID_LAYOUT_ID = 0
@@ -34,6 +31,16 @@ internal const val FX_INSTALL_SCOPE_VIEW_GROUP_TAG = "view"
 
 internal val topActivity: Activity?
     get() = FxAppLifecycleProvider.getTopActivity()
+
+internal var View.isVisibility
+    set(value) {
+        visibility = if (value) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
+    get() = visibility == View.VISIBLE
 
 internal val Activity.decorView: FrameLayout?
     get() = try {
@@ -79,6 +86,12 @@ internal fun Float.coerceInFx(min: Float, max: Float): Float {
     return this
 }
 
+internal fun Int.coerceInFx(min: Int, max: Int): Int {
+    if (this < min) return min
+    if (this > max) return max
+    return this
+}
+
 internal fun Float.withIn(min: Number, max: Number): Boolean {
     return this in min.toFloat()..max.toFloat()
 }
@@ -89,19 +102,3 @@ internal val MotionEvent.pointerId: Int
     } catch (_: Exception) {
         INVALID_TOUCH_ID
     }
-
-internal fun Context.findActivity(): Activity? {
-    return when (this) {
-        is Activity -> {
-            this
-        }
-
-        is ContextWrapper -> {
-            baseContext.findActivity()
-        }
-
-        else -> {
-            null
-        }
-    }
-}

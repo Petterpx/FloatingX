@@ -12,6 +12,7 @@ import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.app.test.MultipleFxActivity
+import com.petterp.floatingx.app.test.SystemActivity
 import com.petterp.floatingx.util.createFx
 
 class MainActivity : AppCompatActivity() {
@@ -121,6 +122,9 @@ class MainActivity : AppCompatActivity() {
                     }
                     addItemView("进入测试页面") {
                         TestActivity::class.java.start(this@MainActivity)
+                    }
+                    addItemView("进入system浮窗测试页面") {
+                        SystemActivity::class.java.start(this@MainActivity)
                     }
                 }
             }

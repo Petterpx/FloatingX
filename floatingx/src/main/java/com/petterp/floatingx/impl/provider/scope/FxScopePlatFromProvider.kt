@@ -42,11 +42,6 @@ class FxScopePlatFromProvider(
         _internalView?.visibility = View.GONE
     }
 
-    override fun isShow(): Boolean {
-        val managerView = _internalView ?: return false
-        return managerView.isAttachedToWindow && managerView.visibility == View.VISIBLE
-    }
-
     override fun checkOrInit(): Boolean {
         if (_internalView == null) {
             val containerGroupView = containerGroupView ?: return false
