@@ -77,11 +77,6 @@ class FxAppPlatformProvider(
         detach()
     }
 
-    override fun isShow(): Boolean {
-        val managerView = _internalView ?: return false
-        return managerView.isAttachedToWindow && managerView.visibility == View.VISIBLE
-    }
-
     private fun attach(activity: Activity): Boolean {
         val fxView = _internalView ?: return false
         val decorView = activity.decorView ?: return false

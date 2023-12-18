@@ -9,6 +9,6 @@ interface IFxPlatformProvider<F : FxBasisHelper> : IFxBasicProvider<F> {
     val internalView: IFxInternalView?
     fun show()
     fun hide()
-    fun isShow(): Boolean
+    fun isShow(): Boolean? = null
     fun checkOrInit(): Boolean
 }

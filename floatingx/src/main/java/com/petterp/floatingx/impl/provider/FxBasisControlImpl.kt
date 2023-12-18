@@ -76,7 +76,10 @@ abstract class FxBasisControlImpl<F : FxBasisHelper, P : IFxPlatformProvider<F>>
     }
 
     override fun isShow(): Boolean {
-        return platformProvider.isShow()
+        val interView = getManagerView() ?: return false
+        val isShow = platformProvider.isShow()
+        if (isShow != null) return isShow
+        return interView.isAttachedToWindow && interView.visibility == View.VISIBLE
     }
 
     override fun updateView(@LayoutRes resource: Int) {

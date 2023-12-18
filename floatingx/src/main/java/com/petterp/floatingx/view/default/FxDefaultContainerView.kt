@@ -21,6 +21,8 @@ import com.petterp.floatingx.util.pointerId
 import com.petterp.floatingx.util.withIn
 import com.petterp.floatingx.view.FxViewHolder
 import com.petterp.floatingx.view.IFxInternalView
+import com.petterp.floatingx.view.basic.FxLocationHelper
+import com.petterp.floatingx.view.basic.FxViewTouchHelper
 
 /** 基础悬浮窗View */
 @SuppressLint("ViewConstructor")
@@ -30,7 +32,7 @@ class FxDefaultContainerView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs), View.OnLayoutChangeListener, IFxInternalView {
 
     private lateinit var helper: FxBasisHelper
-    private val clickHelper = FxClickHelper()
+    private val clickHelper = FxViewTouchHelper()
     private val locationHelper = FxLocationHelper()
     private val configHelper = FxViewConfigHelper()
     private var _viewHolder: FxViewHolder? = null
@@ -55,7 +57,7 @@ class FxDefaultContainerView @JvmOverloads constructor(
 
     private fun initView() {
         _childFxView = inflateLayoutView() ?: inflateLayoutId()
-        clickHelper.initConfig(helper)
+//        clickHelper.initConfig(context, helper)
         locationHelper.initConfig(helper)
         configHelper.initConfig(context, helper)
         checkNotNull(_childFxView) { "initFxView -> Error,check your layoutId or layoutView." }
@@ -197,7 +199,7 @@ class FxDefaultContainerView @JvmOverloads constructor(
 
     private fun initTouchDown(ev: MotionEvent) {
         if (configHelper.hasMainPointerId()) return
-        clickHelper.initDown(x, y)
+//        clickHelper.initDown(ev)
         configHelper.initTouchDown(ev)
         configHelper.updateWidgetSize(this)
         configHelper.updateBoundary(true)
@@ -232,6 +234,7 @@ class FxDefaultContainerView @JvmOverloads constructor(
     }
 
     override fun moveToEdge() {
+        // TODO: 这里看着有点bug,如果没开启吸附，位置就不保存了
         configHelper.updateBoundary(false)
         configHelper.getAdsorbDirectionLocation(x, y)?.let { (x, y) ->
             moveToLocation(x, y)
@@ -295,7 +298,7 @@ class FxDefaultContainerView @JvmOverloads constructor(
         moveToEdge()
         helper.iFxScrollListener?.up()
         configHelper.touchDownId = INVALID_TOUCH_ID
-        clickHelper.performClick(this)
+        clickHelper.touchCancel(this)
         helper.fxLog?.d("fxView---onTouchEvent---MainTouchCancel->")
     }
 
@@ -324,7 +327,7 @@ class FxDefaultContainerView @JvmOverloads constructor(
         val disY = configHelper.safeY(y, event)
         x = disX
         y = disY
-        clickHelper.checkClickEvent(disX, disY)
+//        clickHelper.touchMove(event)
         helper.iFxScrollListener?.dragIng(event, disX, disY)
         helper.fxLog?.v("fxView---scrollListener--drag-event--x($disX)-y($disY)")
     }

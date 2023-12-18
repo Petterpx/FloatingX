@@ -12,12 +12,19 @@ import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.util.FxLog
+import com.petterp.floatingx.util.coerceInFx
 import kotlin.math.abs
 
 /** 通用构建器helper */
 open class FxBasisHelper {
     @JvmField
     internal var layoutId: Int = 0
+
+    @JvmField
+    internal var offsetX: Int = 0
+
+    @JvmField
+    internal var offsetY: Int = 0
 
     @JvmField
     internal var layoutView: View? = null
@@ -114,6 +121,77 @@ open class FxBasisHelper {
         fxAnimation?.cancelAnimation()
     }
 
+    private val safeEdgeOffSet: Float
+        get() = if (enableEdgeRebound) edgeOffset else 0F
+
+    fun defaultXY(width: Int, height: Int, viewW: Int, viewH: Int): Pair<Int, Int> {
+        return if (enableSaveDirection && iFxConfigStorage?.hasConfig() == true) {
+            getHistoryXY(width, viewW, height, viewH)
+        } else {
+            getDefaultXY(width, height, viewW, viewH)
+        }
+    }
+
+    private fun getHistoryXY(
+        width: Int,
+        viewW: Int,
+        height: Int,
+        viewH: Int
+    ): Pair<Int, Int> {
+        val configX = iFxConfigStorage!!.getX()
+        val configY = iFxConfigStorage!!.getY()
+        val bMinX = safeEdgeOffSet + fxBorderMargin.l
+        val bMaxX = width - viewW - safeEdgeOffSet - fxBorderMargin.r
+        val bMinY = safeEdgeOffSet + fxBorderMargin.t
+        val bMaxY = height - viewH - safeEdgeOffSet - fxBorderMargin.b
+        return configX.coerceInFx(bMinX, bMaxX).toInt() to configY.coerceInFx(bMinY, bMaxY).toInt()
+    }
+
+    private fun getDefaultXY(width: Int, height: Int, viewW: Int, viewH: Int): Pair<Int, Int> {
+        val l = (offsetX + safeEdgeOffSet + fxBorderMargin.l).toInt()
+        val r = (offsetX + safeEdgeOffSet + fxBorderMargin.r).toInt()
+        val b = (offsetY + safeEdgeOffSet + fxBorderMargin.b).toInt()
+        val t = (offsetY + safeEdgeOffSet + fxBorderMargin.t).toInt()
+        return when (gravity) {
+            FxGravity.DEFAULT,
+            FxGravity.LEFT_OR_TOP -> {
+                l to t
+            }
+
+            FxGravity.LEFT_OR_CENTER -> {
+                l to (height - viewH).shr(1)
+            }
+
+            FxGravity.LEFT_OR_BOTTOM -> {
+                0 to height - viewH - b
+            }
+
+            FxGravity.RIGHT_OR_TOP -> {
+                width - viewW - r to t
+            }
+
+            FxGravity.RIGHT_OR_CENTER -> {
+                width - viewW - r to (height - viewH).shr(1)
+            }
+
+            FxGravity.RIGHT_OR_BOTTOM -> {
+                width - viewW - r to height - viewH - b
+            }
+
+            FxGravity.TOP_OR_CENTER -> {
+                (width - viewW).shr(1) to t
+            }
+
+            FxGravity.BOTTOM_OR_CENTER -> {
+                (width - viewW).shr(1) to height - viewH - b
+            }
+
+            else -> {
+                (width - viewW).shr(1) to (height - viewH).shr(1)
+            }
+        }
+    }
+
     abstract class Builder<T, B : FxBasisHelper> {
         @LayoutRes
         private var layoutId: Int = 0
@@ -127,6 +205,8 @@ open class FxBasisHelper {
 
         private var defaultY: Float = 0f
         private var defaultX: Float = 0f
+        private var offsetX: Int = 0
+        private var offsetY: Int = 0
         private var edgeOffset: Float = 0f
         private var enableFx: Boolean = false
         private var fxBorderMargin: FxBorderMargin = FxBorderMargin()
@@ -164,6 +244,9 @@ open class FxBasisHelper {
 
                 defaultY = this@Builder.defaultY
                 defaultX = this@Builder.defaultX
+
+                offsetX = this@Builder.offsetX
+                offsetY = this@Builder.offsetY
 
                 edgeOffset = this@Builder.edgeOffset
                 fxBorderMargin = this@Builder.fxBorderMargin
@@ -225,6 +308,12 @@ open class FxBasisHelper {
          * */
         fun setDisplayMode(mode: FxDisplayMode): T {
             this.displayMode = mode
+            return this as T
+        }
+
+        fun setOffsetXY(x: Int, y: Int): T {
+            this.offsetX = x
+            this.offsetY = x
             return this as T
         }
 

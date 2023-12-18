@@ -39,6 +39,15 @@ internal val Context.screenHeight: Int
         return dm.heightPixels
     }
 
+internal val Context.screenWidth: Int
+    get() {
+        val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val display = wm.defaultDisplay
+        val dm = DisplayMetrics()
+        display.getMetrics(dm)
+        return dm.widthPixels
+    }
+
 /** 状态栏高度,直接使用AppContext测量,部分情况会不准确 */
 internal val Activity.statusBarHeight: Int
     get() {
