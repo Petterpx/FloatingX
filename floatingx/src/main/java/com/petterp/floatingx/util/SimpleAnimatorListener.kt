@@ -10,8 +10,7 @@ import android.animation.Animator.AnimatorListener
 class SimpleAnimatorListener(
     var start: (() -> Unit)? = null,
     var end: (() -> Unit)? = null
-) :
-    AnimatorListener {
+) : AnimatorListener {
     override fun onAnimationStart(animation: Animator?) {
         start?.invoke()
     }

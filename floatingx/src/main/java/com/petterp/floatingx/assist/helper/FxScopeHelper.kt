@@ -20,7 +20,7 @@ class FxScopeHelper : FxBasisHelper() {
         control.initProvider()
         activity.contentView?.let {
             control.setContainerGroup(it)
-        } ?: fxLog?.e("install to Activity the Error,current contentView(R.id.content) = null!")
+        } ?: fxLog.e("install to Activity the Error,current contentView(R.id.content) = null!")
         return control
     }
 

@@ -13,10 +13,10 @@ class FxBasicAnimationProvider<F : FxBasisHelper>(override val helper: F) : IFxA
     override fun start(view: FrameLayout, obj: (() -> Unit)?) {
         val fxAnimation = helper.fxAnimation ?: return
         if (fxAnimation.fromJobIsRunning()) {
-            helper.fxLog?.d("fxView->Animation,startAnimation Executing, cancel this operation!")
+            helper.fxLog.d("fxView -> Animation,startAnimation Executing, cancel this operation!")
             return
         }
-        helper.fxLog?.d("fxView->Animation,startAnimation Running.")
+        helper.fxLog.d("fxView -> Animation,startAnimation Running.")
         fxAnimation.setFromAnimatorListener(obj)
         fxAnimation.fromStartAnimator(view)
     }
@@ -24,10 +24,10 @@ class FxBasicAnimationProvider<F : FxBasisHelper>(override val helper: F) : IFxA
     override fun hide(view: FrameLayout, obj: (() -> Unit)?) {
         val fxAnimation = helper.fxAnimation ?: return
         if (helper.fxAnimation!!.endJobIsRunning()) {
-            helper.fxLog?.d("fxView->Animation,endAnimation Executing, cancel this operation!")
+            helper.fxLog.d("fxView -> Animation,endAnimation Executing, cancel this operation!")
             return
         }
-        helper.fxLog?.d("fxView->Animation,endAnimation Running.")
+        helper.fxLog.d("fxView -> Animation,endAnimation Running.")
         fxAnimation.setEndAnimatorListener(obj)
         fxAnimation.toEndAnimator(view)
     }

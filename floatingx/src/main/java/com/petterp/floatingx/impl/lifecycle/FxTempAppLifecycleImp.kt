@@ -20,7 +20,7 @@ class FxTempAppLifecycleImp(
     private val appControl: FxAppControlImp
 ) : Application.ActivityLifecycleCallbacks {
 
-    private val fxLog: FxLog?
+    private val fxLog: FxLog
         get() = helper.fxLog
 
     private val enableFx: Boolean
@@ -60,17 +60,17 @@ class FxTempAppLifecycleImp(
     override fun onActivityResumed(activity: Activity) {
         if (!enableFx) return
         val activityName = activity.name
-        fxLog?.d("fxApp->insert, insert [$activityName] Start ---------->")
+        fxLog.d("fxApp->insert, insert [$activityName] Start ---------->")
         val isActivityInValid = activity.isActivityInValid
         if (isActivityInValid) {
             appLifecycleCallBack?.onResumes(activity)
         } else {
-            fxLog?.d("fxApp->insert, insert [$activityName] Fail ,This activity is not in the list of allowed inserts.")
+            fxLog.d("fxApp->insert, insert [$activityName] Fail ,This activity is not in the list of allowed inserts.")
             return
         }
         val isParent = activity.isParent
         if (isParent) {
-            fxLog?.d("fxApp->insert, insert [$activityName] Fail ,The current Activity has been inserted.")
+            fxLog.d("fxApp->insert, insert [$activityName] Fail ,The current Activity has been inserted.")
             return
         }
         appControl.reAttach(activity)
@@ -96,7 +96,7 @@ class FxTempAppLifecycleImp(
             if (activity.isActivityInValid) it.onDestroyed(activity)
         }
         val isParent = activity.isParent
-        fxLog?.d("fxApp->detach? isContainActivity-${activity.isActivityInValid}--enableFx-$enableFx---isParent-$isParent")
+        fxLog.d("fxApp->detach? isContainActivity-${activity.isActivityInValid}--enableFx-$enableFx---isParent-$isParent")
         if (isParent) appControl.destroyToDetach(activity)
     }
 
@@ -113,5 +113,5 @@ class FxTempAppLifecycleImp(
             val isInsert = it.isCanInstall(cls)
             insertCls[cls] = isInsert
             isInsert
-        } ?: false
+        }
 }

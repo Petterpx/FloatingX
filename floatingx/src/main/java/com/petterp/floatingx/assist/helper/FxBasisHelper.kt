@@ -12,7 +12,6 @@ import com.petterp.floatingx.listener.IFxConfigStorage
 import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.util.FxLog
-import com.petterp.floatingx.util.coerceInFx
 import kotlin.math.abs
 
 /** 通用构建器helper */
@@ -96,8 +95,7 @@ open class FxBasisHelper {
     @JvmField
     internal var iFxClickListener: View.OnClickListener? = null
 
-    @JvmField
-    internal var fxLog: FxLog? = null
+    internal lateinit var fxLog: FxLog
 
     @JvmField
     internal var fxLogTag: String = ""
@@ -111,7 +109,7 @@ open class FxBasisHelper {
 
     @JvmSynthetic
     internal fun initLog(scope: String) {
-        if (enableDebugLog) fxLog = FxLog.builder("$scope-$fxLogTag")
+        fxLog = FxLog.builder(enableDebugLog, "$scope-$fxLogTag")
     }
 
     @JvmSynthetic
@@ -121,76 +119,8 @@ open class FxBasisHelper {
         fxAnimation?.cancelAnimation()
     }
 
-    private val safeEdgeOffSet: Float
+    val safeEdgeOffSet: Float
         get() = if (enableEdgeRebound) edgeOffset else 0F
-
-    fun defaultXY(width: Int, height: Int, viewW: Int, viewH: Int): Pair<Int, Int> {
-        return if (enableSaveDirection && iFxConfigStorage?.hasConfig() == true) {
-            getHistoryXY(width, viewW, height, viewH)
-        } else {
-            getDefaultXY(width, height, viewW, viewH)
-        }
-    }
-
-    private fun getHistoryXY(
-        width: Int,
-        viewW: Int,
-        height: Int,
-        viewH: Int
-    ): Pair<Int, Int> {
-        val configX = iFxConfigStorage!!.getX()
-        val configY = iFxConfigStorage!!.getY()
-        val bMinX = safeEdgeOffSet + fxBorderMargin.l
-        val bMaxX = width - viewW - safeEdgeOffSet - fxBorderMargin.r
-        val bMinY = safeEdgeOffSet + fxBorderMargin.t
-        val bMaxY = height - viewH - safeEdgeOffSet - fxBorderMargin.b
-        return configX.coerceInFx(bMinX, bMaxX).toInt() to configY.coerceInFx(bMinY, bMaxY).toInt()
-    }
-
-    private fun getDefaultXY(width: Int, height: Int, viewW: Int, viewH: Int): Pair<Int, Int> {
-        val l = (offsetX + safeEdgeOffSet + fxBorderMargin.l).toInt()
-        val r = (offsetX + safeEdgeOffSet + fxBorderMargin.r).toInt()
-        val b = (offsetY + safeEdgeOffSet + fxBorderMargin.b).toInt()
-        val t = (offsetY + safeEdgeOffSet + fxBorderMargin.t).toInt()
-        return when (gravity) {
-            FxGravity.DEFAULT,
-            FxGravity.LEFT_OR_TOP -> {
-                l to t
-            }
-
-            FxGravity.LEFT_OR_CENTER -> {
-                l to (height - viewH).shr(1)
-            }
-
-            FxGravity.LEFT_OR_BOTTOM -> {
-                0 to height - viewH - b
-            }
-
-            FxGravity.RIGHT_OR_TOP -> {
-                width - viewW - r to t
-            }
-
-            FxGravity.RIGHT_OR_CENTER -> {
-                width - viewW - r to (height - viewH).shr(1)
-            }
-
-            FxGravity.RIGHT_OR_BOTTOM -> {
-                width - viewW - r to height - viewH - b
-            }
-
-            FxGravity.TOP_OR_CENTER -> {
-                (width - viewW).shr(1) to t
-            }
-
-            FxGravity.BOTTOM_OR_CENTER -> {
-                (width - viewW).shr(1) to height - viewH - b
-            }
-
-            else -> {
-                (width - viewW).shr(1) to (height - viewH).shr(1)
-            }
-        }
-    }
 
     abstract class Builder<T, B : FxBasisHelper> {
         @LayoutRes
@@ -313,7 +243,7 @@ open class FxBasisHelper {
 
         fun setOffsetXY(x: Int, y: Int): T {
             this.offsetX = x
-            this.offsetY = x
+            this.offsetY = y
             return this as T
         }
 

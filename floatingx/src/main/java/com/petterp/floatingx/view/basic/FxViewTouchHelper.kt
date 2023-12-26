@@ -5,7 +5,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import androidx.annotation.Keep
-import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.INVALID_TOUCH_ID
 import com.petterp.floatingx.util.TOUCH_TIME_THRESHOLD
 import com.petterp.floatingx.util.pointerId
@@ -15,7 +14,7 @@ import kotlin.math.abs
  * 手势事件辅助类，处理点击事件
  * @author petterp
  */
-class FxViewTouchHelper {
+class FxViewTouchHelper : FxBasicViewHelper() {
     private var initX = 0f
     private var initY = 0f
     private var scaledTouchSlop = 0F
@@ -23,16 +22,13 @@ class FxViewTouchHelper {
     private var clickEnable = true
     private var mLastTouchDownTime = 0L
     private var touchDownId = INVALID_TOUCH_ID
-    private lateinit var helper: FxBasisHelper
-    private var basicView: FxBasicParentView? = null
 
     @SuppressLint("ClickableViewAccessibility")
-    fun initConfig(view: FxBasicParentView) {
+    override fun initConfig(parentView: FxBasicParentView) {
+        super.initConfig(parentView)
         reset()
-        this.basicView = view
-        this.helper = view.helper
-        scaledTouchSlop = ViewConfiguration.get(view.context).scaledTouchSlop.toFloat()
-        view.setOnTouchListener { _, event ->
+        scaledTouchSlop = ViewConfiguration.get(parentView.context).scaledTouchSlop.toFloat()
+        parentView.setOnTouchListener { _, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> initTouchDown(event)
                 MotionEvent.ACTION_MOVE -> touchToMove(event)
@@ -49,14 +45,14 @@ class FxViewTouchHelper {
     @Keep
     fun touchCancel(view: View) {
         if (isClickEffective()) {
-            helper.iFxClickListener?.onClick(view)
-            if (helper.clickTime > 0) {
+            config.iFxClickListener?.onClick(view)
+            if (config.clickTime > 0) {
                 clickEnable = false
-                view.postDelayed({ clickEnable = true }, helper.clickTime)
+                view.postDelayed({ clickEnable = true }, config.clickTime)
             } else {
                 clickEnable = true
             }
-            helper.fxLog?.d("fxView -> click")
+            config.fxLog.d("fxView -> click")
         }
         reset()
     }
@@ -66,11 +62,11 @@ class FxViewTouchHelper {
         initClickConfig(event)
         touchDownId = event.pointerId
         basicView?.onTouchDown(event)
-        helper.fxLog?.d("fxView->initTouchDown---id:$touchDownId->")
+        config.fxLog.d("fxView -> initDownTouch,mainTouchId:$touchDownId")
     }
 
     private fun initClickConfig(event: MotionEvent) {
-        if (!helper.enableClickListener || helper.iFxClickListener == null) return
+        if (!config.enableClickListener || config.iFxClickListener == null) return
         isClickEvent = true
         this.initX = event.rawX
         this.initY = event.rawY
@@ -78,7 +74,15 @@ class FxViewTouchHelper {
     }
 
     private fun touchToPointerDown(event: MotionEvent) {
-        if (hasMainPointerId()) return
+        if (hasMainPointerId()) {
+            config.fxLog.d("fxView -> touchToPointerDown: currentId:${event.pointerId}, mainTouchId:$touchDownId exist,return")
+            return
+        }
+        // Before the event starts, check first
+        if (basicView?.preCheckPointerDownTouch(event) != true) {
+            config.fxLog.d("fxView -> touchToPointerDown: current touch location error,return")
+            return
+        }
         initTouchDown(event)
     }
 
@@ -86,21 +90,22 @@ class FxViewTouchHelper {
         if (!isCurrentPointerId(event)) return
         checkClickState(event)
         basicView?.onTouchMove(event)
-        helper.fxLog?.d("fxView---onTouchEvent---onTouchMove->")
+        config.fxLog.v("fxView -> touchMove,rawX:${event.rawX},rawY:${event.rawY}")
     }
 
     private fun touchCancel(event: MotionEvent) {
         if (!isCurrentPointerId(event)) return
         performClick()
         reset()
+        basicView?.moveToEdge()
         basicView?.onTouchCancel(event)
-        helper.fxLog?.d("fxView---onTouchEvent---MainTouchCancel->")
+        config.fxLog.d("fxView -> mainTouchUp")
     }
 
     private fun performClick() {
         if (isClickEffective()) {
             clickEnable = false
-            helper.iFxClickListener?.onClick(basicView)
+            config.iFxClickListener?.onClick(basicView)
             basicView?.postDelayed({
                 clickEnable = true
             }, 1000)
@@ -128,8 +133,8 @@ class FxViewTouchHelper {
 
     private fun isClickEffective(): Boolean {
         // 当前是点击事件&&点击事件目前可启用&&回调存在&&点击时间小于阈值
-        return isClickEvent && clickEnable && helper.enableClickListener &&
-            helper.iFxClickListener != null &&
+        return isClickEvent && clickEnable && config.enableClickListener &&
+            config.iFxClickListener != null &&
             System.currentTimeMillis() - mLastTouchDownTime < TOUCH_TIME_THRESHOLD
     }
 }

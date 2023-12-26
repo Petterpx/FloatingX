@@ -33,7 +33,7 @@ class FxAppPlatformProvider(
     private val windowsInsetsListener = OnApplyWindowInsetsListener { _, insets ->
         val statusBar = insets.stableInsetTop
         if (helper.statsBarHeight != statusBar) {
-            helper.fxLog?.v("System--StatusBar---old-(${helper.statsBarHeight}),new-($statusBar))")
+            helper.fxLog.v("System--StatusBar---old-(${helper.statsBarHeight}),new-($statusBar))")
             helper.statsBarHeight = statusBar
         }
         insets
@@ -83,7 +83,7 @@ class FxAppPlatformProvider(
         if (containerGroupView === decorView) return false
         if (ViewCompat.isAttachedToWindow(fxView)) containerGroupView?.removeView(fxView)
         _containerGroup = WeakReference(decorView)
-        helper.fxLog?.d("fxView-lifecycle-> onPostAttach")
+        helper.fxLog.d("fxView-lifecycle-> onPostAttach")
         helper.iFxViewLifecycle?.postAttach()
         decorView.addView(fxView)
         return true
@@ -121,7 +121,7 @@ class FxAppPlatformProvider(
     }
 
     private fun detach() {
-        helper.fxLog?.d("fxView-lifecycle-> onPostDetach")
+        helper.fxLog.d("fxView-lifecycle-> onPostDetach")
         _internalView?.visibility = View.GONE
         containerGroupView?.removeView(_internalView)
     }

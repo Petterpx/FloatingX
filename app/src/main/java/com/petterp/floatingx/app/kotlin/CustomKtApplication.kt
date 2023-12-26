@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
@@ -13,16 +14,14 @@ import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.*
 import com.petterp.floatingx.app.simple.FxAnimationImpl
-import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.app.test.BlackActivity
 import com.petterp.floatingx.app.test.MultipleFxActivity
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.assist.FxScopeType
-import com.petterp.floatingx.util.FxScrollImpl
 import com.petterp.floatingx.impl.lifecycle.FxProxyTagLifecycleImp
 import com.petterp.floatingx.listener.IFxViewLifecycle
-import com.petterp.floatingx.view.FxViewHolder
+import com.petterp.floatingx.util.FxScrollImpl
 
 /** Kotlin-Application */
 class CustomKtApplication : Application() {
@@ -44,6 +43,7 @@ class CustomKtApplication : Application() {
 //        }
 
         installTag1(this)
+        installTag2(this)
     }
 
     companion object {
@@ -66,9 +66,9 @@ class CustomKtApplication : Application() {
 //            )
 
                 // 设置悬浮窗默认方向
-                setGravity(FxGravity.RIGHT_OR_BOTTOM)
+                setGravity(FxGravity.RIGHT_OR_TOP)
                 // 启用辅助方向,具体参加方法注释
-                setEnableAssistDirection(r = 100f)
+                setEnableAssistDirection(r = 100f, t = 100f)
                 // 设置启用边缘吸附,默认启用
                 setEnableEdgeAdsorption(true)
                 // 设置边缘偏移量
@@ -76,7 +76,7 @@ class CustomKtApplication : Application() {
                 // 设置启用悬浮窗可屏幕外回弹
                 setEnableScrollOutsideScreen(true)
                 // 开启历史位置缓存
-                setSaveDirectionImpl(FxConfigStorageToSpImpl(context))
+//                setSaveDirectionImpl(FxConfigStorageToSpImpl(context))
                 // 设置启用动画
                 setEnableAnimation(true)
                 // 设置启用动画实现
@@ -108,10 +108,7 @@ class CustomKtApplication : Application() {
                 })
                 // 增加生命周期监听
                 setViewLifecycle(object : IFxViewLifecycle {
-                    override fun initView(holder: FxViewHolder) {
-                        holder.setOnClickListener(R.id.tvItemFx) {
-                            Toast.makeText(it.context, "子view被点击", Toast.LENGTH_SHORT).show()
-                        }
+                    override fun initView(view: View) {
                     }
                 })
                 // 设置滑动监听
@@ -145,6 +142,7 @@ class CustomKtApplication : Application() {
         fun installTag2(context: Application) {
             FloatingX.install {
                 setContext(context)
+                setSystemScope(FxScopeType.APP_ACTIVITY)
                 setLayoutView(
                     CardView(context).apply {
                         setCardBackgroundColor(Color.GRAY)
@@ -152,11 +150,11 @@ class CustomKtApplication : Application() {
                         addView(
                             TextView(this.context).apply {
                                 layoutParams = ViewGroup.LayoutParams(
-                                    60.dp,
+                                    -2,
                                     60.dp,
                                 )
                                 gravity = Gravity.CENTER
-                                text = "浮窗2"
+                                text = "浮窗2-act"
                                 setTextColor(Color.WHITE)
                                 textSize = 15f
                             },
