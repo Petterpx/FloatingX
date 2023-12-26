@@ -137,7 +137,7 @@ abstract class FxBasisControlImpl<F : FxBasisHelper, P : IFxPlatformProvider<F>>
         platformProvider.reset()
         _animationProvider.reset()
         helper.clear()
-        helper.fxLog?.d("fxView-lifecycle-> code->cancelFx")
+        helper.fxLog.d("fxView-lifecycle-> code->cancelFx")
     }
 
     private fun updateEnableStatus(newStatus: Boolean) {

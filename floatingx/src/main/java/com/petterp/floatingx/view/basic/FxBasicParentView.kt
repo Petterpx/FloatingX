@@ -19,18 +19,25 @@ abstract class FxBasicParentView @JvmOverloads constructor(
     open val helper: FxBasisHelper,
     context: Context,
     attrs: AttributeSet? = null
-) : FrameLayout(context, attrs), IFxInternalView, View.OnLayoutChangeListener {
-    private var isCreated = false
+) : FrameLayout(context, attrs), IFxInternalView {
+    private var isInitLayout = true
     private var _childView: View? = null
     private var _viewHolder: FxViewHolder? = null
     private val touchHelper = FxViewTouchHelper()
-    private val locationHelper = FxLocationHelper()
+    private val animateHelper = FxViewAnimationHelper()
+    internal val locationHelper = FxViewLocationHelper()
 
-    abstract fun onLayoutInit()
+    abstract fun currentX(): Float
+    abstract fun currentY(): Float
+    abstract fun updateXY(x: Float, y: Float)
+    abstract fun parentSize(): Pair<Float, Float>
+
     abstract fun onTouchDown(event: MotionEvent)
     abstract fun onTouchMove(event: MotionEvent)
     abstract fun onTouchCancel(event: MotionEvent)
     abstract fun interceptTouchEvent(ev: MotionEvent): Boolean
+    open fun preCheckPointerDownTouch(event: MotionEvent): Boolean = true
+    open fun onLayoutInit() {}
 
     override val childView: View?
         get() = _childView
@@ -44,28 +51,38 @@ abstract class FxBasicParentView @JvmOverloads constructor(
 
     open fun initView() {
         touchHelper.initConfig(this)
-        locationHelper.initConfig(helper)
+        animateHelper.initConfig(this)
+        locationHelper.initConfig(this)
     }
 
     override fun moveToEdge() {
+        val (x, y) = locationHelper.getDefaultEdgeXY() ?: return
+        moveLocation(x, y, true)
     }
 
     override fun moveLocation(x: Float, y: Float, useAnimation: Boolean) {
+        moveToXY(x, y, useAnimation)
     }
 
     override fun moveLocationByVector(x: Float, y: Float, useAnimation: Boolean) {
+        moveToXY(x + currentX(), y + currentY(), useAnimation)
     }
 
     override fun updateView() {
-        // 更新子view
+        helper.fxLog.d("fxView -> updateView")
+        locationHelper.updateLocationStatus()
+        removeView(_childView)
+        initChildView()
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        locationHelper.onSizeChanged()
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
-        if (!isCreated) {
-            isCreated = true
-            onLayoutInit()
-        }
+        checkOrInitLayout()
     }
 
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
@@ -80,7 +97,7 @@ abstract class FxBasicParentView @JvmOverloads constructor(
 
     private fun inflateLayoutView(): View? {
         val view = helper.layoutView ?: return null
-        helper.fxLog?.d("fxView-->init, way:[layoutView]")
+        helper.fxLog.d("fxView -> init, way:[layoutView]")
         val lp = view.layoutParams ?: LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -91,22 +108,28 @@ abstract class FxBasicParentView @JvmOverloads constructor(
 
     private fun inflateLayoutId(): View? {
         if (helper.layoutId == INVALID_LAYOUT_ID) return null
-        helper.fxLog?.d("fxView-->init, way:[layoutId]")
+        helper.fxLog.d("fxView -> init, way:[layoutId]")
         val view = LayoutInflater.from(context).inflate(helper.layoutId, this, false)
         addView(view)
         return view
     }
 
-    override fun onLayoutChange(
-        v: View?,
-        left: Int,
-        top: Int,
-        right: Int,
-        bottom: Int,
-        oldLeft: Int,
-        oldTop: Int,
-        oldRight: Int,
-        oldBottom: Int
-    ) {
+    private fun moveToXY(x: Float, y: Float, useAnimation: Boolean) {
+        val endX = locationHelper.safeX(x)
+        val endY = locationHelper.safeY(y)
+        locationHelper.checkOrSaveLocation(endX, endY)
+        if (useAnimation) {
+            animateHelper.start(endX, endY)
+        } else {
+            updateXY(endX, endY)
+        }
+        helper.fxLog.d("moveToXY: start(${currentX()},${currentY()}),end($endX,$endY)")
+    }
+
+    private fun checkOrInitLayout() {
+        if (!isInitLayout) return
+        isInitLayout = false
+        locationHelper.initLayout(this)
+        onLayoutInit()
     }
 }

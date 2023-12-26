@@ -50,7 +50,7 @@ class FxViewConfigHelper {
         touchDownId = ev.pointerId
         downTouchX = ev.x
         downTouchY = ev.y
-        helper.fxLog?.d("fxView---newTouchDown:$touchDownId")
+        helper.fxLog.d("fxView---newTouchDown:$touchDownId")
     }
 
     fun updateWidgetSize(view: ViewGroup): Boolean {
@@ -63,7 +63,7 @@ class FxViewConfigHelper {
         val parentWidth = (parentW - view.width).toFloat()
         val parentHeight = (parentH - view.height).toFloat()
         if (mParentHeight != parentHeight || mParentWidth != parentWidth) {
-            helper.fxLog?.d("fxView->updateContainerSize: oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)")
+            helper.fxLog.d("fxView -> updateContainerSize: oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)")
             mParentWidth = parentWidth
             mParentHeight = parentHeight
             updateBoundary(false)
@@ -72,12 +72,12 @@ class FxViewConfigHelper {
         return false
     }
 
-    fun isNearestLeft(x: Float): Boolean {
+    private fun isNearestLeft(x: Float): Boolean {
         val middle = mParentWidth / 2
         return x < middle
     }
 
-    fun isNearestTop(y: Float): Boolean {
+    private fun isNearestTop(y: Float): Boolean {
         val middle = mParentHeight / 2
         return y < middle
     }

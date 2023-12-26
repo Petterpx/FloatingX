@@ -96,6 +96,10 @@ internal fun Float.withIn(min: Number, max: Number): Boolean {
     return this in min.toFloat()..max.toFloat()
 }
 
+internal fun Float.shr(count: Int): Float {
+    return this / count
+}
+
 internal val MotionEvent.pointerId: Int
     get() = try {
         getPointerId(actionIndex)

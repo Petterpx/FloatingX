@@ -40,21 +40,25 @@ class FxSystemContainerView @JvmOverloads constructor(
         wm.addView(this, wl)
     }
 
-    override fun moveLocation(x: Float, y: Float, useAnimation: Boolean) {
-        wl.x = x.toInt()
-        wl.y = y.toInt()
-        wm.updateViewLayout(this, wl)
+    override fun currentX(): Float {
+        return wl.x.toFloat()
     }
 
-    override fun onLayoutInit() {
-        val width = helper.context.screenWidth
-        val height = helper.context.screenHeight
-        val viewH = this.height
-        val viewW = this.width
-        val (defaultX, defaultY) = helper.defaultXY(width, height, viewW, viewH)
-        wl.x = defaultX
-        wl.y = defaultY
-        wm.updateViewLayout(this, wl)
+    override fun currentY(): Float {
+        return wl.y.toFloat()
+    }
+
+    override fun preCheckPointerDownTouch(event: MotionEvent): Boolean {
+        // 当前屏幕存在手指时，check当前手势是否真的在浮窗之上
+        val x = event.rawX
+        val y = event.rawY
+        val location = IntArray(2)
+        getLocationOnScreen(location)
+        val left = location[0]
+        val top = location[1]
+        val right = left + this.width
+        val bottom = top + this.height
+        return x >= left && x <= right && y >= top && y <= bottom
     }
 
     override fun onTouchDown(event: MotionEvent) {
@@ -69,9 +73,7 @@ class FxSystemContainerView @JvmOverloads constructor(
         val movedY = nowY - cY
         cX = nowX
         cY = nowY
-        wl.x += movedX.toInt()
-        wl.y += movedY.toInt()
-        wm.updateViewLayout(this, wl)
+        updateXY(wl.x + movedX, wl.y + movedY)
     }
 
     override fun onTouchCancel(event: MotionEvent) {
@@ -81,6 +83,16 @@ class FxSystemContainerView @JvmOverloads constructor(
 
     override fun interceptTouchEvent(ev: MotionEvent): Boolean {
         return false
+    }
+
+    override fun updateXY(x: Float, y: Float) {
+        wl.x = x.toInt()
+        wl.y = y.toInt()
+        wm.updateViewLayout(this, wl)
+    }
+
+    override fun parentSize(): Pair<Float, Float> {
+        return helper.context.screenWidth.toFloat() to helper.context.screenHeight.toFloat()
     }
 
     private fun initWLParams() {

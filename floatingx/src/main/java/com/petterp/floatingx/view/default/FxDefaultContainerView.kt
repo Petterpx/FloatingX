@@ -21,7 +21,7 @@ import com.petterp.floatingx.util.pointerId
 import com.petterp.floatingx.util.withIn
 import com.petterp.floatingx.view.FxViewHolder
 import com.petterp.floatingx.view.IFxInternalView
-import com.petterp.floatingx.view.basic.FxLocationHelper
+import com.petterp.floatingx.view.basic.FxViewLocationHelper
 import com.petterp.floatingx.view.basic.FxViewTouchHelper
 
 /** 基础悬浮窗View */
@@ -33,7 +33,7 @@ class FxDefaultContainerView @JvmOverloads constructor(
 
     private lateinit var helper: FxBasisHelper
     private val clickHelper = FxViewTouchHelper()
-    private val locationHelper = FxLocationHelper()
+    private val locationHelper = FxViewLocationHelper()
     private val configHelper = FxViewConfigHelper()
     private var _viewHolder: FxViewHolder? = null
 
@@ -58,7 +58,7 @@ class FxDefaultContainerView @JvmOverloads constructor(
     private fun initView() {
         _childFxView = inflateLayoutView() ?: inflateLayoutId()
 //        clickHelper.initConfig(context, helper)
-        locationHelper.initConfig(helper)
+//        locationHelper.initConfig(this)
         configHelper.initConfig(context, helper)
         checkNotNull(_childFxView) { "initFxView -> Error,check your layoutId or layoutView." }
         initLocation()
@@ -69,7 +69,7 @@ class FxDefaultContainerView @JvmOverloads constructor(
 
     private fun inflateLayoutView(): View? {
         val view = helper.layoutView ?: return null
-        helper.fxLog?.d("fxView-->init, way:[layoutView]")
+        helper.fxLog.d("fxView-->init, way:[layoutView]")
         val lp = view.layoutParams ?: LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -80,7 +80,7 @@ class FxDefaultContainerView @JvmOverloads constructor(
 
     private fun inflateLayoutId(): View? {
         if (helper.layoutId == INVALID_LAYOUT_ID) return null
-        helper.fxLog?.d("fxView-->init, way:[layoutId]")
+        helper.fxLog.d("fxView-->init, way:[layoutId]")
         val view = LayoutInflater.from(context).inflate(helper.layoutId, this, false)
         addView(view)
         return view
@@ -106,13 +106,13 @@ class FxDefaultContainerView @JvmOverloads constructor(
         }
         if (initX != -1F) x = initX
         if (initY != -1F) y = initY
-        helper.fxLog?.d("fxView->initLocation,isHasConfig-($hasConfig),defaultX-($initX),defaultY-($initY)")
+        helper.fxLog.d("fxView -> initLocation,isHasConfig-($hasConfig),defaultX-($initX),defaultY-($initY)")
     }
 
     private fun initDefaultXY(): Pair<Float, Float> {
         // 非辅助定位&&非默认位置,此时x,y不可信
         if (!helper.enableAssistLocation && !helper.gravity.isDefault()) {
-            helper.fxLog?.e(
+            helper.fxLog.e(
                 "fxView--默认坐标可能初始化异常,如果显示位置异常,请检查您的gravity是否为默认配置，当前gravity:${helper.gravity}。\n" +
                     "如果您要配置gravity,建议您启用辅助定位setEnableAssistDirection(),此方法将更便于定位。",
             )
@@ -136,12 +136,12 @@ class FxDefaultContainerView @JvmOverloads constructor(
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 initTouchDown(ev)
-                helper.fxLog?.d("fxView---onInterceptTouchEvent-[down]")
+                helper.fxLog.d("fxView---onInterceptTouchEvent-[down]")
             }
 
             MotionEvent.ACTION_MOVE -> {
                 intercepted = configHelper.checkInterceptedEvent(ev)
-                helper.fxLog?.d("fxView---onInterceptTouchEvent-[move], interceptedTouch-$intercepted")
+                helper.fxLog.d("fxView---onInterceptTouchEvent-[move], interceptedTouch-$intercepted")
             }
         }
         return intercepted
@@ -164,32 +164,32 @@ class FxDefaultContainerView @JvmOverloads constructor(
         super.onAttachedToWindow()
         helper.iFxViewLifecycle?.attach()
         (parent as? ViewGroup)?.addOnLayoutChangeListener(this)
-        helper.fxLog?.d("fxView-lifecycle-> onAttachedToWindow")
+        helper.fxLog.d("fxView-lifecycle-> onAttachedToWindow")
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         helper.iFxViewLifecycle?.detached()
         (parent as? ViewGroup)?.removeOnLayoutChangeListener(this)
-        helper.fxLog?.d("fxView-lifecycle-> onDetachedFromWindow")
+        helper.fxLog.d("fxView-lifecycle-> onDetachedFromWindow")
     }
 
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
         helper.iFxViewLifecycle?.windowsVisibility(visibility)
-        helper.fxLog?.d("fxView-lifecycle-> onWindowVisibilityChanged")
+        helper.fxLog.d("fxView-lifecycle-> onWindowVisibilityChanged")
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        helper.fxLog?.d("fxView--lifecycle-> onConfigurationChanged--->")
+        helper.fxLog.d("fxView--lifecycle-> onConfigurationChanged--->")
         // use the configuration in Configuration first
-        val isScreenChanged = locationHelper.updateConfig(newConfig)
-        if (!isScreenChanged) return
+//        val isScreenChanged = locationHelper.updateConfig(newConfig)
+//        if (!isScreenChanged) return
         val x = x
         val y = y
-        locationHelper.saveLocation(x, y, configHelper)
-        helper.fxLog?.d("fxView--lifecycle-> saveLocation:[x:$x,y:$y]")
+//        locationHelper.saveLocation(x, y, configHelper)
+        helper.fxLog.d("fxView--lifecycle-> saveLocation:[x:$x,y:$y]")
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
@@ -249,26 +249,26 @@ class FxDefaultContainerView @JvmOverloads constructor(
 
     private fun moveToLocation(moveX: Float, moveY: Float) {
         if (moveX == x && moveY == y) return
-        helper.fxLog?.d("fxView-->moveToEdge---x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
+        helper.fxLog.d("fxView-->moveToEdge---x-($x)，y-($y) ->  moveX-($moveX),moveY-($moveY)")
         animate().x(moveX).y(moveY).setDuration(DEFAULT_MOVE_ANIMATOR_DURATION).start()
     }
 
     private fun saveLocationToStorage(moveX: Float, moveY: Float) {
         if (!helper.enableSaveDirection) return
         if (helper.iFxConfigStorage == null) {
-            helper.fxLog?.e("fxView-->saveDirection---iFxConfigStorageImpl does not exist, save failed!")
+            helper.fxLog.e("fxView-->saveDirection---iFxConfigStorageImpl does not exist, save failed!")
             return
         }
         helper.iFxConfigStorage?.update(moveX, moveY)
-        helper.fxLog?.d("fxView-->saveDirection---x-($moveX)，y-($moveY)")
+        helper.fxLog.d("fxView-->saveDirection---x-($moveX)，y-($moveY)")
     }
 
     private fun restoreLocation() {
-        val (x, y) = locationHelper.getLocation(configHelper)
-        this.x = x
-        this.y = y
+//        val (x, y) = locationHelper.getLocation(configHelper)
+//        this.x = x
+//        this.y = y
         saveLocationToStorage(x, y)
-        helper.fxLog?.d("fxView--lifecycle-> restoreLocation:[x:$x,y:$y]")
+        helper.fxLog.d("fxView--lifecycle-> restoreLocation:[x:$x,y:$y]")
     }
 
     private fun touchToMove(event: MotionEvent) {
@@ -281,12 +281,12 @@ class FxDefaultContainerView @JvmOverloads constructor(
         if (configHelper.isCurrentPointerId(event)) {
             touchToCancel()
         } else {
-            helper.fxLog?.d("fxView---onTouchEvent--ACTION_POINTER_UP---id:${event.pointerId}->")
+            helper.fxLog.d("fxView---onTouchEvent--ACTION_POINTER_UP---id:${event.pointerId}->")
         }
     }
 
     private fun touchToPointerDown(event: MotionEvent) {
-        helper.fxLog?.d("fxView---onTouchEvent--touchToPointerDown--id:${event.getPointerId(event.actionIndex)}->")
+        helper.fxLog.d("fxView---onTouchEvent--touchToPointerDown--id:${event.getPointerId(event.actionIndex)}->")
         if (configHelper.hasMainPointerId()) return
         // Here you can realize the multi-finger cooperative pulling 😆
         if (event.x.withIn(0, width) && event.y.withIn(0, height)) {
@@ -299,7 +299,7 @@ class FxDefaultContainerView @JvmOverloads constructor(
         helper.iFxScrollListener?.up()
         configHelper.touchDownId = INVALID_TOUCH_ID
         clickHelper.touchCancel(this)
-        helper.fxLog?.d("fxView---onTouchEvent---MainTouchCancel->")
+        helper.fxLog.d("fxView---onTouchEvent---MainTouchCancel->")
     }
 
     private fun refreshLocation(w: Int, h: Int) {
@@ -329,7 +329,7 @@ class FxDefaultContainerView @JvmOverloads constructor(
         y = disY
 //        clickHelper.touchMove(event)
         helper.iFxScrollListener?.dragIng(event, disX, disY)
-        helper.fxLog?.v("fxView---scrollListener--drag-event--x($disX)-y($disY)")
+        helper.fxLog.v("fxView---scrollListener--drag-event--x($disX)-y($disY)")
     }
 
     override fun onLayoutChange(
