@@ -25,7 +25,7 @@ abstract class FxBasicParentView @JvmOverloads constructor(
     private var _viewHolder: FxViewHolder? = null
     private val touchHelper = FxViewTouchHelper()
     private val animateHelper = FxViewAnimationHelper()
-    internal val locationHelper = FxViewLocationHelper()
+    private val locationHelper = FxViewLocationHelper()
 
     abstract fun currentX(): Float
     abstract fun currentY(): Float
@@ -90,6 +90,12 @@ abstract class FxBasicParentView @JvmOverloads constructor(
         return interceptTouchEvent(event) || super.onInterceptTouchEvent(event)
     }
 
+    protected fun safeUpdateXY(x: Float, y: Float) {
+        val safeX = locationHelper.safeX(x, true)
+        val safeY = locationHelper.safeY(y, true)
+        updateXY(safeX, safeY)
+    }
+
     protected fun initChildView(): View? {
         _childView = inflateLayoutView() ?: inflateLayoutId()
         return _childView
@@ -117,13 +123,18 @@ abstract class FxBasicParentView @JvmOverloads constructor(
     private fun moveToXY(x: Float, y: Float, useAnimation: Boolean) {
         val endX = locationHelper.safeX(x)
         val endY = locationHelper.safeY(y)
+        if (currentX() == endX && currentY() == endY) return
+        internalMoveToXY(useAnimation, endX, endY)
         locationHelper.checkOrSaveLocation(endX, endY)
+        helper.fxLog.d("fxView -> moveToXY: start(${currentX()},${currentY()}),end($endX,$endY)")
+    }
+
+    private fun internalMoveToXY(useAnimation: Boolean, endX: Float, endY: Float) {
         if (useAnimation) {
             animateHelper.start(endX, endY)
         } else {
             updateXY(endX, endY)
         }
-        helper.fxLog.d("moveToXY: start(${currentX()},${currentY()}),end($endX,$endY)")
     }
 
     private fun checkOrInitLayout() {

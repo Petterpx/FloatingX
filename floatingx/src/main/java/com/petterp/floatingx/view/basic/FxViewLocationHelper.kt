@@ -19,10 +19,9 @@ class FxViewLocationHelper : FxBasicViewHelper() {
     private var viewW = 0f
     private var viewH = 0f
 
-    private var minHBoundary = 0f
-    private var maxHBoundary = 0f
-    private var minWBoundary = 0f
-    private var maxWBoundary = 0f
+    private val moveIngBoundary = FxViewBoundaryConfig()
+    private val moveBoundary = FxViewBoundaryConfig()
+
     private val x: Float
         get() = basicView?.currentX() ?: 0f
     private val y: Float
@@ -66,12 +65,12 @@ class FxViewLocationHelper : FxBasicViewHelper() {
     fun getDefaultEdgeXY(): Pair<Float, Float>? {
         return if (config.enableEdgeAdsorption) {
             if (config.adsorbDirection == FxAdsorbDirection.LEFT_OR_RIGHT) {
-                val moveX = if (isNearestLeft(x)) minWBoundary else maxWBoundary
+                val moveX = if (isNearestLeft(x)) moveBoundary.minW else moveBoundary.maxW
                 val moveY = y
                 moveX to moveY
             } else {
                 val moveX = x
-                val moveY = if (isNearestTop(y)) minHBoundary else maxHBoundary
+                val moveY = if (isNearestTop(y)) moveBoundary.minH else moveBoundary.maxH
                 moveX to moveY
             }
         } else if (config.enableEdgeRebound) {
@@ -81,7 +80,7 @@ class FxViewLocationHelper : FxBasicViewHelper() {
         }
     }
 
-    fun updateViewSize() {
+    private fun updateViewSize() {
         val view = basicView ?: return
         val (pW, pH) = view.parentSize()
         val viewH = view.height.toFloat()
@@ -94,10 +93,23 @@ class FxViewLocationHelper : FxBasicViewHelper() {
         config.fxLog.d("fxView -> updateViewSize: parentW:$parentW,parentH:$parentH,viewW:$viewW,viewH:$viewH")
     }
 
-    fun safeX(x: Float) = x.coerceInFx(minWBoundary, maxWBoundary)
-    fun safeY(y: Float) = y.coerceInFx(minHBoundary, maxHBoundary)
+    fun safeX(x: Float, isMoveIng: Boolean = false): Float {
+        val enableBound = isMoveIng && config.enableEdgeRebound
+        val minW = if (enableBound) moveIngBoundary.minW else moveBoundary.minW
+        val maxW = if (enableBound) moveIngBoundary.maxW else moveBoundary.maxW
+        return x.coerceInFx(minW, maxW)
+    }
+
+    fun safeY(y: Float, isMoveIng: Boolean = false): Float {
+        val enableBound = isMoveIng && config.enableEdgeRebound
+        val minH = if (enableBound) moveIngBoundary.minH else moveBoundary.minH
+        val maxH = if (enableBound) moveIngBoundary.maxH else moveBoundary.maxH
+        return y.coerceInFx(minH, maxH)
+    }
+
     fun checkOrSaveLocation(x: Float, y: Float) {
-        if (this.x == x && this.y == y) return
+        if (config.iFxConfigStorage == null || !config.enableSaveDirection) return
+        config.iFxConfigStorage!!.update(x, y)
         config.fxLog.d("saveLocation -> x:$x,y:$y")
     }
 
@@ -155,21 +167,17 @@ class FxViewLocationHelper : FxBasicViewHelper() {
 
     private fun updateBoundary() {
         config.apply {
-            if (enableEdgeRebound) {
-                val edgeOffset = edgeOffset
-                val marginTop = fxBorderMargin.t + edgeOffset
-                val marginBto = fxBorderMargin.b + edgeOffset
-                val marginLef = fxBorderMargin.l + edgeOffset
-                val marginRig = fxBorderMargin.r + edgeOffset
-                minWBoundary = marginLef
-                maxWBoundary = parentW - viewW - marginRig
-                minHBoundary = statsBarHeight.toFloat() + marginTop
-                maxHBoundary = parentH - viewH - navigationBarHeight - marginBto
-            } else {
-                minWBoundary = fxBorderMargin.l
-                maxWBoundary = parentW - viewW - fxBorderMargin.r
-                minHBoundary = statsBarHeight + fxBorderMargin.t
-                maxHBoundary = parentH - viewH - navigationBarHeight - fxBorderMargin.b
+            moveIngBoundary.apply {
+                minW = 0f
+                maxW = parentW - viewW
+                minH = statsBarHeight.toFloat()
+                maxH = parentH - viewH - navigationBarHeight
+            }
+            moveBoundary.copy(moveIngBoundary).apply {
+                minW += fxBorderMargin.l + edgeOffset
+                maxW -= fxBorderMargin.r + edgeOffset
+                minH += fxBorderMargin.t + edgeOffset
+                maxH -= fxBorderMargin.b + edgeOffset
             }
         }
     }
