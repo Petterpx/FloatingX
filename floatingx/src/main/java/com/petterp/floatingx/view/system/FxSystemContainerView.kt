@@ -23,8 +23,9 @@ class FxSystemContainerView @JvmOverloads constructor(
 ) : FxBasicParentView(helper, context, attrs) {
 
     private lateinit var wl: WindowManager.LayoutParams
-    private var cX = 0f
-    private var cY = 0f
+
+    private var downTouchX = 0f
+    private var downTouchY = 0f
 
     val isAttachToWM: Boolean
         get() = windowToken != null
@@ -62,23 +63,19 @@ class FxSystemContainerView @JvmOverloads constructor(
     }
 
     override fun onTouchDown(event: MotionEvent) {
-        cX = event.rawX
-        cY = event.rawY
+        downTouchX = wl.x.minus(event.rawX)
+        downTouchY = wl.y.minus(event.rawY)
     }
 
     override fun onTouchMove(event: MotionEvent) {
-        val nowX = event.rawX
-        val nowY = event.rawY
-        val movedX = nowX - cX
-        val movedY = nowY - cY
-        cX = nowX
-        cY = nowY
-        updateXY(wl.x + movedX, wl.y + movedY)
+        val x = downTouchX.plus(event.rawX)
+        val y = downTouchY.plus(event.rawY)
+        safeUpdateXY(x, y)
     }
 
     override fun onTouchCancel(event: MotionEvent) {
-        cX = 0f
-        cY = 0f
+        downTouchX = 0f
+        downTouchY = 0f
     }
 
     override fun interceptTouchEvent(ev: MotionEvent): Boolean {
