@@ -5,9 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.petterp.floatingx.assist.helper.FxScopeHelper
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
-import com.petterp.floatingx.view.FxViewHolder
 import com.petterp.floatingx.view.IFxInternalView
-import com.petterp.floatingx.view.default.FxDefaultContainerView
+import com.petterp.floatingx.view.FxDefaultContainerView
 import java.lang.ref.WeakReference
 
 /**
@@ -18,7 +17,6 @@ class FxScopePlatFromProvider(
     override val helper: FxScopeHelper,
 ) : IFxPlatformProvider<FxScopeHelper> {
 
-    private var _holder: FxViewHolder? = null
     private var _internalView: FxDefaultContainerView? = null
     private var _containerGroup: WeakReference<ViewGroup>? = null
 
@@ -44,10 +42,10 @@ class FxScopePlatFromProvider(
 
     override fun checkOrInit(): Boolean {
         if (_internalView == null) {
-            val containerGroupView = containerGroupView ?: return false
-            _internalView = FxDefaultContainerView(containerGroupView.context).init(helper)
-            _holder = FxViewHolder(_internalView?.containerView)
-            containerGroupView.addView(_internalView)
+            val parentView = containerGroupView ?: return false
+            _internalView = FxDefaultContainerView(helper, parentView.context)
+            _internalView?.initView()
+            parentView.addView(_internalView)
         }
         return true
     }

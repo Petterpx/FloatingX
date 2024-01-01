@@ -13,8 +13,8 @@ import com.petterp.floatingx.impl.lifecycle.FxTempAppLifecycleImp
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
 import com.petterp.floatingx.util.decorView
 import com.petterp.floatingx.util.topActivity
+import com.petterp.floatingx.view.FxDefaultContainerView
 import com.petterp.floatingx.view.IFxInternalView
-import com.petterp.floatingx.view.default.FxDefaultContainerView
 import java.lang.ref.WeakReference
 
 /**
@@ -58,7 +58,8 @@ class FxAppPlatformProvider(
             initWindowsInsetsListener()
             helper.updateNavigationBar(act)
             helper.updateStatsBar(act)
-            _internalView = FxDefaultContainerView(helper.context).init(helper)
+            _internalView = FxDefaultContainerView(helper, helper.context)
+            _internalView?.initView()
             checkRegisterAppLifecycle()
             attach(act)
         }

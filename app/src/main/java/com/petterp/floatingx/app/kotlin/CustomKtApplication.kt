@@ -14,6 +14,7 @@ import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.*
 import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.app.test.BlackActivity
 import com.petterp.floatingx.app.test.MultipleFxActivity
 import com.petterp.floatingx.assist.FxDisplayMode
@@ -76,7 +77,7 @@ class CustomKtApplication : Application() {
                 // 设置启用悬浮窗可屏幕外回弹
                 setEnableScrollOutsideScreen(true)
                 // 开启历史位置缓存
-//                setSaveDirectionImpl(FxConfigStorageToSpImpl(context))
+                setSaveDirectionImpl(FxConfigStorageToSpImpl(context))
                 // 设置启用动画
                 setEnableAnimation(true)
                 // 设置启用动画实现
@@ -163,6 +164,8 @@ class CustomKtApplication : Application() {
                 )
                 setTag(MultipleFxActivity.TAG_2)
                 setEnableLog(true)
+                setEdgeOffset(20f)
+                setEnableEdgeAdsorption(true)
                 enableFx()
             }
         }

@@ -7,7 +7,7 @@ import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
 import com.petterp.floatingx.util.isVisibility
 import com.petterp.floatingx.view.IFxInternalView
-import com.petterp.floatingx.view.system.FxSystemContainerView
+import com.petterp.floatingx.view.FxSystemContainerView
 
 /**
  *

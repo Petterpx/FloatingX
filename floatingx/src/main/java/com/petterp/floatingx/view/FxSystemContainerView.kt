@@ -1,4 +1,4 @@
-package com.petterp.floatingx.view.system
+package com.petterp.floatingx.view
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -32,7 +32,7 @@ class FxSystemContainerView @JvmOverloads constructor(
 
     override fun initView() {
         super.initView()
-        initChildView() ?: return
+        installChildView() ?: return
         initWLParams()
     }
 
@@ -78,18 +78,14 @@ class FxSystemContainerView @JvmOverloads constructor(
         downTouchY = 0f
     }
 
-    override fun interceptTouchEvent(ev: MotionEvent): Boolean {
-        return false
-    }
-
     override fun updateXY(x: Float, y: Float) {
         wl.x = x.toInt()
         wl.y = y.toInt()
         wm.updateViewLayout(this, wl)
     }
 
-    override fun parentSize(): Pair<Float, Float> {
-        return helper.context.screenWidth.toFloat() to helper.context.screenHeight.toFloat()
+    override fun parentSize(): Pair<Int, Int> {
+        return helper.context.screenWidth to helper.context.screenHeight
     }
 
     private fun initWLParams() {

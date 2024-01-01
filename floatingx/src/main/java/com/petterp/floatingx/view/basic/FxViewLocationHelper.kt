@@ -82,11 +82,11 @@ class FxViewLocationHelper : FxBasicViewHelper() {
 
     private fun updateViewSize() {
         val view = basicView ?: return
-        val (pW, pH) = view.parentSize()
+        val (pW, pH) = view.parentSize() ?: return
         val viewH = view.height.toFloat()
         val viewW = view.width.toFloat()
-        this.parentW = pW
-        this.parentH = pH
+        this.parentW = pW.toFloat()
+        this.parentH = pH.toFloat()
         this.viewW = viewW
         this.viewH = viewH
         updateBoundary()

@@ -30,24 +30,17 @@ abstract class FxBasicParentView @JvmOverloads constructor(
     abstract fun currentX(): Float
     abstract fun currentY(): Float
     abstract fun updateXY(x: Float, y: Float)
-    abstract fun parentSize(): Pair<Float, Float>
+    abstract fun parentSize(): Pair<Int, Int>?
 
     abstract fun onTouchDown(event: MotionEvent)
     abstract fun onTouchMove(event: MotionEvent)
     abstract fun onTouchCancel(event: MotionEvent)
-    abstract fun interceptTouchEvent(ev: MotionEvent): Boolean
     open fun preCheckPointerDownTouch(event: MotionEvent): Boolean = true
     open fun onLayoutInit() {}
 
-    override val childView: View?
-        get() = _childView
-    override val containerView: FrameLayout
-        get() = this
-    override val viewHolder: FxViewHolder?
-        get() {
-            if (_viewHolder == null) _viewHolder = FxViewHolder(this)
-            return _viewHolder
-        }
+    override val childView: View? get() = _childView
+    override val containerView: FrameLayout get() = this
+    override val viewHolder: FxViewHolder? get() = _viewHolder
 
     open fun initView() {
         touchHelper.initConfig(this)
@@ -72,7 +65,7 @@ abstract class FxBasicParentView @JvmOverloads constructor(
         helper.fxLog.d("fxView -> updateView")
         locationHelper.updateLocationStatus()
         removeView(_childView)
-        initChildView()
+        installChildView()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -86,8 +79,7 @@ abstract class FxBasicParentView @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
-        if (touchHelper.hasMainPointerId()) return super.onInterceptTouchEvent(event)
-        return interceptTouchEvent(event) || super.onInterceptTouchEvent(event)
+        return touchHelper.interceptTouchEvent(event) || super.onInterceptTouchEvent(event)
     }
 
     protected fun safeUpdateXY(x: Float, y: Float) {
@@ -96,8 +88,9 @@ abstract class FxBasicParentView @JvmOverloads constructor(
         updateXY(safeX, safeY)
     }
 
-    protected fun initChildView(): View? {
+    protected fun installChildView(): View? {
         _childView = inflateLayoutView() ?: inflateLayoutId()
+        if (_childView != null) _viewHolder = FxViewHolder(_childView)
         return _childView
     }
 
