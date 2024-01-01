@@ -40,7 +40,21 @@ class FxViewTouchHelper : FxBasicViewHelper() {
         }
     }
 
-    fun hasMainPointerId() = touchDownId != INVALID_TOUCH_ID
+    fun interceptTouchEvent(event: MotionEvent): Boolean {
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                if (hasMainPointerId()) return false
+                initTouchDown(event)
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                if (!isCurrentPointerId(event)) return false
+                return abs(event.x - initX) >= scaledTouchSlop ||
+                    abs(event.y - initY) >= scaledTouchSlop
+            }
+        }
+        return false
+    }
 
     @Keep
     fun touchCancel(view: View) {
@@ -66,10 +80,10 @@ class FxViewTouchHelper : FxBasicViewHelper() {
     }
 
     private fun initClickConfig(event: MotionEvent) {
-        if (!config.enableClickListener || config.iFxClickListener == null) return
-        isClickEvent = true
         this.initX = event.rawX
         this.initY = event.rawY
+        if (!config.enableClickListener || config.iFxClickListener == null) return
+        isClickEvent = true
         mLastTouchDownTime = System.currentTimeMillis()
     }
 
@@ -130,6 +144,8 @@ class FxViewTouchHelper : FxBasicViewHelper() {
         mLastTouchDownTime = 0L
         touchDownId = INVALID_TOUCH_ID
     }
+
+    private fun hasMainPointerId() = touchDownId != INVALID_TOUCH_ID
 
     private fun isClickEffective(): Boolean {
         // 当前是点击事件&&点击事件目前可启用&&回调存在&&点击时间小于阈值
