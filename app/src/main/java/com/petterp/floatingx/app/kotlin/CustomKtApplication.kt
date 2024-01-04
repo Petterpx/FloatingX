@@ -144,6 +144,8 @@ class CustomKtApplication : Application() {
             FloatingX.install {
                 setContext(context)
                 setSystemScope(FxScopeType.APP_ACTIVITY)
+                setGravity(FxGravity.LEFT_OR_BOTTOM)
+                setOffsetXY(10f, 10f)
                 setLayoutView(
                     CardView(context).apply {
                         setCardBackgroundColor(Color.GRAY)
@@ -162,10 +164,13 @@ class CustomKtApplication : Application() {
                         )
                     },
                 )
+                setOnClickListener {
+                    FloatingX.control(MultipleFxActivity.TAG_2).moveByVector(30f, 30f)
+                }
                 setTag(MultipleFxActivity.TAG_2)
                 setEnableLog(true)
                 setEdgeOffset(20f)
-                setEnableEdgeAdsorption(true)
+                setEnableEdgeAdsorption(false)
                 enableFx()
             }
         }

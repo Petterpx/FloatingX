@@ -20,10 +20,10 @@ open class FxBasisHelper {
     internal var layoutId: Int = 0
 
     @JvmField
-    internal var offsetX: Int = 0
+    internal var offsetX: Float = 0f
 
     @JvmField
-    internal var offsetY: Int = 0
+    internal var offsetY: Float = 0f
 
     @JvmField
     internal var layoutView: View? = null
@@ -51,6 +51,9 @@ open class FxBasisHelper {
 
     @JvmField
     internal var fxBorderMargin: FxBorderMargin = FxBorderMargin()
+
+    @JvmField
+    internal var assistLocation: FxBorderMargin? = null
 
     @JvmField
     internal var displayMode: FxDisplayMode = FxDisplayMode.Normal
@@ -133,12 +136,12 @@ open class FxBasisHelper {
         private var displayMode: FxDisplayMode = FxDisplayMode.Normal
         private var edgeAdsorbDirection: FxAdsorbDirection = FxAdsorbDirection.LEFT_OR_RIGHT
 
-        private var defaultY: Float = 0f
-        private var defaultX: Float = 0f
-        private var offsetX: Int = 0
-        private var offsetY: Int = 0
+        private var offsetX: Float = 0f
+        private var offsetY: Float = 0f
         private var edgeOffset: Float = 0f
         private var enableFx: Boolean = false
+        private var defaultX = 0f
+        private var defaultY = 0f
         private var fxBorderMargin: FxBorderMargin = FxBorderMargin()
         private var assistLocation: FxBorderMargin = FxBorderMargin()
 
@@ -150,7 +153,6 @@ open class FxBasisHelper {
         private var enableSaveDirection: Boolean = false
         private var enableClickListener: Boolean = false
         private var enableEdgeAdsorption: Boolean = true
-        private var enableAssistLocation: Boolean = false
 
         private var iFxConfigStorage: IFxConfigStorage? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
@@ -161,7 +163,6 @@ open class FxBasisHelper {
 
         open fun build(): B =
             buildHelper().apply {
-                adtSizeViewDirection()
                 enableFx = this@Builder.enableFx
                 layoutId = this@Builder.layoutId
                 layoutView = this@Builder.layoutView
@@ -171,9 +172,9 @@ open class FxBasisHelper {
                 fxAnimation = this@Builder.fxAnimation
 
                 displayMode = this@Builder.displayMode
-
-                defaultY = this@Builder.defaultY
                 defaultX = this@Builder.defaultX
+                defaultY = this@Builder.defaultY
+                assistLocation = this@Builder.assistLocation
 
                 offsetX = this@Builder.offsetX
                 offsetY = this@Builder.offsetY
@@ -187,7 +188,7 @@ open class FxBasisHelper {
                 enableEdgeRebound = this@Builder.enableEdgeRebound
                 enableSaveDirection = this@Builder.enableSaveDirection
                 enableClickListener = this@Builder.enableClickListener
-                enableAssistLocation = this@Builder.enableAssistLocation
+                enableAssistLocation = assistLocation != null
 
                 enableDebugLog = this@Builder.enableDebugLog
                 fxLogTag = this@Builder.fxLogTag
@@ -238,12 +239,6 @@ open class FxBasisHelper {
          * */
         fun setDisplayMode(mode: FxDisplayMode): T {
             this.displayMode = mode
-            return this as T
-        }
-
-        fun setOffsetXY(x: Int, y: Int): T {
-            this.offsetX = x
-            this.offsetY = y
             return this as T
         }
 
@@ -367,18 +362,25 @@ open class FxBasisHelper {
          * @param l 设置可移动范围内相对父容器右侧偏移量
          * @param r 设置可移动范围内相对父容器左侧偏移量
          */
+        @Deprecated("use setOffsetXY", replaceWith = ReplaceWith("setOffsetXY(t,b)"))
         fun setEnableAssistDirection(
             t: Float = 0f,
             b: Float = 0f,
             l: Float = 0f,
             r: Float = 0f,
         ): T {
-            this.enableAssistLocation = true
-            this.assistLocation.t = t
-            this.assistLocation.b = b
-            this.assistLocation.l = l
-            this.assistLocation.r = r
+            assistLocation = FxBorderMargin(t, l, b, r)
             return this as T
+        }
+
+        /**
+         * 调用此方法,将忽视传递的(x,y)。 浮窗的坐标将根据 传递进来的 [gravity] + 此方法传入的偏移量
+         * 计算，而非直接坐标。 这样的好处是,你不用去关注具体浮窗坐标应该是什么，而是可以依靠参照物的方式摆放。
+         * 比如默认你的浮窗在右下角，但是想增加一点在右侧偏移，此时就可以依靠此方法，将浮窗位置设置在右下角，然后增加相应方向的偏移量即可。
+         */
+        fun setOffsetXY(x: Float, y: Float) {
+            this.offsetX = abs(x)
+            this.offsetY = abs(y)
         }
 
         /** 设置是否启用动画 */
@@ -439,60 +441,6 @@ open class FxBasisHelper {
             this.enableSaveDirection = true
             this.iFxConfigStorage = iFxConfigStorage
             return this as T
-        }
-
-        /** 辅助坐标的实现 采用坐标偏移位置,框架自行计算合适的x,y */
-        private fun adtSizeViewDirection() {
-            // 如果坐标规则不符合要求,且未开启辅助定位,则直接返回
-            if (!enableAssistLocation && !gravity.isDefault()) return
-            val edgeOffset = if (enableEdgeRebound) edgeOffset else 0f
-            val b = assistLocation.b + fxBorderMargin.b + edgeOffset
-            val t = assistLocation.t + fxBorderMargin.t + edgeOffset
-            val r = assistLocation.r + fxBorderMargin.r + edgeOffset
-            val l = assistLocation.l + fxBorderMargin.l + edgeOffset
-            defaultX = 0f
-            defaultY = 0f
-            when (gravity) {
-                FxGravity.DEFAULT,
-                FxGravity.LEFT_OR_TOP,
-                -> {
-                    defaultX = l
-                    defaultY = t
-                }
-
-                FxGravity.LEFT_OR_BOTTOM -> {
-                    defaultY = -b
-                    defaultX = l
-                }
-
-                FxGravity.RIGHT_OR_BOTTOM -> {
-                    defaultY = -b
-                    defaultX = -r
-                }
-
-                FxGravity.RIGHT_OR_TOP -> {
-                    defaultX = -r
-                    defaultY = t
-                }
-
-                FxGravity.RIGHT_OR_CENTER -> {
-                    defaultX = -r
-                }
-
-                FxGravity.LEFT_OR_CENTER -> {
-                    defaultX = l
-                }
-
-                FxGravity.TOP_OR_CENTER -> {
-                    defaultY = t
-                }
-
-                FxGravity.BOTTOM_OR_CENTER -> {
-                    defaultY = -b
-                }
-
-                else -> {}
-            }
         }
     }
 }

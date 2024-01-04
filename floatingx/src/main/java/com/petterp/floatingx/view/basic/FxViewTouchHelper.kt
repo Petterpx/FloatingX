@@ -2,9 +2,7 @@ package com.petterp.floatingx.view.basic
 
 import android.annotation.SuppressLint
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewConfiguration
-import androidx.annotation.Keep
 import com.petterp.floatingx.util.INVALID_TOUCH_ID
 import com.petterp.floatingx.util.TOUCH_TIME_THRESHOLD
 import com.petterp.floatingx.util.pointerId
@@ -56,21 +54,6 @@ class FxViewTouchHelper : FxBasicViewHelper() {
         return false
     }
 
-    @Keep
-    fun touchCancel(view: View) {
-        if (isClickEffective()) {
-            config.iFxClickListener?.onClick(view)
-            if (config.clickTime > 0) {
-                clickEnable = false
-                view.postDelayed({ clickEnable = true }, config.clickTime)
-            } else {
-                clickEnable = true
-            }
-            config.fxLog.d("fxView -> click")
-        }
-        reset()
-    }
-
     private fun initTouchDown(event: MotionEvent) {
         if (hasMainPointerId()) return
         initClickConfig(event)
@@ -109,21 +92,21 @@ class FxViewTouchHelper : FxBasicViewHelper() {
 
     private fun touchCancel(event: MotionEvent) {
         if (!isCurrentPointerId(event)) return
-        performClick()
-        reset()
-        basicView?.moveToEdge()
+        if (config.enableEdgeAdsorption) basicView?.moveToEdge()
         basicView?.onTouchCancel(event)
+        performClickAction()
         config.fxLog.d("fxView -> mainTouchUp")
     }
 
-    private fun performClick() {
+    private fun performClickAction() {
         if (isClickEffective()) {
             clickEnable = false
             config.iFxClickListener?.onClick(basicView)
             basicView?.postDelayed({
                 clickEnable = true
-            }, 1000)
+            }, config.clickTime)
         }
+        reset()
     }
 
     private fun checkClickState(event: MotionEvent) {

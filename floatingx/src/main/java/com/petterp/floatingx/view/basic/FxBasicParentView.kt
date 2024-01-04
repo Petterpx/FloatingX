@@ -116,7 +116,6 @@ abstract class FxBasicParentView @JvmOverloads constructor(
     private fun moveToXY(x: Float, y: Float, useAnimation: Boolean) {
         val endX = locationHelper.safeX(x)
         val endY = locationHelper.safeY(y)
-        if (currentX() == endX && currentY() == endY) return
         internalMoveToXY(useAnimation, endX, endY)
         locationHelper.checkOrSaveLocation(endX, endY)
         helper.fxLog.d("fxView -> moveToXY: start(${currentX()},${currentY()}),end($endX,$endY)")
@@ -133,7 +132,7 @@ abstract class FxBasicParentView @JvmOverloads constructor(
     private fun checkOrInitLayout() {
         if (!isInitLayout) return
         isInitLayout = false
-        locationHelper.initLayout(this)
         onLayoutInit()
+        locationHelper.initLayout(this)
     }
 }

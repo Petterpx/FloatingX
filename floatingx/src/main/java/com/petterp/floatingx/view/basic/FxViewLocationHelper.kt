@@ -138,10 +138,13 @@ class FxViewLocationHelper : FxBasicViewHelper() {
         viewH: Float
     ): Pair<Float, Float> {
         return config.run {
-            val l = offsetX + safeEdgeOffSet + fxBorderMargin.l
-            val r = offsetX + safeEdgeOffSet + fxBorderMargin.r
-            val b = offsetY + safeEdgeOffSet + fxBorderMargin.b
-            val t = offsetY + safeEdgeOffSet + fxBorderMargin.t
+            val offX = offsetX + safeEdgeOffSet
+            val offY = offsetY + safeEdgeOffSet
+            // 为历史方法做兼容
+            val l = offX + fxBorderMargin.l + (assistLocation?.l ?: offsetX)
+            val r = offX + fxBorderMargin.r + (assistLocation?.r ?: offsetX)
+            val b = offY + fxBorderMargin.b + (assistLocation?.b ?: offsetY)
+            val t = offY + fxBorderMargin.t + (assistLocation?.t ?: offsetY)
             when (gravity) {
                 FxGravity.DEFAULT,
                 FxGravity.LEFT_OR_TOP -> l to t
