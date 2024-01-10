@@ -1,4 +1,4 @@
-package com.petterp.floatingx.view.basic
+package com.petterp.floatingx.view.helper
 
 import android.annotation.SuppressLint
 import android.view.MotionEvent
@@ -6,6 +6,7 @@ import android.view.ViewConfiguration
 import com.petterp.floatingx.util.INVALID_TOUCH_ID
 import com.petterp.floatingx.util.TOUCH_TIME_THRESHOLD
 import com.petterp.floatingx.util.pointerId
+import com.petterp.floatingx.view.FxBasicContainerView
 import kotlin.math.abs
 
 /**
@@ -22,7 +23,7 @@ class FxViewTouchHelper : FxBasicViewHelper() {
     private var touchDownId = INVALID_TOUCH_ID
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun initConfig(parentView: FxBasicParentView) {
+    override fun initConfig(parentView: FxBasicContainerView) {
         super.initConfig(parentView)
         reset()
         scaledTouchSlop = ViewConfiguration.get(parentView.context).scaledTouchSlop.toFloat()

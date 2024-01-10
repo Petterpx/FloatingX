@@ -1,9 +1,11 @@
-package com.petterp.floatingx.view.basic
+package com.petterp.floatingx.view.helper
 
 import com.petterp.floatingx.assist.FxAdsorbDirection
+import com.petterp.floatingx.assist.FxBoundaryConfig
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.util.coerceInFx
 import com.petterp.floatingx.util.shr
+import com.petterp.floatingx.view.FxBasicContainerView
 
 /**
  * Fx location restore helper，Used to restore the location of the floating window after the screen is rotated
@@ -19,8 +21,8 @@ class FxViewLocationHelper : FxBasicViewHelper() {
     private var viewW = 0f
     private var viewH = 0f
 
-    private val moveIngBoundary = FxViewBoundaryConfig()
-    private val moveBoundary = FxViewBoundaryConfig()
+    private val moveIngBoundary = FxBoundaryConfig()
+    private val moveBoundary = FxBoundaryConfig()
 
     private val x: Float
         get() = basicView?.currentX() ?: 0f
@@ -50,7 +52,7 @@ class FxViewLocationHelper : FxBasicViewHelper() {
         }
     }
 
-    fun initLayout(view: FxBasicParentView) {
+    fun initLayout(view: FxBasicContainerView) {
         val hasHistory = config.enableSaveDirection && config.iFxConfigStorage?.hasConfig() == true
         val (defaultX, defaultY) = if (hasHistory) {
             getHistoryXY()

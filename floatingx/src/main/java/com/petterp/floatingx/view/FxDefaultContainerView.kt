@@ -8,7 +8,6 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.ViewGroup
 import com.petterp.floatingx.assist.helper.FxBasisHelper
-import com.petterp.floatingx.view.basic.FxBasicParentView
 
 /**
  * FxDefault View
@@ -16,7 +15,7 @@ import com.petterp.floatingx.view.basic.FxBasicParentView
  */
 @SuppressLint("ViewConstructor")
 class FxDefaultContainerView(helper: FxBasisHelper, context: Context, attrs: AttributeSet? = null) :
-    FxBasicParentView(helper, context, attrs) {
+    FxBasicContainerView(helper, context, attrs) {
 
     private var downTouchX = 0f
     private var downTouchY = 0f

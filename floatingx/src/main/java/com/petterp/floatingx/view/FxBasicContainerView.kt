@@ -1,4 +1,4 @@
-package com.petterp.floatingx.view.basic
+package com.petterp.floatingx.view
 
 import android.content.Context
 import android.util.AttributeSet
@@ -9,13 +9,15 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.INVALID_LAYOUT_ID
-import com.petterp.floatingx.view.FxViewHolder
-import com.petterp.floatingx.view.IFxInternalView
+import com.petterp.floatingx.view.helper.FxViewAnimationHelper
+import com.petterp.floatingx.view.helper.FxViewLocationHelper
+import com.petterp.floatingx.view.helper.FxViewTouchHelper
 
 /**
+ * Fx基础容器View
  * @author petterp
  */
-abstract class FxBasicParentView @JvmOverloads constructor(
+abstract class FxBasicContainerView @JvmOverloads constructor(
     open val helper: FxBasisHelper,
     context: Context,
     attrs: AttributeSet? = null

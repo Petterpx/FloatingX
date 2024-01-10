@@ -61,7 +61,7 @@ open class FxBasisHelper {
     @JvmField
     internal var adsorbDirection: FxAdsorbDirection = FxAdsorbDirection.LEFT_OR_RIGHT
 
-    // TODO: 这里需要在考虑
+    // TODO: 这里需要考虑
     @JvmField
     internal var enableFx: Boolean = false
 

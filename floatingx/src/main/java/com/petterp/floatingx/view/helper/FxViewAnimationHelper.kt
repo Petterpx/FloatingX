@@ -1,7 +1,8 @@
-package com.petterp.floatingx.view.basic
+package com.petterp.floatingx.view.helper
 
 import android.animation.ValueAnimator
 import com.petterp.floatingx.util.DEFAULT_MOVE_ANIMATOR_DURATION
+import com.petterp.floatingx.util.IFxViewAnimate
 
 /**
  * FxView基础辅助类
@@ -56,4 +57,3 @@ class FxViewAnimationHelper : FxBasicViewHelper() {
     }
 }
 
-typealias IFxViewAnimate = (x: Float, y: Float) -> Unit

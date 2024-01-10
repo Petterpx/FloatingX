@@ -11,7 +11,6 @@ import android.view.WindowManager
 import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.util.screenHeight
 import com.petterp.floatingx.util.screenWidth
-import com.petterp.floatingx.view.basic.FxBasicParentView
 
 /** 基础悬浮窗View */
 @SuppressLint("ViewConstructor")
@@ -20,7 +19,7 @@ class FxSystemContainerView @JvmOverloads constructor(
     private val wm: WindowManager,
     context: Context,
     attrs: AttributeSet? = null,
-) : FxBasicParentView(helper, context, attrs) {
+) : FxBasicContainerView(helper, context, attrs) {
 
     private lateinit var wl: WindowManager.LayoutParams
 
