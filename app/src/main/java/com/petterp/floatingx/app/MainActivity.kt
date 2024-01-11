@@ -6,6 +6,7 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
@@ -38,7 +39,14 @@ class MainActivity : AppCompatActivity() {
             addNestedScrollView {
                 addLinearLayout {
                     addItemView("显示全局悬浮窗") {
-                        FloatingX.control(MultipleFxActivity.TAG_1).show(this@MainActivity)
+                        FloatingX.control(MultipleFxActivity.TAG_1).apply {
+                            updateViewContent { holder ->
+                                val tv = holder.getViewOrNull<TextView>(R.id.tvItemFx)
+                                tv?.setOnClickListener {
+                                    Toast.makeText(this@MainActivity, "文字被点击", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }.show(this@MainActivity)
                     }
                     addItemView("隐藏全局悬浮窗") {
                         FloatingX.control(MultipleFxActivity.TAG_1).hide()
