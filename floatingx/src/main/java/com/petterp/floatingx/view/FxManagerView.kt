@@ -128,6 +128,10 @@ class FxManagerView @JvmOverloads constructor(
                 intercepted = configHelper.checkInterceptedEvent(ev)
                 helper.fxLog?.d("fxView---onInterceptTouchEvent-[move], interceptedTouch-$intercepted")
             }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                touchToPointerUp(ev, performClick = false)
+                helper.fxLog?.d("fxView---onInterceptTouchEvent-[up]")
+            }
         }
         return intercepted
     }
@@ -262,9 +266,9 @@ class FxManagerView @JvmOverloads constructor(
         }
     }
 
-    private fun touchToPointerUp(event: MotionEvent) {
+    private fun touchToPointerUp(event: MotionEvent, performClick: Boolean = true) {
         if (configHelper.isCurrentPointerId(event)) {
-            touchToCancel()
+            touchToCancel(performClick)
         } else {
             helper.fxLog?.d("fxView---onTouchEvent--ACTION_POINTER_UP---id:${event.pointerId}->")
         }
@@ -279,11 +283,13 @@ class FxManagerView @JvmOverloads constructor(
         }
     }
 
-    private fun touchToCancel() {
+    private fun touchToCancel(performClick: Boolean = true) {
         moveToEdge()
         helper.iFxScrollListener?.up()
         configHelper.touchDownId = INVALID_TOUCH_ID
-        clickHelper.performClick(this)
+        if (performClick) {
+            clickHelper.performClick(this)
+        }
         helper.fxLog?.d("fxView---onTouchEvent---MainTouchCancel->")
     }
 
