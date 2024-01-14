@@ -118,7 +118,7 @@ class FxManagerView @JvmOverloads constructor(
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         var intercepted = false
-        when (ev.actionMasked) {
+        when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
                 initTouchDown(ev)
                 helper.fxLog?.d("fxView---onInterceptTouchEvent-[down]")
@@ -128,8 +128,10 @@ class FxManagerView @JvmOverloads constructor(
                 intercepted = configHelper.checkInterceptedEvent(ev)
                 helper.fxLog?.d("fxView---onInterceptTouchEvent-[move], interceptedTouch-$intercepted")
             }
+
+            // If you can trigger here, it means that the child view has event interception
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                touchToPointerUp(ev, performClick = false)
+                touchToPointerUp(ev, isFxSelfEvent = false)
                 helper.fxLog?.d("fxView---onInterceptTouchEvent-[up]")
             }
         }
@@ -266,9 +268,9 @@ class FxManagerView @JvmOverloads constructor(
         }
     }
 
-    private fun touchToPointerUp(event: MotionEvent, performClick: Boolean = true) {
+    private fun touchToPointerUp(event: MotionEvent, isFxSelfEvent: Boolean = true) {
         if (configHelper.isCurrentPointerId(event)) {
-            touchToCancel(performClick)
+            touchToCancel(isFxSelfEvent)
         } else {
             helper.fxLog?.d("fxView---onTouchEvent--ACTION_POINTER_UP---id:${event.pointerId}->")
         }
@@ -283,11 +285,14 @@ class FxManagerView @JvmOverloads constructor(
         }
     }
 
-    private fun touchToCancel(performClick: Boolean = true) {
-        moveToEdge()
+    /**
+     * isFxSelfEvent 事件是否由浮窗处理
+     * */
+    private fun touchToCancel(isFxSelfEvent: Boolean = true) {
         helper.iFxScrollListener?.up()
         configHelper.touchDownId = INVALID_TOUCH_ID
-        if (performClick) {
+        if (isFxSelfEvent) {
+            moveToEdge()
             clickHelper.performClick(this)
         }
         helper.fxLog?.d("fxView---onTouchEvent---MainTouchCancel->")

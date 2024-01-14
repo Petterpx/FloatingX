@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
@@ -23,6 +22,7 @@ import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.impl.FxScrollImpl
 import com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl
 import com.petterp.floatingx.listener.IFxViewLifecycle
+import com.petterp.floatingx.view.FxViewHolder
 
 /** Kotlin-Application */
 class CustomKtApplication : Application() {
@@ -105,7 +105,10 @@ class CustomKtApplication : Application() {
                 })
                 // 增加生命周期监听
                 setViewLifecycle(object : IFxViewLifecycle {
-                    override fun initView(view: View) {
+                    override fun initView(holder: FxViewHolder) {
+                        holder.setOnClickListener(R.id.tvItemFx) {
+                            Toast.makeText(it.context, "子view被点击", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 })
                 // 设置滑动监听
