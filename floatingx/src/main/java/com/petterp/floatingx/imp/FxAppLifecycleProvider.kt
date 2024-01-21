@@ -1,4 +1,4 @@
-package com.petterp.floatingx.impl.lifecycle
+package com.petterp.floatingx.imp
 
 import android.app.Activity
 import android.app.Application
@@ -6,7 +6,7 @@ import android.os.Bundle
 import java.lang.ref.WeakReference
 
 /**
- *
+ * Fx基础Provider提供者
  * @author petterp
  */
 class FxAppLifecycleProvider : Application.ActivityLifecycleCallbacks {

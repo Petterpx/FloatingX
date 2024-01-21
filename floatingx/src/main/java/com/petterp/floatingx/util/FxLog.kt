@@ -8,7 +8,7 @@ import android.util.Log
 class FxLog private constructor(private val enable: Boolean, private val tag: String) {
 
     companion object {
-        private var TAG = "FloatingX"
+        private var TAG = "Fx"
 
         fun builder(enable: Boolean, tag: String) =
             FxLog(enable, "$TAG-$tag")

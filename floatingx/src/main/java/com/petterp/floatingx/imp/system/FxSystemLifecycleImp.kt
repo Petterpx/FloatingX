@@ -1,0 +1,103 @@
+package com.petterp.floatingx.imp.system
+
+import android.app.Activity
+import android.app.Application
+import android.os.Bundle
+import com.petterp.floatingx.assist.helper.FxAppHelper
+import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
+import com.petterp.floatingx.util.FxLog
+
+/**
+ * App-lifecycle 的代理实现，用于处理Fx-System逻辑
+ *
+ * @author petterp
+ */
+class FxSystemLifecycleImp(
+    private val helper: FxAppHelper,
+) : Application.ActivityLifecycleCallbacks {
+
+    internal var provider: FxSystemPlatformProvider? = null
+    private var isNeedAskPermission = true
+    private val insertCls = mutableMapOf<Class<*>, Boolean>()
+
+    private val fxLog: FxLog
+        get() = helper.fxLog
+
+    private val enableFx: Boolean
+        get() = helper.enableFx
+
+    private val appLifecycleCallBack: IFxProxyTagActivityLifecycle?
+        get() = helper.fxLifecycleExpand
+
+    private val Activity.name: String
+        get() = javaClass.name.split(".").last()
+
+    private val Activity.isActivityInValid: Boolean
+        get() {
+            val cls = this.javaClass
+            return insertCls[cls] ?: isInsertActivity(cls)
+        }
+
+    init {
+        isNeedAskPermission = helper.enableFx
+    }
+
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+        if (!enableFx) return
+        if (appLifecycleCallBack != null && activity.isActivityInValid) {
+            appLifecycleCallBack?.onCreated(activity, savedInstanceState)
+        }
+    }
+
+    override fun onActivityStarted(activity: Activity) {
+        if (!enableFx) return
+        helper.fxLifecycleExpand?.onStarted(activity)
+    }
+
+    override fun onActivityResumed(activity: Activity) {
+        if (!enableFx) return
+        checkAskPermission(activity)
+        val activityName = activity.name
+        fxLog.d("fxApp->insert, insert [$activityName] Start ---------->")
+        val isActivityInValid = activity.isActivityInValid
+        if (isActivityInValid) {
+            appLifecycleCallBack?.onResumes(activity)
+        } else {
+            fxLog.d("fxApp->insert, insert [$activityName] Fail ,This activity is not in the list of allowed inserts.")
+            return
+        }
+    }
+
+    private fun checkAskPermission(activity: Activity) {
+        if (isNeedAskPermission) {
+            isNeedAskPermission = false
+            provider?.askPermissionAndShow(activity)
+        }
+    }
+
+    override fun onActivityPaused(activity: Activity) {
+        if (!enableFx) return
+        appLifecycleCallBack?.let {
+            if (activity.isActivityInValid) it.onPaused(activity)
+        }
+    }
+
+    override fun onActivityStopped(activity: Activity) {
+        if (!enableFx) return
+        appLifecycleCallBack?.let {
+            if (activity.isActivityInValid) it.onStopped(activity)
+        }
+    }
+
+    override fun onActivityDestroyed(activity: Activity) {}
+
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+
+    private fun isInsertActivity(cls: Class<*>): Boolean =
+        helper.let {
+            // 条件 允许全局安装&&不在黑名单 || 禁止全局安装&&在白名单
+            val isInsert = it.isCanInstall(cls)
+            insertCls[cls] = isInsert
+            isInsert
+        }
+}

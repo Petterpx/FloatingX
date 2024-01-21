@@ -14,7 +14,7 @@ import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl;
 import com.petterp.floatingx.assist.FxDisplayMode;
 import com.petterp.floatingx.assist.helper.FxAppHelper;
 import com.petterp.floatingx.assist.helper.FxScopeHelper;
-import com.petterp.floatingx.impl.lifecycle.FxProxyTagLifecycleImp;
+import com.petterp.floatingx.imp.FxProxyTagLifecycleImp;
 
 /**
  * java 中的配置示例

@@ -5,7 +5,7 @@ import android.content.ContentProvider
 import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
-import com.petterp.floatingx.impl.lifecycle.FxAppLifecycleProvider
+import com.petterp.floatingx.imp.FxAppLifecycleProvider
 
 /**
  * FxDefaultProvider

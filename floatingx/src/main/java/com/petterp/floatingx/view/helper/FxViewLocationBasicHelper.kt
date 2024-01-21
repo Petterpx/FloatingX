@@ -8,10 +8,10 @@ import com.petterp.floatingx.util.shr
 import com.petterp.floatingx.view.FxBasicContainerView
 
 /**
- * Fx location restore helper，Used to restore the location of the floating window after the screen is rotated
+ * 浮窗坐标的配置助手，用于处理坐标相关的处理
  * @author petterp
  */
-class FxViewLocationHelper : FxBasicViewHelper() {
+class FxViewLocationBasicHelper : FxViewBasicHelper() {
     private var screenChanged: Boolean = false
     private var isInitLocation = true
 
@@ -61,7 +61,7 @@ class FxViewLocationHelper : FxBasicViewHelper() {
         }
         view.updateXY(safeX(defaultX), safeY(defaultY))
         val from = if (hasHistory) "history_location" else "default_location"
-        config.fxLog.d("fxView -> initLocation: x:$defaultX,y:$defaultY,from:$from")
+        config.fxLog.d("fxView -> initLocation: x:$defaultX,y:$defaultY,way:[$from]")
     }
 
     fun getDefaultEdgeXY(): Pair<Float, Float>? {
@@ -92,7 +92,7 @@ class FxViewLocationHelper : FxBasicViewHelper() {
         this.viewW = viewW
         this.viewH = viewH
         updateBoundary()
-        config.fxLog.d("fxView -> updateViewSize: parentW:$parentW,parentH:$parentH,viewW:$viewW,viewH:$viewH")
+        config.fxLog.d("fxView -> updateSize: parentW:$parentW,parentH:$parentH,viewW:$viewW,viewH:$viewH")
     }
 
     fun safeX(x: Float, isMoveIng: Boolean = false): Float {

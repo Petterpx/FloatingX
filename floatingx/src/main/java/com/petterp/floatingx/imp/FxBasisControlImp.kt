@@ -1,4 +1,4 @@
-package com.petterp.floatingx.impl.provider
+package com.petterp.floatingx.imp
 
 import android.view.View
 import androidx.annotation.LayoutRes
@@ -15,7 +15,7 @@ import com.petterp.floatingx.view.IFxInternalView
 /**
  * Fx基础控制器,用于协调各provider的分发
  * */
-abstract class FxBasisControlImpl<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
+abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     protected val helper: F
 ) : IFxControl {
 

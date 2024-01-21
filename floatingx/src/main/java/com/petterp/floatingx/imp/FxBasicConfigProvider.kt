@@ -1,4 +1,4 @@
-package com.petterp.floatingx.impl.provider
+package com.petterp.floatingx.imp
 
 import com.petterp.floatingx.assist.FxAdsorbDirection
 import com.petterp.floatingx.assist.FxAnimation
@@ -67,7 +67,7 @@ class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     }
 
     override fun setScrollListener(listener: IFxScrollListener) {
-        helper.iFxScrollListener = listener
+        helper.iFxTouchListener = listener
     }
 
     override fun setViewLifecycleListener(listener: IFxViewLifecycle) {

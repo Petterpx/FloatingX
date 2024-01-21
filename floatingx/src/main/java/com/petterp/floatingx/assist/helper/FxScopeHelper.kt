@@ -3,7 +3,7 @@ package com.petterp.floatingx.assist.helper
 import android.app.Activity
 import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
-import com.petterp.floatingx.impl.provider.scope.FxScopeControl
+import com.petterp.floatingx.imp.scope.FxScopeControl
 import com.petterp.floatingx.listener.control.IFxScopeControl
 import com.petterp.floatingx.util.FX_INSTALL_SCOPE_ACTIVITY_TAG
 import com.petterp.floatingx.util.FX_INSTALL_SCOPE_FRAGMENT_TAG

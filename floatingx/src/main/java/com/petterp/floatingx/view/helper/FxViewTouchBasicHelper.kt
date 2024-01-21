@@ -3,6 +3,7 @@ package com.petterp.floatingx.view.helper
 import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.ViewConfiguration
+import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.util.INVALID_TOUCH_ID
 import com.petterp.floatingx.util.TOUCH_TIME_THRESHOLD
 import com.petterp.floatingx.util.pointerId
@@ -10,10 +11,10 @@ import com.petterp.floatingx.view.FxBasicContainerView
 import kotlin.math.abs
 
 /**
- * 手势事件辅助类，处理点击事件
+ * 手势事件辅助类，处理各种手势类事件的分发
  * @author petterp
  */
-class FxViewTouchHelper : FxBasicViewHelper() {
+class FxViewTouchBasicHelper : FxViewBasicHelper() {
     private var initX = 0f
     private var initY = 0f
     private var scaledTouchSlop = 0F
@@ -25,9 +26,15 @@ class FxViewTouchHelper : FxBasicViewHelper() {
     @SuppressLint("ClickableViewAccessibility")
     override fun initConfig(parentView: FxBasicContainerView) {
         super.initConfig(parentView)
-        reset()
         scaledTouchSlop = ViewConfiguration.get(parentView.context).scaledTouchSlop.toFloat()
-        parentView.setOnTouchListener { _, event ->
+        reset()
+    }
+
+    // 不通过setTouchListener()方法设置的监听器主要是为外部留口，如果外部需要更强的灵活性，则可以自行实现
+    fun touchEvent(event: MotionEvent, basicView: FxBasicContainerView): Boolean {
+        // 为旧版本做兼容
+        config.iFxTouchListener?.eventIng(event)
+        if (config.displayMode != FxDisplayMode.DisplayOnly) {
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> initTouchDown(event)
                 MotionEvent.ACTION_MOVE -> touchToMove(event)
@@ -35,8 +42,8 @@ class FxViewTouchHelper : FxBasicViewHelper() {
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL,
                 MotionEvent.ACTION_POINTER_UP -> touchCancel(event)
             }
-            false
         }
+        return config.iFxTouchListener?.onTouch(event, basicView) ?: false
     }
 
     fun interceptTouchEvent(event: MotionEvent): Boolean {
@@ -51,6 +58,10 @@ class FxViewTouchHelper : FxBasicViewHelper() {
                 return abs(event.x - initX) >= scaledTouchSlop ||
                     abs(event.y - initY) >= scaledTouchSlop
             }
+
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                interceptEventCancel(event)
+            }
         }
         return false
     }
@@ -60,6 +71,7 @@ class FxViewTouchHelper : FxBasicViewHelper() {
         initClickConfig(event)
         touchDownId = event.pointerId
         basicView?.onTouchDown(event)
+        config.iFxTouchListener?.down()
         config.fxLog.d("fxView -> initDownTouch,mainTouchId:$touchDownId")
     }
 
@@ -87,16 +99,29 @@ class FxViewTouchHelper : FxBasicViewHelper() {
     private fun touchToMove(event: MotionEvent) {
         if (!isCurrentPointerId(event)) return
         checkClickState(event)
+        // 不支持move时return掉
+        if (!config.displayMode.canMove) return
         basicView?.onTouchMove(event)
-        config.fxLog.v("fxView -> touchMove,rawX:${event.rawX},rawY:${event.rawY}")
+        val x = basicView?.currentX() ?: -1f
+        val y = basicView?.currentY() ?: -1f
+        config.iFxTouchListener?.dragIng(event, x, y)
+        config.fxLog.v("fxView -> touchMove,x:$x,y:$y")
     }
 
     private fun touchCancel(event: MotionEvent) {
         if (!isCurrentPointerId(event)) return
         if (config.enableEdgeAdsorption) basicView?.moveToEdge()
         basicView?.onTouchCancel(event)
+        config.iFxTouchListener?.up()
         performClickAction()
         config.fxLog.d("fxView -> mainTouchUp")
+    }
+
+    private fun interceptEventCancel(event: MotionEvent) {
+        if (!isCurrentPointerId(event)) return
+        basicView?.onTouchCancel(event)
+        reset()
+        config.fxLog.d("fxView -> interceptEventCancel")
     }
 
     private fun performClickAction() {

@@ -5,10 +5,10 @@ import com.petterp.floatingx.util.DEFAULT_MOVE_ANIMATOR_DURATION
 import com.petterp.floatingx.util.IFxViewAnimate
 
 /**
- * FxView基础辅助类
+ * Fx动画助手，处理移动等动画
  * @author petterp
  */
-class FxViewAnimationHelper : FxBasicViewHelper() {
+class FxViewAnimationBasicHelper : FxViewBasicHelper() {
     private var valueAnimator: ValueAnimator? = null
     private var animateListener: IFxViewAnimate? = null
     private var startX: Float = 0f
@@ -56,4 +56,3 @@ class FxViewAnimationHelper : FxBasicViewHelper() {
         return currentX
     }
 }
-

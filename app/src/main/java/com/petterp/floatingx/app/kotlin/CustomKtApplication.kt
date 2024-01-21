@@ -20,9 +20,11 @@ import com.petterp.floatingx.app.test.MultipleFxActivity
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.assist.FxScopeType
-import com.petterp.floatingx.impl.lifecycle.FxProxyTagLifecycleImp
+import com.petterp.floatingx.imp.FxProxyTagLifecycleImp
+import com.petterp.floatingx.listener.IFxTouchListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.util.FxScrollImpl
+import com.petterp.floatingx.view.IFxInternalView
 
 /** Kotlin-Application */
 class CustomKtApplication : Application() {
@@ -52,7 +54,7 @@ class CustomKtApplication : Application() {
         fun installTag1(context: Application) {
             FloatingX.install {
                 setContext(context)
-                setSystemScope(FxScopeType.SYSTEM)
+                setSystemScope(FxScopeType.AUTO_SYSTEM)
                 // 设置浮窗展示类型，默认可移动可点击，无需配置
                 setDisplayMode(FxDisplayMode.Normal)
                 setLayout(R.layout.item_floating)
@@ -111,6 +113,12 @@ class CustomKtApplication : Application() {
                 setViewLifecycle(object : IFxViewLifecycle {
                     override fun initView(view: View) {
                     }
+
+                    override fun attach() {
+                    }
+
+                    override fun detached() {
+                    }
                 })
                 // 设置滑动监听
                 setScrollListener(object : FxScrollImpl() {
@@ -137,13 +145,13 @@ class CustomKtApplication : Application() {
                 // 只有调用了enableFx,默认才会启用fx,否则fx不会自动插入activity
                 // ps: 这里的只有调用了enableFx仅仅只是配置工具层的标记,后续使用control.show()也会默认启用
                 enableFx()
-            }.show()
+            }
         }
 
         fun installTag2(context: Application) {
             FloatingX.install {
                 setContext(context)
-                setSystemScope(FxScopeType.APP_ACTIVITY)
+                setSystemScope(FxScopeType.SYSTEM)
                 setGravity(FxGravity.LEFT_OR_BOTTOM)
                 setOffsetXY(10f, 10f)
                 setLayoutView(
@@ -164,8 +172,13 @@ class CustomKtApplication : Application() {
                         )
                     },
                 )
+                setTouchListener(object : IFxTouchListener {
+                    override fun onTouch(event: MotionEvent, control: IFxInternalView?): Boolean {
+                        return false
+                    }
+                })
                 setOnClickListener {
-                    FloatingX.control(MultipleFxActivity.TAG_2).moveByVector(30f, 30f)
+                    Toast.makeText(context, "浮窗2被点击", Toast.LENGTH_SHORT).show()
                 }
                 setTag(MultipleFxActivity.TAG_2)
                 setEnableLog(true)

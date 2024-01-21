@@ -3,8 +3,8 @@ package com.petterp.floatingx
 import android.annotation.SuppressLint
 import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.assist.helper.FxAppHelper
-import com.petterp.floatingx.impl.provider.app.FxAppControlImp
-import com.petterp.floatingx.impl.provider.system.FxSystemControlImp
+import com.petterp.floatingx.imp.app.FxAppControlImp
+import com.petterp.floatingx.imp.system.FxSystemControlImp
 import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.listener.control.IFxConfigControl
 import com.petterp.floatingx.util.FX_APP_DEFAULT_TAG
@@ -37,7 +37,7 @@ object FloatingX {
     @JvmStatic
     fun install(helper: FxAppHelper): IFxAppControl {
         fxs[helper.tag]?.cancel()
-        val fxAppControlImp = if (helper.scope == FxScopeType.SYSTEM) {
+        val fxAppControlImp = if (helper.scope.hasPermission) {
             FxSystemControlImp(helper)
         } else {
             FxAppControlImp(helper)
@@ -100,6 +100,15 @@ object FloatingX {
         return fxs[tag] != null
     }
 
+    /**
+     * 获取浮窗控制器的key合集，之所以这样，是为了尽可能避免 map 操作异常
+     * cancel() 时还包括了动画的调度，故只对外暴漏keys
+     * */
+    @JvmStatic
+    fun getAllControlTags(): List<String> {
+        return fxs.keys.toList()
+    }
+
     /** 卸载所有全局浮窗,后续使用需要重新install */
     @JvmStatic
     fun uninstallAll() {
@@ -111,12 +120,14 @@ object FloatingX {
     }
 
     /**
-     * 获取浮窗控制器的key合集，之所以这样，是为了尽可能避免 map 操作异常
-     * cancel() 时还包括了动画的调度，故只对外暴漏keys
+     * 浮窗内部实现自动降级的方式
      * */
-    @JvmStatic
-    fun getAllControlTags(): List<String> {
-        return fxs.keys.toList()
+    @JvmSynthetic
+    internal fun checkReInstall(helper: FxAppHelper): IFxAppControl? {
+        if (!helper.scope.enableAuto) return null
+        helper.fxLog.e("Fx auto downgrade to app activity scope!")
+        helper.scope = FxScopeType.APP_ACTIVITY
+        return install(helper)
     }
 
     private fun getTagFxControl(tag: String): IFxAppControl {

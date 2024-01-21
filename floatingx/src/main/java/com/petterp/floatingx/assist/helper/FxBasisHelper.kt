@@ -9,7 +9,7 @@ import com.petterp.floatingx.assist.FxBorderMargin
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.listener.IFxConfigStorage
-import com.petterp.floatingx.listener.IFxScrollListener
+import com.petterp.floatingx.listener.IFxTouchListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.util.FxLog
 import kotlin.math.abs
@@ -87,7 +87,7 @@ open class FxBasisHelper {
     internal var enableAssistLocation: Boolean = false
 
     @JvmField
-    internal var iFxScrollListener: IFxScrollListener? = null
+    internal var iFxTouchListener: IFxTouchListener? = null
 
     @JvmField
     internal var iFxViewLifecycle: IFxViewLifecycle? = null
@@ -156,7 +156,7 @@ open class FxBasisHelper {
 
         private var iFxConfigStorage: IFxConfigStorage? = null
         private var iFxViewLifecycle: IFxViewLifecycle? = null
-        private var iFxScrollListener: IFxScrollListener? = null
+        private var iFxTouchListener: IFxTouchListener? = null
         private var ifxClickListener: View.OnClickListener? = null
 
         protected abstract fun buildHelper(): B
@@ -193,7 +193,7 @@ open class FxBasisHelper {
                 enableDebugLog = this@Builder.enableDebugLog
                 fxLogTag = this@Builder.fxLogTag
 
-                iFxScrollListener = this@Builder.iFxScrollListener
+                iFxTouchListener = this@Builder.iFxTouchListener
                 iFxViewLifecycle = this@Builder.iFxViewLifecycle
                 iFxConfigStorage = this@Builder.iFxConfigStorage
                 iFxClickListener = this@Builder.ifxClickListener
@@ -417,13 +417,17 @@ open class FxBasisHelper {
             return this as T
         }
 
+        @Deprecated(replaceWith = ReplaceWith("setTouchListener"), message = "use setTouchListener")
+        fun setScrollListener(listener: IFxTouchListener): T {
+            this.iFxTouchListener = listener
+            return this as T
+        }
+
         /**
          * 设置悬浮窗view-移动监听
-         *
-         * @sample com.petterp.floatingx.impl.FxScrollImpl
          */
-        fun setScrollListener(iFxScrollListener: IFxScrollListener): T {
-            this.iFxScrollListener = iFxScrollListener
+        fun setTouchListener(listener: IFxTouchListener): T {
+            this.iFxTouchListener = listener
             return this as T
         }
 

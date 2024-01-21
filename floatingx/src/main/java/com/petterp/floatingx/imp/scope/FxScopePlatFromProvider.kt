@@ -1,4 +1,4 @@
-package com.petterp.floatingx.impl.provider.scope
+package com.petterp.floatingx.imp.scope
 
 import android.content.Context
 import android.view.View

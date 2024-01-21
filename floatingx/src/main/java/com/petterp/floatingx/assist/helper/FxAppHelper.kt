@@ -16,9 +16,9 @@ import com.petterp.floatingx.util.statusBarHeight
 class FxAppHelper(
     /** 浮窗tag,默认为 [FloatingX.FX_DEFAULT_TAG] */
     @JvmSynthetic
-    internal var tag: String,
+    internal val tag: String,
     @JvmSynthetic
-    internal var context: Application,
+    internal val context: Application,
     /** 黑名单list */
     @JvmSynthetic
     internal val blackFilterList: MutableList<Class<*>>,
@@ -28,8 +28,9 @@ class FxAppHelper(
     /** 是否允许插入全部Activity */
     @JvmSynthetic
     internal val isAllInstall: Boolean,
+
     @JvmSynthetic
-    internal val scope: FxScopeType,
+    internal var scope: FxScopeType,
     /** 显示悬浮窗的Activity生命周期回调 */
     @JvmSynthetic
     internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?

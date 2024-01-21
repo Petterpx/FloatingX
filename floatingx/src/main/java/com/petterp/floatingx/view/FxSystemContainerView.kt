@@ -12,7 +12,7 @@ import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.util.screenHeight
 import com.petterp.floatingx.util.screenWidth
 
-/** 基础悬浮窗View */
+/** 系统悬浮窗View */
 @SuppressLint("ViewConstructor")
 class FxSystemContainerView @JvmOverloads constructor(
     override val helper: FxAppHelper,

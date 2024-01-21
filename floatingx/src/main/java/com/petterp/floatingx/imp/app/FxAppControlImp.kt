@@ -1,21 +1,21 @@
-package com.petterp.floatingx.impl.provider.app
+package com.petterp.floatingx.imp.app
 
 import android.app.Activity
 import android.app.Application
 import android.view.View
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.helper.FxAppHelper
-import com.petterp.floatingx.impl.lifecycle.FxTempAppLifecycleImp
-import com.petterp.floatingx.impl.provider.FxBasisControlImpl
+import com.petterp.floatingx.imp.FxBasisControlImp
 import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.util.decorView
 import com.petterp.floatingx.util.topActivity
 
 /** 全局控制器 */
-class FxAppControlImp(helper: FxAppHelper) : FxBasisControlImpl<FxAppHelper, FxAppPlatformProvider>(helper), IFxAppControl {
+class FxAppControlImp(helper: FxAppHelper) :
+    FxBasisControlImp<FxAppHelper, FxAppPlatformProvider>(helper), IFxAppControl {
 
     override fun createPlatformProvider(f: FxAppHelper) =
-        FxAppPlatformProvider(f, FxTempAppLifecycleImp(f, this))
+        FxAppPlatformProvider(f, FxAppLifecycleImp(f, this))
 
     override fun getBindActivity(): Activity? {
         val groupView = getManagerView()?.parent ?: return null
@@ -47,5 +47,10 @@ class FxAppControlImp(helper: FxAppHelper) : FxBasisControlImpl<FxAppHelper, FxA
         super.reset()
         if (!FloatingX.fxs.containsValue(this)) return
         FloatingX.fxs.remove(helper.tag)
+    }
+
+    override fun move(x: Float, y: Float, useAnimation: Boolean) {
+        // 需要考虑到状态栏的高度
+        super.move(x, y + helper.statsBarHeight, useAnimation)
     }
 }

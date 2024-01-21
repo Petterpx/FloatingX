@@ -7,7 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.helper.FxScopeHelper
-import com.petterp.floatingx.impl.lifecycle.FxAppLifecycleProvider
+import com.petterp.floatingx.imp.FxAppLifecycleProvider
 import java.lang.Exception
 
 internal typealias IFxViewAnimate = (x: Float, y: Float) -> Unit

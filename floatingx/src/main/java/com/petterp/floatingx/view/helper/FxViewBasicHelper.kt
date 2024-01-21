@@ -7,7 +7,7 @@ import com.petterp.floatingx.view.FxBasicContainerView
  * 基础类的辅助助手,用于分发基础逻辑
  * @author petterp
  */
-abstract class FxBasicViewHelper {
+abstract class FxViewBasicHelper {
     protected var basicView: FxBasicContainerView? = null
     protected lateinit var config: FxBasisHelper
 

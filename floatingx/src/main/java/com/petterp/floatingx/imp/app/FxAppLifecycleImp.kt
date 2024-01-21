@@ -1,21 +1,20 @@
-package com.petterp.floatingx.impl.lifecycle
+package com.petterp.floatingx.imp.app
 
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import com.petterp.floatingx.assist.helper.FxAppHelper
-import com.petterp.floatingx.impl.provider.app.FxAppControlImp
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.util.FxLog
 import com.petterp.floatingx.util.decorView
 import com.petterp.floatingx.util.lazyLoad
 
 /**
- * App-lifecycle 的代理实现，用于处理Fx自身逻辑
+ * App-lifecycle 的代理实现，用于处理 Fx-App-Lifecycle 自身逻辑
  *
  * @author petterp
  */
-class FxTempAppLifecycleImp(
+class FxAppLifecycleImp(
     private val helper: FxAppHelper,
     private val appControl: FxAppControlImp
 ) : Application.ActivityLifecycleCallbacks {

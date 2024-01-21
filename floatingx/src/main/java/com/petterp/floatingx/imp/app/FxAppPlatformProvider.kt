@@ -1,4 +1,4 @@
-package com.petterp.floatingx.impl.provider.app
+package com.petterp.floatingx.imp.app
 
 import android.app.Activity
 import android.app.Application
@@ -9,12 +9,10 @@ import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.assist.helper.FxAppHelper
-import com.petterp.floatingx.impl.lifecycle.FxTempAppLifecycleImp
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
 import com.petterp.floatingx.util.decorView
 import com.petterp.floatingx.util.topActivity
 import com.petterp.floatingx.view.FxDefaultContainerView
-import com.petterp.floatingx.view.IFxInternalView
 import java.lang.ref.WeakReference
 
 /**
@@ -23,7 +21,7 @@ import java.lang.ref.WeakReference
  */
 class FxAppPlatformProvider(
     override val helper: FxAppHelper,
-    private val proxyLifecycleImpl: FxTempAppLifecycleImp,
+    private val proxyLifecycleImpl: FxAppLifecycleImp,
 ) : IFxPlatformProvider<FxAppHelper>, Application.ActivityLifecycleCallbacks by proxyLifecycleImpl {
 
     private var isRegisterAppLifecycle = false
@@ -48,7 +46,7 @@ class FxAppPlatformProvider(
 
     override val context: Context
         get() = helper.context
-    override val internalView: IFxInternalView?
+    override val internalView: FxDefaultContainerView?
         get() = _internalView
 
     override fun checkOrInit(): Boolean {
@@ -84,8 +82,6 @@ class FxAppPlatformProvider(
         if (containerGroupView === decorView) return false
         if (ViewCompat.isAttachedToWindow(fxView)) containerGroupView?.removeView(fxView)
         _containerGroup = WeakReference(decorView)
-        helper.fxLog.d("fxView-lifecycle-> onPostAttach")
-        helper.iFxViewLifecycle?.postAttach()
         decorView.addView(fxView)
         return true
     }
@@ -122,7 +118,6 @@ class FxAppPlatformProvider(
     }
 
     private fun detach() {
-        helper.fxLog.d("fxView-lifecycle-> onPostDetach")
         _internalView?.visibility = View.GONE
         containerGroupView?.removeView(_internalView)
     }

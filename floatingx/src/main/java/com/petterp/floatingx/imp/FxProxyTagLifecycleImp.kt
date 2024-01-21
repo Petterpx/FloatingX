@@ -1,4 +1,4 @@
-package com.petterp.floatingx.impl.lifecycle
+package com.petterp.floatingx.imp
 
 import android.app.Activity
 import android.os.Bundle

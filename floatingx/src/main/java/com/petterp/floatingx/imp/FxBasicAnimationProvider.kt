@@ -1,4 +1,4 @@
-package com.petterp.floatingx.impl.provider
+package com.petterp.floatingx.imp
 
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.helper.FxBasisHelper

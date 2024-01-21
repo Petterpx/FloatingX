@@ -9,9 +9,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.INVALID_LAYOUT_ID
-import com.petterp.floatingx.view.helper.FxViewAnimationHelper
-import com.petterp.floatingx.view.helper.FxViewLocationHelper
-import com.petterp.floatingx.view.helper.FxViewTouchHelper
+import com.petterp.floatingx.view.helper.FxViewAnimationBasicHelper
+import com.petterp.floatingx.view.helper.FxViewLocationBasicHelper
+import com.petterp.floatingx.view.helper.FxViewTouchBasicHelper
 
 /**
  * Fx基础容器View
@@ -25,9 +25,9 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     private var isInitLayout = true
     private var _childView: View? = null
     private var _viewHolder: FxViewHolder? = null
-    private val touchHelper = FxViewTouchHelper()
-    private val animateHelper = FxViewAnimationHelper()
-    private val locationHelper = FxViewLocationHelper()
+    private val touchHelper = FxViewTouchBasicHelper()
+    private val animateHelper = FxViewAnimationBasicHelper()
+    private val locationHelper = FxViewLocationBasicHelper()
 
     abstract fun currentX(): Float
     abstract fun currentY(): Float
@@ -56,6 +56,7 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     }
 
     override fun moveLocation(x: Float, y: Float, useAnimation: Boolean) {
+        // 需要考虑状态栏的影响
         moveToXY(x, y, useAnimation)
     }
 
@@ -84,6 +85,25 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         return touchHelper.interceptTouchEvent(event) || super.onInterceptTouchEvent(event)
     }
 
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return touchHelper.touchEvent(event, this) || super.onTouchEvent(event)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        helper.iFxViewLifecycle?.detached()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        helper.iFxViewLifecycle?.attach()
+    }
+
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        helper.iFxViewLifecycle?.windowsVisibility(visibility)
+    }
+
     protected fun safeUpdateXY(x: Float, y: Float) {
         val safeX = locationHelper.safeX(x, true)
         val safeY = locationHelper.safeY(y, true)
@@ -93,6 +113,8 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     protected fun installChildView(): View? {
         _childView = inflateLayoutView() ?: inflateLayoutId()
         if (_childView != null) _viewHolder = FxViewHolder(_childView)
+        _childView?.also { helper.iFxViewLifecycle?.initView(it) }
+        _viewHolder?.also { helper.iFxViewLifecycle?.initView(it) }
         return _childView
     }
 
