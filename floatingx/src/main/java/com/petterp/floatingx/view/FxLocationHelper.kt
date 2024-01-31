@@ -68,7 +68,7 @@ class FxLocationHelper {
 
     /** get location config  */
     fun getLocation(viewConfig: FxViewConfigHelper): Pair<Float, Float> {
-        val newX = getX(viewConfig.minWBoundary, viewConfig.minWBoundary)
+        val newX = getX(viewConfig.minWBoundary, viewConfig.maxWBoundary)
         val newY = getY(viewConfig.minHBoundary, viewConfig.maxHBoundary)
         this.screenChanged = false
         return newX to newY
