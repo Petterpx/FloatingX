@@ -97,7 +97,7 @@ class FxManagerView @JvmOverloads constructor(
     private fun initDefaultXY(): Pair<Float, Float> {
         // 非辅助定位&&非默认位置,此时x,y不可信
         if (!helper.enableAssistLocation && !helper.gravity.isDefault()) {
-            helper.fxLog?.e(
+            helper.fxLog?.d(
                 "fxView--默认坐标可能初始化异常,如果显示位置异常,请检查您的gravity是否为默认配置，当前gravity:${helper.gravity}。\n" +
                     "如果您要配置gravity,建议您启用辅助定位setEnableAssistDirection(),此方法将更便于定位。",
             )
