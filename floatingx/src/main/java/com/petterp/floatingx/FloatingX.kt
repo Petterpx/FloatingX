@@ -14,8 +14,8 @@ import com.petterp.floatingx.listener.control.IFxConfigControl
 @SuppressLint("StaticFieldLeak")
 object FloatingX {
     private const val FX_DEFAULT_INITIAL_CAPACITY = 3
-    private var fxs = HashMap<String, FxAppControlImpl>(FX_DEFAULT_INITIAL_CAPACITY)
     private var fxLifecycleCallback: FxLifecycleCallbackImpl? = null
+    private var fxs = HashMap<String, FxAppControlImpl>(FX_DEFAULT_INITIAL_CAPACITY)
 
     @JvmSynthetic
     internal var context: Application? = null
@@ -116,8 +116,14 @@ object FloatingX {
         }
     }
 
-    @JvmSynthetic
-    internal fun getFxList(): Map<String, FxAppControlImpl> = fxs
+    /**
+     * 获取浮窗控制器的key合集，之所以这样，是为了尽可能避免 map 操作异常
+     * cancel() 时还包括了动画的调度，故只对外暴漏keys
+     * */
+    @JvmStatic
+    fun getAllControlTags(): List<String> {
+        return fxs.keys.toList()
+    }
 
     @JvmSynthetic
     internal fun uninstall(tag: String, control: FxAppControlImpl) {
@@ -140,6 +146,9 @@ object FloatingX {
         fxLifecycleCallback = FxLifecycleCallbackImpl()
         context?.registerActivityLifecycleCallbacks(fxLifecycleCallback)
     }
+
+    @JvmSynthetic
+    internal fun getFxList(): Map<String, FxAppControlImpl> = fxs
 
     private fun getTagFxControl(tag: String): FxAppControlImpl {
         val errorMessage =
