@@ -111,10 +111,12 @@ class FxAppPlatformProvider(
     }
 
     override fun reset() {
+        hide()
         clearWindowsInsetsListener()
         _internalView = null
         _containerGroup?.clear()
         _containerGroup = null
+        helper.context.unregisterActivityLifecycleCallbacks(this)
     }
 
     private fun detach() {
@@ -129,7 +131,7 @@ class FxAppPlatformProvider(
     }
 
     private fun checkRegisterAppLifecycle() {
-        if (!isRegisterAppLifecycle && helper.enableFx && helper.scope == FxScopeType.APP_ACTIVITY) {
+        if (!isRegisterAppLifecycle && helper.enableFx && helper.scope == FxScopeType.APP) {
             isRegisterAppLifecycle = true
             helper.context.unregisterActivityLifecycleCallbacks(this)
             helper.context.registerActivityLifecycleCallbacks(this)

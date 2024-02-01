@@ -6,7 +6,7 @@ import android.content.Context
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
-import com.petterp.floatingx.util.FX_APP_DEFAULT_TAG
+import com.petterp.floatingx.util.FX_DEFAULT_TAG
 import com.petterp.floatingx.util.FX_INSTALL_SCOPE_APP_TAG
 import com.petterp.floatingx.util.FX_INSTALL_SCOPE_SYSTEM_TAG
 import com.petterp.floatingx.util.navigationBarHeight
@@ -65,9 +65,9 @@ class FxAppHelper(
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
         private var isEnableAllInstall: Boolean = true
         private var context: Application? = null
-        private var tag = FX_APP_DEFAULT_TAG
+        private var tag = FX_DEFAULT_TAG
         private var enableFx = false
-        private var scopeEnum: FxScopeType = FxScopeType.APP_ACTIVITY
+        private var scopeEnum: FxScopeType = FxScopeType.APP
 
         /** 设置启用fx */
         fun enableFx(): Builder {

@@ -187,6 +187,7 @@ private fun checkNavigationBarShow(context: Context): Boolean {
     return hasNavigationBar
 }
 
+@SuppressLint("InternalInsetResource")
 private fun getNavigationBarHeightFromSystem(
     screenSize: Int,
     realSize: Int,

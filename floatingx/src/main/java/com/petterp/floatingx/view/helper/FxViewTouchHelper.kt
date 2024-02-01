@@ -14,7 +14,7 @@ import kotlin.math.abs
  * 手势事件辅助类，处理各种手势类事件的分发
  * @author petterp
  */
-class FxViewTouchBasicHelper : FxViewBasicHelper() {
+class FxViewTouchHelper : FxViewBasicHelper() {
     private var initX = 0f
     private var initY = 0f
     private var scaledTouchSlop = 0F

@@ -23,8 +23,8 @@ interface IFxTouchListener {
     /** 实现此方法，可实现类似TouchListener的拦截效果
      * @param event 当前事件
      * @param control 浮窗控制器,便于自行实现一些调度
-     * @return true:自行处理所有事件,包括(移动点击)等，
-     * @return false:未处理，由fx处理所有事件
+     * @return true:拦截当前事件处理，
+     * @return false:未处理,走系统默认事件
      * */
     fun onTouch(event: MotionEvent, control: IFxInternalView?): Boolean = false
 

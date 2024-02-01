@@ -2,23 +2,17 @@ package com.petterp.floatingx.view.helper
 
 import android.animation.ValueAnimator
 import com.petterp.floatingx.util.DEFAULT_MOVE_ANIMATOR_DURATION
-import com.petterp.floatingx.util.IFxViewAnimate
 
 /**
  * Fx动画助手，处理移动等动画
  * @author petterp
  */
-class FxViewAnimationBasicHelper : FxViewBasicHelper() {
+class FxViewAnimationHelper : FxViewBasicHelper() {
     private var valueAnimator: ValueAnimator? = null
-    private var animateListener: IFxViewAnimate? = null
     private var startX: Float = 0f
     private var startY: Float = 0f
     private var endX: Float = 0f
     private var endY: Float = 0f
-
-    fun setListener(iFxViewAnimate: IFxViewAnimate) {
-        this.animateListener = iFxViewAnimate
-    }
 
     fun start(endX: Float, endY: Float) {
         val startX = basicView?.currentX() ?: 0f

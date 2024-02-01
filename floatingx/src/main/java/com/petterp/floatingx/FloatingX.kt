@@ -7,7 +7,7 @@ import com.petterp.floatingx.imp.app.FxAppControlImp
 import com.petterp.floatingx.imp.system.FxSystemControlImp
 import com.petterp.floatingx.listener.control.IFxAppControl
 import com.petterp.floatingx.listener.control.IFxConfigControl
-import com.petterp.floatingx.util.FX_APP_DEFAULT_TAG
+import com.petterp.floatingx.util.FX_DEFAULT_TAG
 
 /** Single Control To Fx */
 @SuppressLint("StaticFieldLeak")
@@ -54,7 +54,7 @@ object FloatingX {
      */
     @JvmStatic
     @JvmOverloads
-    fun control(tag: String = FX_APP_DEFAULT_TAG): IFxAppControl {
+    fun control(tag: String = FX_DEFAULT_TAG): IFxAppControl {
         return getTagFxControl(tag)
     }
 
@@ -65,7 +65,7 @@ object FloatingX {
      */
     @JvmStatic
     @JvmOverloads
-    fun controlOrNull(tag: String = FX_APP_DEFAULT_TAG): IFxAppControl? {
+    fun controlOrNull(tag: String = FX_DEFAULT_TAG): IFxAppControl? {
         return fxs[tag]
     }
 
@@ -76,7 +76,7 @@ object FloatingX {
      */
     @JvmStatic
     @JvmOverloads
-    fun configControl(tag: String = FX_APP_DEFAULT_TAG): IFxConfigControl {
+    fun configControl(tag: String = FX_DEFAULT_TAG): IFxConfigControl {
         return getTagFxControl(tag).configControl
     }
 
@@ -87,7 +87,7 @@ object FloatingX {
      */
     @JvmStatic
     @JvmOverloads
-    fun configControlOrNull(tag: String = FX_APP_DEFAULT_TAG): IFxConfigControl? {
+    fun configControlOrNull(tag: String = FX_DEFAULT_TAG): IFxConfigControl? {
         return fxs[tag]?.configControl
     }
 
@@ -96,7 +96,7 @@ object FloatingX {
      * */
     @JvmStatic
     @JvmOverloads
-    fun isInstalled(tag: String = FX_APP_DEFAULT_TAG): Boolean {
+    fun isInstalled(tag: String = FX_DEFAULT_TAG): Boolean {
         return fxs[tag] != null
     }
 
@@ -107,6 +107,12 @@ object FloatingX {
     @JvmStatic
     fun getAllControlTags(): List<String> {
         return fxs.keys.toList()
+    }
+
+    @JvmSynthetic
+    internal fun uninstall(tag: String, control: IFxAppControl) {
+        if (!fxs.values.contains(control)) return
+        fxs.remove(tag)
     }
 
     /** 卸载所有全局浮窗,后续使用需要重新install */
@@ -124,9 +130,9 @@ object FloatingX {
      * */
     @JvmSynthetic
     internal fun checkReInstall(helper: FxAppHelper): IFxAppControl? {
-        if (!helper.scope.enableAuto) return null
+        if (helper.scope != FxScopeType.SYSTEM_AUTO) return null
         helper.fxLog.e("Fx auto downgrade to app activity scope!")
-        helper.scope = FxScopeType.APP_ACTIVITY
+        helper.scope = FxScopeType.APP
         return install(helper)
     }
 

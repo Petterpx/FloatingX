@@ -1,6 +1,7 @@
 package com.petterp.floatingx.view
 
 import android.content.Context
+import android.content.res.Configuration
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -9,9 +10,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.INVALID_LAYOUT_ID
-import com.petterp.floatingx.view.helper.FxViewAnimationBasicHelper
-import com.petterp.floatingx.view.helper.FxViewLocationBasicHelper
-import com.petterp.floatingx.view.helper.FxViewTouchBasicHelper
+import com.petterp.floatingx.view.helper.FxViewAnimationHelper
+import com.petterp.floatingx.view.helper.FxViewLocationHelper
+import com.petterp.floatingx.view.helper.FxViewTouchHelper
 
 /**
  * Fx基础容器View
@@ -25,9 +26,10 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     private var isInitLayout = true
     private var _childView: View? = null
     private var _viewHolder: FxViewHolder? = null
-    private val touchHelper = FxViewTouchBasicHelper()
-    private val animateHelper = FxViewAnimationBasicHelper()
-    private val locationHelper = FxViewLocationBasicHelper()
+    private val touchHelper = FxViewTouchHelper()
+    private val animateHelper = FxViewAnimationHelper()
+    private val locationHelper = FxViewLocationHelper()
+    private val helpers = listOf(locationHelper, touchHelper, animateHelper)
 
     abstract fun currentX(): Float
     abstract fun currentY(): Float
@@ -38,16 +40,13 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     abstract fun onTouchMove(event: MotionEvent)
     abstract fun onTouchCancel(event: MotionEvent)
     open fun preCheckPointerDownTouch(event: MotionEvent): Boolean = true
-    open fun onLayoutInit() {}
 
     override val childView: View? get() = _childView
     override val containerView: FrameLayout get() = this
     override val viewHolder: FxViewHolder? get() = _viewHolder
 
     open fun initView() {
-        touchHelper.initConfig(this)
-        animateHelper.initConfig(this)
-        locationHelper.initConfig(this)
+        helpers.forEach { it.initConfig(this) }
     }
 
     override fun moveToEdge() {
@@ -66,19 +65,21 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
 
     override fun updateView() {
         helper.fxLog.d("fxView -> updateView")
-        locationHelper.updateLocationStatus()
+        locationHelper.needUpdateLocation()
         removeView(_childView)
         installChildView()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        locationHelper.onSizeChanged()
+        helpers.forEach { it.onSizeChanged(w, h, oldw, oldh) }
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
-        checkOrInitLayout()
+        if (!isInitLayout) return
+        isInitLayout = false
+        helpers.forEach { it.onInit() }
     }
 
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
@@ -89,19 +90,14 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         return touchHelper.touchEvent(event, this) || super.onTouchEvent(event)
     }
 
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        helper.iFxViewLifecycle?.detached()
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        helper.iFxViewLifecycle?.attach()
-    }
-
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
         helper.iFxViewLifecycle?.windowsVisibility(visibility)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig ?: return)
+        helpers.forEach { it.onConfigurationChanged(newConfig) }
     }
 
     protected fun safeUpdateXY(x: Float, y: Float) {
@@ -151,12 +147,5 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         } else {
             updateXY(endX, endY)
         }
-    }
-
-    private fun checkOrInitLayout() {
-        if (!isInitLayout) return
-        isInitLayout = false
-        onLayoutInit()
-        locationHelper.initLayout(this)
     }
 }

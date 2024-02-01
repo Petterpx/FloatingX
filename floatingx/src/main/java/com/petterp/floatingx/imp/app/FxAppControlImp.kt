@@ -45,8 +45,7 @@ class FxAppControlImp(helper: FxAppHelper) :
 
     override fun reset() {
         super.reset()
-        if (!FloatingX.fxs.containsValue(this)) return
-        FloatingX.fxs.remove(helper.tag)
+        FloatingX.uninstall(helper.tag, this)
     }
 
     override fun move(x: Float, y: Float, useAnimation: Boolean) {

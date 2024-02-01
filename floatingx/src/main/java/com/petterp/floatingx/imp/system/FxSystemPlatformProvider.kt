@@ -56,9 +56,9 @@ class FxSystemPlatformProvider(
     }
 
     override fun reset() {
-        val internalView = _internalView ?: return
-        internalView.isVisibility = false
+        hide()
         wm?.removeViewImmediate(internalView)
+        helper.context.unregisterActivityLifecycleCallbacks(this)
         topActivity?.safeRemovePermissionFragment(helper.fxLog)
     }
 

@@ -1,5 +1,6 @@
 package com.petterp.floatingx.view.helper
 
+import android.content.res.Configuration
 import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.view.FxBasicContainerView
 
@@ -15,4 +16,10 @@ abstract class FxViewBasicHelper {
         this.basicView = parentView
         this.config = parentView.helper
     }
+
+    open fun onInit() {}
+
+    open fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {}
+
+    open fun onConfigurationChanged(config: Configuration) {}
 }

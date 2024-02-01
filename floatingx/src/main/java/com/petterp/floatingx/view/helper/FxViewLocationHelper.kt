@@ -1,5 +1,7 @@
 package com.petterp.floatingx.view.helper
 
+import android.content.res.Configuration
+import android.view.View
 import com.petterp.floatingx.assist.FxAdsorbDirection
 import com.petterp.floatingx.assist.FxBoundaryConfig
 import com.petterp.floatingx.assist.FxGravity
@@ -11,15 +13,18 @@ import com.petterp.floatingx.view.FxBasicContainerView
  * 浮窗坐标的配置助手，用于处理坐标相关的处理
  * @author petterp
  */
-class FxViewLocationBasicHelper : FxViewBasicHelper() {
-    private var screenChanged: Boolean = false
-    private var isInitLocation = true
-
-    private var needUpdateLocation = false
+class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
     private var parentW = 0f
     private var parentH = 0f
     private var viewW = 0f
     private var viewH = 0f
+
+    private var screenWidthDp = 0
+    private var screenHeightDp = 0
+    private var restoreLeftStandard = false
+    private var restoreTopStandard = false
+    private var needUpdateLocation: Boolean = false
+    private var orientation = Configuration.ORIENTATION_PORTRAIT
 
     private val moveIngBoundary = FxBoundaryConfig()
     private val moveBoundary = FxBoundaryConfig()
@@ -29,39 +34,61 @@ class FxViewLocationBasicHelper : FxViewBasicHelper() {
     private val y: Float
         get() = basicView?.currentY() ?: 0f
 
-    fun isRestoreLocation() = screenChanged
-
-    fun isInitLocation(): Boolean {
-        if (isInitLocation) {
-            isInitLocation = false
-            return true
-        }
-        return false
-    }
-
-    fun updateLocationStatus() {
-        needUpdateLocation = true
-    }
-
-    fun onSizeChanged() {
-        updateViewSize()
-        if (needUpdateLocation) {
-            basicView?.moveToEdge()
-            needUpdateLocation = false
-            config.fxLog.d("fxView -> updateLocation")
+    override fun initConfig(parentView: FxBasicContainerView) {
+        super.initConfig(parentView)
+        parentView.addOnLayoutChangeListener(this)
+        parentView.resources.configuration.apply {
+            this@FxViewLocationHelper.orientation = orientation
+            this@FxViewLocationHelper.screenWidthDp = screenWidthDp
+            this@FxViewLocationHelper.screenHeightDp = screenHeightDp
         }
     }
 
-    fun initLayout(view: FxBasicContainerView) {
+    override fun onInit() {
         val hasHistory = config.enableSaveDirection && config.iFxConfigStorage?.hasConfig() == true
         val (defaultX, defaultY) = if (hasHistory) {
             getHistoryXY()
         } else {
             getDefaultXY(parentW, parentH, viewW, viewH)
         }
-        view.updateXY(safeX(defaultX), safeY(defaultY))
+        basicView?.updateXY(safeX(defaultX), safeY(defaultY))
         val from = if (hasHistory) "history_location" else "default_location"
         config.fxLog.d("fxView -> initLocation: x:$defaultX,y:$defaultY,way:[$from]")
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {
+        updateViewSize()
+        checkOrRestoreLocation()
+    }
+
+    override fun onConfigurationChanged(config: Configuration) {
+        if (config.orientation != orientation || config.screenWidthDp != screenWidthDp || config.screenHeightDp != screenHeightDp) {
+            orientation = config.orientation
+            screenWidthDp = config.screenWidthDp
+            screenHeightDp = config.screenHeightDp
+            restoreLeftStandard = isNearestLeft(x)
+            restoreTopStandard = isNearestTop(y)
+            this.needUpdateLocation = true
+            this.config.fxLog.d("fxView -> onConfigurationChanged:[screenChanged:${this.needUpdateLocation}]")
+        }
+    }
+
+    override fun onLayoutChange(
+        v: View?,
+        left: Int,
+        top: Int,
+        right: Int,
+        bottom: Int,
+        oldLeft: Int,
+        oldTop: Int,
+        oldRight: Int,
+        oldBottom: Int
+    ) {
+        checkOrRestoreLocation()
+    }
+
+    fun needUpdateLocation() {
+        this.needUpdateLocation = true
     }
 
     fun getDefaultEdgeXY(): Pair<Float, Float>? {
@@ -82,20 +109,8 @@ class FxViewLocationBasicHelper : FxViewBasicHelper() {
         }
     }
 
-    private fun updateViewSize() {
-        val view = basicView ?: return
-        val (pW, pH) = view.parentSize() ?: return
-        val viewH = view.height.toFloat()
-        val viewW = view.width.toFloat()
-        this.parentW = pW.toFloat()
-        this.parentH = pH.toFloat()
-        this.viewW = viewW
-        this.viewH = viewH
-        updateBoundary()
-        config.fxLog.d("fxView -> updateSize: parentW:$parentW,parentH:$parentH,viewW:$viewW,viewH:$viewH")
-    }
-
     fun safeX(x: Float, isMoveIng: Boolean = false): Float {
+        // 是否考虑边界
         val enableBound = isMoveIng && config.enableEdgeRebound
         val minW = if (enableBound) moveIngBoundary.minW else moveBoundary.minW
         val maxW = if (enableBound) moveIngBoundary.maxW else moveBoundary.maxW
@@ -113,6 +128,19 @@ class FxViewLocationBasicHelper : FxViewBasicHelper() {
         if (config.iFxConfigStorage == null || !config.enableSaveDirection) return
         config.iFxConfigStorage!!.update(x, y)
         config.fxLog.d("saveLocation -> x:$x,y:$y")
+    }
+
+    private fun updateViewSize() {
+        val view = basicView ?: return
+        val (pW, pH) = view.parentSize() ?: return
+        val viewH = view.height.toFloat()
+        val viewW = view.width.toFloat()
+        this.parentW = pW.toFloat()
+        this.parentH = pH.toFloat()
+        this.viewW = viewW
+        this.viewH = viewH
+        updateBoundary()
+        config.fxLog.d("fxView -> updateSize: parentW:$parentW,parentH:$parentH,viewW:$viewW,viewH:$viewH")
     }
 
     private fun isNearestLeft(x: Float): Boolean {
@@ -185,5 +213,25 @@ class FxViewLocationBasicHelper : FxViewBasicHelper() {
                 maxH -= fxBorderMargin.b + edgeOffset
             }
         }
+    }
+
+    private fun checkOrRestoreLocation() {
+        if (!needUpdateLocation) return
+        config.fxLog.d("fxView -> restoreLocation,start")
+        updateViewSize()
+        val restoreX: Float
+        val restoreY: Float
+        if (config.enableEdgeAdsorption) {
+            restoreX = if (restoreLeftStandard) moveBoundary.minW else moveBoundary.maxW
+            restoreY = if (restoreTopStandard) moveBoundary.minH else moveBoundary.maxH
+        } else {
+            restoreX = safeX(x)
+            restoreY = safeY(y)
+        }
+        restoreLeftStandard = false
+        restoreTopStandard = false
+        needUpdateLocation = false
+        basicView?.moveLocation(restoreX, restoreY, false)
+        config.fxLog.d("fxView -> restoreLocation,success")
     }
 }

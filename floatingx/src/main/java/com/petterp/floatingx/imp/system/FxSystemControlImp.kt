@@ -1,6 +1,7 @@
 package com.petterp.floatingx.imp.system
 
 import android.app.Activity
+import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.imp.FxBasisControlImp
 import com.petterp.floatingx.listener.control.IFxAppControl
@@ -16,5 +17,10 @@ class FxSystemControlImp(helper: FxAppHelper) :
 
     override fun getBindActivity(): Activity? {
         return null
+    }
+
+    override fun reset() {
+        super.reset()
+        FloatingX.uninstall(helper.tag, this)
     }
 }

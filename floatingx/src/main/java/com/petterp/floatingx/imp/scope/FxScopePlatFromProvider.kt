@@ -5,8 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.petterp.floatingx.assist.helper.FxScopeHelper
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
-import com.petterp.floatingx.view.IFxInternalView
 import com.petterp.floatingx.view.FxDefaultContainerView
+import com.petterp.floatingx.view.IFxInternalView
 import java.lang.ref.WeakReference
 
 /**
