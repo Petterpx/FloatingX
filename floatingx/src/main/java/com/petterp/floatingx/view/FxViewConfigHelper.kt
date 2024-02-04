@@ -91,14 +91,42 @@ class FxViewConfigHelper {
     fun getAdsorbDirectionLocation(x: Float, y: Float): Pair<Float, Float>? {
         // 允许边缘吸附
         return if (helper.enableEdgeAdsorption) {
-            if (helper.adsorbDirection == FxAdsorbDirection.LEFT_OR_RIGHT) {
-                val moveX = if (isNearestLeft(x)) minWBoundary else maxWBoundary
-                val moveY = safeY(y)
-                moveX to moveY
-            } else {
-                val moveX = safeX(x)
-                val moveY = if (isNearestTop(y)) minHBoundary else maxHBoundary
-                moveX to moveY
+            when (helper.adsorbDirection) {
+                FxAdsorbDirection.TOP_OR_BOTTOM -> {
+                    val moveX = safeX(x)
+                    val moveY = if (isNearestTop(y)) minHBoundary else maxHBoundary
+                    moveX to moveY
+                }
+
+                FxAdsorbDirection.TOP -> {
+                    val moveX = safeX(x)
+                    val moveY = minHBoundary
+                    moveX to moveY
+                }
+
+                FxAdsorbDirection.BOTTOM -> {
+                    val moveX = safeX(x)
+                    val moveY = maxHBoundary
+                    moveX to moveY
+                }
+
+                FxAdsorbDirection.LEFT_OR_RIGHT -> {
+                    val moveX = if (isNearestLeft(x)) minWBoundary else maxWBoundary
+                    val moveY = safeY(y)
+                    moveX to moveY
+                }
+
+                FxAdsorbDirection.LEFT -> {
+                    val moveX = minWBoundary
+                    val moveY = safeY(y)
+                    moveX to moveY
+                }
+
+                FxAdsorbDirection.RIGHT -> {
+                    val moveX = maxWBoundary
+                    val moveY = safeY(y)
+                    moveX to moveY
+                }
             }
         } else if (helper.enableEdgeRebound) {
             safeX(x) to safeY(y)
