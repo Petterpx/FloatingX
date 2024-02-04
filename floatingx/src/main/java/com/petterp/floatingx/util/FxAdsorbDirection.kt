@@ -6,5 +6,9 @@ package com.petterp.floatingx.util
  */
 enum class FxAdsorbDirection {
     TOP_OR_BOTTOM,
-    LEFT_OR_RIGHT
+    TOP,
+    BOTTOM,
+    LEFT_OR_RIGHT,
+    LEFT,
+    RIGHT
 }
