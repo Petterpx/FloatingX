@@ -47,6 +47,8 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     }
 
     fun interceptTouchEvent(event: MotionEvent): Boolean {
+        // 仅展示时，不拦截事件
+        if (config.displayMode == FxDisplayMode.DisplayOnly) return false
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 if (hasMainPointerId()) return false
@@ -55,16 +57,19 @@ class FxViewTouchHelper : FxViewBasicHelper() {
 
             MotionEvent.ACTION_MOVE -> {
                 if (!isCurrentPointerId(event)) return false
-                return abs(event.x - initX) >= scaledTouchSlop ||
-                    abs(event.y - initY) >= scaledTouchSlop
+                return config.displayMode.canMove && canInterceptEvent(event)
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                interceptEventCancel(event)
+                touchCancel(event)
+                config.fxLog.d("fxView -> interceptEventCancel")
             }
         }
         return false
     }
+
+    private fun canInterceptEvent(event: MotionEvent) =
+        abs(event.x - initX) >= scaledTouchSlop || abs(event.y - initY) >= scaledTouchSlop
 
     private fun initTouchDown(event: MotionEvent) {
         if (hasMainPointerId()) return
@@ -110,18 +115,11 @@ class FxViewTouchHelper : FxViewBasicHelper() {
 
     private fun touchCancel(event: MotionEvent) {
         if (!isCurrentPointerId(event)) return
-        if (config.enableEdgeAdsorption) basicView?.moveToEdge()
+        if (config.enableEdgeAdsorption && config.displayMode.canMove) basicView?.moveToEdge()
         basicView?.onTouchCancel(event)
         config.iFxTouchListener?.up()
         performClickAction()
         config.fxLog.d("fxView -> mainTouchUp")
-    }
-
-    private fun interceptEventCancel(event: MotionEvent) {
-        if (!isCurrentPointerId(event)) return
-        basicView?.onTouchCancel(event)
-        reset()
-        config.fxLog.d("fxView -> interceptEventCancel")
     }
 
     private fun performClickAction() {
