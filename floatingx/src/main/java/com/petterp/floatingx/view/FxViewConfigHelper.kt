@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.view.ViewGroup
+import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.helper.BasisHelper
 import com.petterp.floatingx.util.FxAdsorbDirection
 import com.petterp.floatingx.util.INVALID_TOUCH_ID
@@ -84,8 +85,10 @@ class FxViewConfigHelper {
 
     fun checkInterceptedEvent(event: MotionEvent): Boolean {
         if (!isCurrentPointerId(event)) return false
-        return kotlin.math.abs(event.x - downTouchX) >= scaledTouchSlop ||
-            kotlin.math.abs(event.y - downTouchY) >= scaledTouchSlop
+        return (helper.displayMode == FxDisplayMode.Normal) && (
+            kotlin.math.abs(event.x - downTouchX) >= scaledTouchSlop ||
+                kotlin.math.abs(event.y - downTouchY) >= scaledTouchSlop
+            )
     }
 
     fun getAdsorbDirectionLocation(x: Float, y: Float): Pair<Float, Float>? {

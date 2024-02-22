@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +15,7 @@ import com.petterp.floatingx.app.addItemView
 import com.petterp.floatingx.app.addLinearLayout
 import com.petterp.floatingx.app.addNestedScrollView
 import com.petterp.floatingx.app.createLinearLayoutToParent
+import com.petterp.floatingx.assist.FxDisplayMode
 
 /**
  *
@@ -31,6 +33,11 @@ class SimpleRvActivity : AppCompatActivity() {
                             FloatingX.install {
                                 setContext(applicationContext)
                                 setLayoutView(createRvView(applicationContext))
+                                setDisplayMode(FxDisplayMode.ClickOnly)
+                                setEnableLog(true)
+                                this.setOnClickListener {
+                                    Toast.makeText(it.context, "123", Toast.LENGTH_SHORT).show()
+                                }
                                 setTag(TAG)
                                 enableFx()
                             }
@@ -68,13 +75,12 @@ class SimpleRvActivity : AppCompatActivity() {
             RecyclerView(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
                 setBackgroundColor(Color.GREEN)
                 adapter = customAdapter
                 layoutManager = LinearLayoutManager(context)
             }
-
     }
 }
 

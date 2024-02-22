@@ -18,13 +18,16 @@ class FxClickHelper {
     private var mLastTouchDownTime = 0L
     private lateinit var helper: BasisHelper
 
+    private val canClick: Boolean
+        get() = helper.enableClickListener && helper.iFxClickListener != null
+
     fun initConfig(helper: BasisHelper) {
         reset()
         this.helper = helper
     }
 
     fun initDown(x: Float, y: Float) {
-        if (!helper.enableClickListener || helper.iFxClickListener == null) return
+        if (!canClick) return
         this.initX = x
         this.initY = y
         isClickEvent = true

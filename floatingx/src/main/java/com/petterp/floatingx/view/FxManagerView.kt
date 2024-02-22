@@ -117,6 +117,7 @@ class FxManagerView @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        if (helper.displayMode == FxDisplayMode.DisplayOnly) return false
         var intercepted = false
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
