@@ -37,9 +37,6 @@ public class CustomJavaApplication extends Application {
                 //3. 允许插入Activity的页面, setEnableAllBlackClass(false)时,此方法生效
 //                .addInstallWhiteClass(MainActivity.class, ScopeActivity.class)
 
-                // 启用辅助方向
-                .setEnableAssistDirection(0f, 0f, 0f, 100f)
-
                 // 设置启用边缘吸附
                 .setEnableEdgeAdsorption(true)
                 // 设置边缘偏移量
@@ -78,7 +75,7 @@ public class CustomJavaApplication extends Application {
                 // 启用悬浮窗,相当于一个标记,会自动插入允许的activity中
                 .enableFx()
                 .build();
-        FloatingX.install(helper);
+        FloatingX.install(helper).show();
     }
 
     /**

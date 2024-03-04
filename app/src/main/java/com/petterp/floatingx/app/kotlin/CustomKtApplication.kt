@@ -1,6 +1,7 @@
 package com.petterp.floatingx.app.kotlin
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.Application
 import android.graphics.Color
 import android.os.Bundle
@@ -14,9 +15,10 @@ import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.*
 import com.petterp.floatingx.app.simple.FxAnimationImpl
-import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.app.test.BlackActivity
+import com.petterp.floatingx.app.test.ImmersedActivity
 import com.petterp.floatingx.app.test.MultipleFxActivity
+import com.petterp.floatingx.app.test.ScopeActivity
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.assist.FxScopeType
@@ -46,7 +48,7 @@ class CustomKtApplication : Application() {
 //        }
 
         installTag1(this)
-//        installTag2(this)
+        installTag2(this)
     }
 
     companion object {
@@ -54,24 +56,43 @@ class CustomKtApplication : Application() {
         fun installTag1(context: Application) {
             FloatingX.install {
                 setContext(context)
-                setSystemScope(FxScopeType.SYSTEM_AUTO)
+                setSystemScope(FxScopeType.APP)
                 // 设置浮窗展示类型，默认可移动可点击，无需配置
                 setDisplayMode(FxDisplayMode.Normal)
                 setLayout(R.layout.item_floating)
-                // 传递自定义的View
-//            setLayoutView(
-//                TextView(applicationContext).apply {
-//                    text = "App"
-//                    textSize = 15f
-//                    setBackgroundColor(Color.GRAY)
-//                    setPadding(10, 10, 10, 10)
-//                }
-//            )
-
+                // 设置权限拦截器
+                setPermissionAskInterceptor { activity, controller ->
+                    AlertDialog.Builder(activity).setTitle("提示").setMessage("需要允许悬浮窗权限")
+                        .setPositiveButton("去开启") { _, _ ->
+                            Toast.makeText(
+                                activity.applicationContext,
+                                "去申请权限中~",
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                            controller.requestPermission(
+                                activity,
+                                isAutoShow = true,
+                                canUseAppScope = true,
+                            ) {
+                                Toast.makeText(
+                                    activity.applicationContext,
+                                    "申请权限结果: $it",
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            }
+                        }.setNegativeButton("取消") { _, _ ->
+                            Toast.makeText(
+                                activity.applicationContext,
+                                "降级为App浮窗~",
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                            controller.downgradeToAppScope()
+                        }.show()
+                }
                 // 设置悬浮窗默认方向
-                setGravity(FxGravity.RIGHT_OR_TOP)
-                // 启用辅助方向,具体参加方法注释
-                setEnableAssistDirection(r = 100f, t = 100f)
+                setGravity(FxGravity.TOP_OR_CENTER)
+                // 设置偏移位置
+                setOffsetXY(100f, 100f)
                 // 设置启用边缘吸附,默认启用
                 setEnableEdgeAdsorption(true)
                 // 设置边缘偏移量
@@ -79,7 +100,7 @@ class CustomKtApplication : Application() {
                 // 设置启用悬浮窗可屏幕外回弹
                 setEnableScrollOutsideScreen(true)
                 // 开启历史位置缓存
-                setSaveDirectionImpl(FxConfigStorageToSpImpl(context))
+//                setSaveDirectionImpl(FxConfigStorageToSpImpl(context))
                 // 设置启用动画
                 setEnableAnimation(true)
                 // 设置启用动画实现
@@ -93,12 +114,11 @@ class CustomKtApplication : Application() {
                 // 2.禁止插入Activity的页面, setEnableAllBlackClass(true)时,此方法生效
                 addInstallBlackClass(BlackActivity::class.java)
                 // 3.允许插入Activity的页面, setEnableAllBlackClass(false)时,此方法生效
-//            addInstallWhiteClass(
-//                MainActivity::class.java,
-//                ImmersedActivity::class.java,
-//                ScopeActivity::class.java
-//            )
-
+                addInstallWhiteClass(
+                    MainActivity::class.java,
+                    ImmersedActivity::class.java,
+                    ScopeActivity::class.java,
+                )
                 // 设置点击事件
                 setOnClickListener {
                     Toast.makeText(context, "浮窗被点击", Toast.LENGTH_SHORT).show()
@@ -121,7 +141,7 @@ class CustomKtApplication : Application() {
                     }
                 })
                 // 设置滑动监听
-                setScrollListener(object : FxScrollImpl() {
+                setTouchListener(object : FxScrollImpl() {
                     override fun down() {
                         // 按下
                     }
@@ -142,16 +162,13 @@ class CustomKtApplication : Application() {
                 setEnableLog(BuildConfig.DEBUG)
                 // 设置浮窗tag
                 setTag(MultipleFxActivity.TAG_1)
-                // 只有调用了enableFx,默认才会启用fx,否则fx不会自动插入activity
-                // ps: 这里的只有调用了enableFx仅仅只是配置工具层的标记,后续使用control.show()也会默认启用
-                enableFx()
-            }
+            }.show()
         }
 
         fun installTag2(context: Application) {
             FloatingX.install {
                 setContext(context)
-                setSystemScope(FxScopeType.APP)
+                setSystemScope(FxScopeType.SYSTEM_AUTO)
                 setGravity(FxGravity.LEFT_OR_BOTTOM)
                 setOffsetXY(10f, 10f)
                 setLayoutView(
@@ -184,8 +201,7 @@ class CustomKtApplication : Application() {
                 setEnableLog(true)
                 setEdgeOffset(20f)
                 setEnableEdgeAdsorption(false)
-                enableFx()
-            }
+            }.show()
         }
     }
 }

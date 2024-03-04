@@ -44,7 +44,11 @@ class MainActivity : AppCompatActivity() {
                             updateViewContent { holder ->
                                 val tv = holder.getViewOrNull<TextView>(R.id.tvItemFx)
                                 tv?.setOnClickListener {
-                                    Toast.makeText(this@MainActivity, "文字被点击", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        "文字被点击",
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
                                 }
                             }
                         }.show()

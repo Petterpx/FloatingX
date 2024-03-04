@@ -31,6 +31,7 @@ class SimpleRvActivity : AppCompatActivity() {
                     addItemView("显示浮窗") {
                         if (!FloatingX.isInstalled(TAG)) {
                             FloatingX.install {
+                                setTag(TAG)
                                 setContext(applicationContext)
                                 setLayoutView(createRvView(applicationContext))
                                 setDisplayMode(FxDisplayMode.ClickOnly)
@@ -38,13 +39,9 @@ class SimpleRvActivity : AppCompatActivity() {
                                 this.setOnClickListener {
                                     Toast.makeText(it.context, "123", Toast.LENGTH_SHORT).show()
                                 }
-                                setTag(TAG)
-                                enableFx()
-                            }
+                            }.show()
                         }
-                        FloatingX.controlOrNull(TAG)?.apply {
-                            if (!isShow()) show()
-                        }
+                        FloatingX.controlOrNull(TAG)?.show()
                     }
                     addItemView("隐藏浮窗") {
                         FloatingX.controlOrNull(TAG)?.hide()
