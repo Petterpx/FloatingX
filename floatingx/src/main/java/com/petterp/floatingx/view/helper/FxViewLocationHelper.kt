@@ -46,14 +46,19 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
 
     override fun onInit() {
         val hasHistory = config.enableSaveDirection && config.iFxConfigStorage?.hasConfig() == true
+        val locationFrom: String
         val (defaultX, defaultY) = if (hasHistory) {
+            locationFrom = "history_location"
             getHistoryXY()
+        } else if (config.hasDefaultXY) {
+            locationFrom = "user_init_location"
+            config.defaultX to config.defaultY
         } else {
+            locationFrom = "default_location"
             getDefaultXY(parentW, parentH, viewW, viewH)
         }
         basicView?.updateXY(safeX(defaultX), safeY(defaultY))
-        val from = if (hasHistory) "history_location" else "default_location"
-        config.fxLog.d("fxView -> initLocation: x:$defaultX,y:$defaultY,way:[$from]")
+        config.fxLog.d("fxView -> initLocation: x:$defaultX,y:$defaultY,way:[$locationFrom]")
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {
@@ -168,35 +173,40 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         viewH: Float
     ): Pair<Float, Float> {
         return config.run {
-            val offX = offsetX + safeEdgeOffSet
-            val offY = offsetY + safeEdgeOffSet
             // 为历史方法做兼容
-            val l = offX + fxBorderMargin.l + (assistLocation?.l ?: offsetX)
-            val r = offX + fxBorderMargin.r + (assistLocation?.r ?: offsetX)
-            val b = offY + fxBorderMargin.b + (assistLocation?.b ?: offsetY)
-            val t = offY + fxBorderMargin.t + (assistLocation?.t ?: offsetY)
+            val l = fxBorderMargin.l + safeEdgeOffSet
+            val r = fxBorderMargin.r + safeEdgeOffSet
+            val b = fxBorderMargin.b + safeEdgeOffSet
+            val t = fxBorderMargin.t + safeEdgeOffSet
             when (gravity) {
                 FxGravity.DEFAULT,
                 FxGravity.LEFT_OR_TOP -> l to t
 
-                FxGravity.LEFT_OR_CENTER -> l to (height - viewH).shr(1)
+                FxGravity.LEFT_OR_CENTER -> l to (height - viewH).shr(2)
 
                 FxGravity.LEFT_OR_BOTTOM -> 0f to height - viewH - b
 
                 FxGravity.RIGHT_OR_TOP -> width - viewW - r to t
 
-                FxGravity.RIGHT_OR_CENTER -> width - viewW - r to (height - viewH).shr(1)
+                FxGravity.RIGHT_OR_CENTER -> width - viewW - r to (height - viewH).shr(2)
 
                 FxGravity.RIGHT_OR_BOTTOM -> width - viewW - r to height - viewH - b
 
-                FxGravity.TOP_OR_CENTER -> (width - viewW).shr(1) to t
+                FxGravity.TOP_OR_CENTER -> (width - viewW).shr(2) to t
 
-                FxGravity.BOTTOM_OR_CENTER -> (width - viewW).shr(1) to height - viewH - b
+                FxGravity.BOTTOM_OR_CENTER -> (width - viewW).shr(2) to height - viewH - b
 
-                else -> (width - viewW).shr(1) to (height - viewH).shr(1)
-            }
+                else -> (width - viewW).shr(2) to (height - viewH).shr(2)
+            }.safeLocationXY
         }
     }
+
+    private val Pair<Float, Float>.safeLocationXY: Pair<Float, Float>
+        get() {
+            val offX = config.offsetX
+            val offY = config.offsetY
+            return first + offX to second + offY
+        }
 
     private fun updateBoundary() {
         config.apply {

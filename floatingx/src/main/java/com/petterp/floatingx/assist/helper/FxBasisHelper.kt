@@ -132,6 +132,9 @@ open class FxBasisHelper {
     val safeEdgeOffSet: Float
         get() = if (enableEdgeRebound) edgeOffset else 0F
 
+    internal val hasDefaultXY: Boolean
+        get() = defaultX != 0f || defaultY != 0f
+
     abstract class Builder<T, B : FxBasisHelper> {
         @LayoutRes
         private var layoutId: Int = 0
@@ -359,35 +362,10 @@ open class FxBasisHelper {
          * 调用此方法,将忽视传递的(x,y)。 浮窗的坐标将根据 传递进来的 [gravity] + 此方法传入的偏移量
          * 计算，而非直接坐标。 这样的好处是,你不用去关注具体浮窗坐标应该是什么，而是可以依靠参照物的方式摆放。
          * 比如默认你的浮窗在右下角，但是想增加一点在右侧偏移，此时就可以依靠此方法，将浮窗位置设置在右下角，然后增加相应方向的偏移量即可。
-         *
-         * @param t 设置可移动范围内的相对屏幕顶部偏移量 App级别时
-         *     不包含状态栏,框架会自行计算高度并减去,即顶部偏移量最终=topMargin+框架计算好的状态栏+moveEdg。
-         *     需要注意,当悬浮窗插入到普通view时,框架不会考虑状态栏
-         * @param b 设置可移动范围内的相对屏幕底部偏移量,不包含导航栏,框架会自行计算高度并减去
-         *     即底部偏移量最终=屏幕高度-bottomMargin-框架计算好的导航栏-moveEdge。
-         *     需要注意,当悬浮窗插入到普通View时，框架不会考虑底部导航栏
-         * @param l 设置可移动范围内相对父容器右侧偏移量
-         * @param r 设置可移动范围内相对父容器左侧偏移量
-         */
-        @Deprecated("use setOffsetXY", replaceWith = ReplaceWith("setOffsetXY(t,b)"))
-        fun setEnableAssistDirection(
-            t: Float = 0f,
-            b: Float = 0f,
-            l: Float = 0f,
-            r: Float = 0f,
-        ): T {
-            assistLocation = FxBorderMargin(t, l, b, r)
-            return this as T
-        }
-
-        /**
-         * 调用此方法,将忽视传递的(x,y)。 浮窗的坐标将根据 传递进来的 [gravity] + 此方法传入的偏移量
-         * 计算，而非直接坐标。 这样的好处是,你不用去关注具体浮窗坐标应该是什么，而是可以依靠参照物的方式摆放。
-         * 比如默认你的浮窗在右下角，但是想增加一点在右侧偏移，此时就可以依靠此方法，将浮窗位置设置在右下角，然后增加相应方向的偏移量即可。
          */
         fun setOffsetXY(x: Float, y: Float) {
-            this.offsetX = abs(x)
-            this.offsetY = abs(y)
+            this.offsetX = x
+            this.offsetY = y
         }
 
         /** 设置是否启用动画 */
