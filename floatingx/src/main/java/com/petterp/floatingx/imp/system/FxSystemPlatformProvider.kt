@@ -121,7 +121,7 @@ class FxSystemPlatformProvider(
 
     internal fun safeShowOrHide(visible: Boolean) {
         if (visible) {
-            if (!isShow()) return
+            if (isShow()) return
             show()
         } else {
             hide()
