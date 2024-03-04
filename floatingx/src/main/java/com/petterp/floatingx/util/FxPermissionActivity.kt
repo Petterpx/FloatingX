@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -16,92 +15,12 @@ import androidx.fragment.app.FragmentActivity
 private const val FX_RESULT_CODE = 5001
 private const val FX_FRAGMENT_TAG = "FxPermissionFragment"
 
-/**
- *
- * @author petterp
- */
-@RequiresApi(Build.VERSION_CODES.M)
-internal class FxPermissionFragment : Fragment(0), IFxPermissionControl {
-    private var actions = mutableMapOf<String, ResultAction>()
-    private var isRequestLoading = false
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        retainInstance = true
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode != FX_RESULT_CODE) return
-        kotlin.runCatching {
-            isRequestLoading = false
-            val isAgree = Settings.canDrawOverlays(activity)
-            actions.forEach {
-                it.value.invoke(isAgree)
-            }
-        }
-    }
-
-    override fun requestPermission(key: String, agreeAction: ResultAction) {
-        actions[key] = agreeAction
-        if (isRequestLoading) return
-        kotlin.runCatching {
-            val uri = Uri.parse("package:${context?.packageName ?: return}")
-            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, uri)
-            startActivityForResult(intent, FX_RESULT_CODE)
-            isRequestLoading = true
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        actions.clear()
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.M)
-internal class FxPermissionSupportFragment : android.app.Fragment(), IFxPermissionControl {
-    private var actions = mutableMapOf<String, ResultAction>()
-    private var isRequestLoading = false
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        retainInstance = true
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode != FX_RESULT_CODE) return
-        kotlin.runCatching {
-            isRequestLoading = false
-            val isAgree = Settings.canDrawOverlays(activity)
-            actions.forEach {
-                it.value.invoke(isAgree)
-            }
-        }
-    }
-
-    override fun requestPermission(key: String, agreeAction: ResultAction) {
-        actions[key] = agreeAction
-        if (isRequestLoading) return
-        kotlin.runCatching {
-            val uri = Uri.parse("package:${context?.packageName ?: return}")
-            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, uri)
-            startActivityForResult(intent, FX_RESULT_CODE)
-            isRequestLoading = true
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        actions.clear()
-    }
-}
-
 internal typealias ResultAction = (agree: Boolean) -> Unit
 
 interface IFxPermissionControl {
-    fun requestPermission(key: String, agreeAction: ResultAction)
+    fun requestPermission(key: String, agreeAction: ResultAction?)
+
+    fun clear()
 }
 
 internal val Activity.permissionControl: IFxPermissionControl?
@@ -140,7 +59,6 @@ internal val FragmentActivity.permissionFragment: IFxPermissionControl?
                 .add(fragment, FX_FRAGMENT_TAG)
                 .commitAllowingStateLoss()
             supportFragmentManager.executePendingTransactions()
-            Log.e("petterp", "fx权限fragment已插入")
         }
         return fragment as? IFxPermissionControl
     }
@@ -152,9 +70,93 @@ internal val Activity.permissionSupportFragment: IFxPermissionControl?
         if (fragment == null) {
             fragment = FxPermissionSupportFragment()
             fragmentManager.beginTransaction()
-                .add(fragment, "FX")
+                .add(fragment, FX_FRAGMENT_TAG)
                 .commitAllowingStateLoss()
             fragmentManager.executePendingTransactions()
         }
         return fragment as? IFxPermissionControl
     }
+
+/**
+ *
+ * @author petterp
+ */
+@RequiresApi(Build.VERSION_CODES.M)
+internal class FxPermissionFragment : Fragment(0), IFxPermissionControl {
+    private var actions = mutableMapOf<String, ResultAction?>()
+    private var isRequestLoading = false
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        retainInstance = true
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode != FX_RESULT_CODE) return
+        kotlin.runCatching {
+            isRequestLoading = false
+            val isAgree = Settings.canDrawOverlays(activity)
+            actions.forEach {
+                it.value?.invoke(isAgree)
+                actions[it.key] = null
+            }
+        }
+    }
+
+    override fun requestPermission(key: String, agreeAction: ResultAction?) {
+        if (agreeAction == null) return
+        actions[key] = agreeAction
+        if (isRequestLoading) return
+        kotlin.runCatching {
+            val uri = Uri.parse("package:${context?.packageName ?: return}")
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, uri)
+            startActivityForResult(intent, FX_RESULT_CODE)
+            isRequestLoading = true
+        }
+    }
+
+    override fun clear() {
+        actions.clear()
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.M)
+internal class FxPermissionSupportFragment : android.app.Fragment(), IFxPermissionControl {
+    private var actions = mutableMapOf<String, ResultAction?>()
+    private var isRequestLoading = false
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        retainInstance = true
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode != FX_RESULT_CODE) return
+        kotlin.runCatching {
+            isRequestLoading = false
+            val isAgree = Settings.canDrawOverlays(activity)
+            actions.forEach {
+                it.value?.invoke(isAgree)
+                actions[it.key] = null
+            }
+        }
+    }
+
+    override fun requestPermission(key: String, agreeAction: ResultAction?) {
+        if (agreeAction == null) return
+        actions[key] = agreeAction
+        if (isRequestLoading) return
+        kotlin.runCatching {
+            val uri = Uri.parse("package:${context?.packageName ?: return}")
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, uri)
+            startActivityForResult(intent, FX_RESULT_CODE)
+            isRequestLoading = true
+        }
+    }
+
+    override fun clear() {
+        actions.clear()
+    }
+}

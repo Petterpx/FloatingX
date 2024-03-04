@@ -1,7 +1,6 @@
 package com.petterp.floatingx
 
 import android.annotation.SuppressLint
-import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.imp.app.FxAppControlImp
 import com.petterp.floatingx.imp.system.FxSystemControlImp
@@ -123,17 +122,6 @@ object FloatingX {
             it.cancel()
         }
         fxs.clear()
-    }
-
-    /**
-     * 浮窗内部实现自动降级的方式
-     * */
-    @JvmSynthetic
-    internal fun checkReInstall(helper: FxAppHelper): IFxAppControl? {
-        if (helper.scope != FxScopeType.SYSTEM_AUTO) return null
-        helper.fxLog.e("Fx auto downgrade to app activity scope!")
-        helper.scope = FxScopeType.APP
-        return install(helper)
     }
 
     private fun getTagFxControl(tag: String): IFxAppControl {

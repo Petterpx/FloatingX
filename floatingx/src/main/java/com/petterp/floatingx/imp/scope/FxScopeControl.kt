@@ -11,7 +11,7 @@ import com.petterp.floatingx.listener.control.IFxScopeControl
 class FxScopeControl(helper: FxScopeHelper) :
     FxBasisControlImp<FxScopeHelper, FxScopePlatFromProvider>(helper), IFxScopeControl {
 
-    override fun createPlatformProvider(f: FxScopeHelper) = FxScopePlatFromProvider(f)
+    override fun createPlatformProvider(f: FxScopeHelper) = FxScopePlatFromProvider(f, this)
 
     fun setContainerGroup(viewGroup: ViewGroup) {
         platformProvider.setContainerGroup(viewGroup)

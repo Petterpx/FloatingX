@@ -1,16 +1,15 @@
 package com.petterp.floatingx.imp.app
 
 import android.app.Activity
-import android.app.Application
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
-import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
 import com.petterp.floatingx.util.decorView
+import com.petterp.floatingx.util.safeAddView
 import com.petterp.floatingx.util.topActivity
 import com.petterp.floatingx.view.FxDefaultContainerView
 import java.lang.ref.WeakReference
@@ -21,10 +20,10 @@ import java.lang.ref.WeakReference
  */
 class FxAppPlatformProvider(
     override val helper: FxAppHelper,
-    private val proxyLifecycleImpl: FxAppLifecycleImp,
-) : IFxPlatformProvider<FxAppHelper>, Application.ActivityLifecycleCallbacks by proxyLifecycleImpl {
+    override val control: FxAppControlImp,
+) : IFxPlatformProvider<FxAppHelper> {
 
-    private var isRegisterAppLifecycle = false
+    private var _lifecycleImp: FxAppLifecycleImp? = null
     private var _internalView: FxDefaultContainerView? = null
     private var _containerGroup: WeakReference<ViewGroup>? = null
 
@@ -37,10 +36,6 @@ class FxAppPlatformProvider(
         insets
     }
 
-    init {
-        checkRegisterAppLifecycle()
-    }
-
     private val containerGroupView: ViewGroup?
         get() = _containerGroup?.get()
 
@@ -49,7 +44,13 @@ class FxAppPlatformProvider(
     override val internalView: FxDefaultContainerView?
         get() = _internalView
 
+    init {
+        // 这里仅仅是为了兼容旧版逻辑
+        checkRegisterAppLifecycle()
+    }
+
     override fun checkOrInit(): Boolean {
+        checkRegisterAppLifecycle()
         val act = topActivity ?: return false
         if (!helper.isCanInstall(act)) return false
         if (_internalView == null) {
@@ -58,7 +59,6 @@ class FxAppPlatformProvider(
             helper.updateStatsBar(act)
             _internalView = FxDefaultContainerView(helper, helper.context)
             _internalView?.initView()
-            checkRegisterAppLifecycle()
             attach(act)
         }
         return true
@@ -68,7 +68,7 @@ class FxAppPlatformProvider(
         val fxView = _internalView ?: return
         if (!ViewCompat.isAttachedToWindow(fxView)) {
             fxView.visibility = View.VISIBLE
-            containerGroupView?.addView(fxView)
+            containerGroupView?.safeAddView(fxView)
         }
     }
 
@@ -82,7 +82,7 @@ class FxAppPlatformProvider(
         if (containerGroupView === decorView) return false
         if (ViewCompat.isAttachedToWindow(fxView)) containerGroupView?.removeView(fxView)
         _containerGroup = WeakReference(decorView)
-        decorView.addView(fxView)
+        decorView.safeAddView(fxView)
         return true
     }
 
@@ -94,7 +94,7 @@ class FxAppPlatformProvider(
         } else {
             if (nContainer === containerGroupView) return false
             containerGroupView?.removeView(_internalView)
-            nContainer.addView(_internalView)
+            nContainer.safeAddView(_internalView)
             _containerGroup = WeakReference(nContainer)
         }
         return false
@@ -116,7 +116,8 @@ class FxAppPlatformProvider(
         _internalView = null
         _containerGroup?.clear()
         _containerGroup = null
-        helper.context.unregisterActivityLifecycleCallbacks(this)
+        helper.context.unregisterActivityLifecycleCallbacks(_lifecycleImp)
+        _lifecycleImp = null
     }
 
     private fun detach() {
@@ -131,11 +132,9 @@ class FxAppPlatformProvider(
     }
 
     private fun checkRegisterAppLifecycle() {
-        if (!isRegisterAppLifecycle && helper.enableFx && helper.scope == FxScopeType.APP) {
-            isRegisterAppLifecycle = true
-            helper.context.unregisterActivityLifecycleCallbacks(this)
-            helper.context.registerActivityLifecycleCallbacks(this)
-        }
+        if (!helper.enableFx || _lifecycleImp != null) return
+        _lifecycleImp = FxAppLifecycleImp(helper, control)
+        helper.context.registerActivityLifecycleCallbacks(_lifecycleImp)
     }
 
     private fun clearWindowsInsetsListener() {

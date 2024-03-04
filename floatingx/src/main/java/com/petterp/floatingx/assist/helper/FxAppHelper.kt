@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.FxScopeType
+import com.petterp.floatingx.listener.IFxPermissionInterceptor
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.util.FX_DEFAULT_TAG
 import com.petterp.floatingx.util.FX_INSTALL_SCOPE_APP_TAG
@@ -31,9 +32,13 @@ class FxAppHelper(
 
     @JvmSynthetic
     internal var scope: FxScopeType,
+
     /** 显示悬浮窗的Activity生命周期回调 */
     @JvmSynthetic
-    internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?
+    internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?,
+
+    @JvmSynthetic
+    internal val fxAskPermissionInterceptor: IFxPermissionInterceptor?,
 ) : FxBasisHelper() {
 
     @JvmSynthetic
@@ -68,8 +73,13 @@ class FxAppHelper(
         private var tag = FX_DEFAULT_TAG
         private var enableFx = false
         private var scopeEnum: FxScopeType = FxScopeType.APP
+        private var askPermissionInterceptor: IFxPermissionInterceptor? = null
 
-        /** 设置启用fx */
+        /** 用于启用全局浮窗标志，与control.show()同理
+         *
+         * 浮窗install后，直接使用控制器调用 show() 即可
+         * */
+        @Deprecated("目前control.show()支持了懒加载，所以这个方法已经不再需要")
         fun enableFx(): Builder {
             this.enableFx = true
             return this
@@ -164,6 +174,11 @@ class FxAppHelper(
             return this
         }
 
+        fun setPermissionAskInterceptor(listener: IFxPermissionInterceptor): Builder {
+            askPermissionInterceptor = listener
+            return this
+        }
+
         override fun buildHelper(): FxAppHelper {
             checkNotNull(context) { "context == null, please call AppHelper.setContext(context) to set context" }
             return FxAppHelper(
@@ -174,6 +189,7 @@ class FxAppHelper(
                 isEnableAllInstall,
                 scopeEnum,
                 fxLifecycleExpand,
+                askPermissionInterceptor,
             )
         }
 

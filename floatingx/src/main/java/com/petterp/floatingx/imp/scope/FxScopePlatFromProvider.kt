@@ -15,6 +15,7 @@ import java.lang.ref.WeakReference
  */
 class FxScopePlatFromProvider(
     override val helper: FxScopeHelper,
+    override val control: FxScopeControl,
 ) : IFxPlatformProvider<FxScopeHelper> {
 
     private var _internalView: FxDefaultContainerView? = null

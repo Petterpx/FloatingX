@@ -14,8 +14,7 @@ import com.petterp.floatingx.util.topActivity
 class FxAppControlImp(helper: FxAppHelper) :
     FxBasisControlImp<FxAppHelper, FxAppPlatformProvider>(helper), IFxAppControl {
 
-    override fun createPlatformProvider(f: FxAppHelper) =
-        FxAppPlatformProvider(f, FxAppLifecycleImp(f, this))
+    override fun createPlatformProvider(f: FxAppHelper) = FxAppPlatformProvider(f, this)
 
     override fun getBindActivity(): Activity? {
         val groupView = getManagerView()?.parent ?: return null

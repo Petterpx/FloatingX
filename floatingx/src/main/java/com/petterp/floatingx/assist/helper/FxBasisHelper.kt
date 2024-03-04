@@ -110,6 +110,9 @@ open class FxBasisHelper {
     @JvmField
     internal var statsBarHeight: Int = 0
 
+    @JvmField
+    internal var reInstall: Boolean = false
+
     @JvmSynthetic
     internal fun initLog(scope: String) {
         fxLog = FxLog.builder(enableDebugLog, "$scope-$fxLogTag")
@@ -117,9 +120,13 @@ open class FxBasisHelper {
 
     @JvmSynthetic
     internal fun clear() {
+        fxAnimation?.cancelAnimation()
+        if (reInstall) {
+            reInstall = false
+            return
+        }
         layoutView = null
         enableFx = false
-        fxAnimation?.cancelAnimation()
     }
 
     val safeEdgeOffSet: Float

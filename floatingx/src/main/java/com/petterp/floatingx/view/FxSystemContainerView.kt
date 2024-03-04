@@ -36,8 +36,12 @@ class FxSystemContainerView @JvmOverloads constructor(
     }
 
     internal fun registerWM(wm: WindowManager) {
-        if (isAttachToWM) return
-        wm.addView(this, wl)
+        try {
+            if (isAttachToWM) return
+            wm.addView(this, wl)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
     }
 
     override fun currentX(): Float {

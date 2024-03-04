@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.INVALID_LAYOUT_ID
+import com.petterp.floatingx.util.safeAddView
 import com.petterp.floatingx.view.helper.FxViewAnimationHelper
 import com.petterp.floatingx.view.helper.FxViewLocationHelper
 import com.petterp.floatingx.view.helper.FxViewTouchHelper
@@ -121,7 +122,7 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT,
         )
-        addView(view, lp)
+        safeAddView(view, lp)
         return view
     }
 
@@ -129,7 +130,7 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         if (helper.layoutId == INVALID_LAYOUT_ID) return null
         helper.fxLog.d("fxView -> init, way:[layoutId]")
         val view = LayoutInflater.from(context).inflate(helper.layoutId, this, false)
-        addView(view)
+        safeAddView(view)
         return view
     }
 

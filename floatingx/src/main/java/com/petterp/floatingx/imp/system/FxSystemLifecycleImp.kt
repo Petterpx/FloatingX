@@ -14,9 +14,8 @@ import com.petterp.floatingx.util.FxLog
  */
 class FxSystemLifecycleImp(
     private val helper: FxAppHelper,
+    private val provider: FxSystemPlatformProvider?
 ) : Application.ActivityLifecycleCallbacks {
-
-    internal var provider: FxSystemPlatformProvider? = null
     private var isNeedAskPermission = true
     private val insertCls = mutableMapOf<Class<*>, Boolean>()
 
@@ -56,22 +55,25 @@ class FxSystemLifecycleImp(
 
     override fun onActivityResumed(activity: Activity) {
         if (!enableFx) return
-        checkAskPermission(activity)
         val activityName = activity.name
-        fxLog.d("fxApp->insert, insert [$activityName] Start ---------->")
+        fxLog.v("fxApp->insert, insert [$activityName] Start ---------->")
         val isActivityInValid = activity.isActivityInValid
         if (isActivityInValid) {
+            provider?.safeShowOrHide(true)
+            checkAskPermissionAndShow(activity)
             appLifecycleCallBack?.onResumes(activity)
         } else {
-            fxLog.d("fxApp->insert, insert [$activityName] Fail ,This activity is not in the list of allowed inserts.")
+            provider?.safeShowOrHide(false)
+            fxLog.v("fxApp->insert, insert [$activityName] Fail ,This activity is not in the list of allowed inserts.")
             return
         }
     }
 
-    private fun checkAskPermission(activity: Activity) {
+    private fun checkAskPermissionAndShow(activity: Activity) {
         if (isNeedAskPermission) {
             isNeedAskPermission = false
-            provider?.askPermissionAndShow(activity)
+            provider?.internalAskAutoPermission(activity)
+            return
         }
     }
 

@@ -5,6 +5,7 @@ package com.petterp.floatingx.util
 import android.app.Activity
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.helper.FxScopeHelper
 import com.petterp.floatingx.imp.FxAppLifecycleProvider
@@ -57,6 +58,17 @@ internal val Activity.contentView: FrameLayout?
     } catch (_: Exception) {
         null
     }
+
+internal fun ViewGroup.safeAddView(view: View?, lp: ViewGroup.LayoutParams? = null) {
+    if (view == null) return
+    if (view.parent == this) return
+    (view.parent as? ViewGroup)?.removeView(view)
+    if (lp == null) {
+        addView(view)
+    } else {
+        addView(view, lp)
+    }
+}
 
 /**
  * 创建一个fx,自行初始化并控制插入位置
