@@ -1,9 +1,12 @@
 -dontwarn com.petterp.floatingx.**
--keep public class com.petterp.floatingx.view.default.FxManagerView{*;}
+-keep public class com.petterp.floatingx.view.FxBasicContainerView{*;}
+-keepclassmembers public class * extends com.petterp.floatingx.view.FxBasicContainerView {*;}
 -keep public class com.petterp.floatingx.view.FxViewHolder{*;}
--keep public class com.petterp.floatingx.assist.FxScopeEnum{*;}
+-keep public class com.petterp.floatingx.assist.FxScopeType{*;}
+-keep public class com.petterp.floatingx.assist.FxDisplayMode{*;}
+-keep public class com.petterp.floatingx.assist.FxAdsorbDirection{*;}
 -keep public class com.petterp.floatingx.assist.FxGravity{*;}
--keep public class com.petterp.floatingx.util.FxScreenExtKt{
+-keep public class com.petterp.floatingx.util._FxScreenExt{
   private boolean checkNavigationBarShow(android.content.Context);
 }
 
