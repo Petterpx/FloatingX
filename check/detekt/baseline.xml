@@ -14,35 +14,38 @@
     <ID>TooManyFunctions:AppHelper.kt$AppHelper$Builder : Builder</ID>
   </ManuallySuppressedIssues>
   <CurrentIssues>
+    <ID>EmptyFunctionBlock:FxAppLifecycleProvider.kt$FxAppLifecycleProvider${ }</ID>
     <ID>EmptyFunctionBlock:FxScrollImpl.kt$FxScrollImpl${ }</ID>
     <ID>EmptyFunctionBlock:FxScrollImpl.kt$FxScrollImpl${}</ID>
-    <ID>EmptyFunctionBlock:FxTagActivityLifecycleImpl.kt$FxTagActivityLifecycleImpl${}</ID>
-    <ID>MagicNumber:BasisHelper.kt$BasisHelper$300L</ID>
-    <ID>MagicNumber:BasisHelper.kt$BasisHelper.Builder$300L</ID>
+    <ID>EmptyFunctionBlock:FxSystemLifecycleImp.kt$FxSystemLifecycleImp${}</ID>
+    <ID>EmptyFunctionBlock:SimpleAnimatorListener.kt$SimpleAnimatorListener${ }</ID>
+    <ID>LongParameterList:FxAppHelper.kt$FxAppHelper$( /** 浮窗tag,默认为[FX_DEFAULT_TAG] */ @JvmSynthetic internal val tag: String, @JvmSynthetic internal val context: Application, /** 黑名单list */ @JvmSynthetic internal val blackFilterList: MutableList&lt;Class&lt;*&gt;&gt;, /** 白名单list */ @JvmSynthetic internal val whiteInsertList: MutableList&lt;Class&lt;*&gt;&gt;, /** 是否允许插入全部Activity */ @JvmSynthetic internal val isAllInstall: Boolean, @JvmSynthetic internal var scope: FxScopeType, /** 显示悬浮窗的Activity生命周期回调 */ @JvmSynthetic internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?, @JvmSynthetic internal val fxAskPermissionInterceptor: IFxPermissionInterceptor?, )</ID>
+    <ID>MagicNumber:FxBasisHelper.kt$FxBasisHelper$300L</ID>
+    <ID>MagicNumber:FxBasisHelper.kt$FxBasisHelper.Builder$300L</ID>
     <ID>MagicNumber:FxScreenExt.kt$10</ID>
-    <ID>MaxLineLength:FxAppControlImpl.kt$FxAppControlImpl$throw IllegalArgumentException("view.context != Application,The global floating window must use application as context!")</ID>
-    <ID>MaxLineLength:FxBasisControlImpl.kt$FxBasisControlImpl$if (getContainerGroup() == null) throw NullPointerException("FloatingX window The parent container cannot be null!")</ID>
-    <ID>MaxLineLength:FxBasisControlImpl.kt$FxBasisControlImpl$if (helper.layoutId == 0 &amp;&amp; helper.layoutView == null) throw RuntimeException("The layout id cannot be 0 ,and layoutView==null")</ID>
-    <ID>MaxLineLength:FxProxyLifecycleCallBackImpl.kt$FxProxyLifecycleCallBackImpl$fxLog.d("fxApp-&gt;detach? isContainActivity-${activity.isActivityInValid}--enableFx-$enableFx---isParent-$isParent")</ID>
-    <ID>MaxLineLength:FxScopeControl.kt$FxScopeControl$throw IllegalArgumentException("view == Application,Scope floating windows cannot use application-level views!")</ID>
-    <ID>MaxLineLength:FxViewConfigHelper.kt$FxViewConfigHelper$helper.fxLog.d("fxView-&gt;updateContainerSize: oldW-($mParentWidth),oldH-($mParentHeight),newW-($parentWidth),newH-($parentHeight)")</ID>
+    <ID>MaxLineLength:FloatingX.kt$FloatingX$checkNotNull(control) { "fxs[$tag]==null!,Please check if FloatingX.install() or AppHelper.setTag() is called." }</ID>
+    <ID>MaxLineLength:FxAppLifecycleImp.kt$FxAppLifecycleImp$fxLog.d("fxApp-&gt;detach? isContainActivity-${activity.isActivityInValid}--enableFx-$enableFx---isParent-$isParent")</ID>
+    <ID>MaxLineLength:FxViewLocationHelper.kt$FxViewLocationHelper$if</ID>
+    <ID>MaxLineLength:FxViewTouchHelper.kt$FxViewTouchHelper$config.fxLog.d("fxView -&gt; touchToPointerDown: currentId:${event.pointerId}, mainTouchId:$touchDownId exist,return")</ID>
+    <ID>PrintStackTrace:FxSystemContainerView.kt$FxSystemContainerView$e</ID>
     <ID>SwallowedException:FxScreenExt.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:FxScreenExt.kt$e: Exception</ID>
-    <ID>TooGenericExceptionThrown:FxBasisControlImpl.kt$FxBasisControlImpl$throw RuntimeException("The layout id cannot be 0 ,and layoutView==null")</ID>
-    <ID>TooManyFunctions:AppHelper.kt$AppHelper$Builder : Builder</ID>
-    <ID>TooManyFunctions:BasisHelper.kt$BasisHelper$Builder&lt;T, B : BasisHelper&gt;</ID>
+    <ID>TooGenericExceptionCaught:FxSystemContainerView.kt$FxSystemContainerView$e: Throwable</ID>
     <ID>TooManyFunctions:FloatingX.kt$FloatingX</ID>
-    <ID>TooManyFunctions:FxAppControlImpl.kt$FxAppControlImpl : FxBasisControlImplIFxAppControlActivityLifecycleCallbacks</ID>
-    <ID>TooManyFunctions:FxBasisControlImpl.kt$FxBasisControlImpl : IFxControlIFxConfigControl</ID>
-    <ID>TooManyFunctions:FxManagerView.kt$FxManagerView : FrameLayoutOnLayoutChangeListener</ID>
+    <ID>TooManyFunctions:FxAppHelper.kt$FxAppHelper$Builder : Builder</ID>
+    <ID>TooManyFunctions:FxAppPlatformProvider.kt$FxAppPlatformProvider : IFxPlatformProvider</ID>
+    <ID>TooManyFunctions:FxBasicConfigProvider.kt$FxBasicConfigProvider&lt;F : FxBasisHelper, P : IFxPlatformProvider&lt;F&gt;&gt; : IFxConfigControl</ID>
+    <ID>TooManyFunctions:FxBasicContainerView.kt$FxBasicContainerView : FrameLayoutIFxInternalView</ID>
+    <ID>TooManyFunctions:FxBasisControlImp.kt$FxBasisControlImp&lt;F : FxBasisHelper, P : IFxPlatformProvider&lt;F&gt;&gt; : IFxControl</ID>
+    <ID>TooManyFunctions:FxBasisHelper.kt$FxBasisHelper$Builder&lt;T, B : FxBasisHelper&gt;</ID>
     <ID>TooManyFunctions:FxScreenExt.kt$com.petterp.floatingx.util.FxScreenExt.kt</ID>
-    <ID>TooManyFunctions:FxViewConfigHelper.kt$FxViewConfigHelper</ID>
+    <ID>TooManyFunctions:FxSystemContainerView.kt$FxSystemContainerView : FxBasicContainerView</ID>
+    <ID>TooManyFunctions:FxSystemPlatformProvider.kt$FxSystemPlatformProvider : IFxPlatformProviderIFxPermissionAwaitAsk</ID>
     <ID>TooManyFunctions:FxViewHolder.kt$FxViewHolder</ID>
+    <ID>TooManyFunctions:FxViewLocationHelper.kt$FxViewLocationHelper : FxViewBasicHelperOnLayoutChangeListener</ID>
+    <ID>TooManyFunctions:FxViewTouchHelper.kt$FxViewTouchHelper : FxViewBasicHelper</ID>
     <ID>TooManyFunctions:IFxConfigControl.kt$IFxConfigControl</ID>
     <ID>TooManyFunctions:IFxControl.kt$IFxControl</ID>
-    <ID>UseRequire:AppHelper.kt$AppHelper.Builder$throw IllegalArgumentException("浮窗 tag 不能为 [\"\"],请设置一个合法的tag")</ID>
-    <ID>UseRequire:FxAppControlImpl.kt$FxAppControlImpl$throw IllegalArgumentException("view.context != Application,The global floating window must use application as context!")</ID>
-    <ID>UseRequire:FxBasisControlImpl.kt$FxBasisControlImpl$throw IllegalArgumentException("resource cannot be 0!")</ID>
-    <ID>UseRequire:FxScopeControl.kt$FxScopeControl$throw IllegalArgumentException("view == Application,Scope floating windows cannot use application-level views!")</ID>
+    <ID>UnnecessaryAbstractClass:FxViewBasicHelper.kt$FxViewBasicHelper$FxViewBasicHelper</ID>
   </CurrentIssues>
 </SmellBaseline>
