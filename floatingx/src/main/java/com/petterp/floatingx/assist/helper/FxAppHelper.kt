@@ -141,7 +141,10 @@ class FxAppHelper(
             return this
         }
 
-        fun setSystemScope(scope: FxScopeType): Builder {
+        /**
+         * 设置浮窗安装范围
+         * */
+        fun setScopeType(scope: FxScopeType): Builder {
             this.scopeEnum = scope
             return this
         }
