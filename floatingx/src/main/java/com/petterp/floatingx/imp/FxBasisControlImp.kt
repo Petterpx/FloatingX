@@ -10,7 +10,7 @@ import com.petterp.floatingx.listener.provider.IFxContextProvider
 import com.petterp.floatingx.listener.provider.IFxHolderProvider
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
 import com.petterp.floatingx.util.INVALID_LAYOUT_ID
-import com.petterp.floatingx.view.IFxInternalViewHelper
+import com.petterp.floatingx.view.IFxInternalHelper
 
 /**
  * Fx基础控制器,用于协调各provider的分发
@@ -22,7 +22,7 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     protected lateinit var platformProvider: P
     private lateinit var _configControl: IFxConfigControl
     private lateinit var _animationProvider: IFxAnimationProvider
-    private val internalView: IFxInternalViewHelper?
+    private val internalView: IFxInternalHelper?
         get() = platformProvider.internalView
 
     override val configControl: IFxConfigControl get() = _configControl

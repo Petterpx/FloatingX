@@ -14,8 +14,8 @@ import com.petterp.floatingx.assist.helper.FxBasisHelper
  * @author petterp
  */
 @SuppressLint("ViewConstructor")
-class FxDefaultContainerViewHelper(helper: FxBasisHelper, context: Context, attrs: AttributeSet? = null) :
-    FxBasicContainerViewHelper(helper, context, attrs) {
+class FxDefaultContainerView(helper: FxBasisHelper, context: Context, attrs: AttributeSet? = null) :
+    FxBasicContainerView(helper, context, attrs) {
 
     private var downTouchX = 0f
     private var downTouchY = 0f

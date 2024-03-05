@@ -24,7 +24,7 @@ import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.listener.IFxTouchListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.util.FxScrollImpl
-import com.petterp.floatingx.view.IFxInternalViewHelper
+import com.petterp.floatingx.view.IFxInternalHelper
 
 /** Kotlin-Application */
 class CustomKtApplication : Application() {
@@ -185,7 +185,7 @@ class CustomKtApplication : Application() {
                     },
                 )
                 setTouchListener(object : IFxTouchListener {
-                    override fun onTouch(event: MotionEvent, control: IFxInternalViewHelper?): Boolean {
+                    override fun onTouch(event: MotionEvent, control: IFxInternalHelper?): Boolean {
                         return false
                     }
                 })

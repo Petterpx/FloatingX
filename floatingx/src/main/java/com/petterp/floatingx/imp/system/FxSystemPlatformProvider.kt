@@ -15,7 +15,7 @@ import com.petterp.floatingx.util.isVisibility
 import com.petterp.floatingx.util.permissionControl
 import com.petterp.floatingx.util.safeRemovePermissionFragment
 import com.petterp.floatingx.util.topActivity
-import com.petterp.floatingx.view.FxSystemContainerViewHelper
+import com.petterp.floatingx.view.FxSystemContainerView
 
 /**
  * 系统浮窗提供平台
@@ -27,12 +27,12 @@ class FxSystemPlatformProvider(
 ) : IFxPlatformProvider<FxAppHelper>, IFxPermissionAwaitAsk {
     private var wm: WindowManager? = null
     private var _lifecycleImp: FxSystemLifecycleImp? = null
-    private var _internalView: FxSystemContainerViewHelper? = null
+    private var _internalView: FxSystemContainerView? = null
     private var requestRunnable: ResultAction? = null
 
     override val context: Context
         get() = helper.context
-    override val internalView: FxSystemContainerViewHelper?
+    override val internalView: FxSystemContainerView?
         get() = _internalView
 
     init {
@@ -66,7 +66,7 @@ class FxSystemPlatformProvider(
                 return false
             }
             wm = helper.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            _internalView = FxSystemContainerViewHelper(helper, wm!!, context)
+            _internalView = FxSystemContainerView(helper, wm!!, context)
             _internalView!!.initView()
         }
         return true

@@ -8,7 +8,7 @@ import androidx.annotation.LayoutRes
  * Fx内部视图控制接口,便于开发者便捷的控制浮窗
  * @author petterp
  */
-interface IFxInternalViewHelper {
+interface IFxInternalHelper {
 
     val childView: View?
 

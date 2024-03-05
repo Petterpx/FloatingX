@@ -9,7 +9,7 @@ import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.listener.control.IFxConfigControl
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
-import com.petterp.floatingx.view.IFxInternalViewHelper
+import com.petterp.floatingx.view.IFxInternalHelper
 
 /**
  * Fx基础配置更改 提供者
@@ -20,7 +20,7 @@ class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     private var p: P?
 ) : IFxConfigControl {
 
-    private val internalView: IFxInternalViewHelper?
+    private val internalView: IFxInternalHelper?
         get() = p?.internalView
 
     override fun setEnableClick(isEnable: Boolean) {

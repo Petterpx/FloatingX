@@ -11,7 +11,7 @@ import com.petterp.floatingx.listener.provider.IFxPlatformProvider
 import com.petterp.floatingx.util.decorView
 import com.petterp.floatingx.util.safeAddView
 import com.petterp.floatingx.util.topActivity
-import com.petterp.floatingx.view.FxDefaultContainerViewHelper
+import com.petterp.floatingx.view.FxDefaultContainerView
 import java.lang.ref.WeakReference
 
 /**
@@ -24,7 +24,7 @@ class FxAppPlatformProvider(
 ) : IFxPlatformProvider<FxAppHelper> {
 
     private var _lifecycleImp: FxAppLifecycleImp? = null
-    private var _internalView: FxDefaultContainerViewHelper? = null
+    private var _internalView: FxDefaultContainerView? = null
     private var _containerGroup: WeakReference<ViewGroup>? = null
 
     private val windowsInsetsListener = OnApplyWindowInsetsListener { _, insets ->
@@ -41,7 +41,7 @@ class FxAppPlatformProvider(
 
     override val context: Context
         get() = helper.context
-    override val internalView: FxDefaultContainerViewHelper?
+    override val internalView: FxDefaultContainerView?
         get() = _internalView
 
     init {
@@ -57,7 +57,7 @@ class FxAppPlatformProvider(
             initWindowsInsetsListener()
             helper.updateNavigationBar(act)
             helper.updateStatsBar(act)
-            _internalView = FxDefaultContainerViewHelper(helper, helper.context)
+            _internalView = FxDefaultContainerView(helper, helper.context)
             _internalView?.initView()
             attach(act)
         }
