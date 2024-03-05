@@ -3,7 +3,6 @@ package com.petterp.floatingx.assist.helper
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.listener.IFxPermissionInterceptor
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
@@ -15,7 +14,7 @@ import com.petterp.floatingx.util.statusBarHeight
 
 /** FxAppConfig 构建器 */
 class FxAppHelper(
-    /** 浮窗tag,默认为 [FloatingX.FX_DEFAULT_TAG] */
+    /** 浮窗tag,默认为[FX_DEFAULT_TAG] */
     @JvmSynthetic
     internal val tag: String,
     @JvmSynthetic

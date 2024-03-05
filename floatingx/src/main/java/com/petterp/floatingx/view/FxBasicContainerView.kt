@@ -115,6 +115,16 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         return _childView
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        helper.iFxViewLifecycle?.attach()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        helper.iFxViewLifecycle?.detached()
+    }
+
     private fun inflateLayoutView(): View? {
         val view = helper.layoutView ?: return null
         helper.fxLog.d("fxView -> init, way:[layoutView]")

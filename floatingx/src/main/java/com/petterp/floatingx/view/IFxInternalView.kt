@@ -4,10 +4,10 @@ import android.view.View
 import android.widget.FrameLayout
 
 /**
- *
+ * Fx内部视图控制接口
  * @author petterp
  */
-interface IFxInternalView {
+internal interface IFxInternalView {
 
     val childView: View?
 

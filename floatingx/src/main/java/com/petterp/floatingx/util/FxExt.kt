@@ -11,8 +11,6 @@ import com.petterp.floatingx.assist.helper.FxScopeHelper
 import com.petterp.floatingx.imp.FxAppLifecycleProvider
 import java.lang.Exception
 
-internal typealias IFxViewAnimate = (x: Float, y: Float) -> Unit
-
 internal const val FX_GRAVITY_TOP = 0x00000001
 
 internal const val FX_GRAVITY_CENTER = 0x00000002

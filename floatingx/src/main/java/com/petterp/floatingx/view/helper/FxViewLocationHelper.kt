@@ -98,15 +98,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
 
     fun getDefaultEdgeXY(): Pair<Float, Float>? {
         return if (config.enableEdgeAdsorption) {
-            if (config.adsorbDirection == FxAdsorbDirection.LEFT_OR_RIGHT) {
-                val moveX = if (isNearestLeft(x)) moveBoundary.minW else moveBoundary.maxW
-                val moveY = y
-                moveX to moveY
-            } else {
-                val moveX = x
-                val moveY = if (isNearestTop(y)) moveBoundary.minH else moveBoundary.maxH
-                moveX to moveY
-            }
+            getAdsorbDirectionLocation()
         } else if (config.enableEdgeRebound) {
             x to y
         } else {
@@ -133,6 +125,46 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         if (config.iFxConfigStorage == null || !config.enableSaveDirection) return
         config.iFxConfigStorage!!.update(x, y)
         config.fxLog.d("saveLocation -> x:$x,y:$y")
+    }
+
+    private fun getAdsorbDirectionLocation(): Pair<Float, Float> {
+        return when (config.adsorbDirection) {
+            FxAdsorbDirection.LEFT -> {
+                val moveX = moveBoundary.minW
+                val moveY = safeY(y)
+                moveX to moveY
+            }
+
+            FxAdsorbDirection.RIGHT -> {
+                val moveX = moveBoundary.maxW
+                val moveY = safeY(y)
+                moveX to moveY
+            }
+
+            FxAdsorbDirection.LEFT_OR_RIGHT -> {
+                val moveX = if (isNearestLeft(x)) moveBoundary.minW else moveBoundary.maxW
+                val moveY = safeY(y)
+                moveX to moveY
+            }
+
+            FxAdsorbDirection.TOP -> {
+                val moveX = safeX(x)
+                val moveY = moveBoundary.minH
+                moveX to moveY
+            }
+
+            FxAdsorbDirection.BOTTOM -> {
+                val moveX = safeX(x)
+                val moveY = moveBoundary.maxH
+                moveX to moveY
+            }
+
+            FxAdsorbDirection.TOP_OR_BOTTOM -> {
+                val moveX = safeX(x)
+                val moveY = if (isNearestTop(y)) moveBoundary.minH else moveBoundary.maxH
+                moveX to moveY
+            }
+        }
     }
 
     private fun updateViewSize() {

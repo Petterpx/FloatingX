@@ -47,7 +47,7 @@ class FxSystemPlatformProvider(
 
     override fun hide() {
         val internalView = _internalView ?: return
-        // FIXME: 这里本来想直接remove,但是会引发LeakCanary的内存泄漏警告，故才用Gone
+        // 这里本来想直接remove,但是会引发LeakCanary的内存泄漏警告，故才用Gone
         internalView.isVisibility = false
     }
 
