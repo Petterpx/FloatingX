@@ -35,7 +35,7 @@
     <ID>TooManyFunctions:FxAppHelper.kt$FxAppHelper$Builder : Builder</ID>
     <ID>TooManyFunctions:FxAppPlatformProvider.kt$FxAppPlatformProvider : IFxPlatformProvider</ID>
     <ID>TooManyFunctions:FxBasicConfigProvider.kt$FxBasicConfigProvider&lt;F : FxBasisHelper, P : IFxPlatformProvider&lt;F&gt;&gt; : IFxConfigControl</ID>
-    <ID>TooManyFunctions:FxBasicContainerView.kt$FxBasicContainerView : FrameLayoutIFxInternalView</ID>
+    <ID>TooManyFunctions:FxBasicContainerView.kt$FxBasicContainerView : FrameLayoutIFxInternalHelper</ID>
     <ID>TooManyFunctions:FxBasisControlImp.kt$FxBasisControlImp&lt;F : FxBasisHelper, P : IFxPlatformProvider&lt;F&gt;&gt; : IFxControl</ID>
     <ID>TooManyFunctions:FxBasisHelper.kt$FxBasisHelper$Builder&lt;T, B : FxBasisHelper&gt;</ID>
     <ID>TooManyFunctions:FxScreenExt.kt$com.petterp.floatingx.util.FxScreenExt.kt</ID>
