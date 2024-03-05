@@ -24,6 +24,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
     private var restoreLeftStandard = false
     private var restoreTopStandard = false
     private var needUpdateLocation: Boolean = false
+    private var needUpdateConfig: Boolean = false
     private var orientation = Configuration.ORIENTATION_PORTRAIT
 
     private val moveIngBoundary = FxBoundaryConfig()
@@ -74,6 +75,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
             restoreLeftStandard = isNearestLeft(x)
             restoreTopStandard = isNearestTop(y)
             this.needUpdateLocation = true
+            this.needUpdateConfig = true
             this.config.fxLog.d("fxView -> onConfigurationChanged:[screenChanged:${this.needUpdateLocation}]")
         }
     }
@@ -98,7 +100,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
 
     fun getDefaultEdgeXY(): Pair<Float, Float>? {
         return if (config.enableEdgeAdsorption) {
-            getAdsorbDirectionLocation()
+            getAdsorbDirectionLocation(isNearestLeft(x), isNearestTop(y))
         } else if (config.enableEdgeRebound) {
             x to y
         } else {
@@ -127,7 +129,10 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         config.fxLog.d("saveLocation -> x:$x,y:$y")
     }
 
-    private fun getAdsorbDirectionLocation(): Pair<Float, Float> {
+    private fun getAdsorbDirectionLocation(
+        isNearestLeft: Boolean,
+        isNearestTop: Boolean
+    ): Pair<Float, Float> {
         return when (config.adsorbDirection) {
             FxAdsorbDirection.LEFT -> {
                 val moveX = moveBoundary.minW
@@ -142,7 +147,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
             }
 
             FxAdsorbDirection.LEFT_OR_RIGHT -> {
-                val moveX = if (isNearestLeft(x)) moveBoundary.minW else moveBoundary.maxW
+                val moveX = if (isNearestLeft) moveBoundary.minW else moveBoundary.maxW
                 val moveY = safeY(y)
                 moveX to moveY
             }
@@ -161,7 +166,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
 
             FxAdsorbDirection.TOP_OR_BOTTOM -> {
                 val moveX = safeX(x)
-                val moveY = if (isNearestTop(y)) moveBoundary.minH else moveBoundary.maxH
+                val moveY = if (isNearestTop) moveBoundary.minH else moveBoundary.maxH
                 moveX to moveY
             }
         }
@@ -261,18 +266,21 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         if (!needUpdateLocation) return
         config.fxLog.d("fxView -> restoreLocation,start")
         updateViewSize()
-        val restoreX: Float
-        val restoreY: Float
-        if (config.enableEdgeAdsorption) {
-            restoreX = if (restoreLeftStandard) moveBoundary.minW else moveBoundary.maxW
-            restoreY = if (restoreTopStandard) moveBoundary.minH else moveBoundary.maxH
+        val (restoreX, restoreY) = if (config.enableEdgeAdsorption) {
+            // 如果是由configChange触发，则优先使用之前保存的
+            val (isNearestLeft, isNearestTop) = if (needUpdateConfig) {
+                restoreLeftStandard to restoreTopStandard
+            } else {
+                isNearestLeft(x) to isNearestTop(y)
+            }
+            getAdsorbDirectionLocation(isNearestLeft, isNearestTop)
         } else {
-            restoreX = safeX(x)
-            restoreY = safeY(y)
+            safeX(x) to safeY(y)
         }
         restoreLeftStandard = false
         restoreTopStandard = false
         needUpdateLocation = false
+        needUpdateConfig = false
         basicView?.moveLocation(restoreX, restoreY, false)
         config.fxLog.d("fxView -> restoreLocation,success")
     }

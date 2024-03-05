@@ -54,7 +54,7 @@ class CustomKtApplication : Application() {
         fun installTag1(context: Application) {
             FloatingX.install {
                 setContext(context)
-                setSystemScope(FxScopeType.APP)
+                setSystemScope(FxScopeType.SYSTEM_AUTO)
                 // 设置浮窗展示类型，默认可移动可点击，无需配置
                 setDisplayMode(FxDisplayMode.Normal)
                 setLayout(R.layout.item_floating)
