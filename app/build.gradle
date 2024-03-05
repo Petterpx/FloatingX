@@ -1,25 +1,6 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'io.gitlab.arturbosch.detekt'
-}
-
-detekt {
-    toolVersion = "1.22.0"
-    basePath = rootProject.projectDir.path
-    source = files("$rootDir/floatingx/src/main/java")
-    baseline = file("${rootDir}/check/detekt/baseline.xml")
-    config = files("$rootDir/check/detekt/detekt.yml")
-    // 开启并行检测
-    parallel = true
-    // 基于默认配置构建
-    buildUponDefaultConfig = false
-    // 自动格式化代码
-    autoCorrect = false
-    // 是否开启debug模式
-    debug = false
-    // 是否开启全部规则
-    allRules = false
 }
 
 android {
@@ -76,5 +57,4 @@ dependencies {
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-object-watcher-android-startup:2.10'
     implementation isDev ? project(path: ':floatingx') : "io.github.petterpx:floatingx:$version_name"
     debugImplementation "com.bytedance.tools.codelocator:codelocator-core:2.0.3"
-    implementation 'com.github.princekin-f:EasyFloat:2.0.4'
 }
