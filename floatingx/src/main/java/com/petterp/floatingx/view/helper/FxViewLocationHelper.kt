@@ -7,7 +7,7 @@ import com.petterp.floatingx.assist.FxBoundaryConfig
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.util.coerceInFx
 import com.petterp.floatingx.util.shr
-import com.petterp.floatingx.view.FxBasicContainerView
+import com.petterp.floatingx.view.FxBasicContainerViewHelper
 
 /**
  * 浮窗坐标的配置助手，用于处理坐标相关的处理
@@ -34,7 +34,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
     private val y: Float
         get() = basicView?.currentY() ?: 0f
 
-    override fun initConfig(parentView: FxBasicContainerView) {
+    override fun initConfig(parentView: FxBasicContainerViewHelper) {
         super.initConfig(parentView)
         parentView.addOnLayoutChangeListener(this)
         parentView.resources.configuration.apply {

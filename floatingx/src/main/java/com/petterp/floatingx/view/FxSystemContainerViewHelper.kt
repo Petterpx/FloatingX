@@ -14,12 +14,12 @@ import com.petterp.floatingx.util.screenWidth
 
 /** 系统悬浮窗View */
 @SuppressLint("ViewConstructor")
-class FxSystemContainerView @JvmOverloads constructor(
+class FxSystemContainerViewHelper @JvmOverloads constructor(
     override val helper: FxAppHelper,
     private val wm: WindowManager,
     context: Context,
     attrs: AttributeSet? = null,
-) : FxBasicContainerView(helper, context, attrs) {
+) : FxBasicContainerViewHelper(helper, context, attrs) {
 
     private lateinit var wl: WindowManager.LayoutParams
 

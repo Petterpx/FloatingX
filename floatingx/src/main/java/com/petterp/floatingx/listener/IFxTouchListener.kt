@@ -5,7 +5,7 @@ package com.petterp.floatingx.listener
  * @author petterp
  */
 import android.view.MotionEvent
-import com.petterp.floatingx.view.IFxInternalView
+import com.petterp.floatingx.view.IFxInternalViewHelper
 
 /**
  * fx监听事件，用于监听浮窗上的一些手势事件
@@ -26,7 +26,7 @@ interface IFxTouchListener {
      * @return true:拦截当前事件处理，
      * @return false:未处理,走系统默认事件
      * */
-    fun onTouch(event: MotionEvent, control: IFxInternalView?): Boolean = false
+    fun onTouch(event: MotionEvent, control: IFxInternalViewHelper?): Boolean = false
 
     /**
      * 监测当前移动浮窗的手指 move回调

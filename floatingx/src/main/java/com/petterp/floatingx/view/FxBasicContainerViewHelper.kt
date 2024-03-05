@@ -19,11 +19,11 @@ import com.petterp.floatingx.view.helper.FxViewTouchHelper
  * Fx基础容器View
  * @author petterp
  */
-abstract class FxBasicContainerView @JvmOverloads constructor(
+abstract class FxBasicContainerViewHelper @JvmOverloads constructor(
     open val helper: FxBasisHelper,
     context: Context,
     attrs: AttributeSet? = null
-) : FrameLayout(context, attrs), IFxInternalView {
+) : FrameLayout(context, attrs), IFxInternalViewHelper {
     private var isInitLayout = true
     private var _childView: View? = null
     private var _viewHolder: FxViewHolder? = null
@@ -64,7 +64,14 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         moveToXY(x + currentX(), y + currentY(), useAnimation)
     }
 
-    override fun updateView() {
+    override fun updateView(layoutId: Int) {
+        helper.fxLog.d("fxView -> updateView")
+        locationHelper.needUpdateLocation()
+        removeView(_childView)
+        installChildView()
+    }
+
+    override fun updateView(layoutView: View) {
         helper.fxLog.d("fxView -> updateView")
         locationHelper.needUpdateLocation()
         removeView(_childView)

@@ -1,10 +1,8 @@
 package com.petterp.floatingx.app.kotlin
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.Application
 import android.graphics.Color
-import android.os.Bundle
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -22,11 +20,11 @@ import com.petterp.floatingx.app.test.ScopeActivity
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.assist.FxScopeType
-import com.petterp.floatingx.imp.FxProxyTagLifecycleImp
+import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.listener.IFxTouchListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.util.FxScrollImpl
-import com.petterp.floatingx.view.IFxInternalView
+import com.petterp.floatingx.view.IFxInternalViewHelper
 
 /** Kotlin-Application */
 class CustomKtApplication : Application() {
@@ -124,10 +122,7 @@ class CustomKtApplication : Application() {
                     Toast.makeText(context, "浮窗被点击", Toast.LENGTH_SHORT).show()
                 }
                 // 设置tag-Activity生命周期回调时的触发
-                setTagActivityLifecycle(object : FxProxyTagLifecycleImp() {
-                    override fun onCreated(activity: Activity, bundle: Bundle?) {
-                        // 允许插入的浮窗activity执行到onCreated时会回调相应方法
-                    }
+                setTagActivityLifecycle(object : IFxProxyTagActivityLifecycle {
                 })
                 // 增加生命周期监听
                 setViewLifecycle(object : IFxViewLifecycle {
@@ -190,7 +185,7 @@ class CustomKtApplication : Application() {
                     },
                 )
                 setTouchListener(object : IFxTouchListener {
-                    override fun onTouch(event: MotionEvent, control: IFxInternalView?): Boolean {
+                    override fun onTouch(event: MotionEvent, control: IFxInternalViewHelper?): Boolean {
                         return false
                     }
                 })

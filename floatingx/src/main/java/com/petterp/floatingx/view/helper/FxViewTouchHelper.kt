@@ -7,7 +7,7 @@ import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.util.INVALID_TOUCH_ID
 import com.petterp.floatingx.util.TOUCH_TIME_THRESHOLD
 import com.petterp.floatingx.util.pointerId
-import com.petterp.floatingx.view.FxBasicContainerView
+import com.petterp.floatingx.view.FxBasicContainerViewHelper
 import kotlin.math.abs
 
 /**
@@ -24,14 +24,14 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     private var touchDownId = INVALID_TOUCH_ID
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun initConfig(parentView: FxBasicContainerView) {
+    override fun initConfig(parentView: FxBasicContainerViewHelper) {
         super.initConfig(parentView)
         scaledTouchSlop = ViewConfiguration.get(parentView.context).scaledTouchSlop.toFloat()
         reset()
     }
 
     // 不通过setTouchListener()方法设置的监听器主要是为外部留口，如果外部需要更强的灵活性，则可以自行实现
-    fun touchEvent(event: MotionEvent, basicView: FxBasicContainerView): Boolean {
+    fun touchEvent(event: MotionEvent, basicView: FxBasicContainerViewHelper): Boolean {
         // 为旧版本做兼容
         config.iFxTouchListener?.eventIng(event)
         if (config.displayMode != FxDisplayMode.DisplayOnly) {
