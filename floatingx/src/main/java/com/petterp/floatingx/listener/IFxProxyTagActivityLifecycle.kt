@@ -9,17 +9,17 @@ import android.os.Bundle
  */
 interface IFxProxyTagActivityLifecycle {
 
-    fun onCreated(activity: Activity, bundle: Bundle?)
+    fun onCreated(activity: Activity, bundle: Bundle?) {}
 
-    fun onStarted(activity: Activity)
+    fun onStarted(activity: Activity) {}
 
-    fun onResumes(activity: Activity)
+    fun onResumes(activity: Activity) {}
 
-    fun onPaused(activity: Activity)
+    fun onPaused(activity: Activity) {}
 
-    fun onStopped(activity: Activity)
+    fun onStopped(activity: Activity) {}
 
-    fun onSaveInstanceState(activity: Activity, bundle: Bundle?)
+    fun onSaveInstanceState(activity: Activity, bundle: Bundle?) {}
 
-    fun onDestroyed(activity: Activity)
+    fun onDestroyed(activity: Activity) {}
 }

@@ -14,9 +14,9 @@ import com.petterp.floatingx.app.addNestedScrollView
 import com.petterp.floatingx.app.addTextView
 import com.petterp.floatingx.app.createLinearLayoutToParent
 import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.assist.FxAdsorbDirection
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
-import com.petterp.floatingx.util.FxAdsorbDirection
 import com.petterp.floatingx.util.createFx
 
 /** @author petterp */
@@ -42,7 +42,7 @@ class ScopeActivity : AppCompatActivity() {
         setEnableScrollOutsideScreen(false)
         setEnableEdgeAdsorption(false)
         setGravity(FxGravity.RIGHT_OR_TOP)
-        setEnableAssistDirection(t = 10f, r = 10f)
+        setOffsetXY(10f, 10f)
         setEdgeOffset(40f)
         setBottomBorderMargin(40f)
         setAnimationImpl(FxAnimationImpl())

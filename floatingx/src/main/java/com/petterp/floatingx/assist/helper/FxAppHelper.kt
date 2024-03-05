@@ -3,17 +3,22 @@ package com.petterp.floatingx.assist.helper
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import com.petterp.floatingx.FloatingX
+import com.petterp.floatingx.assist.FxScopeType
+import com.petterp.floatingx.listener.IFxPermissionInterceptor
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
-import com.petterp.floatingx.util.FxScopeEnum
+import com.petterp.floatingx.util.FX_DEFAULT_TAG
+import com.petterp.floatingx.util.FX_INSTALL_SCOPE_APP_TAG
+import com.petterp.floatingx.util.FX_INSTALL_SCOPE_SYSTEM_TAG
 import com.petterp.floatingx.util.navigationBarHeight
 import com.petterp.floatingx.util.statusBarHeight
 
-/** AppHelper构建器 */
-class AppHelper(
-    /** 浮窗tag,默认为 [FloatingX.FX_DEFAULT_TAG] */
+/** FxAppConfig 构建器 */
+class FxAppHelper(
+    /** 浮窗tag,默认为[FX_DEFAULT_TAG] */
     @JvmSynthetic
-    internal var tag: String,
+    internal val tag: String,
+    @JvmSynthetic
+    internal val context: Application,
     /** 黑名单list */
     @JvmSynthetic
     internal val blackFilterList: MutableList<Class<*>>,
@@ -23,21 +28,28 @@ class AppHelper(
     /** 是否允许插入全部Activity */
     @JvmSynthetic
     internal val isAllInstall: Boolean,
+
+    @JvmSynthetic
+    internal var scope: FxScopeType,
+
     /** 显示悬浮窗的Activity生命周期回调 */
     @JvmSynthetic
-    internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?
-) : BasisHelper() {
+    internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?,
+
+    @JvmSynthetic
+    internal val fxAskPermissionInterceptor: IFxPermissionInterceptor?,
+) : FxBasisHelper() {
 
     @JvmSynthetic
     internal fun updateNavigationBar(activity: Activity?) {
         navigationBarHeight = activity?.navigationBarHeight ?: navigationBarHeight
-        fxLog?.v("system-> navigationBar-$navigationBarHeight")
+        fxLog.v("system-> navigationBar-$navigationBarHeight")
     }
 
     @JvmSynthetic
     internal fun updateStatsBar(activity: Activity?) {
         statsBarHeight = activity?.statusBarHeight ?: statsBarHeight
-        fxLog?.v("system-> statusBarHeight-$statsBarHeight")
+        fxLog.v("system-> statusBarHeight-$statsBarHeight")
     }
 
     @JvmSynthetic
@@ -51,15 +63,22 @@ class AppHelper(
             (!isAllInstall && whiteInsertList.contains(cls))
     }
 
-    class Builder : BasisHelper.Builder<Builder, AppHelper>() {
+    class Builder : FxBasisHelper.Builder<Builder, FxAppHelper>() {
         private var whiteInsertList: MutableList<Class<*>> = mutableListOf()
         private var blackFilterList: MutableList<Class<*>> = mutableListOf()
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
         private var isEnableAllInstall: Boolean = true
-        private var tag = FloatingX.FX_DEFAULT_TAG
+        private var context: Application? = null
+        private var tag = FX_DEFAULT_TAG
         private var enableFx = false
+        private var scopeEnum: FxScopeType = FxScopeType.APP
+        private var askPermissionInterceptor: IFxPermissionInterceptor? = null
 
-        /** 设置启用fx */
+        /** 用于启用全局浮窗标志，与control.show()同理
+         *
+         * 浮窗install后，直接使用控制器调用 show() 即可
+         * */
+        @Deprecated("目前control.show()支持了懒加载，所以这个方法已经不再需要")
         fun enableFx(): Builder {
             this.enableFx = true
             return this
@@ -71,9 +90,9 @@ class AppHelper(
          * */
         fun setContext(context: Context): Builder {
             if (context is Application) {
-                FloatingX.context = context
+                this.context = context
             } else {
-                FloatingX.context = context.applicationContext as Application
+                this.context = context.applicationContext as Application
             }
             return this
         }
@@ -115,8 +134,15 @@ class AppHelper(
          */
         @Throws(IllegalArgumentException::class)
         fun setTag(tag: String): Builder {
-            if (tag.isEmpty()) throw IllegalArgumentException("浮窗 tag 不能为 [\"\"],请设置一个合法的tag")
+            check(tag.isNotEmpty()) {
+                "浮窗 tag 不能为 [\"\"],请设置一个合法的tag"
+            }
             this.tag = tag
+            return this
+        }
+
+        fun setSystemScope(scope: FxScopeType): Builder {
+            this.scopeEnum = scope
             return this
         }
 
@@ -147,23 +173,37 @@ class AppHelper(
             return this
         }
 
-        override fun buildHelper(): AppHelper =
-            AppHelper(
+        fun setPermissionAskInterceptor(listener: IFxPermissionInterceptor): Builder {
+            askPermissionInterceptor = listener
+            return this
+        }
+
+        override fun buildHelper(): FxAppHelper {
+            checkNotNull(context) { "context == null, please call AppHelper.setContext(context) to set context" }
+            return FxAppHelper(
                 tag,
+                context!!,
                 blackFilterList,
                 whiteInsertList,
                 isEnableAllInstall,
+                scopeEnum,
                 fxLifecycleExpand,
+                askPermissionInterceptor,
             )
+        }
 
-        override fun build(): AppHelper {
+        override fun build(): FxAppHelper {
             return super.build().apply {
                 enableFx = this@Builder.enableFx
                 // 有可能用户会使用多个浮窗，这里为了防止日志混乱，将浮窗tag赋值给日志tag
                 if (enableDebugLog && fxLogTag.isEmpty()) {
                     fxLogTag = tag
                 }
-                initLog(FxScopeEnum.APP_SCOPE.tag)
+                if (scopeEnum == FxScopeType.SYSTEM) {
+                    initLog(FX_INSTALL_SCOPE_SYSTEM_TAG)
+                } else {
+                    initLog(FX_INSTALL_SCOPE_APP_TAG)
+                }
             }
         }
     }

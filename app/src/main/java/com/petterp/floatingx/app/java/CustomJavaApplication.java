@@ -2,19 +2,13 @@ package com.petterp.floatingx.app.java;
 
 import android.app.Activity;
 import android.app.Application;
-import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.petterp.floatingx.FloatingX;
 import com.petterp.floatingx.app.R;
 import com.petterp.floatingx.app.simple.FxAnimationImpl;
 import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl;
 import com.petterp.floatingx.assist.FxDisplayMode;
-import com.petterp.floatingx.assist.helper.AppHelper;
-import com.petterp.floatingx.assist.helper.ScopeHelper;
-import com.petterp.floatingx.impl.lifecycle.FxTagActivityLifecycleImpl;
+import com.petterp.floatingx.assist.helper.FxAppHelper;
+import com.petterp.floatingx.assist.helper.FxScopeHelper;
 
 /**
  * java 中的配置示例
@@ -25,7 +19,7 @@ public class CustomJavaApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        AppHelper helper = AppHelper.builder()
+        FxAppHelper helper = FxAppHelper.builder()
                 .setLayout(R.layout.item_floating)
                 // 设置启用日志,tag可以自定义，最终显示为FloatingX-xxx
                 .setEnableLog(true, "自定义的tag")
@@ -36,9 +30,6 @@ public class CustomJavaApplication extends Application {
 //                .addInstallBlackClass(BlackActivity.class)
                 //3. 允许插入Activity的页面, setEnableAllBlackClass(false)时,此方法生效
 //                .addInstallWhiteClass(MainActivity.class, ScopeActivity.class)
-
-                // 启用辅助方向
-                .setEnableAssistDirection(0f, 0f, 0f, 100f)
 
                 // 设置启用边缘吸附
                 .setEnableEdgeAdsorption(true)
@@ -69,23 +60,16 @@ public class CustomJavaApplication extends Application {
                 // 设置浮窗展示类型，默认可移动可点击，无需配置
                 .setDisplayMode(FxDisplayMode.Normal)
                 //启用悬浮窗,即默认会插入到允许的activity中
-                .setTagActivityLifecycle(new FxTagActivityLifecycleImpl() {
-                    @Override
-                    public void onCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-                        // 允许插入的浮窗activity执行到onCreated时会回调相应方法
-                    }
-                })
                 // 启用悬浮窗,相当于一个标记,会自动插入允许的activity中
-                .enableFx()
                 .build();
-        FloatingX.install(helper);
+        FloatingX.install(helper).show();
     }
 
     /**
      * 创建一个局部悬浮窗
      */
     public void createScopeFxSimple(Activity activity) {
-        ScopeHelper.builder()
+        FxScopeHelper.builder()
                 .setLayout(R.layout.item_floating)
                 .build()
                 .toControl(activity);

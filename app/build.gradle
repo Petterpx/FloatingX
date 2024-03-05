@@ -65,6 +65,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(path: ':floatingx')
     detektPlugins 'io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.2.0'
@@ -74,4 +75,6 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-object-watcher-android-startup:2.10'
     implementation isDev ? project(path: ':floatingx') : "io.github.petterpx:floatingx:$version_name"
+    debugImplementation "com.bytedance.tools.codelocator:codelocator-core:2.0.3"
+    implementation 'com.github.princekin-f:EasyFloat:2.0.4'
 }

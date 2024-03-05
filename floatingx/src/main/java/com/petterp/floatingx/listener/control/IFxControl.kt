@@ -1,10 +1,10 @@
 package com.petterp.floatingx.listener.control
 
 import android.view.View
+import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import com.petterp.floatingx.listener.provider.IFxContextProvider
 import com.petterp.floatingx.listener.provider.IFxHolderProvider
-import com.petterp.floatingx.view.FxManagerView
 import com.petterp.floatingx.view.FxViewHolder
 
 /** FloatingX 基础控制器 */
@@ -12,6 +12,8 @@ interface IFxControl {
 
     /** 获取配置层控制器,以便运行时动态调整某些基础配置 */
     val configControl: IFxConfigControl
+
+    fun show()
 
     /** 隐藏悬浮窗-不会解绑app-lifecycle */
     fun hide()
@@ -33,7 +35,7 @@ interface IFxControl {
     fun getViewHolder(): FxViewHolder?
 
     /** 获取浮窗管理器view,即浮窗底层容器 */
-    fun getManagerView(): FxManagerView?
+    fun getManagerView(): FrameLayout?
 
     /** 用于快速刷新视图内容 */
     fun updateViewContent(provider: IFxHolderProvider)
@@ -85,4 +87,6 @@ interface IFxControl {
      * @param useAnimation 是否使用动画
      * */
     fun moveByVector(x: Float, y: Float, useAnimation: Boolean)
+
+    fun updateConfig(obj: IFxConfigControl.() -> Unit)
 }
