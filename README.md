@@ -36,7 +36,7 @@
 
 ```groovy
 dependencies {
-    implementation 'io.github.petterpx:floatingx:1.4.4'
+    implementation 'io.github.petterpx:floatingx:2.0'
 }
 ```
 
@@ -71,9 +71,7 @@ dependencies {
 FloatingX.install {
 	setContext(context)
         setLayout(R.layout.item_floating_new)
-  	//只有调用了enableFx(),后续才会自动插入activity中
-        enableFx()
-}
+}.show()
 ```
 
 **Java**
@@ -82,9 +80,8 @@ FloatingX.install {
 AppHelper helper = AppHelper.builder()
 	.setContext(context)
         .setLayout(R.layout.item_floating)
-	.enableFx()
         .build();
-FloatingX.install(helper);
+FloatingX.install(helper).show();
 ```
 
 
