@@ -1,7 +1,7 @@
 package com.petterp.floatingx.assist.helper
 
 import android.app.Activity
-import android.widget.FrameLayout
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.petterp.floatingx.imp.scope.FxScopeControl
 import com.petterp.floatingx.listener.control.IFxScopeControl
@@ -27,9 +27,9 @@ class FxScopeHelper : FxBasisHelper() {
     /** 插入到Fragment中 */
     fun toControl(fragment: Fragment): IFxScopeControl {
         initLog(FX_INSTALL_SCOPE_FRAGMENT_TAG)
-        val rootView = fragment.view as? FrameLayout
+        val rootView = fragment.view as? ViewGroup
         checkNotNull(rootView) {
-            "Check if your root layout is FrameLayout, or if the init call timing is after onCreateView()!"
+            "your root view is null, init call timing is after onCreateView()!"
         }
         val control = FxScopeControl(this)
         control.initProvider()
@@ -38,7 +38,7 @@ class FxScopeHelper : FxBasisHelper() {
     }
 
     /** 插入到ViewGroup中 */
-    fun toControl(group: FrameLayout): IFxScopeControl {
+    fun toControl(group: ViewGroup): IFxScopeControl {
         initLog(FX_INSTALL_SCOPE_VIEW_GROUP_TAG)
         val control = FxScopeControl(this)
         control.initProvider()
