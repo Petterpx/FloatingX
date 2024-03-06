@@ -8,19 +8,18 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.petterpx/floatingx)](https://search.maven.org/search?q=g:io.github.petterpx%20AND%20a:floatingx)
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/) 
 
-**FloatingX** 一个灵活且强大的 `免权限` 悬浮窗解决方案。
+**FloatingX** 一个灵活且强大的悬浮窗解决方案。
 
 [English Introduction](https://github.com/Petterpx/FloatingX/blob/main/README_EN.md)
 
 [具体使用文档见这里](https://cskf7l0wab.feishu.cn/wiki/wikcnLLBCe3fIDUTAzrEg754tzc)
-
-> **注意**：**1.3.4** 之后，仓库已迁移至[Maven](https://central.sonatype.com/artifact/io.github.petterpx/floatingx)，记得及时更新依赖方式。
 
 ## 👏 特性 
 
 - 支持 **自定义隐藏显示动画**;
 - 支持 **多指触摸**，精准决策触摸手势;
 - 支持 自定义是否保存历史位置及还原;
+- 支持 **系统浮窗**、**应用内浮窗**、**局部浮窗**；
 - 支持 **越界回弹**，**边缘悬停**，**边界设置**;
 - 支持 以 **layout**, **View**  的方式设置浮窗内容；
 - 支持 自定义浮窗显示位置，**支持辅助定位**;
@@ -65,12 +64,21 @@ dependencies {
 
 ### 全局悬浮窗管理
 
+**AndroidManifest (非必须)**
+
+```xml
+// 如果不使用系统浮窗可以忽略此步骤(即FxScopeType.App时可跳过)
+<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+<uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
+```
+
 **kt**
 
 ```kotlin
 FloatingX.install {
-	setContext(context)
-        setLayout(R.layout.item_floating_new)
+				setContext(context)
+        setLayout(R.layout.item_floating)
+  			setScopeType(FxScopeType.SYSTEM_AUTO)
 }.show()
 ```
 
@@ -78,8 +86,9 @@ FloatingX.install {
 
 ```java
 AppHelper helper = AppHelper.builder()
-	.setContext(context)
+				.setContext(context)
         .setLayout(R.layout.item_floating)
+  			.setScopeType(FxScopeType.SYSTEM_AUTO)
         .build();
 FloatingX.install(helper).show();
 ```
