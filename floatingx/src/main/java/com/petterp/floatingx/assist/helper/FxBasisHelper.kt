@@ -291,7 +291,7 @@ open class FxBasisHelper {
          *
          * 默认wrap-wrap
          *
-         * ps: 不建议自行调用,此方法会影响浮窗的正常滑动效果
+         * ps: 不建议自行调用,此方法会影响浮窗的展示效果
          */
         fun setManagerParams(layoutParams: FrameLayout.LayoutParams): T {
             this.layoutParams = layoutParams
