@@ -38,7 +38,7 @@
 
 ```groovy
 dependencies {
-    implementation 'io.github.petterpx:floatingx:2.0'
+    implementation 'io.github.petterpx:floatingx:2.0.1'
 }
 ```
 
@@ -71,30 +71,32 @@ Open the log viewer, you will see the whole track of Fx, which is easier to find
 
 ### Global hover window management
 
+**AndroidManifest**
+
+```xml
+<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+<uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
+```
+
 **kt**
 
 ```kotlin
 FloatingX.install {
-        setContext(this@CustomApplication)
-        setLayout(R.layout.item_floating_new)
-  			addBlackClass(
-                MainActivity::class.java,
-                NewActivity::class.java,
-                ImmersedActivity::class.java
-         )
-  			//only if show is called, it will listen to the app-lifecycle, and then it will be inserted into the activity automatically
-        show()
-}
-````
+				setContext(context)
+        setLayout(R.layout.item_floating)
+  			setScopeType(FxScopeType.SYSTEM_AUTO)
+}.show()
+```
 
 **Java**
 
-``` java
+```java
 AppHelper helper = AppHelper.builder()
-        .setContext(application)
+				.setContext(context)
         .setLayout(R.layout.item_floating)
+  			.setScopeType(FxScopeType.SYSTEM_AUTO)
         .build();
-FloatingX.install(helper);
+FloatingX.install(helper).show();
 ```
 
 
