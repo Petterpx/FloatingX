@@ -59,7 +59,7 @@ class CustomKtApplication : Application() {
                 setDisplayMode(FxDisplayMode.Normal)
                 setLayout(R.layout.item_floating)
                 // 设置权限拦截器
-                setPermissionAskInterceptor { activity, controller ->
+                setPermissionInterceptor { activity, controller ->
                     AlertDialog.Builder(activity).setTitle("提示").setMessage("需要允许悬浮窗权限")
                         .setPositiveButton("去开启") { _, _ ->
                             Toast.makeText(

@@ -176,7 +176,7 @@ class FxAppHelper(
             return this
         }
 
-        fun setPermissionAskInterceptor(listener: IFxPermissionInterceptor): Builder {
+        fun setPermissionInterceptor(listener: IFxPermissionInterceptor): Builder {
             askPermissionInterceptor = listener
             return this
         }

@@ -1,16 +1,16 @@
 package com.petterp.floatingx.listener
 
 import android.app.Activity
-import com.petterp.floatingx.util.ResultAction
+import com.petterp.floatingx.util.FxPermissionResultAction
 
 /**
  * 在开始权限请求前进行检查，可以继续延续请求
  * @return true: 拦截权限请求，自行处理
  * @return false: 不拦截，由fx自行处理
  * */
-typealias IFxPermissionInterceptor = (activity: Activity, controller: IFxPermissionAwaitAsk) -> Unit
+typealias IFxPermissionInterceptor = (activity: Activity, controller: IFxPermissionAskControl) -> Unit
 
-interface IFxPermissionAwaitAsk {
+interface IFxPermissionAskControl {
 
     /**
      * 主动请求浮窗权限
@@ -46,7 +46,7 @@ interface IFxPermissionAwaitAsk {
         activity: Activity,
         isAutoShow: Boolean,
         canUseAppScope: Boolean,
-        resultListener: ResultAction?
+        resultListener: FxPermissionResultAction?
     )
 
     /**

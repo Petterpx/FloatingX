@@ -8,9 +8,9 @@ import android.view.View
 import android.view.WindowManager
 import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.assist.helper.FxAppHelper
-import com.petterp.floatingx.listener.IFxPermissionAwaitAsk
+import com.petterp.floatingx.listener.IFxPermissionAskControl
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
-import com.petterp.floatingx.util.ResultAction
+import com.petterp.floatingx.util.FxPermissionResultAction
 import com.petterp.floatingx.util.isVisibility
 import com.petterp.floatingx.util.permissionControl
 import com.petterp.floatingx.util.safeRemovePermissionFragment
@@ -24,11 +24,11 @@ import com.petterp.floatingx.view.FxSystemContainerView
 class FxSystemPlatformProvider(
     override val helper: FxAppHelper,
     override val control: FxSystemControlImp,
-) : IFxPlatformProvider<FxAppHelper>, IFxPermissionAwaitAsk {
+) : IFxPlatformProvider<FxAppHelper>, IFxPermissionAskControl {
     private var wm: WindowManager? = null
     private var _lifecycleImp: FxSystemLifecycleImp? = null
     private var _internalView: FxSystemContainerView? = null
-    private var requestRunnable: ResultAction? = null
+    private var requestRunnable: FxPermissionResultAction? = null
 
     override val context: Context
         get() = helper.context
@@ -76,7 +76,7 @@ class FxSystemPlatformProvider(
         activity: Activity,
         isAutoShow: Boolean,
         canUseAppScope: Boolean,
-        resultListener: ResultAction?
+        resultListener: FxPermissionResultAction?
     ) {
         if (isShow()) {
             resultListener?.invoke(true)

@@ -15,10 +15,10 @@ import androidx.fragment.app.FragmentActivity
 private const val FX_RESULT_CODE = 5001
 private const val FX_FRAGMENT_TAG = "FxPermissionFragment"
 
-internal typealias ResultAction = (agree: Boolean) -> Unit
+typealias FxPermissionResultAction = (agree: Boolean) -> Unit
 
 interface IFxPermissionControl {
-    fun requestPermission(key: String, agreeAction: ResultAction?)
+    fun requestPermission(key: String, agreeAction: FxPermissionResultAction?)
 
     fun clear()
 }
@@ -83,7 +83,7 @@ internal val Activity.permissionSupportFragment: IFxPermissionControl?
  */
 @RequiresApi(Build.VERSION_CODES.M)
 internal class FxPermissionFragment : Fragment(0), IFxPermissionControl {
-    private var actions = mutableMapOf<String, ResultAction?>()
+    private var actions = mutableMapOf<String, FxPermissionResultAction?>()
     private var isRequestLoading = false
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -104,7 +104,7 @@ internal class FxPermissionFragment : Fragment(0), IFxPermissionControl {
         }
     }
 
-    override fun requestPermission(key: String, agreeAction: ResultAction?) {
+    override fun requestPermission(key: String, agreeAction: FxPermissionResultAction?) {
         if (agreeAction == null) return
         actions[key] = agreeAction
         if (isRequestLoading) return
@@ -123,7 +123,7 @@ internal class FxPermissionFragment : Fragment(0), IFxPermissionControl {
 
 @RequiresApi(Build.VERSION_CODES.M)
 internal class FxPermissionSupportFragment : android.app.Fragment(), IFxPermissionControl {
-    private var actions = mutableMapOf<String, ResultAction?>()
+    private var actions = mutableMapOf<String, FxPermissionResultAction?>()
     private var isRequestLoading = false
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -144,7 +144,7 @@ internal class FxPermissionSupportFragment : android.app.Fragment(), IFxPermissi
         }
     }
 
-    override fun requestPermission(key: String, agreeAction: ResultAction?) {
+    override fun requestPermission(key: String, agreeAction: FxPermissionResultAction?) {
         if (agreeAction == null) return
         actions[key] = agreeAction
         if (isRequestLoading) return
