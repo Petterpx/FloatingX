@@ -357,6 +357,13 @@ open class FxBasisHelper {
             return this as T
         }
 
+        /** 设置默认x,y坐标 */
+        fun setXY(x: Float, y: Float): T {
+            this.defaultX = x
+            this.defaultY = y
+            return this as T
+        }
+
         /**
          * 调用此方法,将忽视传递的(x,y)。 浮窗的坐标将根据 传递进来的 [gravity] + 此方法传入的偏移量
          * 计算，而非直接坐标。 这样的好处是,你不用去关注具体浮窗坐标应该是什么，而是可以依靠参照物的方式摆放。
