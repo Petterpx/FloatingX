@@ -76,9 +76,9 @@ dependencies {
 
 ```kotlin
 FloatingX.install {
-				setContext(context)
+	setContext(context)
         setLayout(R.layout.item_floating)
-  			setScopeType(FxScopeType.SYSTEM_AUTO)
+  	setScopeType(FxScopeType.SYSTEM_AUTO)
 }.show()
 ```
 
@@ -86,9 +86,9 @@ FloatingX.install {
 
 ```java
 AppHelper helper = AppHelper.builder()
-				.setContext(context)
+	.setContext(context)
         .setLayout(R.layout.item_floating)
-  			.setScopeType(FxScopeType.SYSTEM_AUTO)
+  	.setScopeType(FxScopeType.SYSTEM_AUTO)
         .build();
 FloatingX.install(helper).show();
 ```
