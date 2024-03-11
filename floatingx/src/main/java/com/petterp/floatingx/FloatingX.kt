@@ -118,10 +118,9 @@ object FloatingX {
     @JvmStatic
     fun uninstallAll() {
         if (fxs.isEmpty()) return
-        fxs.values.forEach {
-            it.cancel()
+        getAllControlTags().forEach {
+            fxs[it]?.cancel()
         }
-        fxs.clear()
     }
 
     private fun getTagFxControl(tag: String): IFxAppControl {
