@@ -1,10 +1,12 @@
 package com.petterp.floatingx.view.helper
 
 import android.annotation.SuppressLint
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.util.INVALID_TOUCH_ID
+import com.petterp.floatingx.util.TOUCH_CLICK_LONG_TIME
 import com.petterp.floatingx.util.TOUCH_TIME_THRESHOLD
 import com.petterp.floatingx.util.pointerId
 import com.petterp.floatingx.view.FxBasicContainerView
@@ -19,7 +21,7 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     private var initY = 0f
     private var scaledTouchSlop = 0F
     private var isClickEvent = false
-    private var clickEnable = true
+    private var isEnableClick = true
     private var mLastTouchDownTime = 0L
     private var touchDownId = INVALID_TOUCH_ID
 
@@ -123,12 +125,18 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     }
 
     private fun performClickAction() {
-        if (isClickEffective()) {
-            clickEnable = false
-            config.iFxClickListener?.onClick(basicView)
-            basicView?.postDelayed({
-                clickEnable = true
-            }, config.clickTime)
+        if (isClickEvent && config.hasClickStatus) {
+            val diffTime = System.currentTimeMillis() - mLastTouchDownTime
+            if (diffTime < TOUCH_TIME_THRESHOLD && isEnableClick) {
+                if (config.clickTime > 0) {
+                    isEnableClick = false
+                    basicView?.postDelayed({ isEnableClick = true }, config.clickTime)
+                }
+                config.iFxClickListener?.onClick(basicView)
+            } else if (diffTime >= TOUCH_CLICK_LONG_TIME) {
+                val isHandle = config.iFxLongClickListener?.onLongClick(basicView) ?: false
+                if (isHandle) basicView?.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            }
         }
         reset()
     }
@@ -153,11 +161,4 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     }
 
     private fun hasMainPointerId() = touchDownId != INVALID_TOUCH_ID
-
-    private fun isClickEffective(): Boolean {
-        // 当前是点击事件&&点击事件目前可启用&&回调存在&&点击时间小于阈值
-        return isClickEvent && clickEnable && config.enableClickListener &&
-            config.iFxClickListener != null &&
-            System.currentTimeMillis() - mLastTouchDownTime < TOUCH_TIME_THRESHOLD
-    }
 }

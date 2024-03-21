@@ -121,6 +121,10 @@ class CustomKtApplication : Application() {
                 setOnClickListener {
                     Toast.makeText(context, "浮窗被点击", Toast.LENGTH_SHORT).show()
                 }
+                setOnLongClickListener {
+                    Toast.makeText(context, "浮窗被长按", Toast.LENGTH_SHORT).show()
+                    true
+                }
                 // 设置tag-Activity生命周期回调时的触发
                 setTagActivityLifecycle(object : IFxProxyTagActivityLifecycle {
                 })

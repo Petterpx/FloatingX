@@ -52,11 +52,14 @@ interface IFxControl {
     /** 更新当前View,如果要通过view更新视图,建议通过此方法,可以帮助选用合适的context,来避免因context所导致的内存泄漏 */
     fun updateView(provider: IFxContextProvider)
 
-    /** 设置点击事件,同时增加防重 */
-    fun setClickListener(time: Long = 300L, clickListener: View.OnClickListener)
-
     /** 设置点击事件 */
-    fun setClickListener(clickListener: View.OnClickListener)
+    fun setClickListener(listener: View.OnClickListener?)
+
+    /** 设置长按事件 */
+    fun setLongClickListener(listener: View.OnLongClickListener?)
+
+    /** 设置点击事件,同时增加防重 */
+    fun setClickListener(time: Long = 300L, listener: View.OnClickListener?)
 
     /**
      * 移动浮窗到指定位置，该方法会帮助你处理越界问题，默认带动画

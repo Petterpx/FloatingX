@@ -103,14 +103,19 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         provider.apply(getViewHolder() ?: return)
     }
 
-    override fun setClickListener(time: Long, clickListener: View.OnClickListener) {
+    override fun setClickListener(time: Long, listener: View.OnClickListener?) {
         helper.clickTime = time
-        helper.enableClickListener = true
-        helper.iFxClickListener = clickListener
+        helper.iFxClickListener = listener
+        helper.enableClickListener = listener != null
     }
 
-    override fun setClickListener(clickListener: View.OnClickListener) {
-        setClickListener(0, clickListener)
+    override fun setClickListener(listener: View.OnClickListener?) {
+        setClickListener(0, listener)
+    }
+
+    override fun setLongClickListener(listener: View.OnLongClickListener?) {
+        helper.iFxLongClickListener = listener
+        helper.enableClickListener = listener != null
     }
 
     override fun move(x: Float, y: Float) {

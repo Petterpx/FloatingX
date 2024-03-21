@@ -21,6 +21,7 @@ internal const val INVALID_TOUCH_ID = -1
 internal const val INVALID_LAYOUT_ID = 0
 internal const val INVALID_TOUCH_IDX = -1
 internal const val TOUCH_TIME_THRESHOLD = 150L
+internal const val TOUCH_CLICK_LONG_TIME = 500L
 internal const val DEFAULT_MOVE_ANIMATOR_DURATION = 200L
 internal const val FX_DEFAULT_TAG = "FX_DEFAULT_TAG"
 

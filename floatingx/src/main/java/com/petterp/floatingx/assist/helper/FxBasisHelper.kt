@@ -97,6 +97,9 @@ open class FxBasisHelper {
     @JvmField
     internal var iFxClickListener: View.OnClickListener? = null
 
+    @JvmField
+    internal var iFxLongClickListener: View.OnLongClickListener? = null
+
     internal lateinit var fxLog: FxLog
 
     @JvmField
@@ -130,6 +133,9 @@ open class FxBasisHelper {
 
     val safeEdgeOffSet: Float
         get() = if (enableEdgeRebound) edgeOffset else 0F
+
+    internal val hasClickStatus: Boolean
+        get() = enableClickListener && (iFxClickListener != null || iFxLongClickListener != null)
 
     internal val hasDefaultXY: Boolean
         get() = defaultX != 0f || defaultY != 0f
@@ -167,6 +173,7 @@ open class FxBasisHelper {
         private var iFxViewLifecycle: IFxViewLifecycle? = null
         private var iFxTouchListener: IFxTouchListener? = null
         private var ifxClickListener: View.OnClickListener? = null
+        private var ifxLongClickListener: View.OnLongClickListener? = null
 
         protected abstract fun buildHelper(): B
 
@@ -206,6 +213,7 @@ open class FxBasisHelper {
                 iFxViewLifecycle = this@Builder.iFxViewLifecycle
                 iFxConfigStorage = this@Builder.iFxConfigStorage
                 iFxClickListener = this@Builder.ifxClickListener
+                iFxLongClickListener = this@Builder.ifxLongClickListener
             }
 
         /** 设置悬浮窗view的layout */
@@ -283,6 +291,14 @@ open class FxBasisHelper {
             this.enableClickListener = true
             this.ifxClickListener = clickListener
             this.clickTime = time
+            return this as T
+        }
+
+        /** 设置悬浮窗长按事件 [ifxLongClickListener]
+         * */
+        fun setOnLongClickListener(listener: View.OnLongClickListener): T {
+            this.enableClickListener = true
+            this.ifxLongClickListener = listener
             return this as T
         }
 
