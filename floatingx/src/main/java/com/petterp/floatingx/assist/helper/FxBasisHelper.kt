@@ -385,9 +385,10 @@ open class FxBasisHelper {
          * 计算，而非直接坐标。 这样的好处是,你不用去关注具体浮窗坐标应该是什么，而是可以依靠参照物的方式摆放。
          * 比如默认你的浮窗在右下角，但是想增加一点在右侧偏移，此时就可以依靠此方法，将浮窗位置设置在右下角，然后增加相应方向的偏移量即可。
          */
-        fun setOffsetXY(x: Float, y: Float) {
+        fun setOffsetXY(x: Float, y: Float): T {
             this.offsetX = x
             this.offsetY = y
+            return this as T
         }
 
         /** 设置是否启用动画 */
