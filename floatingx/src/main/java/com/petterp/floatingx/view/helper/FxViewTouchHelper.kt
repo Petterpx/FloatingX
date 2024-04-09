@@ -73,7 +73,7 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     }
 
     private fun canInterceptEvent(event: MotionEvent) =
-        abs(event.x - initX) >= scaledTouchSlop || abs(event.y - initY) >= scaledTouchSlop
+        abs(event.rawX - initX) >= scaledTouchSlop || abs(event.rawY - initY) >= scaledTouchSlop
 
     private fun initTouchDown(event: MotionEvent) {
         if (hasMainPointerId()) return
