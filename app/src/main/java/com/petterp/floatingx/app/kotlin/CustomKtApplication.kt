@@ -131,6 +131,9 @@ class CustomKtApplication : Application() {
                 // 增加生命周期监听
                 setViewLifecycle(object : IFxViewLifecycle {
                     override fun initView(view: View) {
+                        view.findViewById<View>(R.id.tvItemFx).setOnClickListener {
+                            Toast.makeText(context, "子view点击", Toast.LENGTH_SHORT).show()
+                        }
                     }
 
                     override fun attach() {

@@ -78,6 +78,10 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         installChildView()
     }
 
+    override fun invokeClick() {
+        helper.iFxClickListener?.onClick(this)
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         helpers.forEach { it.onSizeChanged(w, h, oldw, oldh) }
@@ -91,7 +95,7 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
-        return touchHelper.interceptTouchEvent(event) || super.onInterceptTouchEvent(event)
+        return touchHelper.interceptTouchEvent(event, this) || super.onInterceptTouchEvent(event)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

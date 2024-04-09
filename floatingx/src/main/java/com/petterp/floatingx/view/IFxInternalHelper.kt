@@ -25,4 +25,6 @@ interface IFxInternalHelper {
     fun updateView(@LayoutRes layoutId: Int)
 
     fun updateView(layoutView: View)
+
+    fun invokeClick()
 }

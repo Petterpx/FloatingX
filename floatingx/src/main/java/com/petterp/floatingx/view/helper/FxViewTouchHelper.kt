@@ -48,7 +48,8 @@ class FxViewTouchHelper : FxViewBasicHelper() {
         return config.iFxTouchListener?.onTouch(event, basicView) ?: false
     }
 
-    fun interceptTouchEvent(event: MotionEvent): Boolean {
+    fun interceptTouchEvent(event: MotionEvent, basicView: FxBasicContainerView): Boolean {
+        val listener = config.iFxTouchListener
         // 仅展示时，不拦截事件
         if (config.displayMode == FxDisplayMode.DisplayOnly) return false
         when (event.action) {
@@ -63,11 +64,12 @@ class FxViewTouchHelper : FxViewBasicHelper() {
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                touchCancel(event)
+                if (!isCurrentPointerId(event)) return false
+                reset()
                 config.fxLog.d("fxView -> interceptEventCancel")
             }
         }
-        return false
+        return listener?.onInterceptTouchEvent(event, basicView) ?: false
     }
 
     private fun canInterceptEvent(event: MotionEvent) =
@@ -116,7 +118,6 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     }
 
     private fun touchCancel(event: MotionEvent) {
-        if (!isCurrentPointerId(event)) return
         if (config.enableEdgeAdsorption && config.displayMode.canMove) basicView?.moveToEdge()
         basicView?.onTouchCancel(event)
         config.iFxTouchListener?.up()

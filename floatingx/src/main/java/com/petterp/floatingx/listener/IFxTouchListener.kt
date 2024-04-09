@@ -29,6 +29,16 @@ interface IFxTouchListener {
     fun onTouch(event: MotionEvent, control: IFxInternalHelper?): Boolean = false
 
     /**
+     * 实现此方法，自行拦截事件
+     *
+     * 通常情况下，无需重写该方法，除非有特殊需求
+     * 比如你的浮窗view是RecyclerView时，此时仍需要点击事件，默认情况下事件都会被RecyclerView拿走，此时可以监听此方法，实现自己的事件逻辑
+     * @param event 当前事件
+     * @return true:拦截当前事件处理
+     * */
+    fun onInterceptTouchEvent(event: MotionEvent, control: IFxInternalHelper?): Boolean = false
+
+    /**
      * 监测当前移动浮窗的手指 move回调
      *
      * @param event 当前手势事件
