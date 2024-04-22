@@ -95,7 +95,7 @@ class FxAppLifecycleImp(
             if (activity.isActivityInValid) it.onDestroyed(activity)
         }
         val isParent = activity.isParent
-        fxLog.d("fxApp->detach? isContainActivity-${activity.isActivityInValid}--enableFx-$enableFx---isParent-$isParent")
+        fxLog.d("fxApp->check detach: isContainActivity-${activity.isActivityInValid}--enableFx-$enableFx---isParent-$isParent")
         if (isParent) appControl.destroyToDetach(activity)
     }
 

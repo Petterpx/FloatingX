@@ -68,12 +68,21 @@ class FxAppPlatformProvider(
         val fxView = _internalView ?: return
         if (!ViewCompat.isAttachedToWindow(fxView)) {
             fxView.visibility = View.VISIBLE
-            containerGroupView?.safeAddView(fxView)
+            checkOrReInitGroupView()?.safeAddView(fxView)
         }
     }
 
     override fun hide() {
         detach()
+    }
+
+    private fun checkOrReInitGroupView(): ViewGroup? {
+        val curGroup = containerGroupView
+        if (curGroup == null || curGroup !== topActivity?.decorView) {
+            _containerGroup = WeakReference(topActivity?.decorView)
+            helper.fxLog.v("view-----> reinitialize the fx container")
+        }
+        return containerGroupView
     }
 
     private fun attach(activity: Activity): Boolean {
@@ -123,6 +132,8 @@ class FxAppPlatformProvider(
     private fun detach() {
         _internalView?.visibility = View.GONE
         containerGroupView?.removeView(_internalView)
+        _containerGroup?.clear()
+        _containerGroup = null
     }
 
     private fun initWindowsInsetsListener() {
