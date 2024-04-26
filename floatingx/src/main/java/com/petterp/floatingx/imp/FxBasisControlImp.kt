@@ -41,9 +41,11 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     }
 
     override fun show() {
-        updateStatus(true)
         if (isShow()) return
-        if (!platformProvider.checkOrInit()) return
+        helper.enableFx = true
+        // fx not init, return
+        if (!platformProvider.checkInitStatus()) return
+        // view == null, return
         val fxView = getManagerView() ?: return
         platformProvider.show()
         if (_animationProvider.canRunAnimation()) {
@@ -52,7 +54,6 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     }
 
     override fun hide() {
-        updateStatus(false)
         if (!isShow()) return
         val fxView = getManagerView() ?: return
         if (_animationProvider.canCancelAnimation()) {
@@ -143,10 +144,5 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         _animationProvider.reset()
         helper.clear()
         helper.fxLog.d("fxView-lifecycle-> code->cancelFx")
-    }
-
-    private fun updateStatus(newStatus: Boolean) {
-        if (helper.enableFx == newStatus) return
-        helper.enableFx = newStatus
     }
 }

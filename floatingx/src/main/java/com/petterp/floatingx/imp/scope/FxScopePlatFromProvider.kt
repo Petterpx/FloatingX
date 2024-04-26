@@ -41,7 +41,7 @@ class FxScopePlatFromProvider(
         _internalView?.visibility = View.GONE
     }
 
-    override fun checkOrInit(): Boolean {
+    override fun checkInitStatus(): Boolean {
         if (_internalView == null) {
             val parentView = containerGroupView ?: return false
             _internalView = FxDefaultContainerView(helper, parentView.context)

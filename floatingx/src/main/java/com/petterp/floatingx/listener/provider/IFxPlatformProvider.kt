@@ -12,5 +12,5 @@ interface IFxPlatformProvider<F : FxBasisHelper> : IFxBasicProvider<F> {
     fun show()
     fun hide()
     fun isShow(): Boolean? = null
-    fun checkOrInit(): Boolean
+    fun checkInitStatus(): Boolean
 }

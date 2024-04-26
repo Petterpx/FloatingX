@@ -49,10 +49,15 @@ class FxAppPlatformProvider(
         checkRegisterAppLifecycle()
     }
 
-    override fun checkOrInit(): Boolean {
+    override fun checkInitStatus(): Boolean {
         checkRegisterAppLifecycle()
-        val act = topActivity ?: return false
-        if (!helper.isCanInstall(act)) return false
+        // topActivity==null,依然返回true,因为在某些情况下，可能会在Activity未创建时，就调用show
+        val act = topActivity ?: return true
+        if (!helper.isCanInstall(act)) {
+            // 无法安装，直接更改浮窗状态
+            helper.enableFx = false
+            return false
+        }
         if (_internalView == null) {
             initWindowsInsetsListener()
             helper.updateNavigationBar(act)
@@ -69,6 +74,8 @@ class FxAppPlatformProvider(
         if (!ViewCompat.isAttachedToWindow(fxView)) {
             fxView.visibility = View.VISIBLE
             checkOrReInitGroupView()?.safeAddView(fxView)
+        } else if (fxView.visibility != View.VISIBLE) {
+            fxView.visibility = View.VISIBLE
         }
     }
 

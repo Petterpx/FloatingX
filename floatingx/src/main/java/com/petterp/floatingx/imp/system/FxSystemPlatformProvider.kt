@@ -56,10 +56,14 @@ class FxSystemPlatformProvider(
         return internalView.isAttachToWM && internalView.visibility == View.VISIBLE
     }
 
-    override fun checkOrInit(): Boolean {
+    override fun checkInitStatus(): Boolean {
         checkRegisterAppLifecycle()
-        // 说明此时其实需要延迟初始化
         val activity = topActivity ?: return false
+        // 禁止安装浮窗时，直接返回false
+        if (!helper.isCanInstall(activity)) {
+            helper.enableFx = false
+            return false
+        }
         if (_internalView == null) {
             if (!checkAgreePermission(activity)) {
                 internalAskAutoPermission(activity)
