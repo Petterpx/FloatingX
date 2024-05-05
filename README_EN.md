@@ -38,7 +38,7 @@
 
 ```groovy
 dependencies {
-    implementation 'io.github.petterpx:floatingx:2.1'
+    implementation 'io.github.petterpx:floatingx:2.0.9'
 }
 ```
 
