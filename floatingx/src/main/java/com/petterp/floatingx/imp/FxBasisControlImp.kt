@@ -42,20 +42,30 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
 
     override fun show() {
         if (isShow()) return
-        helper.enableFx = true
-        // fx not init, return
-        if (!platformProvider.checkInitStatus()) return
-        // view == null, return
+        if (!updateEnableStatusAndCheckCanShow()) return
         val fxView = getManagerView() ?: return
         platformProvider.show()
+        helper.fxLog.d("fxView -> showFx")
         if (_animationProvider.canRunAnimation()) {
             _animationProvider.start(fxView)
         }
     }
 
+    private fun updateEnableStatusAndCheckCanShow(): Boolean {
+        val oldStatus = helper.enableFx
+        // pre update status
+        helper.enableFx = true
+        val canShow = platformProvider.checkOrInit()
+        // If it was not open before, it can be safely updated to the latest status
+        if (!oldStatus) helper.enableFx = canShow
+        return canShow
+    }
+
     override fun hide() {
         if (!isShow()) return
+        helper.enableFx = false
         val fxView = getManagerView() ?: return
+        helper.fxLog.d("fxView -> hideFx")
         if (_animationProvider.canCancelAnimation()) {
             _animationProvider.hide(fxView) {
                 platformProvider.hide()

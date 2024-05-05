@@ -49,13 +49,12 @@ class FxAppPlatformProvider(
         checkRegisterAppLifecycle()
     }
 
-    override fun checkInitStatus(): Boolean {
+    override fun checkOrInit(): Boolean {
         checkRegisterAppLifecycle()
         // topActivity==null,依然返回true,因为在某些情况下，可能会在Activity未创建时，就调用show
         val act = topActivity ?: return true
         if (!helper.isCanInstall(act)) {
-            // 无法安装，直接更改浮窗状态
-            helper.enableFx = false
+            helper.fxLog.d("fx not show,This ${act.javaClass.simpleName} is not in the list of allowed inserts!")
             return false
         }
         if (_internalView == null) {

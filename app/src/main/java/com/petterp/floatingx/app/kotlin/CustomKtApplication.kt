@@ -170,7 +170,7 @@ class CustomKtApplication : Application() {
         fun installTag2(context: Application) {
             FloatingX.install {
                 setContext(context)
-                setScopeType(FxScopeType.SYSTEM_AUTO)
+                setScopeType(FxScopeType.APP)
                 setGravity(FxGravity.LEFT_OR_BOTTOM)
                 setOffsetXY(10f, 10f)
                 setLayoutView(

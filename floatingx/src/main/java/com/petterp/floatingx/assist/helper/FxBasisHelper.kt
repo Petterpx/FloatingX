@@ -61,8 +61,12 @@ open class FxBasisHelper {
     @JvmField
     internal var adsorbDirection: FxAdsorbDirection = FxAdsorbDirection.LEFT_OR_RIGHT
 
-    @JvmField
     internal var enableFx: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            fxLog.v("update enableFx: [$value]")
+        }
 
     @JvmField
     internal var enableEdgeAdsorption: Boolean = true
