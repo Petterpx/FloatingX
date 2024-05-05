@@ -48,6 +48,8 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
 
     open fun initView() {
         helpers.forEach { it.initConfig(this) }
+        // 先隐藏view,等待初始化完成后再显示,避免位置的影响
+        visibility = View.INVISIBLE
     }
 
     override fun moveToEdge() {
@@ -92,6 +94,7 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         if (!isInitLayout) return
         isInitLayout = false
         helpers.forEach { it.onInit() }
+        visibility = View.VISIBLE
     }
 
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
