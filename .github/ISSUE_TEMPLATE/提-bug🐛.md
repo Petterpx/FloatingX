@@ -1,6 +1,6 @@
 ---
-name: 提Bug
-about: 基本须知
+name: "提 Bug\U0001F41B"
+about: 合理的提问有助于更快定位并解决问题~
 title: ''
 labels: bug
 assignees: ''
