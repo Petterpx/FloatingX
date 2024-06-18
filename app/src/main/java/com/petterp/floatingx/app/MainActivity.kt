@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
                                     gravity = Gravity.CENTER
                                     textSize = 15f
                                     setBackgroundColor(Color.GRAY)
+                                    id = R.id.tvItemFx
                                 }
                             }
                             show()
