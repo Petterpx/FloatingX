@@ -8,6 +8,7 @@ import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.util.coerceInFx
 import com.petterp.floatingx.util.shr
 import com.petterp.floatingx.view.FxBasicContainerView
+import kotlin.math.abs
 
 /**
  * 浮窗坐标的配置助手，用于处理坐标相关的处理
@@ -187,12 +188,14 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
 
     private fun isNearestLeft(x: Float): Boolean {
         val middle = parentW / 2
-        return x < middle
+        val viewMiddlePoint = x + viewW / 2
+        return viewMiddlePoint < middle
     }
 
     private fun isNearestTop(y: Float): Boolean {
         val middle = parentH / 2
-        return y < middle
+        val viewMiddlePoint = y + viewH / 2
+        return viewMiddlePoint < middle
     }
 
     private fun getHistoryXY(): Pair<Float, Float> {

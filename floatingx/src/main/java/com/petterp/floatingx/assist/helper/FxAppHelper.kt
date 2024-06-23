@@ -28,7 +28,7 @@ class FxAppHelper(
     /** 是否允许插入全部Activity */
     @JvmSynthetic
     internal val isAllInstall: Boolean,
-
+    /** 显示的scope */
     @JvmSynthetic
     internal var scope: FxScopeType,
 
@@ -60,19 +60,19 @@ class FxAppHelper(
     @JvmSynthetic
     internal fun isCanInstall(cls: Class<*>): Boolean {
         return (isAllInstall && !blackFilterList.contains(cls)) ||
-            (!isAllInstall && whiteInsertList.contains(cls))
+                (!isAllInstall && whiteInsertList.contains(cls))
     }
 
     class Builder : FxBasisHelper.Builder<Builder, FxAppHelper>() {
+        private var enableFx = false
+        private var tag = FX_DEFAULT_TAG
+        private var context: Application? = null
+        private var isEnableAllInstall: Boolean = true
+        private var scopeEnum: FxScopeType = FxScopeType.APP
+        private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
+        private var askPermissionInterceptor: IFxPermissionInterceptor? = null
         private var whiteInsertList: MutableList<Class<*>> = mutableListOf()
         private var blackFilterList: MutableList<Class<*>> = mutableListOf()
-        private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
-        private var isEnableAllInstall: Boolean = true
-        private var context: Application? = null
-        private var tag = FX_DEFAULT_TAG
-        private var enableFx = false
-        private var scopeEnum: FxScopeType = FxScopeType.APP
-        private var askPermissionInterceptor: IFxPermissionInterceptor? = null
 
         /** 用于启用全局浮窗标志，与control.show()同理
          *

@@ -97,8 +97,8 @@ class FxSystemContainerView @JvmOverloads constructor(
             height = helper.layoutParams?.height ?: WindowManager.LayoutParams.WRAP_CONTENT
             format = PixelFormat.RGBA_8888
             gravity = Gravity.TOP or Gravity.START
-            flags =
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+            flags = (WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                    or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
             type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {
