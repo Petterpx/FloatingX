@@ -75,6 +75,12 @@ open class FxBasisHelper {
     internal var enableEdgeRebound: Boolean = true
 
     @JvmField
+    internal var enableHalfHide: Boolean = false
+
+    @JvmField
+    internal var halfHidePercent: Float = 0.5f
+
+    @JvmField
     internal var enableAnimation: Boolean = false
 
     @JvmField
@@ -138,6 +144,9 @@ open class FxBasisHelper {
     val safeEdgeOffSet: Float
         get() = if (enableEdgeRebound) edgeOffset else 0F
 
+    var isHalfHideState: Boolean = false
+        get() = enableHalfHide && field
+
     internal val hasClickStatus: Boolean
         get() = enableClickListener && (iFxClickListener != null || iFxLongClickListener != null)
 
@@ -168,6 +177,8 @@ open class FxBasisHelper {
 
         private var enableDebugLog: Boolean = false
         private var enableAnimation: Boolean = false
+        private var enableHalfHide: Boolean = false
+        private var halfHidePercent: Float = 0.5f
         private var enableEdgeRebound: Boolean = true
         private var enableSaveDirection: Boolean = false
         private var enableClickListener: Boolean = false
@@ -204,6 +215,8 @@ open class FxBasisHelper {
                 adsorbDirection = this@Builder.edgeAdsorbDirection
 
                 enableAnimation = this@Builder.enableAnimation
+                enableHalfHide = this@Builder.enableHalfHide
+                halfHidePercent = this@Builder.halfHidePercent
                 enableEdgeAdsorption = this@Builder.enableEdgeAdsorption
                 enableEdgeRebound = this@Builder.enableEdgeRebound
                 enableSaveDirection = this@Builder.enableSaveDirection
@@ -398,6 +411,19 @@ open class FxBasisHelper {
         /** 设置是否启用动画 */
         fun setEnableAnimation(isEnable: Boolean): T {
             enableAnimation = isEnable
+            return this as T
+        }
+
+        /** 设置是支持半隐藏 */
+        fun setEnableHalfHide(isEnable: Boolean): T {
+            enableHalfHide = isEnable
+            return this as T
+        }
+
+        /** 设置半隐藏比例[0:全显, 0.9:几乎全隐], 默认0.5f，设置后会开enable半隐 */
+        fun setHalfHidePercent(percent: Float): T {
+            setEnableHalfHide(true)
+            halfHidePercent = percent.coerceIn(0f, 0.9f)
             return this as T
         }
 

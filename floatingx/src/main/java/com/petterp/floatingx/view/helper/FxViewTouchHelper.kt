@@ -60,7 +60,7 @@ class FxViewTouchHelper : FxViewBasicHelper() {
 
             MotionEvent.ACTION_MOVE -> {
                 if (!isCurrentPointerId(event)) return false
-                return config.displayMode.canMove && canInterceptEvent(event)
+                return !config.isHalfHideState && config.displayMode.canMove && canInterceptEvent(event)
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
@@ -109,6 +109,7 @@ class FxViewTouchHelper : FxViewBasicHelper() {
         if (!isCurrentPointerId(event)) return
         checkClickState(event)
         // 不支持move时return掉
+        if (config.isHalfHideState) return
         if (!config.displayMode.canMove) return
         basicView?.onTouchMove(event)
         val x = basicView?.currentX() ?: -1f
@@ -145,7 +146,7 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     private fun checkClickState(event: MotionEvent) {
         if (!isClickEvent) return
         isClickEvent = abs(event.rawX - initX) < scaledTouchSlop &&
-            abs(event.rawY - initY) < scaledTouchSlop
+                abs(event.rawY - initY) < scaledTouchSlop
     }
 
     private fun isCurrentPointerId(ev: MotionEvent): Boolean {
