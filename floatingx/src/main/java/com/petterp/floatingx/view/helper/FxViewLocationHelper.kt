@@ -109,6 +109,16 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         }
     }
 
+    fun getHalfHideXY(): Pair<Float, Float> {
+        val x = if (isNearestLeft(x)) {
+            moveIngBoundary.minW - viewW * config.halfHidePercent
+        } else {
+            moveIngBoundary.maxW + viewW * config.halfHidePercent
+        }
+
+        return x to safeY(y)
+    }
+
     fun safeX(x: Float, isMoveIng: Boolean = false): Float {
         // 是否考虑边界
         val enableBound = isMoveIng && config.enableEdgeRebound

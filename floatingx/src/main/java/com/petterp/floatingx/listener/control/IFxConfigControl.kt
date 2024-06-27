@@ -38,6 +38,10 @@ interface IFxConfigControl {
      * */
     fun setEnableEdgeRebound(isEnable: Boolean)
 
+    /** 启用边缘回弹
+     * */
+    fun setEnableHalfHide(isEnable: Boolean)
+
     /** 设置是否启用触摸事件
      * @param isEnable  true,则允许悬浮窗拖动
      * */

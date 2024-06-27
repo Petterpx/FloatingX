@@ -131,6 +131,14 @@ class MainActivity : AppCompatActivity() {
                     addItemView("进入system浮窗测试页面") {
                         SystemActivity::class.java.start(this@MainActivity)
                     }
+
+                    var halfHide = false
+                    addItemView("切换半隐状态") {
+                        FloatingX.control(MultipleFxActivity.TAG_1).apply {
+                            halfHide = !halfHide
+                            halfHide(halfHide)
+                        }
+                    }
                 }
             }
         }

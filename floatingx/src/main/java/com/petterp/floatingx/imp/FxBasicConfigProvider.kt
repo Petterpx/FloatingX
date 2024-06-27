@@ -66,6 +66,11 @@ class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         internalView?.moveToEdge()
     }
 
+    override fun setEnableHalfHide(isEnable: Boolean) {
+       helper.enableHalfHide = isEnable
+       internalView?.moveToEdge()
+    }
+
     override fun setScrollListener(listener: IFxScrollListener) {
         helper.iFxTouchListener = listener
     }
