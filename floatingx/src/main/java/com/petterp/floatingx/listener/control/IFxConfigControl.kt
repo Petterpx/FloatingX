@@ -38,7 +38,7 @@ interface IFxConfigControl {
      * */
     fun setEnableEdgeRebound(isEnable: Boolean)
 
-    /** 启用边缘回弹
+    /** 设置是否支持悬浮窗半隐模式
      * */
     fun setEnableHalfHide(isEnable: Boolean)
 
