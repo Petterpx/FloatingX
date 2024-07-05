@@ -106,6 +106,10 @@ class CustomKtApplication : Application() {
                 // 设置移动边框
                 setBorderMargin(50f, 50f, 50f, 50f)
 
+                //支持半隐
+                setEnableHalfHide(true)
+                setHalfHidePercent(0.7f)
+
                 /** 指定浮窗可显示的activity方式 */
                 // 1.设置是否允许所有activity都进行显示,默认true
                 setEnableAllInstall(true)
