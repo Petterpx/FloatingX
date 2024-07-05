@@ -10,6 +10,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.compose.material3.Text
+import androidx.compose.ui.platform.ComposeView
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.*
 import com.petterp.floatingx.app.simple.FxAnimationImpl
@@ -57,7 +59,11 @@ class CustomKtApplication : Application() {
                 setScopeType(FxScopeType.APP)
                 // 设置浮窗展示类型，默认可移动可点击，无需配置
                 setDisplayMode(FxDisplayMode.Normal)
-                setLayout(R.layout.item_floating)
+                setLayoutView(ComposeView(context).apply {
+                    setContent {
+                        Text(text = "123123")
+                    }
+                })
                 // 设置权限拦截器
                 setPermissionInterceptor { activity, controller ->
                     AlertDialog.Builder(activity).setTitle("提示").setMessage("需要允许悬浮窗权限")
@@ -135,9 +141,9 @@ class CustomKtApplication : Application() {
                 // 增加生命周期监听
                 setViewLifecycle(object : IFxViewLifecycle {
                     override fun initView(view: View) {
-                        view.findViewById<View>(R.id.tvItemFx).setOnClickListener {
-                            Toast.makeText(context, "子view点击", Toast.LENGTH_SHORT).show()
-                        }
+//                        view.findViewById<View>(R.id.tvItemFx).setOnClickListener {
+//                            Toast.makeText(context, "子view点击", Toast.LENGTH_SHORT).show()
+//                        }
                     }
 
                     override fun attach() {
