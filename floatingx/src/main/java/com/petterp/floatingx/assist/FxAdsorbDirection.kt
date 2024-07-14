@@ -5,10 +5,10 @@ package com.petterp.floatingx.assist
  * @author petterp
  */
 enum class FxAdsorbDirection {
-    TOP_OR_BOTTOM,
     TOP,
-    BOTTOM,
-    LEFT_OR_RIGHT,
     LEFT,
-    RIGHT
+    RIGHT,
+    BOTTOM,
+    TOP_OR_BOTTOM,
+    LEFT_OR_RIGHT,
 }

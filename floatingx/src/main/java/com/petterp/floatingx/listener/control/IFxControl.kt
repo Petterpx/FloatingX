@@ -18,8 +18,6 @@ interface IFxControl {
     /** 隐藏悬浮窗-不会解绑app-lifecycle */
     fun hide()
 
-    fun halfHide(bSet: Boolean)
-
     /** 当前浮窗是否显示 */
     fun isShow(): Boolean
 

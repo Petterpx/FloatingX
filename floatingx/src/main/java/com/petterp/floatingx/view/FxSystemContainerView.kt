@@ -73,7 +73,7 @@ class FxSystemContainerView @JvmOverloads constructor(
     override fun onTouchMove(event: MotionEvent) {
         val x = downTouchX.plus(event.rawX)
         val y = downTouchY.plus(event.rawY)
-        safeUpdateXY(x, y)
+        safeUpdatingXY(x, y)
     }
 
     override fun onTouchCancel(event: MotionEvent) {

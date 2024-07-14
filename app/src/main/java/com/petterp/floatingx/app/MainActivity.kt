@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity() {
                             this.updateViewContent {
                                 it.setText(R.id.tvItemFx, "App")
                             }
+                            gravity=
                         }.show()
                     }
                     addItemView("更新当前[全局浮窗]内容-(传递view方式)") {
@@ -136,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                     addItemView("切换半隐状态") {
                         FloatingX.control(MultipleFxActivity.TAG_1).apply {
                             halfHide = !halfHide
-                            halfHide(halfHide)
+                            configControl.setEnableHalfHide(halfHide)
                         }
                     }
                 }

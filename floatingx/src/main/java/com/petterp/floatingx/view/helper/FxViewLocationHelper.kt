@@ -8,33 +8,42 @@ import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.util.coerceInFx
 import com.petterp.floatingx.util.shr
 import com.petterp.floatingx.view.FxBasicContainerView
-import kotlin.math.abs
 
 /**
  * 浮窗坐标的配置助手，用于处理坐标相关的处理
  * @author petterp
  */
 class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
-    private var parentW = 0f
-    private var parentH = 0f
     private var viewW = 0f
     private var viewH = 0f
-
+    private var parentW = 0f
+    private var parentH = 0f
     private var screenWidthDp = 0
     private var screenHeightDp = 0
-    private var restoreLeftStandard = false
+
     private var restoreTopStandard = false
-    private var needUpdateLocation: Boolean = false
+    private var restoreLeftStandard = false
     private var needUpdateConfig: Boolean = false
+    private var needUpdateLocation: Boolean = false
+
+    private val moveBoundary = FxBoundaryConfig()
+    private val moveIngBoundary = FxBoundaryConfig()
+
     private var orientation = Configuration.ORIENTATION_PORTRAIT
 
-    private val moveIngBoundary = FxBoundaryConfig()
-    private val moveBoundary = FxBoundaryConfig()
 
     private val x: Float
         get() = basicView?.currentX() ?: 0f
     private val y: Float
         get() = basicView?.currentY() ?: 0f
+
+    private val Pair<Float, Float>.safeLocationXY: Pair<Float, Float>
+        get() {
+            val offX = config.offsetX
+            val offY = config.offsetY
+            return first + offX to second + offY
+        }
+
 
     override fun initConfig(parentView: FxBasicContainerView) {
         super.initConfig(parentView)
@@ -100,23 +109,13 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
     }
 
     fun getDefaultEdgeXY(): Pair<Float, Float>? {
-        return if (config.enableEdgeAdsorption) {
+        return if (config.enableEdgeAdsorption || config.enableHalfHide) {
             getAdsorbDirectionLocation(isNearestLeft(x), isNearestTop(y))
         } else if (config.enableEdgeRebound) {
             x to y
         } else {
             null
         }
-    }
-
-    fun getHalfHideXY(): Pair<Float, Float> {
-        val x = if (isNearestLeft(x)) {
-            moveIngBoundary.minW - viewW * config.halfHidePercent
-        } else {
-            moveIngBoundary.maxW + viewW * config.halfHidePercent
-        }
-
-        return x to safeY(y)
     }
 
     fun safeX(x: Float, isMoveIng: Boolean = false): Float {
@@ -192,7 +191,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         this.parentH = pH.toFloat()
         this.viewW = viewW
         this.viewH = viewH
-        updateBoundary()
+        updateMoveBoundary()
         config.fxLog.d("fxView -> updateSize: parentW:$parentW,parentH:$parentH,viewW:$viewW,viewH:$viewH")
     }
 
@@ -251,26 +250,34 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         }
     }
 
-    private val Pair<Float, Float>.safeLocationXY: Pair<Float, Float>
-        get() {
-            val offX = config.offsetX
-            val offY = config.offsetY
-            return first + offX to second + offY
-        }
-
-    private fun updateBoundary() {
+    private fun updateMoveBoundary() {
         config.apply {
-            moveIngBoundary.apply {
-                minW = 0f
-                maxW = parentW - viewW
-                minH = statsBarHeight.toFloat()
-                maxH = parentH - viewH - navigationBarHeight
-            }
-            moveBoundary.copy(moveIngBoundary).apply {
-                minW += fxBorderMargin.l + edgeOffset
-                maxW -= fxBorderMargin.r + edgeOffset
-                minH += fxBorderMargin.t + edgeOffset
-                maxH -= fxBorderMargin.b + edgeOffset
+            // 如果启用了半隐藏，这里需要单独处理
+            if (enableHalfHide) {
+                val halfWidth = viewW * halfHidePercent
+                moveIngBoundary.apply {
+                    minW = -halfWidth
+                    maxW = parentW - halfWidth
+                    minH = statsBarHeight.toFloat()
+                    maxH = parentH - viewH - navigationBarHeight
+                }
+                moveBoundary.copy(moveIngBoundary).apply {
+                    minH += fxBorderMargin.t + edgeOffset
+                    maxH -= fxBorderMargin.b + edgeOffset
+                }
+            } else {
+                moveIngBoundary.apply {
+                    minW = 0f
+                    maxW = parentW - viewW
+                    minH = statsBarHeight.toFloat()
+                    maxH = parentH - viewH - navigationBarHeight
+                }
+                moveBoundary.copy(moveIngBoundary).apply {
+                    minW += fxBorderMargin.l + edgeOffset
+                    maxW -= fxBorderMargin.r + edgeOffset
+                    minH += fxBorderMargin.t + edgeOffset
+                    maxH -= fxBorderMargin.b + edgeOffset
+                }
             }
         }
     }

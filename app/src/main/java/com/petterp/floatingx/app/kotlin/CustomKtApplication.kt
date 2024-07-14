@@ -54,7 +54,7 @@ class CustomKtApplication : Application() {
         fun installTag1(context: Application) {
             FloatingX.install {
                 setContext(context)
-                setScopeType(FxScopeType.SYSTEM_AUTO)
+                setScopeType(FxScopeType.APP)
                 // 设置浮窗展示类型，默认可移动可点击，无需配置
                 setDisplayMode(FxDisplayMode.Normal)
                 setLayout(R.layout.item_floating)
@@ -108,7 +108,7 @@ class CustomKtApplication : Application() {
 
                 //支持半隐
                 setEnableHalfHide(true)
-                setHalfHidePercent(0.7f)
+                setHalfHidePercent(0.3f)
 
                 /** 指定浮窗可显示的activity方式 */
                 // 1.设置是否允许所有activity都进行显示,默认true

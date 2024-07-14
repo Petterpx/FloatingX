@@ -144,9 +144,6 @@ open class FxBasisHelper {
     val safeEdgeOffSet: Float
         get() = if (enableEdgeRebound) edgeOffset else 0F
 
-    var isHalfHideState: Boolean = false
-        get() = enableHalfHide && field
-
     internal val hasClickStatus: Boolean
         get() = enableClickListener && (iFxClickListener != null || iFxLongClickListener != null)
 
@@ -414,7 +411,7 @@ open class FxBasisHelper {
             return this as T
         }
 
-        /** 设置是支持半隐藏 */
+        /** 设置是否支持半隐藏 */
         fun setEnableHalfHide(isEnable: Boolean): T {
             enableHalfHide = isEnable
             return this as T
