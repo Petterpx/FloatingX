@@ -30,6 +30,8 @@ internal const val FX_INSTALL_SCOPE_SYSTEM_TAG = "system"
 internal const val FX_INSTALL_SCOPE_ACTIVITY_TAG = "activity"
 internal const val FX_INSTALL_SCOPE_FRAGMENT_TAG = "fragment"
 internal const val FX_INSTALL_SCOPE_VIEW_GROUP_TAG = "view"
+internal const val FX_HALF_PERCENT_MIN = 0F
+internal const val FX_HALF_PERCENT_MAX = 1F
 
 internal val topActivity: Activity?
     get() = FxAppLifecycleProvider.getTopActivity()

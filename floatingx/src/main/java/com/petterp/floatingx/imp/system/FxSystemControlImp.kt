@@ -6,14 +6,21 @@ import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.imp.FxBasisControlImp
 import com.petterp.floatingx.listener.control.IFxAppControl
+import com.petterp.floatingx.listener.control.IFxConfigControl
 
 /**
- *
+ * FxSystemControl
  * @author petterp
  */
 class FxSystemControlImp(helper: FxAppHelper) :
     FxBasisControlImp<FxAppHelper, FxSystemPlatformProvider>(helper), IFxAppControl {
+
     override fun createPlatformProvider(f: FxAppHelper) = FxSystemPlatformProvider(helper, this)
+
+    override fun createConfigProvider(
+        f: FxAppHelper,
+        p: FxSystemPlatformProvider
+    ) = FxSystemConfigProvider(f, p)
 
     override fun getBindActivity(): Activity? {
         return null

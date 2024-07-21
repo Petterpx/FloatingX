@@ -43,6 +43,9 @@ class SimpleRvActivity : AppCompatActivity() {
                                 setLayoutView(createRvView(applicationContext))
                                 setEnableLog(true)
                                 setTouchListener(object : IFxTouchListener {
+                                    override fun onDown() {
+                                        super.onDown()
+                                    }
                                     override fun onInterceptTouchEvent(
                                         event: MotionEvent,
                                         control: IFxInternalHelper?

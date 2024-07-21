@@ -32,6 +32,8 @@ object FxComposeSimple {
         FloatingX.install {
             setContext(context)
             setTag("compose")
+            //system浮窗必须调用此方法,才可以启用Compose支持
+            enableComposeSupport()
             setScopeType(FxScopeType.SYSTEM)
             setGravity(FxGravity.RIGHT_OR_BOTTOM)
             setOffsetXY(10f, 10f)
@@ -49,7 +51,6 @@ object FxComposeSimple {
                     }
                 }
             )
-            enableComposeSupport()
             setEnableLog(true)
             setEdgeOffset(20f)
             setEnableEdgeAdsorption(true)

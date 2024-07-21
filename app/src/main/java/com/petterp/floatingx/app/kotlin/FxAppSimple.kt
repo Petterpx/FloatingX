@@ -57,7 +57,7 @@ object FxAppSimple {
             setTag(MultipleFxActivity.TAG_2)
             setEnableLog(true)
             setEdgeOffset(20f)
-            setEnableEdgeAdsorption(false)
+            setEnableEdgeAdsorption(true)
         }.show()
     }
 }

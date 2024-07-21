@@ -4,7 +4,7 @@ package com.petterp.floatingx.assist
  * FxView 边界配置
  * @author petterp
  */
-class FxBoundaryConfig(
+data class FxBoundaryConfig(
     var minW: Float = 0f,
     var maxW: Float = 0f,
     var minH: Float = 0f,

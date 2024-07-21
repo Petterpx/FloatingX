@@ -83,14 +83,27 @@ class FxSystemContainerView @JvmOverloads constructor(
         return helper.context.screenWidth to helper.context.screenHeight
     }
 
+    internal fun updateFlags(enableHalfHide: Boolean) {
+        wl.flags = findFlags(enableHalfHide)
+        wm.updateViewLayout(this, wl)
+    }
+
+    private fun findFlags(enableHalfHide: Boolean): Int {
+        var flags = (WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+        if (enableHalfHide) {
+            flags = flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        }
+        return flags
+    }
+
     private fun initWLParams() {
         wl = WindowManager.LayoutParams().apply {
             width = helper.layoutParams?.width ?: WindowManager.LayoutParams.WRAP_CONTENT
             height = helper.layoutParams?.height ?: WindowManager.LayoutParams.WRAP_CONTENT
             format = PixelFormat.RGBA_8888
             gravity = Gravity.TOP or Gravity.START
-            flags = (WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                    or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+            flags = findFlags(helper.enableHalfHide)
             type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {

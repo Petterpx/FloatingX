@@ -29,7 +29,7 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     private var _viewHolder: FxViewHolder? = null
     private val touchHelper = FxViewTouchHelper()
     private val animateHelper = FxViewAnimationHelper()
-    private val locationHelper = FxViewLocationHelper()
+    internal val locationHelper = FxViewLocationHelper()
     private val helpers = listOf(locationHelper, touchHelper, animateHelper)
 
     abstract fun currentX(): Float
@@ -52,9 +52,6 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         visibility = View.INVISIBLE
     }
 
-    /**
-     * 修改内容：添加半隐藏的逻辑处理
-     */
     override fun moveToEdge() {
         val (x, y) = locationHelper.getDefaultEdgeXY() ?: return
         moveLocation(x, y, true)

@@ -53,6 +53,12 @@ class MainActivity : AppCompatActivity() {
                             }
                         }.show()
                     }
+                    addItemView("开启半贴边"){
+                        FloatingX.control(MultipleFxActivity.TAG_1).configControl.setEnableHalfHide(true)
+                    }
+                    addItemView("隐藏半贴边"){
+                        FloatingX.control(MultipleFxActivity.TAG_1).configControl.setEnableHalfHide(false)
+                    }
                     addItemView("隐藏全局悬浮窗") {
                         FloatingX.control(MultipleFxActivity.TAG_1).hide()
                     }
@@ -62,7 +68,6 @@ class MainActivity : AppCompatActivity() {
                             this.updateViewContent {
                                 it.setText(R.id.tvItemFx, "App")
                             }
-                            gravity=
                         }.show()
                     }
                     addItemView("更新当前[全局浮窗]内容-(传递view方式)") {
@@ -100,14 +105,6 @@ class MainActivity : AppCompatActivity() {
                     }
                     addItemView("进入system浮窗测试页面") {
                         SystemActivity::class.java.start(this@MainActivity)
-                    }
-
-                    var halfHide = false
-                    addItemView("切换半隐状态") {
-                        FloatingX.control(MultipleFxActivity.TAG_1).apply {
-                            halfHide = !halfHide
-                            configControl.setEnableHalfHide(halfHide)
-                        }
                     }
                 }
             }
