@@ -54,15 +54,7 @@ class FxSystemContainerView @JvmOverloads constructor(
 
     override fun preCheckPointerDownTouch(event: MotionEvent): Boolean {
         // 当前屏幕存在手指时，check当前手势是否真的在浮窗之上
-        val x = event.rawX
-        val y = event.rawY
-        val location = IntArray(2)
-        getLocationOnScreen(location)
-        val left = location[0]
-        val top = location[1]
-        val right = left + this.width
-        val bottom = top + this.height
-        return x >= left && x <= right && y >= top && y <= bottom
+        return checkPointerDownTouch(this, event)
     }
 
     override fun onTouchDown(event: MotionEvent) {
@@ -91,14 +83,27 @@ class FxSystemContainerView @JvmOverloads constructor(
         return helper.context.screenWidth to helper.context.screenHeight
     }
 
+    internal fun updateFlags(enableHalfHide: Boolean) {
+        wl.flags = findFlags(enableHalfHide)
+        wm.updateViewLayout(this, wl)
+    }
+
+    private fun findFlags(enableHalfHide: Boolean): Int {
+        var flags = (WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+        if (enableHalfHide) {
+            flags = flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        }
+        return flags
+    }
+
     private fun initWLParams() {
         wl = WindowManager.LayoutParams().apply {
             width = helper.layoutParams?.width ?: WindowManager.LayoutParams.WRAP_CONTENT
             height = helper.layoutParams?.height ?: WindowManager.LayoutParams.WRAP_CONTENT
             format = PixelFormat.RGBA_8888
             gravity = Gravity.TOP or Gravity.START
-            flags = (WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                    or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+            flags = findFlags(helper.enableHalfHide)
             type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {

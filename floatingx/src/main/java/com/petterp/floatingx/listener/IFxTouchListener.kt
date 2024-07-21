@@ -15,28 +15,10 @@ import com.petterp.floatingx.view.IFxInternalHelper
 interface IFxTouchListener {
 
     /** 按下 */
-    fun down() {}
+    fun onDown() {}
 
     /** 松开 */
-    fun up() {}
-
-    /** 实现此方法，可实现类似TouchListener的拦截效果
-     * @param event 当前事件
-     * @param control 浮窗控制器,便于自行实现一些调度
-     * @return true:拦截当前事件处理，
-     * @return false:未处理,走系统默认事件
-     * */
-    fun onTouch(event: MotionEvent, control: IFxInternalHelper?): Boolean = false
-
-    /**
-     * 实现此方法，自行拦截事件
-     *
-     * 通常情况下，无需重写该方法，除非有特殊需求
-     * 比如你的浮窗view是RecyclerView时，此时仍需要点击事件，默认情况下事件都会被RecyclerView拿走，此时可以监听此方法，实现自己的事件逻辑
-     * @param event 当前事件
-     * @return true:拦截当前事件处理
-     * */
-    fun onInterceptTouchEvent(event: MotionEvent, control: IFxInternalHelper?): Boolean = false
+    fun onUp() {}
 
     /**
      * 监测当前移动浮窗的手指 move回调
@@ -53,13 +35,26 @@ interface IFxTouchListener {
      * 注意：这个方法仅会回调当前正在按压的手指事件
      *
      * */
-    fun dragIng(event: MotionEvent, x: Float, y: Float) {}
+    fun onDragIng(event: MotionEvent, x: Float, y: Float) {}
 
-    /** 接收所有event,用于自定义判断逻辑,会在onTouchEvent中被优先永远调用 */
-    @Deprecated(
-        "此方法不推荐使用，建议使用onTouch，后续版本将废弃",
-        replaceWith = ReplaceWith("onTouch"),
-    )
-    fun eventIng(event: MotionEvent) {
-    }
+    /**
+     * 实现此方法，可实现类似TouchListener的拦截效果
+     * @param event 当前事件
+     * @param control 浮窗控制器,便于自行实现一些调度
+     * @return true:拦截当前事件处理，
+     * @return false:未处理,走系统默认事件
+     * */
+    fun onTouch(event: MotionEvent, control: IFxInternalHelper?): Boolean = false
+
+    /**
+     * 浮窗事件拦截
+     *
+     * 默认情况下，浮窗会拦截所有事件，为了保证优先滑动，通常无需重写该方法，除非有特殊需求,比如你的浮窗view内部希望只有指定的view触摸时才可以滑动，此时就可以进行拦截修改
+     * @param event 当前事件
+     * @param control 浮窗控制器,便于自行实现一些调度
+     * @return true(default) 拦截当前事件,事件不会传给下一级
+     * @return false  浮窗禁止滑动，事件会传给下一级
+     * */
+    fun onInterceptTouchEvent(event: MotionEvent, control: IFxInternalHelper?): Boolean = true
+
 }

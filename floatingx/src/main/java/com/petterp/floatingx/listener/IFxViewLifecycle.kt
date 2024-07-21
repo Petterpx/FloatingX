@@ -8,23 +8,19 @@ interface IFxViewLifecycle {
 
     /**
      * 初始化浮窗时调用,每次设置新的浮窗时都会调用
-     * @param view 浮窗内容View
-     */
-    fun initView(view: View) {}
-
-    /**
-     * 初始化浮窗时调用,每次设置新的浮窗时都会调用
-     *
      * @param holder 浮窗内容Holder
      */
     fun initView(holder: FxViewHolder) {}
 
+    @Deprecated("use initView(holder: FxViewHolder) instead", ReplaceWith("initView(holder)"))
+    fun initView(view: View) {}
+
     /** 安装悬浮窗到新窗口时 */
-    fun attach() {}
+    fun attach(view: View) {}
 
     /** 窗口可见性监听,即悬浮窗完全可见时 */
     fun windowsVisibility(visibility: Int) {}
 
     /** 从当前view移除悬浮窗时调用 */
-    fun detached() {}
+    fun detached(view: View) {}
 }

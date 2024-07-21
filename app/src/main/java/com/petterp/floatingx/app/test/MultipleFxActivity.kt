@@ -8,6 +8,8 @@ import com.petterp.floatingx.app.addLinearLayout
 import com.petterp.floatingx.app.addNestedScrollView
 import com.petterp.floatingx.app.createLinearLayoutToParent
 import com.petterp.floatingx.app.kotlin.CustomKtApplication
+import com.petterp.floatingx.app.kotlin.FxAppSimple
+import com.petterp.floatingx.app.kotlin.FxSystemSimple
 
 /**
  * 多浮窗示例
@@ -22,18 +24,18 @@ class MultipleFxActivity : AppCompatActivity() {
                 addLinearLayout {
                     addItemView("显示全局悬浮窗(tag1)") {
                         if (!FloatingX.isInstalled(TAG_1)) {
-                            CustomKtApplication.installTag1(application)
+                            FxSystemSimple.install(application)
                         }
                         FloatingX.control(TAG_1).show()
                     }
                     addItemView("显示全局悬浮窗(tag2)") {
                         if (!FloatingX.isInstalled(TAG_2)) {
-                            CustomKtApplication.installTag2(application)
+                            FxAppSimple.install(application)
                         }
                         FloatingX.control(TAG_2).show()
                     }
                     addItemView("重复安装全局悬浮窗(tag1)") {
-                        CustomKtApplication.installTag1(application)
+                        FxSystemSimple.install(application)
                         FloatingX.control(TAG_1).show()
                     }
                     addItemView("隐藏全局悬浮窗(tag1)") {

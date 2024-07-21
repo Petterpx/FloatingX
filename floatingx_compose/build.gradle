@@ -6,26 +6,25 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.petterpx", "floatingx", version_name)
+    coordinates("io.github.petterpx", "floatingx_compose", version_name)
 }
 
 android {
-    namespace 'com.petterp.floatingx'
+    namespace 'com.petterp.floatingx.compose'
 
     compileSdk compilesdk_version
 
     defaultConfig {
         minSdk 21
-        targetSdk 31
         versionCode versionCode
         versionName version_name
-        consumerProguardFiles "proguard-floatingx.pro"
+        consumerProguardFiles "proguard-floatingx-compose.pro"
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-floatingx.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-floatingx-compose.pro'
         }
     }
     compileOptions {
@@ -35,18 +34,11 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    buildFeatures {
-        buildConfig = false
-    }
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation project(':floatingx')
     implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     dokkaPlugin 'org.jetbrains.dokka:android-documentation-plugin:1.9.20'
-    implementation platform("androidx.compose:compose-bom:2023.06.01")
-    implementation "androidx.compose.ui:ui:1.3.3"
-    implementation "androidx.compose.ui:ui-graphics"
-    implementation "androidx.compose.ui:ui-tooling-preview"
-    implementation "androidx.compose.material3:material3"
 }

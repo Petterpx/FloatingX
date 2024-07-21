@@ -8,12 +8,5 @@ import com.petterp.floatingx.listener.IFxTouchListener
  * @author petterp
  */
 open class FxScrollImpl : IFxTouchListener {
-    override fun down() {}
 
-    override fun up() {}
-
-    override fun dragIng(event: MotionEvent, x: Float, y: Float) {
-    }
-
-    override fun eventIng(event: MotionEvent) {}
 }

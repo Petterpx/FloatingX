@@ -99,7 +99,7 @@ open class FxBasisHelper {
     internal var iFxTouchListener: IFxTouchListener? = null
 
     @JvmField
-    internal var iFxViewLifecycle: IFxViewLifecycle? = null
+    internal var iFxViewLifecycles: MutableList<IFxViewLifecycle> = mutableListOf()
 
     @JvmField
     internal var iFxConfigStorage: IFxConfigStorage? = null
@@ -182,10 +182,10 @@ open class FxBasisHelper {
         private var enableEdgeAdsorption: Boolean = true
 
         private var iFxConfigStorage: IFxConfigStorage? = null
-        private var iFxViewLifecycle: IFxViewLifecycle? = null
         private var iFxTouchListener: IFxTouchListener? = null
         private var ifxClickListener: View.OnClickListener? = null
         private var ifxLongClickListener: View.OnLongClickListener? = null
+        private var iFxViewLifecycles: MutableList<IFxViewLifecycle> = mutableListOf()
 
         protected abstract fun buildHelper(): B
 
@@ -224,7 +224,7 @@ open class FxBasisHelper {
                 fxLogTag = this@Builder.fxLogTag
 
                 iFxTouchListener = this@Builder.iFxTouchListener
-                iFxViewLifecycle = this@Builder.iFxViewLifecycle
+                iFxViewLifecycles = this@Builder.iFxViewLifecycles
                 iFxConfigStorage = this@Builder.iFxConfigStorage
                 iFxClickListener = this@Builder.ifxClickListener
                 iFxLongClickListener = this@Builder.ifxLongClickListener
@@ -447,8 +447,15 @@ open class FxBasisHelper {
         }
 
         /** 设置悬浮窗view-lifecycle */
-        fun setViewLifecycle(iFxViewLifecycle: IFxViewLifecycle): T {
-            this.iFxViewLifecycle = iFxViewLifecycle
+        @Deprecated(replaceWith = ReplaceWith("addViewLifecycle"), message = "use addViewLifecycle")
+        fun setViewLifecycle(listener: IFxViewLifecycle): T {
+            this.iFxViewLifecycles[0] = listener
+            return this as T
+        }
+
+        /** 增加悬浮窗view-lifecycle */
+        fun addViewLifecycle(listener: IFxViewLifecycle): T {
+            this.iFxViewLifecycles.add(listener)
             return this as T
         }
 

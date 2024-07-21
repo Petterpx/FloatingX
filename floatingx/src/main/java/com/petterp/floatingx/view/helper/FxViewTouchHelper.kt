@@ -34,8 +34,6 @@ class FxViewTouchHelper : FxViewBasicHelper() {
 
     // 不通过setTouchListener()方法设置的监听器主要是为外部留口，如果外部需要更强的灵活性，则可以自行实现
     fun touchEvent(event: MotionEvent, basicView: FxBasicContainerView): Boolean {
-        // 为旧版本做兼容
-        config.iFxTouchListener?.eventIng(event)
         if (config.displayMode != FxDisplayMode.DisplayOnly) {
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> initTouchDown(event)
@@ -48,8 +46,7 @@ class FxViewTouchHelper : FxViewBasicHelper() {
         return config.iFxTouchListener?.onTouch(event, basicView) ?: false
     }
 
-    fun interceptTouchEvent(event: MotionEvent, basicView: FxBasicContainerView): Boolean {
-        val listener = config.iFxTouchListener
+    fun interceptTouchEvent(event: MotionEvent): Boolean {
         // 仅展示时，不拦截事件
         if (config.displayMode == FxDisplayMode.DisplayOnly) return false
         when (event.action) {
@@ -69,7 +66,7 @@ class FxViewTouchHelper : FxViewBasicHelper() {
                 config.fxLog.d("fxView -> interceptEventCancel")
             }
         }
-        return listener?.onInterceptTouchEvent(event, basicView) ?: false
+        return false
     }
 
     private fun canInterceptEvent(event: MotionEvent) =
@@ -80,7 +77,7 @@ class FxViewTouchHelper : FxViewBasicHelper() {
         initClickConfig(event)
         touchDownId = event.pointerId
         basicView?.onTouchDown(event)
-        config.iFxTouchListener?.down()
+        config.iFxTouchListener?.onDown()
         config.fxLog.d("fxView -> initDownTouch,mainTouchId:$touchDownId")
     }
 
@@ -113,14 +110,14 @@ class FxViewTouchHelper : FxViewBasicHelper() {
         basicView?.onTouchMove(event)
         val x = basicView?.currentX() ?: -1f
         val y = basicView?.currentY() ?: -1f
-        config.iFxTouchListener?.dragIng(event, x, y)
+        config.iFxTouchListener?.onDragIng(event, x, y)
         config.fxLog.v("fxView -> touchMove,x:$x,y:$y")
     }
 
     private fun touchCancel(event: MotionEvent) {
         if (config.enableEdgeAdsorption && config.displayMode.canMove) basicView?.moveToEdge()
         basicView?.onTouchCancel(event)
-        config.iFxTouchListener?.up()
+        config.iFxTouchListener?.onUp()
         performClickAction()
         config.fxLog.d("fxView -> mainTouchUp")
     }

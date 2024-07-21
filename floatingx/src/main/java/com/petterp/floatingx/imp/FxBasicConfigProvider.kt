@@ -5,19 +5,23 @@ import com.petterp.floatingx.assist.FxAnimation
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.listener.IFxConfigStorage
-import com.petterp.floatingx.listener.IFxScrollListener
+import com.petterp.floatingx.listener.IFxTouchListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.listener.control.IFxConfigControl
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
+import com.petterp.floatingx.util.FX_HALF_PERCENT_MAX
+import com.petterp.floatingx.util.FX_HALF_PERCENT_MIN
+import com.petterp.floatingx.util.coerceInFx
+import com.petterp.floatingx.view.FxBasicContainerView
 import com.petterp.floatingx.view.IFxInternalHelper
 
 /**
  * Fx基础配置更改 提供者
  * @author petterp
  */
-class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
-    private val helper: F,
-    private val p: P?
+open class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
+    val helper: F,
+    val p: P?
 ) : IFxConfigControl {
 
     private val internalView: IFxInternalHelper?
@@ -27,7 +31,7 @@ class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         helper.enableClickListener = isEnable
     }
 
-    override fun setEnableAnimation(isEnable: Boolean, animationImpl: FxAnimation) {
+    override fun setEnableAnimation(isEnable: Boolean, animationImpl: FxAnimation?) {
         helper.enableAnimation = isEnable
         helper.fxAnimation = animationImpl
     }
@@ -51,6 +55,10 @@ class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         internalView?.moveToEdge()
     }
 
+    override fun setTouchListener(listener: IFxTouchListener) {
+        helper.iFxTouchListener = listener
+    }
+
     override fun setEdgeAdsorbDirection(direction: FxAdsorbDirection) {
         helper.adsorbDirection = direction
         internalView?.moveToEdge()
@@ -68,15 +76,24 @@ class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
 
     override fun setEnableHalfHide(isEnable: Boolean) {
         helper.enableHalfHide = isEnable
+        (internalView as? FxBasicContainerView)?.locationHelper?.updateMoveBoundary()
         internalView?.moveToEdge()
     }
 
-    override fun setScrollListener(listener: IFxScrollListener) {
-        helper.iFxTouchListener = listener
+    override fun setEnableHalfHide(isEnable: Boolean, percent: Float) {
+        helper.enableHalfHide = isEnable
+        helper.halfHidePercent = percent.coerceInFx(FX_HALF_PERCENT_MIN, FX_HALF_PERCENT_MAX)
+        (internalView as? FxBasicContainerView)?.locationHelper?.updateMoveBoundary()
+        internalView?.moveToEdge()
     }
 
+    @Deprecated("use addViewLifecycle", replaceWith = ReplaceWith("addViewLifecycleListener"))
     override fun setViewLifecycleListener(listener: IFxViewLifecycle) {
-        helper.iFxViewLifecycle = listener
+        helper.iFxViewLifecycles[0] = listener
+    }
+
+    override fun addViewLifecycleListener(listener: IFxViewLifecycle) {
+        helper.iFxViewLifecycles.add(listener)
     }
 
     override fun setEnableSaveDirection(impl: IFxConfigStorage, isEnable: Boolean) {
@@ -90,12 +107,6 @@ class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
 
     override fun clearLocationStorage() {
         helper.iFxConfigStorage?.clear()
-    }
-
-    @Deprecated("已废弃，建议使用[setDisplayMode()]")
-    override fun setEnableTouch(isEnable: Boolean) {
-        val mode = if (isEnable) FxDisplayMode.Normal else FxDisplayMode.ClickOnly
-        setDisplayMode(mode)
     }
 
     override fun setDisplayMode(mode: FxDisplayMode) {

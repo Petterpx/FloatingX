@@ -92,4 +92,5 @@ interface IFxControl {
     fun moveByVector(x: Float, y: Float, useAnimation: Boolean)
 
     fun updateConfig(obj: IFxConfigControl.() -> Unit)
+
 }

@@ -74,16 +74,6 @@ class FxAppHelper(
         private var whiteInsertList: MutableList<Class<*>> = mutableListOf()
         private var blackFilterList: MutableList<Class<*>> = mutableListOf()
 
-        /** 用于启用全局浮窗标志，与control.show()同理
-         *
-         * 浮窗install后，直接使用控制器调用 show() 即可
-         * */
-        @Deprecated("目前control.show()支持了懒加载，所以这个方法已经不再需要")
-        fun enableFx(): Builder {
-            this.enableFx = true
-            return this
-        }
-
         /**
          * 设置context
          * @param context context

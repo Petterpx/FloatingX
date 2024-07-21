@@ -68,6 +68,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
             locationFrom = "default_location"
             getDefaultXY(parentW, parentH, viewW, viewH)
         }
+        // 判断坐标应该准确在哪里
         basicView?.updateXY(safeX(defaultX), safeY(defaultY))
         config.fxLog.d("fxView -> initLocation: x:$defaultX,y:$defaultY,way:[$locationFrom]")
     }
@@ -108,7 +109,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         this.needUpdateLocation = true
     }
 
-    fun getDefaultEdgeXY(): Pair<Float, Float>? {
+    fun getDefaultEdgeXY(x: Float = this.x, y: Float = this.y): Pair<Float, Float>? {
         return if (config.enableEdgeAdsorption || config.enableHalfHide) {
             getAdsorbDirectionLocation(isNearestLeft(x), isNearestTop(y))
         } else if (config.enableEdgeRebound) {
@@ -250,7 +251,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         }
     }
 
-    private fun updateMoveBoundary() {
+    internal fun updateMoveBoundary() {
         config.apply {
             // 如果启用了半隐藏，这里需要单独处理
             if (enableHalfHide) {
@@ -279,6 +280,8 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
                     maxH -= fxBorderMargin.b + edgeOffset
                 }
             }
+            config.fxLog.d("fxView -> updateMoveBoundary, moveBoundary:$moveBoundary")
+            config.fxLog.d("fxView -> updateMoveBoundary, moveIngBoundary:$moveIngBoundary")
         }
     }
 

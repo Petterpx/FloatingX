@@ -3,9 +3,9 @@ package com.petterp.floatingx.listener.control
 import com.petterp.floatingx.assist.FxAnimation
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.listener.IFxConfigStorage
-import com.petterp.floatingx.listener.IFxScrollListener
 import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.assist.FxAdsorbDirection
+import com.petterp.floatingx.listener.IFxTouchListener
 
 /**
  * 配置更改接口,使用此接口运行时更改配置层
@@ -17,7 +17,7 @@ interface IFxConfigControl {
      * @param isEnable 是否启用
      * @param animationImpl 具体实现实例
      * */
-    fun setEnableAnimation(isEnable: Boolean, animationImpl: FxAnimation)
+    fun setEnableAnimation(isEnable: Boolean, animationImpl: FxAnimation? = null)
 
     /** 是否启用动画 */
     fun setEnableAnimation(isEnable: Boolean)
@@ -38,15 +38,16 @@ interface IFxConfigControl {
      * */
     fun setEnableEdgeRebound(isEnable: Boolean)
 
-    /** 设置是否支持悬浮窗半隐模式
+    /** 设置是否支启用悬浮窗半隐藏模式
      * */
     fun setEnableHalfHide(isEnable: Boolean)
 
-    /** 设置是否启用触摸事件
-     * @param isEnable  true,则允许悬浮窗拖动
+    /**
+     * 设置悬浮窗半隐藏模式的隐藏比例
+     * @param isEnable 是否启用
+     * @param percent 半隐比例
      * */
-    @Deprecated("已废弃，建议使用[setDisplayMode()]")
-    fun setEnableTouch(isEnable: Boolean)
+    fun setEnableHalfHide(isEnable: Boolean, percent: Float = 0.5f)
 
     /**
      * 设置浮窗展示模式
@@ -64,10 +65,16 @@ interface IFxConfigControl {
     fun setEnableEdgeAdsorption(isEnable: Boolean)
 
     /** 设置滑动监听 */
-    fun setScrollListener(listener: IFxScrollListener)
+    fun setTouchListener(listener: IFxTouchListener)
 
     /** 设置view-lifecycle监听 */
+    @Deprecated(
+        replaceWith = ReplaceWith("addViewLifecycleListener"),
+        message = "use addViewLifecycle"
+    )
     fun setViewLifecycleListener(listener: IFxViewLifecycle)
+
+    fun addViewLifecycleListener(listener: IFxViewLifecycle)
 
     /** 设置允许保存方向 */
     fun setEnableSaveDirection(impl: IFxConfigStorage, isEnable: Boolean = true)

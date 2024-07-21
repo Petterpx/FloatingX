@@ -19,6 +19,7 @@ dependencyResolutionManagement {
 rootProject.name = "FloatingX"
 include ':app'
 include ':floatingx'
+include ':floatingx_compose'
 
 def localProperties = readPropertiesIfExist(new File(settingsDir, "local.properties"))
 gradle.ext.IS_DEV = localProperties.getProperty("IS_DEV", "true").toBoolean()

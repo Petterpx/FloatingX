@@ -42,7 +42,9 @@
         <activity
             android:name=".test.SimpleRvActivity"
             android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
-            android:exported="true" />
+            android:exported="true" >
+
+        </activity>
     </application>
 
 </manifest>
