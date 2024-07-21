@@ -16,6 +16,8 @@
 
 ## 👏 特性 
 
+- 支持 **JetPack Compose**
+- 支持 **浮窗半隐藏模式**
 - 支持 **自定义隐藏显示动画**;
 - 支持 **多指触摸**，精准决策触摸手势;
 - 支持 自定义是否保存历史位置及还原;
@@ -35,7 +37,7 @@
 
 ```groovy
 dependencies {
-    implementation 'io.github.petterpx:floatingx:2.1.1'
+    implementation 'io.github.petterpx:floatingx:2.2.1'
 }
 ```
 

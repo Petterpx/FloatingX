@@ -6,7 +6,7 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.petterpx", "floatingx_compose", version_name)
+    coordinates("io.github.petterpx", "floatingx-compose", version_name)
 }
 
 android {
