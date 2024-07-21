@@ -1,7 +1,9 @@
 package com.petterp.floatingx.view
 
+import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
+import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 
 /**
@@ -19,6 +21,10 @@ interface IFxInternalHelper {
     fun moveLocation(x: Float, y: Float, useAnimation: Boolean = true)
 
     fun moveLocationByVector(x: Float, y: Float, useAnimation: Boolean = true)
+
+    fun checkPointerDownTouch(view: View, event: MotionEvent): Boolean
+
+    fun checkPointerDownTouch(@IdRes id: Int, event: MotionEvent): Boolean
 
     fun moveToEdge()
 

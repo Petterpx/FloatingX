@@ -76,7 +76,11 @@ class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     }
 
     override fun setViewLifecycleListener(listener: IFxViewLifecycle) {
-        helper.iFxViewLifecycle = listener
+        helper.iFxViewLifecycles[0] = listener
+    }
+
+    override fun addViewLifecycleListener(listener: IFxViewLifecycle) {
+        helper.iFxViewLifecycles.add(listener)
     }
 
     override fun setEnableSaveDirection(impl: IFxConfigStorage, isEnable: Boolean) {

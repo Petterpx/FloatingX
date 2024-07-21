@@ -3,19 +3,26 @@ package com.petterp.floatingx.app.test
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.petterp.floatingx.FloatingX
+import com.petterp.floatingx.app.R
 import com.petterp.floatingx.app.addItemView
 import com.petterp.floatingx.app.addLinearLayout
 import com.petterp.floatingx.app.addNestedScrollView
+import com.petterp.floatingx.app.addTextView
 import com.petterp.floatingx.app.createLinearLayoutToParent
 import com.petterp.floatingx.assist.FxDisplayMode
+import com.petterp.floatingx.listener.IFxTouchListener
+import com.petterp.floatingx.listener.IFxViewLifecycle
+import com.petterp.floatingx.view.IFxInternalHelper
 
 /**
  *
@@ -34,8 +41,17 @@ class SimpleRvActivity : AppCompatActivity() {
                                 setTag(TAG)
                                 setContext(applicationContext)
                                 setLayoutView(createRvView(applicationContext))
-                                setDisplayMode(FxDisplayMode.ClickOnly)
                                 setEnableLog(true)
+                                setTouchListener(object : IFxTouchListener {
+                                    override fun onInterceptTouchEvent(
+                                        event: MotionEvent,
+                                        control: IFxInternalHelper?
+                                    ): Boolean {
+                                        val isHeader =
+                                            control?.checkPointerDownTouch(R.id.text, event)
+                                        return isHeader ?: true
+                                    }
+                                })
                                 this.setOnClickListener {
                                     Toast.makeText(it.context, "123", Toast.LENGTH_SHORT).show()
                                 }
@@ -69,14 +85,30 @@ class SimpleRvActivity : AppCompatActivity() {
 
         // TODO: 注意全局浮窗使用时的注意事项，需要使用application级别
         fun createRvView(context: Context) =
-            RecyclerView(context).apply {
+            LinearLayout(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    500,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
-                setBackgroundColor(Color.GREEN)
-                adapter = customAdapter
-                layoutManager = LinearLayoutManager(context)
+                orientation = LinearLayout.VERTICAL
+                addTextView {
+                    id = R.id.text
+                    text = "我是Header"
+                    layoutParams = ViewGroup.LayoutParams(
+                        500,
+                        200,
+                    )
+                }
+                val rv = RecyclerView(context).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        800,
+                    )
+                    setBackgroundColor(Color.GREEN)
+                    adapter = customAdapter
+                    layoutManager = LinearLayoutManager(context)
+                }
+                addView(rv)
             }
     }
 }

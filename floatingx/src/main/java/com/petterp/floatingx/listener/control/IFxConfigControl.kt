@@ -67,7 +67,10 @@ interface IFxConfigControl {
     fun setScrollListener(listener: IFxScrollListener)
 
     /** 设置view-lifecycle监听 */
+    @Deprecated(replaceWith = ReplaceWith("addViewLifecycleListener"), message = "use addViewLifecycle")
     fun setViewLifecycleListener(listener: IFxViewLifecycle)
+
+    fun addViewLifecycleListener(listener: IFxViewLifecycle)
 
     /** 设置允许保存方向 */
     fun setEnableSaveDirection(impl: IFxConfigStorage, isEnable: Boolean = true)

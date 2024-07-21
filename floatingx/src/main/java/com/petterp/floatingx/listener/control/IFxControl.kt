@@ -93,5 +93,4 @@ interface IFxControl {
 
     fun updateConfig(obj: IFxConfigControl.() -> Unit)
 
-    fun setEnableHalfHide(isEnable: Boolean)
 }

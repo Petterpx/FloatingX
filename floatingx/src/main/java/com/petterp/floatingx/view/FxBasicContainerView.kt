@@ -69,6 +69,23 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         moveToXY(x + currentX(), y + currentY(), useAnimation)
     }
 
+    override fun checkPointerDownTouch(id: Int, event: MotionEvent): Boolean {
+        val view = findViewById<View>(id) ?: return false
+        return checkPointerDownTouch(view, event)
+    }
+
+    override fun checkPointerDownTouch(view: View, event: MotionEvent): Boolean {
+        val x = event.rawX
+        val y = event.rawY
+        val location = IntArray(2)
+        getLocationOnScreen(location)
+        val left = location[0]
+        val top = location[1]
+        val right = left + view.width
+        val bottom = top + view.height
+        return x >= left && x <= right && y >= top && y <= bottom
+    }
+
     override fun updateView(layoutId: Int) {
         helper.fxLog.d("fxView -> updateView")
         locationHelper.needUpdateLocation()
@@ -101,7 +118,9 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
-        return touchHelper.interceptTouchEvent(event, this) || super.onInterceptTouchEvent(event)
+        val isIntercept = helper.iFxTouchListener?.onInterceptTouchEvent(event, this) ?: true
+        if (!isIntercept) return false
+        return touchHelper.interceptTouchEvent(event)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -110,7 +129,9 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
 
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
-        helper.iFxViewLifecycle?.windowsVisibility(visibility)
+        helper.iFxViewLifecycles.forEach {
+            it.windowsVisibility(visibility)
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -126,20 +147,27 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
 
     protected fun installChildView(): View? {
         _childView = inflateLayoutView() ?: inflateLayoutId()
-        if (_childView != null) _viewHolder = FxViewHolder(_childView)
-        _childView?.also { helper.iFxViewLifecycle?.initView(it) }
-        _viewHolder?.also { helper.iFxViewLifecycle?.initView(it) }
+        if (_childView != null) {
+            _viewHolder = FxViewHolder(_childView!!)
+            helper.iFxViewLifecycles.forEach { listener ->
+                listener.initView(_viewHolder!!)
+            }
+        }
         return _childView
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        helper.iFxViewLifecycle?.attach()
+        helper.iFxViewLifecycles.forEach {
+            it.attach(this)
+        }
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        helper.iFxViewLifecycle?.detached()
+        helper.iFxViewLifecycles.forEach {
+            it.detached(this)
+        }
     }
 
     private fun inflateLayoutView(): View? {
