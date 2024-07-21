@@ -17,7 +17,7 @@ import com.petterp.floatingx.view.IFxInternalHelper
  */
 class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     private val helper: F,
-    private var p: P?
+    private val p: P?
 ) : IFxConfigControl {
 
     private val internalView: IFxInternalHelper?
@@ -67,8 +67,8 @@ class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     }
 
     override fun setEnableHalfHide(isEnable: Boolean) {
-       helper.enableHalfHide = isEnable
-       internalView?.moveToEdge()
+        helper.enableHalfHide = isEnable
+        internalView?.moveToEdge()
     }
 
     override fun setScrollListener(listener: IFxScrollListener) {
@@ -92,6 +92,7 @@ class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         helper.iFxConfigStorage?.clear()
     }
 
+    @Deprecated("已废弃，建议使用[setDisplayMode()]")
     override fun setEnableTouch(isEnable: Boolean) {
         val mode = if (isEnable) FxDisplayMode.Normal else FxDisplayMode.ClickOnly
         setDisplayMode(mode)

@@ -75,17 +75,6 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         }
     }
 
-    override fun halfHide(bSet: Boolean) {
-        if (!helper.enableHalfHide) {
-            return
-        }
-
-        helper.isHalfHideState = bSet
-        if (!isShow()) show()
-
-        internalView?.moveToEdge()
-    }
-
     override fun cancel() {
         val fxView = getManagerView()
         if (fxView != null && isShow() && _animationProvider.canRunAnimation()) {

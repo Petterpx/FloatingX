@@ -60,7 +60,7 @@ class FxDefaultContainerView(helper: FxBasisHelper, context: Context, attrs: Att
     override fun onTouchMove(event: MotionEvent) {
         val x = x.minus(downTouchX).plus(event.x)
         val y = y.minus(downTouchY).plus(event.y)
-        safeUpdateXY(x, y)
+        safeUpdatingXY(x, y)
     }
 
     override fun onTouchCancel(event: MotionEvent) {

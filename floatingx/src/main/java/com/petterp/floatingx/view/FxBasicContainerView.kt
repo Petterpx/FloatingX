@@ -56,13 +56,8 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
      * 修改内容：添加半隐藏的逻辑处理
      */
     override fun moveToEdge() {
-        if (helper.isHalfHideState) {
-            val (x, y) = locationHelper.getHalfHideXY()
-            moveToXY(x, y, useAnimation = true, safeCheck = false)
-        } else {
-            val (x, y) = locationHelper.getDefaultEdgeXY() ?: return
-            moveLocation(x, y, true)
-        }
+        val (x, y) = locationHelper.getDefaultEdgeXY() ?: return
+        moveLocation(x, y, true)
     }
 
     override fun moveLocation(x: Float, y: Float, useAnimation: Boolean) {
@@ -123,7 +118,7 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         helpers.forEach { it.onConfigurationChanged(newConfig) }
     }
 
-    protected fun safeUpdateXY(x: Float, y: Float) {
+    protected fun safeUpdatingXY(x: Float, y: Float) {
         val safeX = locationHelper.safeX(x, true)
         val safeY = locationHelper.safeY(y, true)
         updateXY(safeX, safeY)
@@ -166,9 +161,9 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         return view
     }
 
-    private fun moveToXY(x: Float, y: Float, useAnimation: Boolean, safeCheck: Boolean = true) {
-        val endX = if (safeCheck) locationHelper.safeX(x) else x
-        val endY = if (safeCheck) locationHelper.safeY(y) else y
+    private fun moveToXY(x: Float, y: Float, useAnimation: Boolean) {
+        val endX = locationHelper.safeX(x)
+        val endY = locationHelper.safeY(y)
         internalMoveToXY(useAnimation, endX, endY)
         locationHelper.checkOrSaveLocation(endX, endY)
         helper.fxLog.d("fxView -> moveToXY: start(${currentX()},${currentY()}),end($endX,$endY)")
