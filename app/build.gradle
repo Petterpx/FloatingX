@@ -68,7 +68,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling-preview"
     implementation "androidx.compose.material3:material3"
     debugImplementation 'androidx.compose.ui:ui-tooling'
-//    debugImplementation 'com.squareup.leakcanary:leakcanary-object-watcher-android-startup:2.10'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-object-watcher-android-startup:2.10'
     implementation isDev ? project(path: ':floatingx_compose') : "io.github.petterpx:floatingx-compose:$version_name"
     implementation isDev ? project(path: ':floatingx') : "io.github.petterpx:floatingx:$version_name"
     debugImplementation "com.bytedance.tools.codelocator:codelocator-core:2.0.3"

@@ -37,6 +37,10 @@
 ```groovy
 dependencies {
     implementation 'io.github.petterpx:floatingx:2.2.1'
+    
+    // System floating window && need to be imported when compose
+    // AppHelper invoke enableComposeSupport()
+    implementation 'io.github.petterpx:floatingx-compose:2.2.1'
 }
 ```
 

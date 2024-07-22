@@ -47,8 +47,7 @@ class SimpleRvActivity : AppCompatActivity() {
                                         event: MotionEvent,
                                         control: IFxInternalHelper?
                                     ): Boolean {
-                                        val isHeader =
-                                            control?.checkPointerDownTouch(R.id.text, event)
+                                        val isHeader = control?.checkPointerDownTouch(R.id.text, event)
                                         return isHeader ?: true
                                     }
                                 })
