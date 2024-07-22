@@ -41,7 +41,7 @@ dependencies {
   
   	// system浮窗&&compose时需要导入
   	// 记得AppHelper里调用 enableComposeSupport()
-    implementation 'io.github.petterpx:floatingx-compose:2.2.1'
+    implementation 'io.github.petterpx:floatingx-compose:2.2.2'
 }
 ```
 
