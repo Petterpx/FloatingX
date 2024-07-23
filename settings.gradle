@@ -36,8 +36,8 @@ gradle.projectsLoaded { project ->
 
     rootProjectExt.isDev = localProperties.getProperty("isDev", "true").toBoolean()
     rootProjectExt.isPublish = rootProject.findProperty("isPublish") ?: false
-    rootProjectExt.versionCode = rootProject.findProperty("versionCode") ?: gitVersionCode()
-    rootProjectExt.versionName = rootProject.findProperty("versionName") ?: gitVersionTag()
+    rootProjectExt.versionCode = gitVersionCode()
+    rootProjectExt.versionName = gitVersionTag()
 
     println '------Fx---->'
     println("isDev-> $rootProjectExt.isDev")
