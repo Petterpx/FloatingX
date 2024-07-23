@@ -21,9 +21,6 @@ include ':app'
 include ':floatingx'
 include ':floatingx_compose'
 
-def localProperties = readPropertiesIfExist(new File(settingsDir, "local.properties"))
-gradle.ext.IS_DEV = localProperties.getProperty("IS_DEV", "true").toBoolean()
-
 static Properties readPropertiesIfExist(File propertiesFile) {
     Properties result = new Properties()
     if (propertiesFile.exists()) {
@@ -32,3 +29,33 @@ static Properties readPropertiesIfExist(File propertiesFile) {
     return result
 }
 
+gradle.projectsLoaded { project ->
+    def rootProject = project.gradle.rootProject
+    def rootProjectExt = rootProject.ext
+    def localProperties = readPropertiesIfExist(new File(settingsDir, "local.properties"))
+
+    rootProjectExt.isDev = localProperties.getProperty("isDev", "true").toBoolean()
+    rootProjectExt.isPublish = rootProject.findProperty("isPublish") ?: false
+    rootProjectExt.versionCode = rootProject.findProperty("versionCode") ?: gitVersionCode()
+    rootProjectExt.versionName = rootProject.findProperty("versionName") ?: gitVersionTag()
+
+    println '------Fx---->'
+    println("isDev-> $rootProjectExt.isDev")
+    println("isPublish-> $rootProjectExt.isPublish")
+    println("versionCode-> $rootProjectExt.versionCode")
+    println("versionName-> $rootProjectExt.versionName")
+    println "------Fx-end----->"
+}
+
+
+static def gitVersionTag() {
+    def commit = 'git rev-list --tags --max-count=1'
+    def cmd = "git describe --tags ${commit.execute().text}"
+    def version = cmd.execute().text.trim()
+    return version
+}
+
+static def gitVersionCode() {
+    def cmd = 'git rev-list HEAD --count'
+    return cmd.execute().text.trim().toInteger()
+}
