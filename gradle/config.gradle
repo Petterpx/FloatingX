@@ -1,13 +1,11 @@
 ext {
-    isDev = gradle.ext.IS_DEV
     kotlin_version = "1.5.21"
     minsdk_version = 21
     targetsdk_version = 31
     compilesdk_version = 31
+    version_code = gitVersionCode()
     version_name = gitVersionTag()
-    versionCode = gitVersionCode()
 }
-println "isDev:$isDev,versionName:$version_name,versionCode:$versionCode"
 
 static def gitVersionTag() {
     def commit = 'git rev-list --tags --max-count=1'
@@ -20,3 +18,11 @@ static def gitVersionCode() {
     def cmd = 'git rev-list HEAD --count'
     return cmd.execute().text.trim().toInteger()
 }
+
+
+println '------Fx---->'
+println("isDev-> $ext.isDev")
+println("isPublish-> $ext.isPublish")
+println("versionCode-> $ext.version_code")
+println("versionName-> $ext.version_name")
+println "------Fx-end----->"

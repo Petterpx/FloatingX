@@ -13,11 +13,12 @@ android {
     namespace 'com.petterp.floatingx'
 
     compileSdk compilesdk_version
+    def android = rootProject.ext
 
     defaultConfig {
-        minSdk 21
-        targetSdk 31
-        versionCode versionCode
+        minSdk minsdk_version
+        targetSdk targetsdk_version
+        versionCode version_code
         versionName version_name
         consumerProguardFiles "proguard-floatingx.pro"
     }

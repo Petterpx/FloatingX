@@ -21,6 +21,12 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Dev support
+        env:
+          WORKSPACE: ${{ github.workspace }}
+        run: |
+          cp $WORKSPACE/gradle/dev/FxComposeSimple.kt $WORKSPACE/app/src/main/java/com/petterp/floatingx/app/kotlin/FxComposeSimple.kt
+
       - name: publish maven
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USER_NAME }}
@@ -28,4 +34,4 @@ jobs:
           SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY}}
           SIGNING_KEY_ID: ${{ secrets.GPG_SIGNING_KEY_ID }}
           SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASS_WORD }}
-        run: ./gradlew publish -PSONATYPE_AUTOMATIC_RELEASE=true -PmavenCentralUsername=$MAVEN_USERNAME -PmavenCentralPassword=$MAVEN_PASSWORD -PsigningInMemoryKeyId=$SIGNING_KEY_ID -PsigningInMemoryKeyPassword=$SIGNING_PASSWORD -PsigningInMemoryKey=$SIGNING_KEY
+        run: ./gradlew publish -PisPublish=true -PSONATYPE_AUTOMATIC_RELEASE=true -PmavenCentralUsername=$MAVEN_USERNAME -PmavenCentralPassword=$MAVEN_PASSWORD -PsigningInMemoryKeyId=$SIGNING_KEY_ID -PsigningInMemoryKeyPassword=$SIGNING_PASSWORD -PsigningInMemoryKey=$SIGNING_KEY

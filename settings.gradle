@@ -21,9 +21,6 @@ include ':app'
 include ':floatingx'
 include ':floatingx_compose'
 
-def localProperties = readPropertiesIfExist(new File(settingsDir, "local.properties"))
-gradle.ext.IS_DEV = localProperties.getProperty("IS_DEV", "true").toBoolean()
-
 static Properties readPropertiesIfExist(File propertiesFile) {
     Properties result = new Properties()
     if (propertiesFile.exists()) {
@@ -32,3 +29,11 @@ static Properties readPropertiesIfExist(File propertiesFile) {
     return result
 }
 
+gradle.projectsLoaded { project ->
+    def rootProject = project.gradle.rootProject
+    def rootProjectExt = rootProject.ext
+    def localProperties = readPropertiesIfExist(new File(settingsDir, "local.properties"))
+
+    rootProjectExt.isDev = localProperties.getProperty("isDev", "true").toBoolean()
+    rootProjectExt.isPublish = rootProject.findProperty("isPublish") ?: false
+}

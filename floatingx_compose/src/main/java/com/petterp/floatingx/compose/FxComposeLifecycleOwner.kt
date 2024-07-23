@@ -6,12 +6,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.setViewTreeLifecycleOwner
-import androidx.lifecycle.setViewTreeViewModelStoreOwner
-import androidx.savedstate.SavedStateRegistry
+import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
-import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 
 class FxComposeLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
 
@@ -19,13 +18,11 @@ class FxComposeLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateR
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     private val store = ViewModelStore()
 
-    override val lifecycle: Lifecycle
-        get() = lifecycleRegistry
-    override val savedStateRegistry: SavedStateRegistry
-        get() = savedStateRegistryController.savedStateRegistry
-    override val viewModelStore: ViewModelStore
-        get() = store
+    override fun getLifecycle() = lifecycleRegistry
 
+    override fun getSavedStateRegistry() = savedStateRegistryController.savedStateRegistry
+
+    override fun getViewModelStore() = store
 
     fun onCreate() {
         savedStateRegistryController.performRestore(null)
@@ -60,17 +57,17 @@ class FxComposeLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateR
      */
     fun attachToDecorView(decorView: View?) {
         decorView?.let {
-            it.setViewTreeViewModelStoreOwner(this)
-            it.setViewTreeLifecycleOwner(this)
-            it.setViewTreeSavedStateRegistryOwner(this)
+            ViewTreeLifecycleOwner.set(it, this)
+            ViewTreeViewModelStoreOwner.set(it, this)
+            ViewTreeSavedStateRegistryOwner.set(it, this)
         } ?: return
     }
 
     fun detachFromDecorView(decorView: View?) {
         decorView?.let {
-            it.setViewTreeViewModelStoreOwner(null)
-            it.setViewTreeLifecycleOwner(null)
-            it.setViewTreeSavedStateRegistryOwner(null)
+            ViewTreeLifecycleOwner.set(it, null)
+            ViewTreeViewModelStoreOwner.set(it, null)
+            ViewTreeSavedStateRegistryOwner.set(it, null)
         } ?: return
     }
 }

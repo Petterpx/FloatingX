@@ -2,7 +2,7 @@ package com.petterp.floatingx.compose
 
 import android.view.View
 import android.widget.FrameLayout.VISIBLE
-import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeLifecycleOwner
 import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.listener.IFxViewLifecycle
 
@@ -19,7 +19,7 @@ internal class FxComposeViewLifecycleImp : IFxViewLifecycle {
 
     override fun attach(view: View) {
         // 如果存在viewLifecycle,没有必要开启这些
-        if (lifecycleOwner != null || view.findViewTreeLifecycleOwner() != null) return
+        if (lifecycleOwner != null || ViewTreeLifecycleOwner.get(view) != null) return
         lifecycleOwner = FxComposeLifecycleOwner()
         lifecycleOwner?.attachToDecorView(view)
         lifecycleOwner?.onCreate()

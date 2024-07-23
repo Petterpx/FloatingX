@@ -33,5 +33,11 @@ jobs:
         sarif_file: ${{ github.workspace }}/app/build/reports/detekt/detekt.sarif
         checkout_path: ${{ github.workspace }}
 
+    - name: Dev support
+      env:
+        WORKSPACE: ${{ github.workspace }}
+      run: |
+        cp $WORKSPACE/gradle/dev/FxComposeSimple.kt $WORKSPACE/app/src/main/java/com/petterp/floatingx/app/kotlin/FxComposeSimple.kt
+
     - name: Build with Gradle
-      run: ./gradlew assembleRelease
+      run: ./gradlew assembleRelease -PisPublish=true
