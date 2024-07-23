@@ -6,18 +6,19 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.petterpx", "floatingx-compose", version_name)
+    coordinates("io.github.petterpx", "floatingx-compose", versionName)
 }
 
 android {
     namespace 'com.petterp.floatingx.compose'
 
     compileSdk compilesdk_version
-
+    def android = rootProject.ext
     defaultConfig {
-        minSdk 21
-        versionCode versionCode
-        versionName version_name
+        minSdk minsdk_version
+        targetSdk targetsdk_version
+        versionCode android.versionCode
+        versionName android.versionName
         consumerProguardFiles "proguard-floatingx-compose.pro"
     }
 
@@ -43,6 +44,5 @@ dependencies {
     implementation project(':floatingx')
     implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.lifecycle:lifecycle-runtime:2.6.1"
     dokkaPlugin 'org.jetbrains.dokka:android-documentation-plugin:1.9.20'
 }
