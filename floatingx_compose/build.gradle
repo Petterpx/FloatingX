@@ -6,19 +6,18 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.petterpx", "floatingx-compose", versionName)
+    coordinates("io.github.petterpx", "floatingx-compose", version_name)
 }
 
 android {
     namespace 'com.petterp.floatingx.compose'
 
     compileSdk compilesdk_version
-    def android = rootProject.ext
     defaultConfig {
         minSdk minsdk_version
         targetSdk targetsdk_version
-        versionCode android.versionCode
-        versionName android.versionName
+        versionCode version_code
+        versionName version_name
         consumerProguardFiles "proguard-floatingx-compose.pro"
     }
 

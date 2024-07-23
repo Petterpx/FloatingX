@@ -6,7 +6,7 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.petterpx", "floatingx", versionName)
+    coordinates("io.github.petterpx", "floatingx", version_name)
 }
 
 android {
@@ -18,8 +18,8 @@ android {
     defaultConfig {
         minSdk minsdk_version
         targetSdk targetsdk_version
-        versionCode android.versionCode
-        versionName android.versionName
+        versionCode version_code
+        versionName version_name
         consumerProguardFiles "proguard-floatingx.pro"
     }
 

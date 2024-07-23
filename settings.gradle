@@ -36,26 +36,4 @@ gradle.projectsLoaded { project ->
 
     rootProjectExt.isDev = localProperties.getProperty("isDev", "true").toBoolean()
     rootProjectExt.isPublish = rootProject.findProperty("isPublish") ?: false
-    rootProjectExt.versionCode = gitVersionCode()
-    rootProjectExt.versionName = gitVersionTag()
-
-    println '------Fx---->'
-    println("isDev-> $rootProjectExt.isDev")
-    println("isPublish-> $rootProjectExt.isPublish")
-    println("versionCode-> $rootProjectExt.versionCode")
-    println("versionName-> $rootProjectExt.versionName")
-    println "------Fx-end----->"
-}
-
-
-static def gitVersionTag() {
-    def commit = 'git rev-list --tags --max-count=1'
-    def cmd = "git describe --tags ${commit.execute().text}"
-    def version = cmd.execute().text.trim()
-    return version
-}
-
-static def gitVersionCode() {
-    def cmd = 'git rev-list HEAD --count'
-    return cmd.execute().text.trim().toInteger()
 }
