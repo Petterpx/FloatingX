@@ -42,9 +42,12 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     abstract fun onTouchCancel(event: MotionEvent)
     open fun preCheckPointerDownTouch(event: MotionEvent): Boolean = true
 
+    open fun onInitChildViewEnd(vh: FxViewHolder) {}
+
     override val childView: View? get() = _childView
     override val containerView: FrameLayout get() = this
     override val viewHolder: FxViewHolder? get() = _viewHolder
+
 
     open fun initView() {
         helpers.forEach { it.initConfig(this) }
@@ -146,6 +149,7 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         _childView = inflateLayoutView() ?: inflateLayoutId()
         if (_childView != null) {
             _viewHolder = FxViewHolder(_childView!!)
+            onInitChildViewEnd(_viewHolder!!)
             helper.iFxViewLifecycles.forEach { listener ->
                 listener.initView(_viewHolder!!)
             }

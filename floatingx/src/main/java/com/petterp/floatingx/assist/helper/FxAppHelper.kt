@@ -3,6 +3,8 @@ package com.petterp.floatingx.assist.helper
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.view.View
+import androidx.annotation.IdRes
 import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.listener.IFxPermissionInterceptor
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
@@ -31,7 +33,10 @@ class FxAppHelper(
     /** 显示的scope */
     @JvmSynthetic
     internal var scope: FxScopeType,
-
+    @JvmSynthetic
+    internal var editTextIds: List<Int>?,
+    @JvmSynthetic
+    internal var isEnableKeyBoardAdapt: Boolean = false,
     /** 显示悬浮窗的Activity生命周期回调 */
     @JvmSynthetic
     internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?,
@@ -68,6 +73,8 @@ class FxAppHelper(
         private var tag = FX_DEFAULT_TAG
         private var context: Application? = null
         private var isEnableAllInstall: Boolean = true
+        private var editTextIds: List<Int>? = null
+        private var isEnableKeyBoardAdapt: Boolean = false
         private var scopeEnum: FxScopeType = FxScopeType.APP
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
         private var askPermissionInterceptor: IFxPermissionInterceptor? = null
@@ -114,6 +121,20 @@ class FxAppHelper(
 
         fun addInstallBlackClass(cls: List<Class<out Activity>>): Builder {
             blackFilterList.addAll(cls)
+            return this
+        }
+
+        /**
+         * 启用键盘适配，启用System浮窗将支持键盘弹出与关闭
+         * @param isEnable 是否启用
+         * @param editTextViewIds 要兼容的输入框ids
+         * */
+        fun setEnableKeyBoardAdapt(
+            isEnable: Boolean,
+            @IdRes editTextViewIds: List<Int> = emptyList()
+        ): Builder {
+            isEnableKeyBoardAdapt = isEnable
+            editTextIds = editTextViewIds
             return this
         }
 
@@ -180,6 +201,8 @@ class FxAppHelper(
                 whiteInsertList,
                 isEnableAllInstall,
                 scopeEnum,
+                editTextIds,
+                isEnableKeyBoardAdapt,
                 fxLifecycleExpand,
                 askPermissionInterceptor,
             )

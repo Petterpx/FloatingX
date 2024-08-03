@@ -12,12 +12,12 @@ class FxSystemConfigProvider(
     platformProvider: FxSystemPlatformProvider?
 ) : FxBasicConfigProvider<FxAppHelper, FxSystemPlatformProvider>(helper, platformProvider) {
     override fun setEnableHalfHide(isEnable: Boolean) {
-        if (helper.enableHalfHide != isEnable) p?.internalView?.updateFlags(isEnable)
+        if (helper.enableHalfHide != isEnable) p?.internalView?.updateEnableHalfStatus(isEnable)
         super.setEnableHalfHide(isEnable)
     }
 
     override fun setEnableHalfHide(isEnable: Boolean, percent: Float) {
-        if (helper.enableHalfHide != isEnable) p?.internalView?.updateFlags(isEnable)
+        if (helper.enableHalfHide != isEnable) p?.internalView?.updateEnableHalfStatus(isEnable)
         super.setEnableHalfHide(isEnable, percent)
     }
 }

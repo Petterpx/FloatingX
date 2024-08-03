@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.helper.FxScopeHelper
 import com.petterp.floatingx.imp.FxAppLifecycleProvider
+import com.petterp.floatingx.listener.control.IFxControl
+import com.petterp.floatingx.view.FxBasicContainerView
 import java.lang.Exception
 
 internal const val FX_GRAVITY_TOP = 0x00000001
@@ -113,6 +115,11 @@ internal fun Float.withIn(min: Number, max: Number): Boolean {
 
 internal fun Float.shr(count: Int): Float {
     return this / count
+}
+
+internal fun <T : FxBasicContainerView> IFxControl.groupView(): T? {
+    val view = getManagerView() ?: return null
+    return view as? T
 }
 
 internal val MotionEvent.pointerId: Int
