@@ -19,7 +19,11 @@ dependencyResolutionManagement {
 rootProject.name = "FloatingX"
 include ':app'
 include ':floatingx'
-include ':floatingx_compose'
+include ':floatingx-compose'
+include ':floatingx-system'
+include ':floatingx-core'
+include ':floatingx-app'
+include ':floatingx-view'
 
 static Properties readPropertiesIfExist(File propertiesFile) {
     Properties result = new Properties()
@@ -37,3 +41,4 @@ gradle.projectsLoaded { project ->
     rootProjectExt.isDev = localProperties.getProperty("isDev", "true").toBoolean()
     rootProjectExt.isPublish = rootProject.findProperty("isPublish") ?: false
 }
+
