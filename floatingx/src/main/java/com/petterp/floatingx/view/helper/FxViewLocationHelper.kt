@@ -21,6 +21,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
     private var screenWidthDp = 0
     private var screenHeightDp = 0
 
+    private var isInitLocation = true
     private var restoreTopStandard = false
     private var restoreLeftStandard = false
     private var needUpdateConfig: Boolean = false
@@ -70,12 +71,19 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         }
         // 判断坐标应该准确在哪里
         basicView?.updateXY(safeX(defaultX), safeY(defaultY))
+        isInitLocation = false
         config.fxLog.d("fxView -> initLocation: x:$defaultX,y:$defaultY,way:[$locationFrom]")
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {
         updateViewSize()
-        checkOrRestoreLocation()
+        // 初始化跳过
+        if (isInitLocation) return
+        if (needUpdateLocation) {
+            checkOrRestoreLocation()
+        } else {
+            basicView?.internalMoveToXY(safeX(x), safeY(y))
+        }
     }
 
     override fun onConfigurationChanged(config: Configuration) {
@@ -102,6 +110,8 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         oldRight: Int,
         oldBottom: Int
     ) {
+        if (!needUpdateLocation) return
+        updateViewSize()
         checkOrRestoreLocation()
     }
 
@@ -281,14 +291,13 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
                 }
             }
             config.fxLog.d("fxView -> updateMoveBoundary, moveBoundary:$moveBoundary")
-            config.fxLog.d("fxView -> updateMoveBoundary, moveIngBoundary:$moveIngBoundary")
+            config.fxLog.d("fxView -> updateMoveIngBoundary, moveIngBoundary:$moveIngBoundary")
         }
     }
 
     private fun checkOrRestoreLocation() {
-        if (!needUpdateLocation) return
+        if (isInitLocation) return
         config.fxLog.d("fxView -> restoreLocation,start")
-        updateViewSize()
         val (restoreX, restoreY) = if (config.enableEdgeAdsorption) {
             // 如果是由configChange触发，则优先使用之前保存的
             val (isNearestLeft, isNearestTop) = if (needUpdateConfig) {
@@ -304,7 +313,7 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         restoreTopStandard = false
         needUpdateLocation = false
         needUpdateConfig = false
-        basicView?.moveLocation(restoreX, restoreY, false)
+        basicView?.internalMoveToXY(restoreX, restoreY)
         config.fxLog.d("fxView -> restoreLocation,success")
     }
 }

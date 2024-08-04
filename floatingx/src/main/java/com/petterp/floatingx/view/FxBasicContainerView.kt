@@ -62,11 +62,11 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
 
     override fun moveLocation(x: Float, y: Float, useAnimation: Boolean) {
         // 需要考虑状态栏的影响
-        moveToXY(x, y, useAnimation)
+        safeMoveToXY(x, y, useAnimation)
     }
 
     override fun moveLocationByVector(x: Float, y: Float, useAnimation: Boolean) {
-        moveToXY(x + currentX(), y + currentY(), useAnimation)
+        safeMoveToXY(x + currentX(), y + currentY(), useAnimation)
     }
 
     override fun checkPointerDownTouch(id: Int, event: MotionEvent): Boolean {
@@ -190,19 +190,22 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         return view
     }
 
-    private fun moveToXY(x: Float, y: Float, useAnimation: Boolean) {
+    private fun safeMoveToXY(x: Float, y: Float, useAnimation: Boolean) {
         val endX = locationHelper.safeX(x)
         val endY = locationHelper.safeY(y)
-        internalMoveToXY(useAnimation, endX, endY)
-        locationHelper.checkOrSaveLocation(endX, endY)
-        helper.fxLog.d("fxView -> moveToXY: start(${currentX()},${currentY()}),end($endX,$endY)")
+        internalMoveToXY(endX, endY, useAnimation)
     }
 
-    private fun internalMoveToXY(useAnimation: Boolean, endX: Float, endY: Float) {
+    internal fun internalMoveToXY(endX: Float, endY: Float, useAnimation: Boolean = false) {
+        val curX = currentX()
+        val curY = currentY()
+        if (curX == endX && curY == endY) return
         if (useAnimation) {
             animateHelper.start(endX, endY)
         } else {
             updateXY(endX, endY)
         }
+        locationHelper.checkOrSaveLocation(endX, endY)
+        helper.fxLog.d("fxView -> moveToXY: start($curX,$curY),end($endX,$endY)")
     }
 }
