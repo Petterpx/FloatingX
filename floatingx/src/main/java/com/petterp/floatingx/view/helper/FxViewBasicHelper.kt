@@ -19,6 +19,8 @@ abstract class FxViewBasicHelper {
 
     open fun onInit() {}
 
+    open fun onPreCancel() {}
+
     open fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {}
 
     open fun onConfigurationChanged(config: Configuration) {}

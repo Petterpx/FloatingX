@@ -208,4 +208,8 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
         locationHelper.checkOrSaveLocation(endX, endY)
         helper.fxLog.d("fxView -> moveToXY: start($curX,$curY),end($endX,$endY)")
     }
+
+    internal fun preCancelAction() {
+        helpers.forEach { it.onPreCancel() }
+    }
 }

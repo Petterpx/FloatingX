@@ -29,7 +29,7 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     override fun initConfig(parentView: FxBasicContainerView) {
         super.initConfig(parentView)
         scaledTouchSlop = ViewConfiguration.get(parentView.context).scaledTouchSlop.toFloat()
-        reset()
+        resetConfig()
     }
 
     // 不通过setTouchListener()方法设置的监听器主要是为外部留口，如果外部需要更强的灵活性，则可以自行实现
@@ -62,7 +62,7 @@ class FxViewTouchHelper : FxViewBasicHelper() {
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 if (!isCurrentPointerId(event)) return false
-                reset()
+                resetConfig()
                 config.fxLog.d("fxView -> interceptEventCancel")
             }
         }
@@ -136,7 +136,7 @@ class FxViewTouchHelper : FxViewBasicHelper() {
                 if (isHandle) basicView?.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             }
         }
-        reset()
+        resetConfig()
     }
 
     private fun checkClickState(event: MotionEvent) {
@@ -150,7 +150,7 @@ class FxViewTouchHelper : FxViewBasicHelper() {
         return ev.pointerId == touchDownId
     }
 
-    private fun reset() {
+    private fun resetConfig() {
         initX = 0f
         initY = 0f
         isClickEvent = false

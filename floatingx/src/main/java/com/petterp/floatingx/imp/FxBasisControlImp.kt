@@ -10,6 +10,7 @@ import com.petterp.floatingx.listener.provider.IFxContextProvider
 import com.petterp.floatingx.listener.provider.IFxHolderProvider
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
 import com.petterp.floatingx.util.INVALID_LAYOUT_ID
+import com.petterp.floatingx.view.FxBasicContainerView
 import com.petterp.floatingx.view.IFxInternalHelper
 
 /**
@@ -77,6 +78,7 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
 
     override fun cancel() {
         val fxView = getManagerView()
+        (fxView as? FxBasicContainerView)?.preCancelAction()
         if (fxView != null && isShow() && _animationProvider.canRunAnimation()) {
             _animationProvider.hide(fxView) {
                 reset()

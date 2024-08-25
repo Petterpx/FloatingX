@@ -46,15 +46,6 @@ class FxSystemContainerView @JvmOverloads constructor(
         }
     }
 
-    internal fun registerWM(wm: WindowManager) {
-        try {
-            if (isAttachToWM) return
-            wm.addView(this, wl)
-        } catch (e: Throwable) {
-            e.printStackTrace()
-        }
-    }
-
     override fun currentX(): Float {
         return wl.x.toFloat()
     }
@@ -94,9 +85,26 @@ class FxSystemContainerView @JvmOverloads constructor(
         return helper.context.screenWidth to helper.context.screenHeight
     }
 
+    override fun dispatchKeyEventPreIme(event: KeyEvent?): Boolean {
+        if (isShowKeyBoard && event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_BACK) {
+            isShowKeyBoard = false
+            updateKeyBoardStatus(false)
+        }
+        return super.dispatchKeyEventPreIme(event)
+    }
+
+    internal fun registerWM(wm: WindowManager) {
+        try {
+            if (isAttachToWM) return
+            wm.addView(this, wl)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+    }
+
     internal fun updateEnableHalfStatus(enableHalfHide: Boolean) {
         wl.flags = findFlags(enableHalfHide)
-        wm.updateViewLayout(this, wl)
+        safeUpdateViewLayout(wl)
     }
 
     internal fun updateKeyBoardStatus(showKeyBoard: Boolean) {
@@ -109,7 +117,7 @@ class FxSystemContainerView @JvmOverloads constructor(
         } else {
             findFlags(helper.enableHalfHide)
         }
-        wm.updateViewLayout(this, wl)
+        safeUpdateViewLayout(wl)
     }
 
     private fun findFlags(enableHalfHide: Boolean): Int {
@@ -136,11 +144,8 @@ class FxSystemContainerView @JvmOverloads constructor(
         }
     }
 
-    override fun dispatchKeyEventPreIme(event: KeyEvent?): Boolean {
-        if (isShowKeyBoard && event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_BACK) {
-            isShowKeyBoard = false
-            updateKeyBoardStatus(false)
-        }
-        return super.dispatchKeyEventPreIme(event)
+    private fun safeUpdateViewLayout(lp: WindowManager.LayoutParams) {
+        if (!isAttachToWM) return
+        wm.updateViewLayout(this, lp)
     }
 }

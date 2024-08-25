@@ -49,4 +49,9 @@ class FxViewAnimationHelper : FxViewBasicHelper() {
         }
         return currentX
     }
+
+    override fun onPreCancel() {
+        valueAnimator?.cancel()
+        valueAnimator = null
+    }
 }
