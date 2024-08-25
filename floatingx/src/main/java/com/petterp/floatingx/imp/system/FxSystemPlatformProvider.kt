@@ -157,6 +157,6 @@ class FxSystemPlatformProvider(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return Settings.canDrawOverlays(activity)
         }
-        return false
+        return true
     }
 }
