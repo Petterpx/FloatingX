@@ -38,10 +38,7 @@ class FxAppLifecycleImp(
         get() = appControl.getManagerView()?.parent === decorView
 
     private val Activity.isActivityInValid: Boolean
-        get() {
-            val cls = this.javaClass
-            return insertCls[cls] ?: isInsertActivity(cls)
-        }
+        get() = helper.isCanInstall(this)
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         if (!enableFx) return
@@ -105,12 +102,4 @@ class FxAppLifecycleImp(
             if (activity.isActivityInValid) it.onSaveInstanceState(activity, outState)
         }
     }
-
-    private fun isInsertActivity(cls: Class<*>): Boolean =
-        helper.let {
-            // 条件 允许全局安装&&不在黑名单 || 禁止全局安装&&在白名单
-            val isInsert = it.isCanInstall(cls)
-            insertCls[cls] = isInsert
-            isInsert
-        }
 }

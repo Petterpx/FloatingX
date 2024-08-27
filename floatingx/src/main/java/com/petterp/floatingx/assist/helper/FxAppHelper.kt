@@ -3,7 +3,6 @@ package com.petterp.floatingx.assist.helper
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.view.View
 import androidx.annotation.IdRes
 import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.listener.IFxPermissionInterceptor
@@ -23,10 +22,10 @@ class FxAppHelper(
     internal val context: Application,
     /** 黑名单list */
     @JvmSynthetic
-    internal val blackFilterList: MutableList<Class<*>>,
+    internal val blackFilterList: MutableList<String>,
     /** 白名单list */
     @JvmSynthetic
-    internal val whiteInsertList: MutableList<Class<*>>,
+    internal val whiteInsertList: MutableList<String>,
     /** 是否允许插入全部Activity */
     @JvmSynthetic
     internal val isAllInstall: Boolean,
@@ -44,6 +43,7 @@ class FxAppHelper(
     @JvmSynthetic
     internal val fxAskPermissionInterceptor: IFxPermissionInterceptor?,
 ) : FxBasisHelper() {
+    private val insertCls = mutableMapOf<Class<*>, Boolean>()
 
     @JvmSynthetic
     internal fun updateNavigationBar(activity: Activity?) {
@@ -59,13 +59,14 @@ class FxAppHelper(
 
     @JvmSynthetic
     internal fun isCanInstall(act: Activity): Boolean {
-        return isCanInstall(act.javaClass)
-    }
-
-    @JvmSynthetic
-    internal fun isCanInstall(cls: Class<*>): Boolean {
-        return (isAllInstall && !blackFilterList.contains(cls)) ||
-                (!isAllInstall && whiteInsertList.contains(cls))
+        val cls = act.javaClass
+        return insertCls[cls] ?: let {
+            val name = cls.name
+            val canInstall = (isAllInstall && !blackFilterList.contains(name)) ||
+                    (!isAllInstall && whiteInsertList.contains(name))
+            insertCls[cls] = canInstall
+            canInstall
+        }
     }
 
     class Builder : FxBasisHelper.Builder<Builder, FxAppHelper>() {
@@ -78,8 +79,8 @@ class FxAppHelper(
         private var scopeEnum: FxScopeType = FxScopeType.APP
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
         private var askPermissionInterceptor: IFxPermissionInterceptor? = null
-        private var whiteInsertList: MutableList<Class<*>> = mutableListOf()
-        private var blackFilterList: MutableList<Class<*>> = mutableListOf()
+        private var whiteInsertList: MutableList<String> = mutableListOf()
+        private var blackFilterList: MutableList<String> = mutableListOf()
 
         /**
          * 设置context
@@ -110,17 +111,25 @@ class FxAppHelper(
         /**
          * 添加禁止显示悬浮窗的activity
          *
-         * @param c 禁止显示的activity
+         * @param actNames 禁止显示的activity
+         * @sample [xxxActivity::class.java.name]
          *
          * [setEnableAllBlackClass(true)] 时,此方法生效
          */
-        fun addInstallBlackClass(vararg c: Class<out Activity>): Builder {
-            blackFilterList.addAll(c)
+        fun addInstallBlackClass(vararg actNames: String): Builder {
+            blackFilterList.addAll(actNames)
+            return this
+        }
+
+        fun addInstallBlackClass(vararg cls: Class<out Activity>): Builder {
+            val names = cls.map { it.name }
+            blackFilterList.addAll(names)
             return this
         }
 
         fun addInstallBlackClass(cls: List<Class<out Activity>>): Builder {
-            blackFilterList.addAll(cls)
+            val names = cls.map { it.name }
+            blackFilterList.addAll(names)
             return this
         }
 
@@ -163,17 +172,25 @@ class FxAppHelper(
         /**
          * 允许显示浮窗的activity
          *
-         * @param c 允许显示的activity
+         * @param actNames 允许显示的activity路径
+         * @sample [xxxActivity::class.java.name]
          *
          * [setEnableAllBlackClass(false)] 时,此方法生效
          */
-        fun addInstallWhiteClass(vararg c: Class<out Activity>): Builder {
-            whiteInsertList.addAll(c)
+        fun addInstallWhiteClass(vararg actNames: String): Builder {
+            whiteInsertList.addAll(actNames)
+            return this
+        }
+
+        fun addInstallWhiteClass(vararg cls: Class<out Activity>): Builder {
+            val names = cls.map { it.name }
+            whiteInsertList.addAll(names)
             return this
         }
 
         fun addInstallWhiteClass(cls: List<Class<out Activity>>): Builder {
-            whiteInsertList.addAll(cls)
+            val names = cls.map { it.name }
+            whiteInsertList.addAll(names)
             return this
         }
 

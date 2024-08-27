@@ -88,11 +88,11 @@ object FxSystemSimple {
             setEnableAllInstall(true)
             // 2.禁止插入Activity的页面, setEnableAllBlackClass(true)时,此方法生效
             addInstallBlackClass(BlackActivity::class.java)
+            addInstallBlackClass(ScopeActivity::class.java.name)
             // 3.允许插入Activity的页面, setEnableAllBlackClass(false)时,此方法生效
             addInstallWhiteClass(
                 MainActivity::class.java,
                 ImmersedActivity::class.java,
-                ScopeActivity::class.java,
             )
             // 设置点击事件
             setOnClickListener {

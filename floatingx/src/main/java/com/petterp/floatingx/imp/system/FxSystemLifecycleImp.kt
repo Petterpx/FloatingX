@@ -32,10 +32,7 @@ class FxSystemLifecycleImp(
         get() = javaClass.name.split(".").last()
 
     private val Activity.isActivityInValid: Boolean
-        get() {
-            val cls = this.javaClass
-            return insertCls[cls] ?: isInsertActivity(cls)
-        }
+        get() = helper.isCanInstall(this)
 
     init {
         isNeedAskPermission = helper.enableFx
@@ -95,11 +92,4 @@ class FxSystemLifecycleImp(
 
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
 
-    private fun isInsertActivity(cls: Class<*>): Boolean =
-        helper.let {
-            // 条件 允许全局安装&&不在黑名单 || 禁止全局安装&&在白名单
-            val isInsert = it.isCanInstall(cls)
-            insertCls[cls] = isInsert
-            isInsert
-        }
 }
