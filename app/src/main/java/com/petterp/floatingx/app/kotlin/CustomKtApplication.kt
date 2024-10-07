@@ -35,8 +35,8 @@ class CustomKtApplication : Application() {
 //            setTag(MultipleFxActivity.TAG_1)
 //        }
 
-        FxSystemSimple.install(this)
-        FxAppSimple.install(this)
-        FxComposeSimple.install(this)
+//        FxSystemSimple.install(this)
+//        FxAppSimple.install(this)
+//        FxComposeSimple.install(this)
     }
 }
