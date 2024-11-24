@@ -54,6 +54,7 @@ class FxScopeHelper : FxBasisHelper() {
         inline fun build(obj: Builder.() -> Unit) = builder().apply(obj).build()
     }
 
+    @FxBuilderDsl
     class Builder : FxBasisHelper.Builder<Builder, FxScopeHelper>() {
         override fun buildHelper(): FxScopeHelper = FxScopeHelper()
     }

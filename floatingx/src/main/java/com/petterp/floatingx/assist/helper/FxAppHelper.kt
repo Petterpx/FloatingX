@@ -69,6 +69,7 @@ class FxAppHelper(
         }
     }
 
+    @FxBuilderDsl
     class Builder : FxBasisHelper.Builder<Builder, FxAppHelper>() {
         private var enableFx = false
         private var tag = FX_DEFAULT_TAG
@@ -232,7 +233,7 @@ class FxAppHelper(
                 if (enableDebugLog && fxLogTag.isEmpty()) {
                     fxLogTag = tag
                 }
-                if (scopeEnum == FxScopeType.SYSTEM) {
+                if (this@Builder.scopeEnum == FxScopeType.SYSTEM) {
                     initLog(FX_INSTALL_SCOPE_SYSTEM_TAG)
                 } else {
                     initLog(FX_INSTALL_SCOPE_APP_TAG)

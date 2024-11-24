@@ -47,7 +47,8 @@ dependencies {
 ## 🏄‍♀️ Demo
 
 | Full screen, activity, fragment, single view                | Small screen display                                         | Abnormal aspect ratio screen                                 |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ------------------------------------------------------------ | ----------------------
+-------------------------------------- | ------------------------------------------------------------ |
 | ![Effect-Display1](https://github.com/Petterpx/FloatingX/blob/main/image/fx-api-simple.gif?raw=true) | ![Demo-Small Screen](https://github.com/Petterpx/FloatingX/blob/main/image/fx-small-gif.gif?raw=true) | ![Abnormal Aspect Ratio](https://github.com/Petterpx/FloatingX/blob/main/image/fx-view-deformed-simple.gif?raw=true) |
 
 | Screen rotation                                             | Feature demo                                                 |      |

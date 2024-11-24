@@ -14,8 +14,11 @@ import com.petterp.floatingx.listener.IFxViewLifecycle
 import com.petterp.floatingx.util.FxLog
 import kotlin.math.abs
 
+@DslMarker
+annotation class FxBuilderDsl
+
 /** 通用构建器helper */
-open class FxBasisHelper {
+abstract class FxBasisHelper {
     @JvmField
     internal var layoutId: Int = 0
 

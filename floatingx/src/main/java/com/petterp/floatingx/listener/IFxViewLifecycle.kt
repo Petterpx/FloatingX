@@ -1,9 +1,11 @@
 package com.petterp.floatingx.listener
 
 import android.view.View
+import com.petterp.floatingx.assist.helper.FxBuilderDsl
 import com.petterp.floatingx.view.FxViewHolder
 
 /** fx-悬浮窗的生命周期扩展 */
+@FxBuilderDsl
 interface IFxViewLifecycle {
 
     /**

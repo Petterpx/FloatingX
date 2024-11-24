@@ -6,6 +6,7 @@
 -keep public class com.petterp.floatingx.assist.FxDisplayMode{*;}
 -keep public class com.petterp.floatingx.assist.FxAdsorbDirection{*;}
 -keep public class com.petterp.floatingx.assist.FxGravity{*;}
+-keep @kotlin.DslMarker class com.petterp.floatingx.assist.helper.FxBuilderDsl
 -keep public class com.petterp.floatingx.util._FxScreenExt{
   private boolean checkNavigationBarShow(android.content.Context);
 }
