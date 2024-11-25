@@ -65,11 +65,20 @@ internal val Activity.contentView: FrameLayout?
 internal fun ViewGroup.safeAddView(view: View?, lp: ViewGroup.LayoutParams? = null) {
     if (view == null) return
     if (view.parent == this) return
-    (view.parent as? ViewGroup)?.removeView(view)
+    (view.parent as? ViewGroup)?.safeRemoveView(view)
     if (lp == null) {
         addView(view)
     } else {
         addView(view, lp)
+    }
+}
+
+
+internal fun ViewGroup.safeRemoveView(view: View?) {
+    if (view == null) return
+    if (!view.isAttachedToWindow) return
+    kotlin.runCatching {
+        removeView(view)
     }
 }
 
