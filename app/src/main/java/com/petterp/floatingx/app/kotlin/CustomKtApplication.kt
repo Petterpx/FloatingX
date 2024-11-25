@@ -37,6 +37,6 @@ class CustomKtApplication : Application() {
 
         FxSystemSimple.install(this)
         FxAppSimple.install(this)
-        FxComposeSimple.install(this)
+//        FxComposeSimple.install(this)
     }
 }

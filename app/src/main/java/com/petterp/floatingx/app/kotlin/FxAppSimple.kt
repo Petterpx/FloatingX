@@ -49,12 +49,6 @@ object FxAppSimple {
                     )
                 },
             )
-            setTagActivityLifecycle(object :IFxProxyTagActivityLifecycle{
-                override fun onDestroyed(activity: Activity) {
-                    super.onDestroyed(activity)
-
-                }
-            })
             setTouchListener(object : IFxTouchListener {
                 override fun onTouch(event: MotionEvent, control: IFxInternalHelper?): Boolean {
                     return false
