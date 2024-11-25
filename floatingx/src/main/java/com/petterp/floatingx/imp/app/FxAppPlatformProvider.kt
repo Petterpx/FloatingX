@@ -58,11 +58,9 @@ class FxAppPlatformProvider(
             return false
         }
         if (_internalView == null) {
-            initWindowsInsetsListener()
-            helper.updateNavigationBar(act)
-            helper.updateStatsBar(act)
             _internalView = FxDefaultContainerView(helper, helper.context)
             _internalView?.initView()
+            checkOrInitSafeArea(act)
             attach(act)
         }
         return true
@@ -142,16 +140,19 @@ class FxAppPlatformProvider(
         _containerGroup = null
     }
 
-    private fun initWindowsInsetsListener() {
-        val fxView = _internalView ?: return
-        ViewCompat.setOnApplyWindowInsetsListener(fxView, windowsInsetsListener)
-        fxView.requestApplyInsets()
-    }
-
     private fun checkRegisterAppLifecycle() {
         if (!helper.enableFx || _lifecycleImp != null) return
         _lifecycleImp = FxAppLifecycleImp(helper, control)
         helper.context.registerActivityLifecycleCallbacks(_lifecycleImp)
+    }
+
+    private fun checkOrInitSafeArea(act: Activity) {
+        if (!helper.isEnableSafeArea) return
+        helper.updateStatsBar(act)
+        helper.updateNavigationBar(act)
+        val fxView = _internalView ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(fxView, windowsInsetsListener)
+        fxView.requestApplyInsets()
     }
 
     private fun clearWindowsInsetsListener() {
