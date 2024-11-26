@@ -57,6 +57,8 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
     }
 
     override fun onInit() {
+        // 先刷新一下view大小，避免有时候sizeChanged没测量
+        updateViewSize()
         val hasHistory = config.enableSaveDirection && config.iFxConfigStorage?.hasConfig() == true
         val locationFrom: String
         val (defaultX, defaultY) = if (hasHistory) {
@@ -70,9 +72,10 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
             getDefaultXY(parentW, parentH, viewW, viewH)
         }
         // 判断坐标应该准确在哪里
-        basicView?.updateXY(safeX(defaultX), safeY(defaultY))
+        val (safeX, safeY) = safeX(defaultX) to safeY(defaultY)
+        basicView?.updateXY(safeX, safeY)
         isInitLocation = false
-        config.fxLog.d("fxView -> initLocation: x:$defaultX,y:$defaultY,way:[$locationFrom]")
+        config.fxLog.d("fxView -> initLocation: x:$safeX,y:$safeY,way:[$locationFrom]")
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {

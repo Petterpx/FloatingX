@@ -11,6 +11,7 @@ import com.petterp.floatingx.app.BuildConfig
 import com.petterp.floatingx.app.MainActivity
 import com.petterp.floatingx.app.R
 import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.app.simple.FxConfigStorageToSpImpl
 import com.petterp.floatingx.app.test.BlackActivity
 import com.petterp.floatingx.app.test.ImmersedActivity
 import com.petterp.floatingx.app.test.MultipleFxActivity
@@ -34,6 +35,7 @@ object FxSystemSimple {
             setLayout(R.layout.item_floating)
             setScopeType(FxScopeType.SYSTEM_AUTO)
             // 设置浮窗展示类型，默认可移动可点击，无需配置
+            setSaveDirectionImpl(FxConfigStorageToSpImpl(context))
             setDisplayMode(FxDisplayMode.Normal)
             // 设置权限拦截器
             setPermissionInterceptor { activity, controller ->
