@@ -1,6 +1,7 @@
 package com.petterp.floatingx.listener
 
 import android.app.Activity
+import com.petterp.floatingx.assist.helper.FxBuilderDsl
 import com.petterp.floatingx.util.FxPermissionResultAction
 
 /**
@@ -10,6 +11,7 @@ import com.petterp.floatingx.util.FxPermissionResultAction
  * */
 typealias IFxPermissionInterceptor = (activity: Activity, controller: IFxPermissionAskControl) -> Unit
 
+@FxBuilderDsl
 interface IFxPermissionAskControl {
 
     /**

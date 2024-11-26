@@ -10,6 +10,7 @@ import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
 import com.petterp.floatingx.util.decorView
 import com.petterp.floatingx.util.safeAddView
+import com.petterp.floatingx.util.safeRemoveView
 import com.petterp.floatingx.util.topActivity
 import com.petterp.floatingx.view.FxDefaultContainerView
 import java.lang.ref.WeakReference
@@ -58,11 +59,9 @@ class FxAppPlatformProvider(
             return false
         }
         if (_internalView == null) {
-            initWindowsInsetsListener()
-            helper.updateNavigationBar(act)
-            helper.updateStatsBar(act)
             _internalView = FxDefaultContainerView(helper, helper.context)
             _internalView?.initView()
+            checkOrInitSafeArea(act)
             attach(act)
         }
         return true
@@ -95,7 +94,7 @@ class FxAppPlatformProvider(
         val fxView = _internalView ?: return false
         val decorView = activity.decorView ?: return false
         if (containerGroupView === decorView) return false
-        if (ViewCompat.isAttachedToWindow(fxView)) containerGroupView?.removeView(fxView)
+        if (ViewCompat.isAttachedToWindow(fxView)) containerGroupView?.safeRemoveView(fxView)
         _containerGroup = WeakReference(decorView)
         decorView.safeAddView(fxView)
         return true
@@ -108,7 +107,7 @@ class FxAppPlatformProvider(
             return true
         } else {
             if (nContainer === containerGroupView) return false
-            containerGroupView?.removeView(_internalView)
+            containerGroupView?.safeRemoveView(_internalView)
             nContainer.safeAddView(_internalView)
             _containerGroup = WeakReference(nContainer)
         }
@@ -121,7 +120,7 @@ class FxAppPlatformProvider(
         if (!ViewCompat.isAttachedToWindow(fxView)) return false
         val nContainer = activity.decorView ?: return false
         if (nContainer !== oldContainer) return false
-        oldContainer.removeView(_internalView)
+        oldContainer.safeRemoveView(_internalView)
         return true
     }
 
@@ -137,21 +136,24 @@ class FxAppPlatformProvider(
 
     private fun detach() {
         _internalView?.visibility = View.GONE
-        containerGroupView?.removeView(_internalView)
+        containerGroupView?.safeRemoveView(_internalView)
         _containerGroup?.clear()
         _containerGroup = null
-    }
-
-    private fun initWindowsInsetsListener() {
-        val fxView = _internalView ?: return
-        ViewCompat.setOnApplyWindowInsetsListener(fxView, windowsInsetsListener)
-        fxView.requestApplyInsets()
     }
 
     private fun checkRegisterAppLifecycle() {
         if (!helper.enableFx || _lifecycleImp != null) return
         _lifecycleImp = FxAppLifecycleImp(helper, control)
         helper.context.registerActivityLifecycleCallbacks(_lifecycleImp)
+    }
+
+    private fun checkOrInitSafeArea(act: Activity) {
+        if (!helper.isEnableSafeArea) return
+        helper.updateStatsBar(act)
+        helper.updateNavigationBar(act)
+        val fxView = _internalView ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(fxView, windowsInsetsListener)
+        fxView.requestApplyInsets()
     }
 
     private fun clearWindowsInsetsListener() {

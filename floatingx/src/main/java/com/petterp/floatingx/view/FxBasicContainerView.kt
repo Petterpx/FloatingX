@@ -11,6 +11,7 @@ import android.widget.FrameLayout
 import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.INVALID_LAYOUT_ID
 import com.petterp.floatingx.util.safeAddView
+import com.petterp.floatingx.util.safeRemoveView
 import com.petterp.floatingx.view.helper.FxViewAnimationHelper
 import com.petterp.floatingx.view.helper.FxViewLocationHelper
 import com.petterp.floatingx.view.helper.FxViewTouchHelper
@@ -89,14 +90,14 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     override fun updateView(layoutId: Int) {
         helper.fxLog.d("fxView -> updateView")
         locationHelper.needUpdateLocation()
-        removeView(_childView)
+        safeRemoveView(_childView)
         installChildView()
     }
 
     override fun updateView(layoutView: View) {
         helper.fxLog.d("fxView -> updateView")
         locationHelper.needUpdateLocation()
-        removeView(_childView)
+        safeRemoveView(_childView)
         installChildView()
     }
 

@@ -1,5 +1,6 @@
 package com.petterp.floatingx.app.kotlin
 
+import android.app.Activity
 import android.app.Application
 import android.graphics.Color
 import android.view.Gravity
@@ -14,6 +15,8 @@ import com.petterp.floatingx.app.dpF
 import com.petterp.floatingx.app.test.MultipleFxActivity
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.assist.FxScopeType
+import com.petterp.floatingx.listener.IFxConfigStorage
+import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.listener.IFxTouchListener
 import com.petterp.floatingx.view.IFxInternalHelper
 

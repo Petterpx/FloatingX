@@ -18,7 +18,6 @@ import com.petterp.floatingx.app.test.ScopeActivity
 import com.petterp.floatingx.assist.FxDisplayMode
 import com.petterp.floatingx.assist.FxGravity
 import com.petterp.floatingx.assist.FxScopeType
-import com.petterp.floatingx.compose.enableComposeSupport
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
 import com.petterp.floatingx.listener.IFxTouchListener
 import com.petterp.floatingx.listener.IFxViewLifecycle

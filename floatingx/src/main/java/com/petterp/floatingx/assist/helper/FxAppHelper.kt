@@ -35,11 +35,12 @@ class FxAppHelper(
     @JvmSynthetic
     internal var editTextIds: List<Int>?,
     @JvmSynthetic
+    internal var isEnableSafeArea: Boolean,
+    @JvmSynthetic
     internal var isEnableKeyBoardAdapt: Boolean = false,
     /** 显示悬浮窗的Activity生命周期回调 */
     @JvmSynthetic
     internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?,
-
     @JvmSynthetic
     internal val fxAskPermissionInterceptor: IFxPermissionInterceptor?,
 ) : FxBasisHelper() {
@@ -69,6 +70,7 @@ class FxAppHelper(
         }
     }
 
+    @FxBuilderDsl
     class Builder : FxBasisHelper.Builder<Builder, FxAppHelper>() {
         private var enableFx = false
         private var tag = FX_DEFAULT_TAG
@@ -77,6 +79,7 @@ class FxAppHelper(
         private var editTextIds: List<Int>? = null
         private var isEnableKeyBoardAdapt: Boolean = false
         private var scopeEnum: FxScopeType = FxScopeType.APP
+        private var isEnableSafeArea: Boolean = true
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
         private var askPermissionInterceptor: IFxPermissionInterceptor? = null
         private var whiteInsertList: MutableList<String> = mutableListOf()
@@ -130,6 +133,12 @@ class FxAppHelper(
         fun addInstallBlackClass(cls: List<Class<out Activity>>): Builder {
             val names = cls.map { it.name }
             blackFilterList.addAll(names)
+            return this
+        }
+
+        /** 是否启用安全区，即禁止浮窗在状态栏与导航栏展示，仅限App浮窗有效 */
+        fun setEnableSafeArea(isEnable: Boolean): Builder {
+            isEnableSafeArea = isEnable
             return this
         }
 
@@ -219,6 +228,7 @@ class FxAppHelper(
                 isEnableAllInstall,
                 scopeEnum,
                 editTextIds,
+                isEnableSafeArea,
                 isEnableKeyBoardAdapt,
                 fxLifecycleExpand,
                 askPermissionInterceptor,
@@ -232,7 +242,7 @@ class FxAppHelper(
                 if (enableDebugLog && fxLogTag.isEmpty()) {
                     fxLogTag = tag
                 }
-                if (scopeEnum == FxScopeType.SYSTEM) {
+                if (this@Builder.scopeEnum == FxScopeType.SYSTEM) {
                     initLog(FX_INSTALL_SCOPE_SYSTEM_TAG)
                 } else {
                     initLog(FX_INSTALL_SCOPE_APP_TAG)

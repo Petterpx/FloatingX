@@ -5,6 +5,7 @@ package com.petterp.floatingx.listener
  * @author petterp
  */
 import android.view.MotionEvent
+import com.petterp.floatingx.assist.helper.FxBuilderDsl
 import com.petterp.floatingx.view.IFxInternalHelper
 
 /**
@@ -12,6 +13,7 @@ import com.petterp.floatingx.view.IFxInternalHelper
  *
  * 默认提供了一些常见的事件场景，比如按下、松开、浮窗位置移动,如需监听所有，请在eventIng中监听所有事件
  * */
+@FxBuilderDsl
 interface IFxTouchListener {
 
     /** 按下 */

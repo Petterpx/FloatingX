@@ -2,12 +2,14 @@ package com.petterp.floatingx.assist
 
 import android.animation.Animator
 import android.widget.FrameLayout
+import com.petterp.floatingx.assist.helper.FxBuilderDsl
 import com.petterp.floatingx.util.SimpleAnimatorListener
 
 /**
  * fx的动画辅助类
  * 默认实现示例 见simple - FxAnimationImpl
  */
+@FxBuilderDsl
 abstract class FxAnimation {
 
     private var startAnimatorJob: Animator? = null

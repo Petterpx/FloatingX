@@ -36,18 +36,19 @@
 
 ```groovy
 dependencies {
-    implementation 'io.github.petterpx:floatingx:2.2.6'
+    implementation 'io.github.petterpx:floatingx:2.3.0'
     
     // System floating window && need to be imported when compose
     // AppHelper invoke enableComposeSupport()
-    implementation 'io.github.petterpx:floatingx-compose:2.2.6'
+    implementation 'io.github.petterpx:floatingx-compose:2.3.0'
 }
 ```
 
 ## 🏄‍♀️ Demo
 
 | Full screen, activity, fragment, single view                | Small screen display                                         | Abnormal aspect ratio screen                                 |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ------------------------------------------------------------ | ----------------------
+-------------------------------------- | ------------------------------------------------------------ |
 | ![Effect-Display1](https://github.com/Petterpx/FloatingX/blob/main/image/fx-api-simple.gif?raw=true) | ![Demo-Small Screen](https://github.com/Petterpx/FloatingX/blob/main/image/fx-small-gif.gif?raw=true) | ![Abnormal Aspect Ratio](https://github.com/Petterpx/FloatingX/blob/main/image/fx-view-deformed-simple.gif?raw=true) |
 
 | Screen rotation                                             | Feature demo                                                 |      |

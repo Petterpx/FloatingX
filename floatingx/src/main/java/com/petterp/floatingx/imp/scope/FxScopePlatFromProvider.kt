@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.petterp.floatingx.assist.helper.FxScopeHelper
 import com.petterp.floatingx.listener.provider.IFxPlatformProvider
+import com.petterp.floatingx.util.safeRemoveView
 import com.petterp.floatingx.view.FxDefaultContainerView
 import com.petterp.floatingx.view.IFxInternalHelper
 import java.lang.ref.WeakReference
@@ -52,7 +53,7 @@ class FxScopePlatFromProvider(
     }
 
     override fun reset() {
-        containerGroupView?.removeView(_internalView)
+        containerGroupView?.safeRemoveView(_internalView)
         _containerGroup?.clear()
         _containerGroup = null
     }
