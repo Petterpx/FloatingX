@@ -414,7 +414,9 @@ abstract class FxBasisHelper {
             return this as T
         }
 
-        /** 设置是否支持半隐藏 */
+        /** 设置是否支持半隐藏
+         * 系统浮窗时，目前会同时打开[setEnableSafeArea(false)]，以避免浮窗高度超出屏幕(系统行为)
+         * */
         fun setEnableHalfHide(isEnable: Boolean): T {
             enableHalfHide = isEnable
             return this as T
