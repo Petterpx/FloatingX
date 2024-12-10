@@ -12,7 +12,7 @@ import android.view.WindowManager
 import android.widget.EditText
 import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.util.FxInputHelper
-import com.petterp.floatingx.util.screenHeight
+import com.petterp.floatingx.util.realScreenHeight
 import com.petterp.floatingx.util.screenWidth
 
 /** 系统悬浮窗View */
@@ -82,7 +82,7 @@ class FxSystemContainerView @JvmOverloads constructor(
     }
 
     override fun parentSize(): Pair<Int, Int> {
-        return helper.context.screenWidth to helper.context.screenHeight
+        return helper.context.screenWidth to helper.context.realScreenHeight
     }
 
     override fun dispatchKeyEventPreIme(event: KeyEvent?): Boolean {
@@ -103,30 +103,18 @@ class FxSystemContainerView @JvmOverloads constructor(
     }
 
     internal fun updateEnableHalfStatus(enableHalfHide: Boolean) {
-        wl.flags = findFlags(enableHalfHide)
+        wl.flags = defaultFlags.checkFullFlags(enableHalfHide)
         safeUpdateViewLayout(wl)
     }
 
     internal fun updateKeyBoardStatus(showKeyBoard: Boolean) {
         wl.flags = if (showKeyBoard) {
             isShowKeyBoard = true
-            var flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-            if (helper.enableHalfHide)
-                flags = flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-            flags
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL.checkFullFlags()
         } else {
-            findFlags(helper.enableHalfHide)
+            defaultFlags.checkFullFlags()
         }
         safeUpdateViewLayout(wl)
-    }
-
-    private fun findFlags(enableHalfHide: Boolean): Int {
-        var flags = (WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
-        if (enableHalfHide) {
-            flags = flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        }
-        return flags
     }
 
     private fun initWLParams() {
@@ -135,7 +123,7 @@ class FxSystemContainerView @JvmOverloads constructor(
             height = helper.layoutParams?.height ?: WindowManager.LayoutParams.WRAP_CONTENT
             format = PixelFormat.RGBA_8888
             gravity = Gravity.TOP or Gravity.START
-            flags = findFlags(helper.enableHalfHide)
+            flags = defaultFlags.checkFullFlags()
             type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {
@@ -147,5 +135,25 @@ class FxSystemContainerView @JvmOverloads constructor(
     private fun safeUpdateViewLayout(lp: WindowManager.LayoutParams) {
         if (!isAttachToWM) return
         wm.updateViewLayout(this, lp)
+    }
+
+    private val defaultFlags: Int
+        get() = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+
+    private fun Int.checkFullFlags(
+        enableHalfHide: Boolean = helper.enableHalfHide,
+        enableSafeArea: Boolean = helper.enableSafeArea
+    ): Int {
+        // 半悬浮(暂时似乎有点问题)
+//        if (enableHalfHide) {
+//            return this or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+//        }
+        // 不适配安全区域(导航栏状态栏可插入浮窗)
+        if (enableHalfHide || !enableSafeArea) {
+            return this or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+        }
+        return this
     }
 }

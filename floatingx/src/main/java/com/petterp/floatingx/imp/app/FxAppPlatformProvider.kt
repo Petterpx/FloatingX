@@ -148,7 +148,7 @@ class FxAppPlatformProvider(
     }
 
     private fun checkOrInitSafeArea(act: Activity) {
-        if (!helper.isEnableSafeArea) return
+        if (!helper.enableSafeArea) return
         helper.updateStatsBar(act)
         helper.updateNavigationBar(act)
         val fxView = _internalView ?: return
