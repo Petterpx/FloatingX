@@ -35,10 +35,6 @@ class FxSystemPlatformProvider(
     override val internalView: FxSystemContainerView?
         get() = _internalView
 
-    init {
-        checkRegisterAppLifecycle()
-    }
-
     override fun show() {
         val internalView = _internalView ?: return
         internalView.registerWM(wm ?: return)
@@ -57,24 +53,32 @@ class FxSystemPlatformProvider(
     }
 
     override fun checkOrInit(): Boolean {
-        checkRegisterAppLifecycle()
-        // topActivity==null,依然返回true,因为在某些情况下，可能会在Activity未创建时，就调用show
-        val act = topActivity ?: return true
-        // 禁止安装浮窗时，直接返回false
-        if (!helper.isCanInstall(act)) {
+        if (_internalView != null) return true
+        checkOrRegisterActivityLifecycle()
+
+        // topAct不为null，进行黑名单判断
+        val act = topActivity
+        if (act != null && !helper.isCanInstall(act)) {
             helper.fxLog.d("fx not show,This [${act.javaClass.simpleName}] is not in the list of allowed inserts!")
             return false
         }
-        if (_internalView == null) {
-            if (!checkAgreePermission(act)) {
-                internalAskAutoPermission(act)
-                return false
-            }
+
+        val hasPermission = checkAgreePermission(helper.context)
+        if (hasPermission) {
             wm = helper.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             _internalView = FxSystemContainerView(helper, wm!!, context)
             _internalView!!.initView()
+        } else {
+            internalAskAutoPermission(act ?: return false)
         }
-        return true
+        return hasPermission
+    }
+
+    private fun checkOrRegisterActivityLifecycle() {
+        if (_lifecycleImp == null) {
+            _lifecycleImp = FxSystemLifecycleImp(helper, this)
+            helper.context.registerActivityLifecycleCallbacks(_lifecycleImp)
+        }
     }
 
     override fun requestPermission(
@@ -133,12 +137,6 @@ class FxSystemPlatformProvider(
         }
     }
 
-    private fun checkRegisterAppLifecycle() {
-        if (!helper.enableFx || _lifecycleImp != null) return
-        _lifecycleImp = FxSystemLifecycleImp(helper, this)
-        helper.context.registerActivityLifecycleCallbacks(_lifecycleImp)
-    }
-
     internal fun internalAskAutoPermission(activity: Activity) {
         // 有权限,则跳过
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || checkAgreePermission(activity)) {
@@ -153,9 +151,9 @@ class FxSystemPlatformProvider(
         requestPermission(activity, true, helper.scope == FxScopeType.SYSTEM_AUTO)
     }
 
-    private fun checkAgreePermission(activity: Activity): Boolean {
+    private fun checkAgreePermission(context: Context): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return Settings.canDrawOverlays(activity)
+            return Settings.canDrawOverlays(context)
         }
         return true
     }
