@@ -43,23 +43,15 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
 
     override fun show() {
         if (isShow()) return
-        if (!updateEnableStatusAndCheckCanShow()) return
+        helper.enableFx = true
+        if (!platformProvider.checkOrInit()) return
+        // FIXME: 这里有可能会触发多次show
         val fxView = getManagerView() ?: return
         platformProvider.show()
         helper.fxLog.d("fxView -> showFx")
         if (_animationProvider.canRunAnimation()) {
             _animationProvider.start(fxView)
         }
-    }
-
-    private fun updateEnableStatusAndCheckCanShow(): Boolean {
-        val oldStatus = helper.enableFx
-        // pre update status
-        helper.enableFx = true
-        val canShow = platformProvider.checkOrInit()
-        // If it was not open before, it can be safely updated to the latest status
-        if (!oldStatus) helper.enableFx = canShow
-        return canShow
     }
 
     override fun hide() {
@@ -88,12 +80,7 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         }
     }
 
-    override fun isShow(): Boolean {
-        val interView = getManagerView() ?: return false
-        val isShow = platformProvider.isShow()
-        if (isShow != null) return isShow
-        return interView.isAttachedToWindow && interView.visibility == View.VISIBLE
-    }
+    override fun isShow() = platformProvider.isShow() == true
 
     override fun updateView(@LayoutRes resource: Int) {
         check(resource != INVALID_LAYOUT_ID) { "resource cannot be INVALID_LAYOUT_ID!" }

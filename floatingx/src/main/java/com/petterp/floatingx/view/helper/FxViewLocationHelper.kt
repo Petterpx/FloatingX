@@ -201,6 +201,10 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         val (pW, pH) = view.parentSize() ?: return
         val viewH = view.height.toFloat()
         val viewW = view.width.toFloat()
+        // 如果大小没有变化，则不更新
+        if (this.parentW == pW.toFloat() && this.parentH == pH.toFloat()
+            && this.viewW == viewW && this.viewH == viewH
+        ) return
         this.parentW = pW.toFloat()
         this.parentH = pH.toFloat()
         this.viewW = viewW
