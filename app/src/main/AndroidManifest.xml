@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+
     <application
         android:name=".kotlin.CustomKtApplication"
         android:icon="@mipmap/ic_launcher"
@@ -42,9 +45,29 @@
         <activity
             android:name=".test.SimpleRvActivity"
             android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode"
-            android:exported="true" >
+            android:exported="true">
 
         </activity>
+
+        <receiver
+            android:name=".service.LauncherReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".service.LauncherService"
+            android:enabled="true"
+            android:exported="true"
+            android:process="com.test.service">
+            <intent-filter>
+                <action android:name="com.test.Service" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>
