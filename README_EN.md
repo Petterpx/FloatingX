@@ -38,7 +38,7 @@
 dependencies {
     implementation 'io.github.petterpx:floatingx:2.3.3'
     
-    // System floating window && need to be imported when compose
+    // System floating window && 使用 Compose 时需要导入
     // AppHelper invoke enableComposeSupport()
     implementation 'io.github.petterpx:floatingx-compose:2.3.3'
 }
