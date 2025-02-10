@@ -47,11 +47,6 @@ class FxSystemPlatformProvider(
         internalView.isVisibility = false
     }
 
-    override fun isShow(): Boolean {
-        val internalView = _internalView ?: return false
-        return internalView.isAttachToWM && internalView.visibility == View.VISIBLE
-    }
-
     override fun checkOrInit(): Boolean {
         if (_internalView != null) return true
         checkOrRegisterActivityLifecycle()
