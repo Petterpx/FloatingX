@@ -28,6 +28,12 @@ interface IFxControl {
      */
     fun cancel()
 
+    /** 获取x坐标 */
+    fun getX(): Float
+
+    /** 获取y坐标 */
+    fun getY(): Float
+
     /** 获取正在显示的浮窗内容视图,即通过layoutId或者自定义View传递进来的 View */
     fun getView(): View?
 

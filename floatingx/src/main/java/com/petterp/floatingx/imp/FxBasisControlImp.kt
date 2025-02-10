@@ -41,6 +41,10 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         _configControl = createConfigProvider(helper, platformProvider)
     }
 
+    override fun getX() = getManagerView()?.x ?: -1f
+
+    override fun getY() = getManagerView()?.y ?: -1f
+
     override fun show() {
         if (isShow()) return
         helper.enableFx = true

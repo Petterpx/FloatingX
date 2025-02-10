@@ -37,10 +37,6 @@ class FxDefaultContainerView(helper: FxBasisHelper, context: Context, attrs: Att
         layoutParams = lp
     }
 
-    override fun currentX(): Float = x
-
-    override fun currentY(): Float = y
-
     override fun updateXY(x: Float, y: Float) {
         this.x = x
         this.y = y

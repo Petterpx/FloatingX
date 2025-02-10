@@ -15,8 +15,8 @@ class FxViewAnimationHelper : FxViewBasicHelper() {
     private var endY: Float = 0f
 
     fun start(endX: Float, endY: Float) {
-        val startX = basicView?.currentX() ?: 0f
-        val startY = basicView?.currentY() ?: 0f
+        val startX = basicView?.x ?: 0f
+        val startY = basicView?.y ?: 0f
         if (startX == endX && startY == endY) return
         this.startX = startX
         this.startY = startY
