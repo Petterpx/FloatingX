@@ -108,8 +108,8 @@ class FxViewTouchHelper : FxViewBasicHelper() {
         // 不支持move时return掉
         if (!config.displayMode.canMove) return
         basicView?.onTouchMove(event)
-        val x = basicView?.currentX() ?: -1f
-        val y = basicView?.currentY() ?: -1f
+        val x = basicView?.x ?: 0f
+        val y = basicView?.y ?: 0f
         config.iFxTouchListener?.onDragIng(event, x, y)
         config.fxLog.v("fxView -> touchMove,x:$x,y:$y")
     }

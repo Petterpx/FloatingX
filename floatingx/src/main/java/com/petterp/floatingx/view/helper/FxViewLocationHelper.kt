@@ -34,9 +34,9 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
 
 
     private val x: Float
-        get() = basicView?.currentX() ?: 0f
+        get() = basicView?.x ?: 0f
     private val y: Float
-        get() = basicView?.currentY() ?: 0f
+        get() = basicView?.y ?: 0f
 
     private val Pair<Float, Float>.safeLocationXY: Pair<Float, Float>
         get() {

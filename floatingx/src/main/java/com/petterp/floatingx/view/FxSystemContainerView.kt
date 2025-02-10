@@ -29,7 +29,7 @@ class FxSystemContainerView @JvmOverloads constructor(
     private var isShowKeyBoard = false
     private lateinit var wl: WindowManager.LayoutParams
 
-    val isAttachToWM: Boolean
+    private val isAttachToWM: Boolean
         get() = windowToken != null
 
     override fun initView() {
@@ -46,13 +46,9 @@ class FxSystemContainerView @JvmOverloads constructor(
         }
     }
 
-    override fun currentX(): Float {
-        return wl.x.toFloat()
-    }
+    override fun getX() = wl.x.toFloat()
 
-    override fun currentY(): Float {
-        return wl.y.toFloat()
-    }
+    override fun getY() = wl.y.toFloat()
 
     override fun preCheckPointerDownTouch(event: MotionEvent): Boolean {
         // 当前屏幕存在手指时，check当前手势是否真的在浮窗之上

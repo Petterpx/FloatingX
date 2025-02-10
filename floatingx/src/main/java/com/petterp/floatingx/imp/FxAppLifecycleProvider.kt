@@ -10,6 +10,10 @@ import java.lang.ref.WeakReference
  * @author petterp
  */
 class FxAppLifecycleProvider : Application.ActivityLifecycleCallbacks {
+    override fun onActivityPostCreated(activity: Activity, savedInstanceState: Bundle?) {
+        updateTopActivity(activity)
+    }
+
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         updateTopActivity(activity)
     }

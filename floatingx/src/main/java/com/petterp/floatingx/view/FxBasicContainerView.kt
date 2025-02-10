@@ -33,8 +33,6 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     internal val locationHelper = FxViewLocationHelper()
     private val helpers = listOf(locationHelper, touchHelper, animateHelper)
 
-    abstract fun currentX(): Float
-    abstract fun currentY(): Float
     abstract fun updateXY(x: Float, y: Float)
     abstract fun parentSize(): Pair<Int, Int>?
 
@@ -67,7 +65,7 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     }
 
     override fun moveLocationByVector(x: Float, y: Float, useAnimation: Boolean) {
-        safeMoveToXY(x + currentX(), y + currentY(), useAnimation)
+        safeMoveToXY(x + this.x, y + this.y, useAnimation)
     }
 
     override fun checkPointerDownTouch(id: Int, event: MotionEvent): Boolean {
@@ -198,8 +196,8 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     }
 
     internal fun internalMoveToXY(endX: Float, endY: Float, useAnimation: Boolean = false) {
-        val curX = currentX()
-        val curY = currentY()
+        val curX = this.x
+        val curY = this.y
         if (curX == endX && curY == endY) return
         if (useAnimation) {
             animateHelper.start(endX, endY)
