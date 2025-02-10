@@ -27,6 +27,8 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         get() = platformProvider.internalView
 
     override val configControl: IFxConfigControl get() = _configControl
+    override fun getX() = getManagerView()?.x ?: 0f
+    override fun getY() = getManagerView()?.y ?: 0f
     override fun getView() = internalView?.childView
     override fun getViewHolder() = internalView?.viewHolder
     override fun getManagerView() = internalView?.containerView
@@ -40,10 +42,6 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         _animationProvider = createAnimationProvider(helper, platformProvider)
         _configControl = createConfigProvider(helper, platformProvider)
     }
-
-    override fun getX() = getManagerView()?.x ?: -1f
-
-    override fun getY() = getManagerView()?.y ?: -1f
 
     override fun show() {
         if (isShow()) return
