@@ -29,6 +29,7 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     override val configControl: IFxConfigControl get() = _configControl
     override fun getX() = getManagerView()?.x ?: 0f
     override fun getY() = getManagerView()?.y ?: 0f
+    override fun isShow() = platformProvider.isShow()
     override fun getView() = internalView?.childView
     override fun getViewHolder() = internalView?.viewHolder
     override fun getManagerView() = internalView?.containerView
@@ -57,6 +58,7 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     }
 
     override fun hide() {
+        // 这里同时增加判断状态,因为有可能view正在等待postAttach
         if (!isShow()) return
         helper.enableFx = false
         val fxView = getManagerView() ?: return
@@ -81,8 +83,6 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
             reset()
         }
     }
-
-    override fun isShow() = platformProvider.isShow() == true
 
     override fun updateView(@LayoutRes resource: Int) {
         check(resource != INVALID_LAYOUT_ID) { "resource cannot be INVALID_LAYOUT_ID!" }
