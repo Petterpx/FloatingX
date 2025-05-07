@@ -12,7 +12,9 @@
 
 [English Introduction](https://github.com/Petterpx/FloatingX/blob/main/README_EN.md)
 
-[具体使用文档见这里](https://cskf7l0wab.feishu.cn/wiki/wikcnLLBCe3fIDUTAzrEg754tzc)
+[具体使用文档 见这里](https://cskf7l0wab.feishu.cn/wiki/wikcnLLBCe3fIDUTAzrEg754tzc)
+
+[AI快速查文档 见这里](https://deepwiki.com/Petterpx/FloatingX)
 
 ## 👏 特性 
 

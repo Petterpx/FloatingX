@@ -13,6 +13,8 @@
 
 [See detailed documentation here](https://cskf7l0wab.feishu.cn/wiki/wikcnLLBCe3fIDUTAzrEg754tzc)
 
+[DeepWiki Fast QA](https://deepwiki.com/Petterpx/FloatingX)
+
 ## 👏 Features 
 
 - Supports **JetPack Compose**
