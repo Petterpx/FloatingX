@@ -234,26 +234,16 @@ abstract class FxBasisHelper {
             }
 
         /** 设置悬浮窗view的layout */
-        @JvmOverloads
-        fun setLayout(
-            @LayoutRes layoutId: Int,
-            layoutParams: FrameLayout.LayoutParams? = null
-        ): T {
+        fun setLayout(@LayoutRes layoutId: Int): T {
             this.layoutView = null
             this.layoutId = layoutId
-            this.layoutParams = layoutParams
             return this as T
         }
 
         /** 设置悬浮窗View */
-        @JvmOverloads
-        fun setLayoutView(
-            view: View,
-            layoutParams: FrameLayout.LayoutParams? = null
-        ): T {
+        fun setLayoutView(view: View): T {
             this.layoutId = 0
             this.layoutView = view
-            this.layoutParams = layoutParams
             return this as T
         }
 

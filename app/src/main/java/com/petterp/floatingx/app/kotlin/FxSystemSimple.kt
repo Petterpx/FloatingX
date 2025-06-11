@@ -145,16 +145,17 @@ object FxSystemSimple {
 
         controller = FloatingX.install {
             setContext(context)
-            setLayout(
-                R.layout.item_full_screen, FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
-                )
-            )
+            setManagerParams(FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            ))
+            setLayout(R.layout.item_full_screen)
+            setEnableSafeArea(false)
+//            setEnableHalfHide(true)
             setScopeType(FxScopeType.SYSTEM_AUTO)
             // 设置浮窗展示类型，默认可移动可点击，无需配置
             setSaveDirectionImpl(FxConfigStorageToSpImpl(context))
-            setDisplayMode(FxDisplayMode.Normal)
+            setDisplayMode(FxDisplayMode.ClickOnly)
             // 设置权限拦截器
             setPermissionInterceptor { activity, controller ->
                 AlertDialog.Builder(activity).setTitle("提示").setMessage("需要允许悬浮窗权限")
@@ -185,34 +186,34 @@ object FxSystemSimple {
                     }.show()
             }
             // 设置悬浮窗默认方向
-            setGravity(FxGravity.TOP_OR_CENTER)
+//            setGravity(FxGravity.CENTER)
             // 设置偏移位置
-            setOffsetXY(100f, 100f)
+//            setOffsetXY(100f, 100f)
             // 设置启用边缘吸附,默认启用
-            setEnableEdgeAdsorption(true)
+//            setEnableEdgeAdsorption(false)
             // 设置边缘偏移量
-            setEdgeOffset(10f)
+//            setEdgeOffset(10f)
             // 设置启用悬浮窗可屏幕外回弹
-            setEnableScrollOutsideScreen(true)
+//            setEnableScrollOutsideScreen(true)
             // 开启历史位置缓存
 //                setSaveDirectionImpl(FxConfigStorageToSpImpl(context))
             // 设置启用动画
-            setEnableAnimation(true)
+//            setEnableAnimation(true)
             // 设置启用动画实现
-            setAnimationImpl(FxAnimationImpl())
+//            setAnimationImpl(FxAnimationImpl())
             // 设置移动边框
-            setBorderMargin(50f, 50f, 50f, 50f)
+//            setBorderMargin(50f, 50f, 50f, 50f)
             /** 指定浮窗可显示的activity方式 */
             // 1.设置是否允许所有activity都进行显示,默认true
-            setEnableAllInstall(true)
+//            setEnableAllInstall(true)
             // 2.禁止插入Activity的页面, setEnableAllBlackClass(true)时,此方法生效
-            addInstallBlackClass(BlackActivity::class.java)
-            addInstallBlackClass(ScopeActivity::class.java.name)
+//            addInstallBlackClass(BlackActivity::class.java)
+//            addInstallBlackClass(ScopeActivity::class.java.name)
             // 3.允许插入Activity的页面, setEnableAllBlackClass(false)时,此方法生效
-            addInstallWhiteClass(
-                MainActivity::class.java,
-                ImmersedActivity::class.java,
-            )
+//            addInstallWhiteClass(
+//                MainActivity::class.java,
+//                ImmersedActivity::class.java,
+//            )
             // 设置点击事件
             setOnClickListener {
                 Toast.makeText(context, "浮窗被点击", Toast.LENGTH_SHORT).show()
