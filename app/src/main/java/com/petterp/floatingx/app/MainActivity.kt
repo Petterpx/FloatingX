@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
+import com.petterp.floatingx.app.kotlin.FxSystemSimple
 import com.petterp.floatingx.app.simple.FxAnimationImpl
 import com.petterp.floatingx.app.test.MultipleFxActivity
 import com.petterp.floatingx.app.test.SystemActivity
@@ -53,10 +54,13 @@ class MainActivity : AppCompatActivity() {
                             }
                         }.show()
                     }
-                    addItemView("开启半贴边"){
+                    addItemView("显示全局全屏悬浮窗") {
+                        FxSystemSimple.installFullScreen(this@MainActivity.application)
+                    }
+                    addItemView("开启半贴边") {
                         FloatingX.control(MultipleFxActivity.TAG_1).configControl.setEnableHalfHide(true)
                     }
-                    addItemView("隐藏半贴边"){
+                    addItemView("隐藏半贴边") {
                         FloatingX.control(MultipleFxActivity.TAG_1).configControl.setEnableHalfHide(false)
                     }
                     addItemView("隐藏全局悬浮窗") {
