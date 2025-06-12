@@ -136,7 +136,10 @@ class FxAppHelper(
             return this
         }
 
-        /** 是否启用安全区，即禁止浮窗在状态栏与导航栏展示 */
+        /** 是否启用安全区，即禁止浮窗在状态栏与导航栏展示
+         * 推荐在System浮窗使用
+         * 注意: App浮窗需要考虑隐藏状态栏与导航栏才完美
+         * */
         fun setEnableSafeArea(isEnable: Boolean): Builder {
             enableSafeArea = isEnable
             return this

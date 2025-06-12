@@ -25,7 +25,7 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : FrameLayout(context, attrs), IFxInternalHelper {
-    private var isInitLayout = true
+    internal var isInitLayout = true
     private var _childView: View? = null
     private var _viewHolder: FxViewHolder? = null
     private val touchHelper = FxViewTouchHelper()

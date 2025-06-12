@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.provider.Settings
-import android.view.View
 import android.view.WindowManager
 import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.assist.helper.FxAppHelper
@@ -37,8 +36,7 @@ class FxSystemPlatformProvider(
 
     override fun show() {
         val internalView = _internalView ?: return
-        internalView.registerWM(wm ?: return)
-        internalView.isVisibility = true
+        internalView.checkOrRegisterWM(wm ?: return)
     }
 
     override fun hide() {

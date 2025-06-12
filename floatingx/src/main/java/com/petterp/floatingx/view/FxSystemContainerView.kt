@@ -12,6 +12,7 @@ import android.view.WindowManager
 import android.widget.EditText
 import com.petterp.floatingx.assist.helper.FxAppHelper
 import com.petterp.floatingx.util.FxInputHelper
+import com.petterp.floatingx.util.isVisibility
 import com.petterp.floatingx.util.realScreenHeight
 import com.petterp.floatingx.util.screenWidth
 
@@ -89,10 +90,11 @@ class FxSystemContainerView @JvmOverloads constructor(
         return super.dispatchKeyEventPreIme(event)
     }
 
-    internal fun registerWM(wm: WindowManager) {
+    internal fun checkOrRegisterWM(wm: WindowManager) {
         try {
-            if (isAttachToWM) return
-            wm.addView(this, wl)
+            if (!isAttachToWM) wm.addView(this, wl)
+            // 非初始化展示布局
+            if (!isInitLayout) isVisibility = true
         } catch (e: Throwable) {
             e.printStackTrace()
         }
