@@ -116,7 +116,11 @@ class FxSystemContainerView @JvmOverloads constructor(
     private fun initWLParams() {
         wl = WindowManager.LayoutParams().apply {
             width = helper.layoutParams?.width ?: WindowManager.LayoutParams.WRAP_CONTENT
-            height = helper.layoutParams?.height ?: WindowManager.LayoutParams.WRAP_CONTENT
+            height = if (helper.layoutParams != null && helper.layoutParams!!.height == LayoutParams.MATCH_PARENT) {
+                if (!helper.enableSafeArea) helper.context.realScreenHeight else helper.layoutParams!!.height
+            } else {
+                WindowManager.LayoutParams.WRAP_CONTENT
+            }
             format = PixelFormat.RGBA_8888
             gravity = Gravity.TOP or Gravity.START
             flags = defaultFlags.checkFullFlags()

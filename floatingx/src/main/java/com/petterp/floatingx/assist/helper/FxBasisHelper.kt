@@ -242,7 +242,7 @@ abstract class FxBasisHelper {
 
         /** 设置悬浮窗View */
         fun setLayoutView(view: View): T {
-            layoutId = 0
+            this.layoutId = 0
             this.layoutView = view
             return this as T
         }
