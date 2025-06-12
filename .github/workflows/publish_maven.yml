@@ -14,7 +14,6 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-          cache: gradle
       - uses: burrunan/gradle-cache-action@v1
         name: Cache gradle
 
