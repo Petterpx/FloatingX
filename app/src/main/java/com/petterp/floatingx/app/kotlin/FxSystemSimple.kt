@@ -35,10 +35,12 @@ object FxSystemSimple {
         FloatingX.install {
             setContext(context)
             setLayout(R.layout.item_floating)
-            setScopeType(FxScopeType.SYSTEM_AUTO)
+            setScopeType(FxScopeType.SYSTEM)
             // 设置浮窗展示类型，默认可移动可点击，无需配置
             setSaveDirectionImpl(FxConfigStorageToSpImpl(context))
             setDisplayMode(FxDisplayMode.Normal)
+            // 是否仅在安全区展示
+            setEnableSafeArea(true)
             // 设置权限拦截器
             setPermissionInterceptor { activity, controller ->
                 AlertDialog.Builder(activity).setTitle("提示").setMessage("需要允许悬浮窗权限")
@@ -145,17 +147,19 @@ object FxSystemSimple {
 
         controller = FloatingX.install {
             setContext(context)
-            setManagerParams(FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            ))
+//            setManagerParams(
+//                FrameLayout.LayoutParams(
+//                    FrameLayout.LayoutParams.MATCH_PARENT,
+//                    FrameLayout.LayoutParams.MATCH_PARENT
+//                )
+//            )
             setLayout(R.layout.item_full_screen)
             setEnableSafeArea(false)
 //            setEnableHalfHide(true)
             setScopeType(FxScopeType.SYSTEM_AUTO)
             // 设置浮窗展示类型，默认可移动可点击，无需配置
             setSaveDirectionImpl(FxConfigStorageToSpImpl(context))
-            setDisplayMode(FxDisplayMode.ClickOnly)
+            setDisplayMode(FxDisplayMode.Normal)
             // 设置权限拦截器
             setPermissionInterceptor { activity, controller ->
                 AlertDialog.Builder(activity).setTitle("提示").setMessage("需要允许悬浮窗权限")
