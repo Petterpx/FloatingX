@@ -7,6 +7,7 @@ import androidx.annotation.IdRes
 import com.petterp.floatingx.assist.FxScopeType
 import com.petterp.floatingx.listener.IFxPermissionInterceptor
 import com.petterp.floatingx.listener.IFxProxyTagActivityLifecycle
+import com.petterp.floatingx.listener.IKeyBackListener
 import com.petterp.floatingx.util.FX_DEFAULT_TAG
 import com.petterp.floatingx.util.FX_INSTALL_SCOPE_APP_TAG
 import com.petterp.floatingx.util.FX_INSTALL_SCOPE_SYSTEM_TAG
@@ -43,6 +44,8 @@ class FxAppHelper(
     internal val fxLifecycleExpand: IFxProxyTagActivityLifecycle?,
     @JvmSynthetic
     internal val fxAskPermissionInterceptor: IFxPermissionInterceptor?,
+    @JvmSynthetic
+    internal val keyBackListener: IKeyBackListener? = null
 ) : FxBasisHelper() {
     private val insertCls = mutableMapOf<Class<*>, Boolean>()
 
@@ -82,6 +85,7 @@ class FxAppHelper(
         private var enableSafeArea: Boolean = true
         private var fxLifecycleExpand: IFxProxyTagActivityLifecycle? = null
         private var askPermissionInterceptor: IFxPermissionInterceptor? = null
+        private var keyBackListener: IKeyBackListener? = null
         private var whiteInsertList: MutableList<String> = mutableListOf()
         private var blackFilterList: MutableList<String> = mutableListOf()
 
@@ -221,6 +225,14 @@ class FxAppHelper(
             return this
         }
 
+        /**
+         * 支持拦截监听系统返回事件
+         */
+        fun setKeyBackListener(listener: IKeyBackListener): Builder {
+            keyBackListener = listener
+            return this
+        }
+
         override fun buildHelper(): FxAppHelper {
             checkNotNull(context) { "context == null, please call AppHelper.setContext(context) to set context" }
             return FxAppHelper(
@@ -235,6 +247,7 @@ class FxAppHelper(
                 isEnableKeyBoardAdapt,
                 fxLifecycleExpand,
                 askPermissionInterceptor,
+                keyBackListener
             )
         }
 

@@ -78,6 +78,13 @@ class FxSystemContainerView @JvmOverloads constructor(
         wm.updateViewLayout(this, wl)
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+        if (event?.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+            return helper.keyBackListener?.onBackPressed() ?: super.dispatchKeyEvent(event)
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     override fun parentSize(): Pair<Int, Int> {
         return helper.context.screenWidth to helper.context.realScreenHeight
     }
@@ -140,8 +147,11 @@ class FxSystemContainerView @JvmOverloads constructor(
     }
 
     private val defaultFlags: Int
-        get() = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        get() = if (helper.keyBackListener != null) {
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+        } else {
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        }
 
     private fun Int.checkFullFlags(
         enableHalfHide: Boolean = helper.enableHalfHide,
