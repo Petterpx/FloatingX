@@ -14,9 +14,6 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
           cache: 'gradle'
-          cache-dependency-path: | # optional
-            sub-project/*.gradle*
-            sub-project/**/gradle-wrapper.properties
 
       - uses: burrunan/gradle-cache-action@v3
         name: Cache gradle
