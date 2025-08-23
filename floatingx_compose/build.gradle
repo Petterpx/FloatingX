@@ -6,7 +6,9 @@ plugins {
 }
 
 mavenPublishing {
-    coordinates("io.github.petterpx", "floatingx-compose", version_name)
+    def versionName = project.hasProperty('VERSION_NAME') ? project.getProperty('VERSION_NAME') : project.getProperty('version_name')
+    if (versionName == null || version == '1.0') throw new GradleException("version_name cannot be 1.0, please set a valid version name.")
+    coordinates("io.github.petterpx", "floatingx-compose", versionName)
 }
 
 android {
@@ -16,8 +18,6 @@ android {
     defaultConfig {
         minSdk minsdk_version
         targetSdk targetsdk_version
-        versionCode version_code
-        versionName version_name
         consumerProguardFiles "proguard-floatingx-compose.pro"
     }
 
