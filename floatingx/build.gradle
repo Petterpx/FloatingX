@@ -6,9 +6,9 @@ plugins {
 }
 
 mavenPublishing {
-    def versionName = project.hasProperty('VERSION_NAME') ? project.getProperty('VERSION_NAME') : project.getProperty('version_name')
-    if (versionName == null || version == '1.0') throw new GradleException("version_name cannot be 1.0, please set a valid version name.")
-    coordinates("io.github.petterpx", "floatingx", versionName)
+    def VERSION_NAME = project.hasProperty('version_name') ? project.getProperty('version_name') : null
+    if (VERSION_NAME == null) throw new GradleException("version_name cannot be null, please set a valid version name.")
+    coordinates("io.github.petterpx", "floatingx", VERSION_NAME)
 }
 
 android {
