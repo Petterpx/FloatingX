@@ -32,7 +32,10 @@ jobs:
 #          sarif_file: ${{ github.workspace }}/app/build/reports/detekt/detekt.sarif
 #          checkout_path: ${{ github.workspace }}
 
+      - name: Get latest tag
+        id: get_tag
+        run: echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
       - name: Build with Gradle
         env:
-          VERSION_NAME: ${{ github.event.release.tag_name }}
+          VERSION_NAME: ${{ steps.get_tag.outputs.tag }}
         run: ./gradlew publishToMavenLocal -PisPublish=false -PversionName=$VERSION_NAME
