@@ -29,4 +29,4 @@ jobs:
           SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY}}
           SIGNING_KEY_ID: ${{ secrets.GPG_SIGNING_KEY_ID }}
           SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASS_WORD }}
-        run: ./gradlew publishToMavenCentral -PVERSION_NAME=$VERSION_NAME -PisPublish=true -PSONATYPE_AUTOMATIC_RELEASE=true -PmavenCentralUsername=$MAVEN_USERNAME -PmavenCentralPassword=$MAVEN_PASSWORD -PsigningInMemoryKeyId=$SIGNING_KEY_ID -PsigningInMemoryKeyPassword=$SIGNING_PASSWORD -PsigningInMemoryKey=$SIGNING_KEY
+        run: ./gradlew publishToMavenCentral -PisPublish=true -PSONATYPE_AUTOMATIC_RELEASE=true -PmavenCentralUsername=$MAVEN_USERNAME -PmavenCentralPassword=$MAVEN_PASSWORD -PsigningInMemoryKeyId=$SIGNING_KEY_ID -PsigningInMemoryKeyPassword=$SIGNING_PASSWORD -PsigningInMemoryKey=$SIGNING_KEY

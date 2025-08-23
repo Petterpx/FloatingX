@@ -33,4 +33,4 @@ jobs:
 #          checkout_path: ${{ github.workspace }}
 
       - name: Build with Gradle
-        run: ./gradlew assembleRelease -PisPublish=true
+        run: ./gradlew publishToMavenLocal -PisPublish=false

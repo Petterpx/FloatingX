@@ -35,5 +35,5 @@ gradle.projectsLoaded { project ->
     def localProperties = readPropertiesIfExist(new File(settingsDir, "local.properties"))
 
     rootProjectExt.isDev = localProperties.getProperty("isDev", "true").toBoolean()
-    rootProjectExt.isPublish = rootProject.findProperty("isPublish") ?: false
+    rootProjectExt.isPublish = rootProject.hasProperty('isPublish') ? rootProject.getProperty('isPublish').toBoolean() : false
 }

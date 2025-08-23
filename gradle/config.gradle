@@ -1,8 +1,4 @@
 ext {
-    kotlin_version = "1.5.21"
-    minsdk_version = 21
-    targetsdk_version = 31
-    compilesdk_version = 31
     version_code = gitVersionCode()
     version_name = gitVersionTag()
 }
