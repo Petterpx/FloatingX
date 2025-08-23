@@ -1,59 +1,62 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.jetbrains.kotlin.android)
 }
-if (!isPublish) apply from: "../gradle/dev_compose.gradle"
+
 
 android {
-    signingConfigs {
-        config {
-            storeFile file("key")
-            storePassword '19980920.'
-            keyAlias 'petterp'
-            keyPassword '19980920.'
-        }
-    }
-    compileSdk 34
+
+    compileSdk libs.versions.simpleComposeSdk.get().toInteger()
 
     defaultConfig {
         applicationId "com.petterp.floatingx.app"
-        minSdk 21
-        targetSdk 34
+        minSdk libs.versions.simpleMinSdk.get().toInteger()
+        targetSdk libs.versions.simpleComposeSdk.get().toInteger()
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
             minifyEnabled true
-            signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-floatingx.pro'
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        def javeVersion = JavaVersion.toVersion(libs.versions.jvmTarget.get())
+        sourceCompatibility = javeVersion
+        targetCompatibility = javeVersion
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = libs.versions.jvmTarget.get()
     }
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    buildFeatures {
+        compose true
+        buildConfig = true
+    }
+    namespace 'com.petterp.floatingx.app'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.3.0'
-    implementation 'com.google.android.material:material:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation platform(libs.compose.bom)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.material3)
+    debugImplementation(libs.compose.ui.tooling)
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
-    debugImplementation "com.bytedance.tools.codelocator:codelocator-core:2.0.3"
-//    debugImplementation 'com.squareup.leakcanary:leakcanary-object-watcher-android-startup:2.10'
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.constraintlayout
+    debugImplementation libs.leakcanary.android
+    debugImplementation libs.codelocator.core
+//    debugImplementation libs.leakcanary.object1.watcher.android.startup
+
     implementation isDev ? project(path: ':floatingx_compose') : "io.github.petterpx:floatingx-compose:$version_name"
     implementation isDev ? project(path: ':floatingx') : "io.github.petterpx:floatingx:$version_name"
 }

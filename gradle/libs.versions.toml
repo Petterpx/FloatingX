@@ -1,0 +1,51 @@
+[versions]
+minSdk = "21"
+jvmTarget = "17"
+targetSdk = "34"
+compileSdk = "34"
+kotlin = "2.1.10"
+compose-bom = "2025.08.00"
+vanniketch-maven-publish = "0.34.0"
+
+appcompat = "1.7.1"
+codelocatorCore = "2.0.4"
+constraintlayout = "2.2.1"
+androidGradlePlugin = "8.12.1"
+leakcanaryAndroid = "2.14"
+lifecycleRuntimeKtx = "2.6.2"
+material = "1.12.0"
+
+simpleMinSdk = "21"
+simpleComposeSdk = "36"
+
+[libraries]
+appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+codelocator-core = { module = "com.bytedance.tools.codelocator:codelocator-core", version.ref = "codelocatorCore" }
+constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanaryAndroid" }
+leakcanary-object1-watcher-android-startup = { module = "com.squareup.leakcanary:leakcanary-object-watcher-android-startup", version.ref = "leakcanaryAndroid" }
+lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+compose-ui = { module = "androidx.compose.ui:ui" }
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+compose-adaptive = { module = "androidx.compose.material3.adaptive:adaptive" }
+compose-foundation = { module = "androidx.compose.foundation:foundation" }
+compose-material = { module = "androidx.compose.material:material" }
+compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+compose-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
+compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-runtime-rxjava2 = { module = "androidx.compose.runtime:runtime-rxjava2" }
+compose-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+
+[plugins]
+vanniketch-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniketch-maven-publish" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-lirary = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+

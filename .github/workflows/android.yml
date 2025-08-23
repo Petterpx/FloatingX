@@ -8,35 +8,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: set up JDK 11
-      uses: actions/setup-java@v2
-      with:
-        java-version: '11'
-        distribution: 'adopt'
-    - uses: burrunan/gradle-cache-action@v1
-      name: Cache gradle
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+      - uses: burrunan/gradle-cache-action@v3
+        name: Cache gradle
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-    - name: Detekt Code Style
-      continue-on-error: true
-      run: ./gradlew clean detekt
+#      - name: Detekt Code Style
+#        continue-on-error: true
+#        run: ./gradlew clean detekt
+#
+#      - name: Upload SARIF to Github using the upload-sarif action
+#        continue-on-error: true
+#        uses: github/codeql-action/upload-sarif@v3
+#        if: success() || failure()
+#        with:
+#          sarif_file: ${{ github.workspace }}/app/build/reports/detekt/detekt.sarif
+#          checkout_path: ${{ github.workspace }}
 
-    - name: Upload SARIF to Github using the upload-sarif action
-      continue-on-error: true
-      uses: github/codeql-action/upload-sarif@v3
-      if: success() || failure()
-      with:
-        sarif_file: ${{ github.workspace }}/app/build/reports/detekt/detekt.sarif
-        checkout_path: ${{ github.workspace }}
-
-    - name: Dev support
-      env:
-        WORKSPACE: ${{ github.workspace }}
-      run: |
-        cp $WORKSPACE/gradle/dev/FxComposeSimple.kt $WORKSPACE/app/src/main/java/com/petterp/floatingx/app/kotlin/FxComposeSimple.kt
-
-    - name: Build with Gradle
-      run: ./gradlew assembleRelease -PisPublish=true
+      - name: Build with Gradle
+        run: ./gradlew publishToMavenLocal -PisPublish=false -PversionName=1.0

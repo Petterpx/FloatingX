@@ -1,23 +1,24 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'com.vanniktech.maven.publish'
-    id 'org.jetbrains.dokka'
+    alias(libs.plugins.android.lirary)
+    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.vanniketch.maven.publish)
 }
 
 mavenPublishing {
-    coordinates("io.github.petterpx", "floatingx-compose", version_name)
+    def versionName = project.hasProperty("versionName") ? project.getProperty("versionName") : null
+    def isPublish = project.hasProperty("isPublish") ? project.getProperty("isPublish").toBoolean() : false
+    if (isPublish) signAllPublications()
+    coordinates("io.github.petterpx", "floatingx-compose", versionName)
 }
 
 android {
     namespace 'com.petterp.floatingx.compose'
 
-    compileSdk compilesdk_version
+    compileSdk libs.versions.compileSdk.get().toInteger()
+
     defaultConfig {
-        minSdk minsdk_version
-        targetSdk targetsdk_version
-        versionCode version_code
-        versionName version_name
+        minSdk libs.versions.minSdk.get().toInteger()
+        targetSdk libs.versions.targetSdk.get().toInteger()
         consumerProguardFiles "proguard-floatingx-compose.pro"
     }
 
@@ -28,11 +29,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        def javeVersion = JavaVersion.toVersion(libs.versions.jvmTarget.get())
+        sourceCompatibility javeVersion
+        targetCompatibility javeVersion
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = libs.versions.jvmTarget.get()
     }
     buildFeatures {
         buildConfig = false
@@ -41,7 +43,6 @@ android {
 
 dependencies {
     implementation project(':floatingx')
-    implementation 'androidx.appcompat:appcompat:1.3.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    dokkaPlugin 'org.jetbrains.dokka:android-documentation-plugin:1.9.20'
+    implementation libs.appcompat
+    implementation libs.kotlin.stdlib
 }

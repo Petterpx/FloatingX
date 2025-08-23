@@ -3,8 +3,6 @@ package com.petterp.floatingx.app.kotlin
 import android.app.AlertDialog
 import android.app.Application
 import android.view.MotionEvent
-import android.view.View
-import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.petterp.floatingx.FloatingX

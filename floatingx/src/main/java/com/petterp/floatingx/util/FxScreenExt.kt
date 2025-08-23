@@ -127,9 +127,9 @@ private fun getNavigationFromAndroid(activity: Activity): Pair<Int, Int> {
 }
 
 /** from weilu@掘金 */
-private val BRAND = Build.BRAND.toLowerCase(Locale.ROOT)
+private val BRAND = Build.BRAND.lowercase(Locale.ROOT)
 private val isXiaomi: Boolean
-    get() = Build.MANUFACTURER.toLowerCase(Locale.ROOT) == "xiaomi"
+    get() = Build.MANUFACTURER.lowercase(Locale.ROOT) == "xiaomi"
 private val isVivo: Boolean
     get() = BRAND.contains("vivo")
 private val isOppo: Boolean
