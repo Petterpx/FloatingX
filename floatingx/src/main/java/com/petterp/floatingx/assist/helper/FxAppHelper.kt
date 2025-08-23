@@ -227,8 +227,9 @@ class FxAppHelper(
 
         /**
          * 支持拦截监听系统返回事件
+         * 传入null可移除监听
          */
-        fun setKeyBackListener(listener: IKeyBackListener): Builder {
+        fun setKeyBackListener(listener: IKeyBackListener?): Builder {
             keyBackListener = listener
             return this
         }
