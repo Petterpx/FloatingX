@@ -33,4 +33,6 @@ jobs:
 #          checkout_path: ${{ github.workspace }}
 
       - name: Build with Gradle
-        run: ./gradlew publishToMavenLocal -PisPublish=false
+        env:
+          VERSION_NAME: ${{ github.event.release.tag_name }}
+        run: ./gradlew publishToMavenLocal -PisPublish=false -PversionName=$VERSION_NAME

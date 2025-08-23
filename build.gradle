@@ -1,5 +1,4 @@
 buildscript {
-    apply from: "gradle/config.gradle"
     dependencies {}
 }
 
