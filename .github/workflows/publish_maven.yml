@@ -2,7 +2,7 @@ name: Publish Maven
 
 on:
   release:
-    types: [ published,prereleased,released ]
+    types: [ published ]
 
 jobs:
   build:
