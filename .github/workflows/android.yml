@@ -14,23 +14,18 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           cache: 'gradle'
+
       - uses: burrunan/gradle-cache-action@v3
         name: Cache gradle
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-#      - name: Detekt Code Style
-#        continue-on-error: true
-#        run: ./gradlew clean detekt
-#
-#      - name: Upload SARIF to Github using the upload-sarif action
-#        continue-on-error: true
-#        uses: github/codeql-action/upload-sarif@v3
-#        if: success() || failure()
-#        with:
-#          sarif_file: ${{ github.workspace }}/app/build/reports/detekt/detekt.sarif
-#          checkout_path: ${{ github.workspace }}
-
-      - name: Build with Gradle
-        run: ./gradlew publishToMavenLocal -PisPublish=false -PversionName=1.0
+      - name: publish maven
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_USER_NAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_PASS_WORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_SIGNING_KEY}}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.GPG_SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_SIGNING_PASS_WORD }}
+        run: ./gradlew publishToMavenCentral --no-configuration-cache -PisPublish=true -PversionName=2.3.5.1
