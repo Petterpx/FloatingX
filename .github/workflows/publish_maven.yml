@@ -29,4 +29,4 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_SIGNING_KEY}}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.GPG_SIGNING_KEY_ID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_SIGNING_PASS_WORD }}
-        run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache -PversionName=$VERSION_NAME
+        run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache -PisPublish=true -PversionName=$VERSION_NAME
