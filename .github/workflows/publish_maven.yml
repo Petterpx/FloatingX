@@ -2,7 +2,7 @@ name: Publish Maven
 
 on:
   release:
-    types: [ published ]
+    types: [ published,prereleased,released ]
 
 jobs:
   build:
@@ -24,9 +24,9 @@ jobs:
       - name: publish maven
         env:
           VERSION_NAME: ${{ github.event.release.tag_name }}
-          MAVEN_USERNAME: ${{ secrets.MAVEN_USER_NAME }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASS_WORD }}
-          SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY}}
-          SIGNING_KEY_ID: ${{ secrets.GPG_SIGNING_KEY_ID }}
-          SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASS_WORD }}
-        run: ./gradlew publishToMavenCentral -PisPublish=true -PversionName=$VERSION_NAME -PSONATYPE_AUTOMATIC_RELEASE=true -PmavenCentralUsername=$MAVEN_USERNAME -PmavenCentralPassword=$MAVEN_PASSWORD -PsigningInMemoryKeyId=$SIGNING_KEY_ID -PsigningInMemoryKeyPassword=$SIGNING_PASSWORD -PsigningInMemoryKey=$SIGNING_KEY
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_USER_NAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_PASS_WORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_SIGNING_KEY}}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.GPG_SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_SIGNING_PASS_WORD }}
+        run: ./gradlew publishToMavenCentral -PisPublish=true -PversionName=$VERSION_NAME
