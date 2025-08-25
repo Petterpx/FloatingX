@@ -9,4 +9,5 @@
 .externalNativeBuild
 .cxx
 /check/detekt/reports
-.idea
+.idea*.class
+META-INF/
