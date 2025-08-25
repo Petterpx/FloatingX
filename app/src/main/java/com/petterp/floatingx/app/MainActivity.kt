@@ -12,8 +12,10 @@ import androidx.cardview.widget.CardView
 import com.petterp.floatingx.FloatingX
 import com.petterp.floatingx.app.kotlin.FxSystemSimple
 import com.petterp.floatingx.app.simple.FxAnimationImpl
+import com.petterp.floatingx.app.test.EdgeCaseTestActivity
 import com.petterp.floatingx.app.test.MultipleFxActivity
 import com.petterp.floatingx.app.test.SystemActivity
+import com.petterp.floatingx.app.test.TestLifecycleActivity
 import com.petterp.floatingx.util.createFx
 
 class MainActivity : AppCompatActivity() {
@@ -109,6 +111,12 @@ class MainActivity : AppCompatActivity() {
                     }
                     addItemView("进入system浮窗测试页面") {
                         SystemActivity::class.java.start(this@MainActivity)
+                    }
+                    addItemView("测试生命周期时序问题修复") {
+                        TestLifecycleActivity::class.java.start(this@MainActivity)
+                    }
+                    addItemView("测试边界情况") {
+                        EdgeCaseTestActivity::class.java.start(this@MainActivity)
                     }
                 }
             }

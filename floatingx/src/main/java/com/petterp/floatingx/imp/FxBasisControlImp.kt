@@ -26,6 +26,8 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     
     // Queue for operations that are called before the floating window is ready
     private val pendingOperations = mutableListOf<FxQueuedOperation>()
+    // Flag to prevent duplicate execution of operations
+    private var isExecutingPendingOperations = false
     
     private val internalView: IFxInternalHelper?
         get() = platformProvider.internalView
@@ -180,7 +182,10 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         _animationProvider.reset()
         helper.clear()
         // Clear pending operations on reset
-        pendingOperations.clear()
+        synchronized(pendingOperations) {
+            pendingOperations.clear()
+        }
+        isExecutingPendingOperations = false
         helper.fxLog.d("fxView-lifecycle-> code->cancelFx")
     }
     
@@ -188,8 +193,16 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
      * Queue an operation to be executed when the floating window is ready
      */
     private fun queueOperation(operation: FxQueuedOperation) {
+        // Only queue if not currently executing pending operations to avoid infinite loops
+        if (isExecutingPendingOperations) {
+            helper.fxLog.d("fxView -> skipping queue during execution: $operation")
+            return
+        }
+        
         helper.fxLog.d("fxView -> queueOperation: $operation")
-        pendingOperations.add(operation)
+        synchronized(pendingOperations) {
+            pendingOperations.add(operation)
+        }
     }
     
     /**
@@ -197,22 +210,39 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
      * This should be called when the floating window becomes ready
      */
     internal fun executePendingOperations() {
-        if (pendingOperations.isEmpty()) return
-        
-        helper.fxLog.d("fxView -> executing ${pendingOperations.size} pending operations")
-        val operations = pendingOperations.toList()
-        pendingOperations.clear()
-        
-        for (operation in operations) {
-            when (operation) {
-                is FxQueuedOperation.Show -> executeShowInternal()
-                is FxQueuedOperation.Hide -> executeHideInternal()
-                is FxQueuedOperation.Move -> {
-                    internalView?.moveLocation(operation.x, operation.y, operation.useAnimation)
+        synchronized(pendingOperations) {
+            if (pendingOperations.isEmpty() || isExecutingPendingOperations) return
+            
+            helper.fxLog.d("fxView -> executing ${pendingOperations.size} pending operations")
+            val operations = pendingOperations.toList()
+            pendingOperations.clear()
+            isExecutingPendingOperations = true
+            
+            try {
+                for (operation in operations) {
+                    when (operation) {
+                        is FxQueuedOperation.Show -> {
+                            // Only execute show if not already showing
+                            if (!isShow()) {
+                                executeShowInternal()
+                            }
+                        }
+                        is FxQueuedOperation.Hide -> {
+                            // Only execute hide if currently showing
+                            if (isShow()) {
+                                executeHideInternal()
+                            }
+                        }
+                        is FxQueuedOperation.Move -> {
+                            internalView?.moveLocation(operation.x, operation.y, operation.useAnimation)
+                        }
+                        is FxQueuedOperation.MoveByVector -> {
+                            internalView?.moveLocationByVector(operation.x, operation.y, operation.useAnimation)
+                        }
+                    }
                 }
-                is FxQueuedOperation.MoveByVector -> {
-                    internalView?.moveLocationByVector(operation.x, operation.y, operation.useAnimation)
-                }
+            } finally {
+                isExecutingPendingOperations = false
             }
         }
     }
