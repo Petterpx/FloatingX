@@ -58,11 +58,14 @@ class FxAppPlatformProvider(
             helper.fxLog.d("fx not show,This ${act.javaClass.simpleName} is not in the list of allowed inserts!")
             return false
         }
-        if (_internalView == null) {
+        val wasNull = _internalView == null
+        if (wasNull) {
             _internalView = FxDefaultContainerView(helper, helper.context)
             _internalView?.initView()
             checkOrInitSafeArea(act)
             attach(act)
+            // Execute pending operations now that the floating window is ready
+            control.executePendingOperations()
         }
         return true
     }
