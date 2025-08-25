@@ -79,11 +79,16 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {
-        updateViewSize()
+        val sizeChanged = updateViewSize()
         // 初始化跳过
         if (isInitLocation) return
         if (needUpdateLocation) {
             checkOrRestoreLocation()
+        } else if (sizeChanged && !config.gravity.isDefault()) {
+            // 当View大小改变且设置了非默认Gravity时，根据Gravity重新计算位置
+            val (newX, newY) = recalculatePositionByGravity()
+            basicView?.internalMoveToXY(newX, newY)
+            config.fxLog.d("fxView -> onSizeChanged: recalculated position by gravity, x:$newX, y:$newY")
         } else {
             basicView?.internalMoveToXY(safeX(x), safeY(y))
         }
@@ -196,21 +201,22 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
         }
     }
 
-    private fun updateViewSize() {
-        val view = basicView ?: return
-        val (pW, pH) = view.parentSize() ?: return
+    private fun updateViewSize(): Boolean {
+        val view = basicView ?: return false
+        val (pW, pH) = view.parentSize() ?: return false
         val viewH = view.height.toFloat()
         val viewW = view.width.toFloat()
         // 如果大小没有变化，则不更新
         if (this.parentW == pW.toFloat() && this.parentH == pH.toFloat()
             && this.viewW == viewW && this.viewH == viewH
-        ) return
+        ) return false
         this.parentW = pW.toFloat()
         this.parentH = pH.toFloat()
         this.viewW = viewW
         this.viewH = viewH
         updateMoveBoundary()
         config.fxLog.d("fxView -> updateSize: parentW:$parentW,parentH:$parentH,viewW:$viewW,viewH:$viewH")
+        return true
     }
 
     private fun isNearestLeft(x: Float): Boolean {
@@ -266,6 +272,14 @@ class FxViewLocationHelper : FxViewBasicHelper(), View.OnLayoutChangeListener {
                 else -> (width - viewW).shr(2) to (height - viewH).shr(2)
             }.safeLocationXY
         }
+    }
+
+    /**
+     * 根据当前Gravity设置重新计算位置
+     * 当View大小改变时，根据Gravity重新定位
+     */
+    private fun recalculatePositionByGravity(): Pair<Float, Float> {
+        return getDefaultXY(parentW, parentH, viewW, viewH)
     }
 
     internal fun updateMoveBoundary() {
