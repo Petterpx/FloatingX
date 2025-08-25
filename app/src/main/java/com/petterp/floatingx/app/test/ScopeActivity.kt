@@ -85,6 +85,9 @@ class ScopeActivity : AppCompatActivity() {
                     addItemView("允许触摸事件(允许拖动)-默认允许") {
                         scopeFx.configControl.setDisplayMode(FxDisplayMode.Normal)
                     }
+                    addItemView("长按移动模式(解决内容滑动冲突)") {
+                        scopeFx.configControl.setDisplayMode(FxDisplayMode.LongPressMove)
+                    }
                     addItemView("隐藏悬浮窗") {
                         scopeFx.hide()
                     }

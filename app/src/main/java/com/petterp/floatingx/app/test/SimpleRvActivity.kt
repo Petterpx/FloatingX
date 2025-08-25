@@ -70,6 +70,12 @@ class SimpleRvActivity : AppCompatActivity() {
                         if (customAdapter.sum < 0) customAdapter.sum = 1
                         customAdapter.notifyDataSetChanged()
                     }
+                    addItemView("设置长按移动模式") {
+                        FloatingX.controlOrNull(TAG)?.configControl?.setDisplayMode(FxDisplayMode.LongPressMove)
+                    }
+                    addItemView("设置普通移动模式") {
+                        FloatingX.controlOrNull(TAG)?.configControl?.setDisplayMode(FxDisplayMode.Normal)
+                    }
                 }
             }
         }

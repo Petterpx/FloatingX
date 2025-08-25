@@ -12,8 +12,14 @@ enum class FxDisplayMode {
     ClickOnly,
 
     // 展示模式：只用于展示，不响应任何事件不能移动
-    DisplayOnly;
+    DisplayOnly,
+
+    // 长按移动模式：长按后可移动，解决内容滑动冲突
+    LongPressMove;
 
     val canMove: Boolean
         get() = this == Normal
+
+    val canLongPressMove: Boolean
+        get() = this == LongPressMove
 }
