@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="200dp"
+    android:layout_height="150dp"
+    android:background="@android:color/holo_blue_light"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <!-- Clickable button that should respond immediately -->
+    <Button
+        android:id="@+id/btnClickMe"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="Click Me!"
+        android:textSize="12sp" />
+
+    <!-- Non-clickable area that should require long press for movement -->
+    <TextView
+        android:id="@+id/tvNonClickable"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/white"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:text="Long press here to move"
+        android:textSize="12sp" />
+
+    <!-- Another clickable element -->
+    <TextView
+        android:id="@+id/tvClickable"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@android:color/holo_green_light"
+        android:clickable="true"
+        android:gravity="center"
+        android:layout_marginTop="5dp"
+        android:text="Clickable Text"
+        android:textSize="12sp" />
+
+</LinearLayout>

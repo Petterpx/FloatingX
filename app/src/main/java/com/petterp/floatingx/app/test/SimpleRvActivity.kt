@@ -70,6 +70,13 @@ class SimpleRvActivity : AppCompatActivity() {
                         if (customAdapter.sum < 0) customAdapter.sum = 1
                         customAdapter.notifyDataSetChanged()
                     }
+                    addItemView("设置长按移动模式") {
+                        FloatingX.controlOrNull(TAG)?.configControl?.setDisplayMode(FxDisplayMode.LongPressMove)
+                        Toast.makeText(this@SimpleRvActivity, "长按移动模式：点击Header或RV即时响应，长按空白区域移动", Toast.LENGTH_LONG).show()
+                    }
+                    addItemView("设置普通移动模式") {
+                        FloatingX.controlOrNull(TAG)?.configControl?.setDisplayMode(FxDisplayMode.Normal)
+                    }
                 }
             }
         }
@@ -97,6 +104,11 @@ class SimpleRvActivity : AppCompatActivity() {
                         500,
                         200,
                     )
+                    // Make header clickable to test immediate response in LongPressMove mode
+                    isClickable = true
+                    setOnClickListener {
+                        Toast.makeText(context, "Header clicked immediately!", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 val rv = RecyclerView(context).apply {
                     layoutParams = ViewGroup.LayoutParams(

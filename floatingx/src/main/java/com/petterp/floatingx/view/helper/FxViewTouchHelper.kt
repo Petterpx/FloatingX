@@ -24,11 +24,15 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     private var isEnableClick = true
     private var mLastTouchDownTime = 0L
     private var touchDownId = INVALID_TOUCH_ID
+    private var isLongPressActivated = false
+    private var hasChildWithClickEvents = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun initConfig(parentView: FxBasicContainerView) {
         super.initConfig(parentView)
         scaledTouchSlop = ViewConfiguration.get(parentView.context).scaledTouchSlop.toFloat()
+        // Check if any child view has click events for LongPressMove mode
+        hasChildWithClickEvents = checkIfChildHasClickEvents(parentView)
         resetConfig()
     }
 
@@ -57,7 +61,18 @@ class FxViewTouchHelper : FxViewBasicHelper() {
 
             MotionEvent.ACTION_MOVE -> {
                 if (!isCurrentPointerId(event)) return false
-                return config.displayMode.canMove && canInterceptEvent(event)
+                // 长按移动模式：如果有子视图设置了点击事件，则浮窗优先拦截所有事件进行移动
+                return if (config.displayMode.canLongPressMove) {
+                    if (hasChildWithClickEvents) {
+                        // 有子视图点击事件时，浮窗拦截所有事件
+                        canInterceptEvent(event)
+                    } else {
+                        // 没有子视图点击事件时，使用长按激活
+                        isLongPressActivated && canInterceptEvent(event)
+                    }
+                } else {
+                    config.displayMode.canMove && canInterceptEvent(event)
+                }
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
@@ -105,8 +120,28 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     private fun touchToMove(event: MotionEvent) {
         if (!isCurrentPointerId(event)) return
         checkClickState(event)
+        // Check if movement is allowed
+        val canMoveNow = if (config.displayMode.canLongPressMove) {
+            if (hasChildWithClickEvents) {
+                // 有子视图点击事件时，浮窗优先移动
+                true
+            } else {
+                // 没有子视图点击事件时，使用长按激活
+                val timeSinceDown = System.currentTimeMillis() - mLastTouchDownTime
+                if (timeSinceDown >= TOUCH_CLICK_LONG_TIME && !isLongPressActivated) {
+                    isLongPressActivated = true
+                    // Trigger haptic feedback for long press
+                    basicView?.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                    config.fxLog.d("fxView -> long press activated for movement")
+                }
+                isLongPressActivated
+            }
+        } else {
+            config.displayMode.canMove
+        }
+        
         // 不支持move时return掉
-        if (!config.displayMode.canMove) return
+        if (!canMoveNow) return
         basicView?.onTouchMove(event)
         val x = basicView?.x ?: 0f
         val y = basicView?.y ?: 0f
@@ -115,7 +150,9 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     }
 
     private fun touchCancel(event: MotionEvent) {
-        if (config.enableEdgeAdsorption && config.displayMode.canMove) basicView?.moveToEdge()
+        val canMoveForEdge = config.displayMode.canMove || 
+                           (config.displayMode.canLongPressMove && (hasChildWithClickEvents || isLongPressActivated))
+        if (config.enableEdgeAdsorption && canMoveForEdge) basicView?.moveToEdge()
         basicView?.onTouchCancel(event)
         config.iFxTouchListener?.onUp()
         performClickAction()
@@ -131,7 +168,8 @@ class FxViewTouchHelper : FxViewBasicHelper() {
                     basicView?.postDelayed({ isEnableClick = true }, config.clickTime)
                 }
                 config.iFxClickListener?.onClick(basicView)
-            } else if (diffTime >= TOUCH_CLICK_LONG_TIME) {
+            } else if (diffTime >= TOUCH_CLICK_LONG_TIME && !config.displayMode.canLongPressMove) {
+                // Only trigger long click listener if not in long press move mode (to avoid conflicts)
                 val isHandle = config.iFxLongClickListener?.onLongClick(basicView) ?: false
                 if (isHandle) basicView?.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             }
@@ -156,7 +194,39 @@ class FxViewTouchHelper : FxViewBasicHelper() {
         isClickEvent = false
         mLastTouchDownTime = 0L
         touchDownId = INVALID_TOUCH_ID
+        isLongPressActivated = false
     }
 
     private fun hasMainPointerId() = touchDownId != INVALID_TOUCH_ID
+
+    /**
+     * Check if any child view in the floating window has click events set
+     * This determines whether the floating window should prioritize movement in LongPressMove mode
+     */
+    private fun checkIfChildHasClickEvents(container: FxBasicContainerView): Boolean {
+        val childView = container.childView ?: return false
+        return hasClickEventsRecursive(childView)
+    }
+    
+    /**
+     * Recursively check if any view or its descendants have click events
+     */
+    private fun hasClickEventsRecursive(view: android.view.View): Boolean {
+        // Check if this view has click events
+        if (view.isClickable || view.hasOnClickListeners()) {
+            return true
+        }
+        
+        // If this is a ViewGroup, check its children
+        if (view is android.view.ViewGroup) {
+            for (i in 0 until view.childCount) {
+                val child = view.getChildAt(i)
+                if (hasClickEventsRecursive(child)) {
+                    return true
+                }
+            }
+        }
+        
+        return false
+    }
 }
