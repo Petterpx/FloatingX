@@ -25,12 +25,14 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     private var mLastTouchDownTime = 0L
     private var touchDownId = INVALID_TOUCH_ID
     private var isLongPressActivated = false
-    private var isDownOnClickableChild = false
+    private var hasChildWithClickEvents = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun initConfig(parentView: FxBasicContainerView) {
         super.initConfig(parentView)
         scaledTouchSlop = ViewConfiguration.get(parentView.context).scaledTouchSlop.toFloat()
+        // Check if any child view has click events for LongPressMove mode
+        hasChildWithClickEvents = checkIfChildHasClickEvents(parentView)
         resetConfig()
     }
 
@@ -59,9 +61,15 @@ class FxViewTouchHelper : FxViewBasicHelper() {
 
             MotionEvent.ACTION_MOVE -> {
                 if (!isCurrentPointerId(event)) return false
-                // 长按移动模式：只有在长按激活后才拦截移动事件，除非不在可点击子视图上
+                // 长按移动模式：如果有子视图设置了点击事件，则浮窗优先拦截所有事件进行移动
                 return if (config.displayMode.canLongPressMove) {
-                    (isLongPressActivated || !isDownOnClickableChild) && canInterceptEvent(event)
+                    if (hasChildWithClickEvents) {
+                        // 有子视图点击事件时，浮窗拦截所有事件
+                        canInterceptEvent(event)
+                    } else {
+                        // 没有子视图点击事件时，使用长按激活
+                        isLongPressActivated && canInterceptEvent(event)
+                    }
                 } else {
                     config.displayMode.canMove && canInterceptEvent(event)
                 }
@@ -91,12 +99,6 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     private fun initClickConfig(event: MotionEvent) {
         this.initX = event.rawX
         this.initY = event.rawY
-        // Check if touch is on a clickable child view for LongPressMove mode
-        isDownOnClickableChild = if (config.displayMode.canLongPressMove) {
-            checkTouchOnClickableChild(event)
-        } else {
-            false
-        }
         if (!config.enableClickListener || config.iFxClickListener == null) return
         isClickEvent = true
         mLastTouchDownTime = System.currentTimeMillis()
@@ -120,17 +122,20 @@ class FxViewTouchHelper : FxViewBasicHelper() {
         checkClickState(event)
         // Check if movement is allowed
         val canMoveNow = if (config.displayMode.canLongPressMove) {
-            // For long press move mode, check if long press is activated and enough time has passed
-            // But allow immediate movement if not touching a clickable child
-            val timeSinceDown = System.currentTimeMillis() - mLastTouchDownTime
-            if (timeSinceDown >= TOUCH_CLICK_LONG_TIME && !isLongPressActivated) {
-                isLongPressActivated = true
-                // Trigger haptic feedback for long press
-                basicView?.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                config.fxLog.d("fxView -> long press activated for movement")
+            if (hasChildWithClickEvents) {
+                // 有子视图点击事件时，浮窗优先移动
+                true
+            } else {
+                // 没有子视图点击事件时，使用长按激活
+                val timeSinceDown = System.currentTimeMillis() - mLastTouchDownTime
+                if (timeSinceDown >= TOUCH_CLICK_LONG_TIME && !isLongPressActivated) {
+                    isLongPressActivated = true
+                    // Trigger haptic feedback for long press
+                    basicView?.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                    config.fxLog.d("fxView -> long press activated for movement")
+                }
+                isLongPressActivated
             }
-            // Allow movement if long press is activated OR if not touching a clickable child
-            isLongPressActivated || !isDownOnClickableChild
         } else {
             config.displayMode.canMove
         }
@@ -145,7 +150,8 @@ class FxViewTouchHelper : FxViewBasicHelper() {
     }
 
     private fun touchCancel(event: MotionEvent) {
-        val canMoveForEdge = config.displayMode.canMove || (config.displayMode.canLongPressMove && (isLongPressActivated || !isDownOnClickableChild))
+        val canMoveForEdge = config.displayMode.canMove || 
+                           (config.displayMode.canLongPressMove && (hasChildWithClickEvents || isLongPressActivated))
         if (config.enableEdgeAdsorption && canMoveForEdge) basicView?.moveToEdge()
         basicView?.onTouchCancel(event)
         config.iFxTouchListener?.onUp()
@@ -189,68 +195,38 @@ class FxViewTouchHelper : FxViewBasicHelper() {
         mLastTouchDownTime = 0L
         touchDownId = INVALID_TOUCH_ID
         isLongPressActivated = false
-        isDownOnClickableChild = false
     }
 
     private fun hasMainPointerId() = touchDownId != INVALID_TOUCH_ID
 
     /**
-     * Check if the touch event is on a clickable child view
-     * This helps determine whether to apply long press behavior or allow immediate interaction
+     * Check if any child view in the floating window has click events set
+     * This determines whether the floating window should prioritize movement in LongPressMove mode
      */
-    private fun checkTouchOnClickableChild(event: MotionEvent): Boolean {
-        val container = basicView ?: return false
+    private fun checkIfChildHasClickEvents(container: FxBasicContainerView): Boolean {
         val childView = container.childView ?: return false
-        
-        // Convert touch coordinates to child view coordinates
-        val touchX = event.rawX
-        val touchY = event.rawY
-        
-        // Find the target view at the touch position
-        val targetView = findViewAtPosition(childView, touchX, touchY)
-        
-        // Check if the target view or any of its parents are clickable
-        return isViewClickable(targetView)
+        return hasClickEventsRecursive(childView)
     }
     
     /**
-     * Recursively find the view at the specified global coordinates
+     * Recursively check if any view or its descendants have click events
      */
-    private fun findViewAtPosition(view: android.view.View, x: Float, y: Float): android.view.View? {
-        val location = IntArray(2)
-        view.getLocationOnScreen(location)
-        val left = location[0]
-        val top = location[1]
-        val right = left + view.width
-        val bottom = top + view.height
-        
-        // Check if touch is within this view's bounds
-        if (x < left || x > right || y < top || y > bottom) {
-            return null
+    private fun hasClickEventsRecursive(view: android.view.View): Boolean {
+        // Check if this view has click events
+        if (view.isClickable || view.hasOnClickListeners()) {
+            return true
         }
         
-        // If this is a ViewGroup, check its children first
+        // If this is a ViewGroup, check its children
         if (view is android.view.ViewGroup) {
-            for (i in view.childCount - 1 downTo 0) {
+            for (i in 0 until view.childCount) {
                 val child = view.getChildAt(i)
-                val targetView = findViewAtPosition(child, x, y)
-                if (targetView != null) {
-                    return targetView
+                if (hasClickEventsRecursive(child)) {
+                    return true
                 }
             }
         }
         
-        // Return this view if no child was found at the position
-        return view
-    }
-    
-    /**
-     * Check if a view is clickable (has click listeners or is inherently clickable)
-     */
-    private fun isViewClickable(view: android.view.View?): Boolean {
-        if (view == null) return false
-        
-        // Check if view is clickable or has click listeners
-        return view.isClickable || view.hasOnClickListeners()
+        return false
     }
 }
