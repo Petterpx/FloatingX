@@ -127,7 +127,13 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     }
 
     override fun updateViewContent(provider: IFxHolderProvider) {
-        provider.apply(getViewHolder() ?: return)
+        val viewHolder = getViewHolder()
+        if (viewHolder != null) {
+            provider.apply(viewHolder)
+        } else {
+            // Queue the updateViewContent operation for later execution
+            queueOperation(FxQueuedOperation.UpdateViewContent(provider))
+        }
     }
 
     override fun setClickListener(time: Long, listener: View.OnClickListener?) {
@@ -238,6 +244,11 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
                         }
                         is FxQueuedOperation.MoveByVector -> {
                             internalView?.moveLocationByVector(operation.x, operation.y, operation.useAnimation)
+                        }
+                        is FxQueuedOperation.UpdateViewContent -> {
+                            getViewHolder()?.let { viewHolder ->
+                                operation.provider.apply(viewHolder)
+                            }
                         }
                     }
                 }

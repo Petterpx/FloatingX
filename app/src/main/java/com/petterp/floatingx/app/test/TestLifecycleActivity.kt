@@ -42,6 +42,9 @@ class TestLifecycleActivity : AppCompatActivity() {
                     addItemView("Test immediate operations") {
                         testImmediateOperations()
                     }
+                    addItemView("Test updateViewContent() in onCreate()") {
+                        testUpdateViewContentInOnCreate()
+                    }
                     addItemView("Cancel FloatingX") {
                         FloatingX.controlOrNull(TEST_TAG)?.cancel()
                     }
@@ -118,5 +121,28 @@ class TestLifecycleActivity : AppCompatActivity() {
         FloatingX.control(TEST_TAG + "_immediate").show()
         
         Toast.makeText(this, "Immediate operations executed", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun testUpdateViewContentInOnCreate() {
+        // Test updateViewContent() being called before the floating window is ready
+        // This simulates the scenario mentioned in the comment
+        
+        FloatingX.install {
+            setContext(applicationContext)
+            setLayout(R.layout.item_floating)
+            setTag(TEST_TAG + "_content")
+            setEnableLog(true, "content_test")
+        }
+        
+        // Before fix: this would be ignored if viewHolder isn't ready
+        // After fix: this gets queued and executed when ready
+        FloatingX.control(TEST_TAG + "_content").updateViewContent { holder ->
+            holder.setText(R.id.tvItemFx, "Updated in onCreate()!")
+        }
+        
+        // Show the floating window to see the result
+        FloatingX.control(TEST_TAG + "_content").show()
+        
+        Toast.makeText(this, "updateViewContent() in onCreate() executed", Toast.LENGTH_SHORT).show()
     }
 }
