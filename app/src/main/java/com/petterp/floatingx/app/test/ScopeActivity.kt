@@ -88,6 +88,21 @@ class ScopeActivity : AppCompatActivity() {
                     addItemView("长按移动模式(解决内容滑动冲突)") {
                         scopeFx.configControl.setDisplayMode(FxDisplayMode.LongPressMove)
                     }
+                    addItemView("测试长按移动模式 - 带可点击子视图") {
+                        scopeFx.configControl.setDisplayMode(FxDisplayMode.LongPressMove)
+                        scopeFx.updateView(R.layout.item_floating_clickable)
+                        // Add click listeners to test immediate response
+                        scopeFx.setViewLifecycle(object : com.petterp.floatingx.listener.IFxViewLifecycle {
+                            override fun initView(holder: com.petterp.floatingx.view.FxViewHolder) {
+                                holder.getView<android.widget.Button>(R.id.btnClickMe)?.setOnClickListener {
+                                    Toast.makeText(this@ScopeActivity, "Button clicked immediately!", Toast.LENGTH_SHORT).show()
+                                }
+                                holder.getView<android.widget.TextView>(R.id.tvClickable)?.setOnClickListener {
+                                    Toast.makeText(this@ScopeActivity, "Clickable text clicked!", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        })
+                    }
                     addItemView("隐藏悬浮窗") {
                         scopeFx.hide()
                     }
