@@ -46,7 +46,8 @@ class FxSystemPlatformProvider(
     }
 
     override fun checkOrInit(): Boolean {
-        if (_internalView != null) return true
+        val wasNull = _internalView == null
+        if (!wasNull) return true
         checkOrRegisterActivityLifecycle()
 
         // topAct不为null，进行黑名单判断
@@ -61,6 +62,8 @@ class FxSystemPlatformProvider(
             wm = helper.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             _internalView = FxSystemContainerView(helper, wm!!, context)
             _internalView!!.initView()
+            // Execute pending operations now that the floating window is ready
+            control.executePendingOperations()
         } else {
             internalAskAutoPermission(act ?: return false)
         }
@@ -92,8 +95,18 @@ class FxSystemPlatformProvider(
             val permissionControl = activity.permissionControl ?: return
             requestRunnable = {
                 helper.fxLog.d("tag:[${helper.tag}] requestPermission end,result:$[$it]---->")
-                if (it && isAutoShow) {
-                    control.show()
+                if (it) {
+                    // Permission granted, initialize internal view if not done already
+                    if (_internalView == null) {
+                        wm = helper.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                        _internalView = FxSystemContainerView(helper, wm!!, context)
+                        _internalView!!.initView()
+                        // Execute pending operations now that the floating window is ready
+                        control.executePendingOperations()
+                    }
+                    if (isAutoShow) {
+                        control.show()
+                    }
                 } else if (!it && canUseAppScope) {
                     downgradeToAppScope()
                 }

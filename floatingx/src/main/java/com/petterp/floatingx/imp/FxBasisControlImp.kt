@@ -23,6 +23,12 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     protected lateinit var platformProvider: P
     private lateinit var _configControl: IFxConfigControl
     private lateinit var _animationProvider: IFxAnimationProvider
+    
+    // Queue for operations that are called before the floating window is ready
+    private val pendingOperations = mutableListOf<FxQueuedOperation>()
+    // Flag to prevent duplicate execution of operations
+    private var isExecutingPendingOperations = false
+    
     private val internalView: IFxInternalHelper?
         get() = platformProvider.internalView
 
@@ -47,8 +53,15 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     override fun show() {
         if (isShow()) return
         helper.enableFx = true
-        if (!platformProvider.checkOrInit()) return
-        // FIXME: 这里有可能会触发多次show
+        if (!platformProvider.checkOrInit()) {
+            // Queue the show operation for later execution
+            queueOperation(FxQueuedOperation.Show())
+            return
+        }
+        executeShowInternal()
+    }
+    
+    private fun executeShowInternal() {
         val fxView = getManagerView() ?: return
         platformProvider.show()
         helper.fxLog.d("fxView -> showFx")
@@ -59,7 +72,19 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
 
     override fun hide() {
         // 这里同时增加判断状态,因为有可能view正在等待postAttach
-        if (!isShow()) return
+        if (!isShow()) {
+            // If not showing but we have a valid floating window, queue the hide operation
+            if (getManagerView() != null) {
+                executeHideInternal()
+            } else {
+                queueOperation(FxQueuedOperation.Hide())
+            }
+            return
+        }
+        executeHideInternal()
+    }
+    
+    private fun executeHideInternal() {
         helper.enableFx = false
         val fxView = getManagerView() ?: return
         helper.fxLog.d("fxView -> hideFx")
@@ -102,7 +127,13 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     }
 
     override fun updateViewContent(provider: IFxHolderProvider) {
-        provider.apply(getViewHolder() ?: return)
+        val viewHolder = getViewHolder()
+        if (viewHolder != null) {
+            provider.apply(viewHolder)
+        } else {
+            // Queue the updateViewContent operation for later execution
+            queueOperation(FxQueuedOperation.UpdateViewContent(provider))
+        }
     }
 
     override fun setClickListener(time: Long, listener: View.OnClickListener?) {
@@ -129,11 +160,23 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     }
 
     override fun move(x: Float, y: Float, useAnimation: Boolean) {
-        internalView?.moveLocation(x, y, useAnimation)
+        val internalView = this.internalView
+        if (internalView != null) {
+            internalView.moveLocation(x, y, useAnimation)
+        } else {
+            // Queue the move operation for later execution
+            queueOperation(FxQueuedOperation.Move(x, y, useAnimation))
+        }
     }
 
     override fun moveByVector(x: Float, y: Float, useAnimation: Boolean) {
-        internalView?.moveLocationByVector(x, y, useAnimation)
+        val internalView = this.internalView
+        if (internalView != null) {
+            internalView.moveLocationByVector(x, y, useAnimation)
+        } else {
+            // Queue the move operation for later execution
+            queueOperation(FxQueuedOperation.MoveByVector(x, y, useAnimation))
+        }
     }
 
     override fun updateConfig(obj: IFxConfigControl.() -> Unit) {
@@ -144,6 +187,74 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         platformProvider.reset()
         _animationProvider.reset()
         helper.clear()
+        // Clear pending operations on reset
+        synchronized(pendingOperations) {
+            pendingOperations.clear()
+        }
+        isExecutingPendingOperations = false
         helper.fxLog.d("fxView-lifecycle-> code->cancelFx")
+    }
+    
+    /**
+     * Queue an operation to be executed when the floating window is ready
+     */
+    private fun queueOperation(operation: FxQueuedOperation) {
+        // Only queue if not currently executing pending operations to avoid infinite loops
+        if (isExecutingPendingOperations) {
+            helper.fxLog.d("fxView -> skipping queue during execution: $operation")
+            return
+        }
+        
+        helper.fxLog.d("fxView -> queueOperation: $operation")
+        synchronized(pendingOperations) {
+            pendingOperations.add(operation)
+        }
+    }
+    
+    /**
+     * Execute all pending operations and clear the queue
+     * This should be called when the floating window becomes ready
+     */
+    internal fun executePendingOperations() {
+        synchronized(pendingOperations) {
+            if (pendingOperations.isEmpty() || isExecutingPendingOperations) return
+            
+            helper.fxLog.d("fxView -> executing ${pendingOperations.size} pending operations")
+            val operations = pendingOperations.toList()
+            pendingOperations.clear()
+            isExecutingPendingOperations = true
+            
+            try {
+                for (operation in operations) {
+                    when (operation) {
+                        is FxQueuedOperation.Show -> {
+                            // Only execute show if not already showing
+                            if (!isShow()) {
+                                executeShowInternal()
+                            }
+                        }
+                        is FxQueuedOperation.Hide -> {
+                            // Only execute hide if currently showing
+                            if (isShow()) {
+                                executeHideInternal()
+                            }
+                        }
+                        is FxQueuedOperation.Move -> {
+                            internalView?.moveLocation(operation.x, operation.y, operation.useAnimation)
+                        }
+                        is FxQueuedOperation.MoveByVector -> {
+                            internalView?.moveLocationByVector(operation.x, operation.y, operation.useAnimation)
+                        }
+                        is FxQueuedOperation.UpdateViewContent -> {
+                            getViewHolder()?.let { viewHolder ->
+                                operation.provider.apply(viewHolder)
+                            }
+                        }
+                    }
+                }
+            } finally {
+                isExecutingPendingOperations = false
+            }
+        }
     }
 }
