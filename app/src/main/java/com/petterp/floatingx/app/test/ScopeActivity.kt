@@ -166,6 +166,14 @@ class ScopeActivity : AppCompatActivity() {
                             }
                         }
                     }
+                    addItemView("启用阻挡外部点击") {
+                        scopeFx.configControl.setBlockOutsideClicks(true)
+                        Toast.makeText(this@ScopeActivity, "已启用阻挡外部点击", Toast.LENGTH_SHORT).show()
+                    }
+                    addItemView("禁用阻挡外部点击") {
+                        scopeFx.configControl.setBlockOutsideClicks(false)
+                        Toast.makeText(this@ScopeActivity, "已禁用阻挡外部点击", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

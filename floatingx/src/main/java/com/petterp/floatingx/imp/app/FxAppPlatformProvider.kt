@@ -2,6 +2,7 @@ package com.petterp.floatingx.imp.app
 
 import android.app.Activity
 import android.content.Context
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.OnApplyWindowInsetsListener
@@ -75,10 +76,82 @@ class FxAppPlatformProvider(
         } else if (fxView.visibility != View.VISIBLE) {
             fxView.visibility = View.VISIBLE
         }
+        // Update overlay when showing
+        updateBlockOutsideClicks()
     }
 
     override fun hide() {
+        // Remove touch interception when hiding
+        removeTouchInterception()
         detach()
+    }
+
+    /**
+     * Update the outside click blocking state
+     */
+    fun updateBlockOutsideClicks() {
+        if (helper.enableBlockOutsideClicks) {
+            setupTouchInterception()
+        } else {
+            removeTouchInterception()
+        }
+    }
+
+    private var originalTouchInterceptor: View.OnTouchListener? = null
+
+    private fun setupTouchInterception() {
+        val containerView = containerGroupView ?: return
+        
+        // Save original touch listener if any
+        if (originalTouchInterceptor == null) {
+            // Set our touch interceptor
+            val touchInterceptorTag = "fx_touch_interceptor".hashCode()
+            originalTouchInterceptor = containerView.getTag(touchInterceptorTag) as? View.OnTouchListener
+            
+            val touchInterceptor = View.OnTouchListener { _, event ->
+                // Check if touch is inside floating window
+                val fxView = _internalView
+                if (fxView != null && ViewCompat.isAttachedToWindow(fxView) && fxView.visibility == View.VISIBLE) {
+                    val location = IntArray(2)
+                    fxView.getLocationOnScreen(location)
+                    val fxLeft = location[0]
+                    val fxTop = location[1]
+                    val fxRight = fxLeft + fxView.width
+                    val fxBottom = fxTop + fxView.height
+                    
+                    val x = event.rawX
+                    val y = event.rawY
+                    
+                    // If touch is inside floating window, let it pass through
+                    if (x >= fxLeft && x <= fxRight && y >= fxTop && y <= fxBottom) {
+                        return@OnTouchListener false  // Don't consume, let floating window handle
+                    }
+                    
+                    // Touch is outside floating window, consume the event
+                    return@OnTouchListener true
+                }
+                
+                // No floating window visible, don't consume
+                false
+            }
+            
+            containerView.setTag(touchInterceptorTag, touchInterceptor)
+            containerView.setOnTouchListener(touchInterceptor)
+        }
+        
+        helper.fxLog.v("Touch interception enabled")
+    }
+    
+    private fun removeTouchInterception() {
+        val containerView = containerGroupView ?: return
+        
+        // Restore original touch listener
+        val touchInterceptorTag = "fx_touch_interceptor".hashCode()
+        containerView.setOnTouchListener(originalTouchInterceptor)
+        containerView.setTag(touchInterceptorTag, null)
+        originalTouchInterceptor = null
+        
+        helper.fxLog.v("Touch interception disabled")
     }
 
     private fun checkOrReInitGroupView(): ViewGroup? {
@@ -127,6 +200,7 @@ class FxAppPlatformProvider(
     override fun reset() {
         hide()
         clearWindowsInsetsListener()
+        removeTouchInterception()
         _internalView = null
         _containerGroup?.clear()
         _containerGroup = null
@@ -137,6 +211,7 @@ class FxAppPlatformProvider(
     private fun detach() {
         _internalView?.visibility = View.GONE
         containerGroupView?.safeRemoveView(_internalView)
+        removeTouchInterception()
         _containerGroup?.clear()
         _containerGroup = null
     }

@@ -104,8 +104,22 @@ class MainActivity : AppCompatActivity() {
                                 .setCardBackgroundColor(Color.GREEN)
                         }
                     }
+                    addItemView("显示Activity悬浮窗-阻挡外部点击(类似Dialog)") {
+                        activityFx.configControl.setBlockOutsideClicks(true)
+                        activityFx.show()
+                        activityFx.updateViewContent {
+                            it.setText(R.id.tvItemFx, "阻挡外部")
+                            it.getView<CardView>(R.id.cardItemFx).setCardBackgroundColor(Color.RED)
+                        }
+                    }
+                    addItemView("关闭阻挡外部点击") {
+                        activityFx.configControl.setBlockOutsideClicks(false)
+                    }
                     addItemView("进入测试页面") {
                         TestActivity::class.java.start(this@MainActivity)
+                    }
+                    addItemView("进入阻挡外部点击测试页面") {
+                        com.petterp.floatingx.app.test.BlockOutsideClicksTestActivity::class.java.start(this@MainActivity)
                     }
                     addItemView("进入system浮窗测试页面") {
                         SystemActivity::class.java.start(this@MainActivity)

@@ -99,6 +99,9 @@ abstract class FxBasisHelper {
     internal var enableAssistLocation: Boolean = false
 
     @JvmField
+    internal var enableBlockOutsideClicks: Boolean = false
+
+    @JvmField
     internal var iFxTouchListener: IFxTouchListener? = null
 
     @JvmField
@@ -222,6 +225,7 @@ abstract class FxBasisHelper {
                 enableSaveDirection = this@Builder.enableSaveDirection
                 enableClickListener = this@Builder.enableClickListener
                 enableAssistLocation = assistLocation != null
+                enableBlockOutsideClicks = this@Builder.enableBlockOutsideClicks
 
                 enableDebugLog = this@Builder.enableDebugLog
                 fxLogTag = this@Builder.fxLogTag
@@ -289,6 +293,17 @@ abstract class FxBasisHelper {
         /** 设置启用边缘自动吸附，默认启用 */
         fun setEnableEdgeAdsorption(isEnable: Boolean): T {
             this.enableEdgeAdsorption = isEnable
+            return this as T
+        }
+
+        /**
+         * 设置是否阻止点击浮窗外部区域，类似Dialog的效果
+         * 当启用后，浮窗外部区域将无法响应点击事件，只有浮窗本身可以交互
+         * 注意：此功能仅对APP级别的浮窗有效，系统级浮窗不支持此功能
+         * @param isEnable 默认false
+         */
+        fun setBlockOutsideClicks(isEnable: Boolean): T {
+            this.enableBlockOutsideClicks = isEnable
             return this as T
         }
 

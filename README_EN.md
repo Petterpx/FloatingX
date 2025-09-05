@@ -19,6 +19,7 @@
 
 - Supports **JetPack Compose**
 - Supports **semi-hidden floating window mode**
+- Supports **blocking outside clicks**, similar to Dialog modal behavior;
 - Supports **custom hide/show animations**;
 - Supports **multi-touch**, precise touch gesture recognition;
 - Supports custom history position saving and restoration;

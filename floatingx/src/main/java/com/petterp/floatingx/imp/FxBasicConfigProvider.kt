@@ -55,6 +55,14 @@ open class FxBasicConfigProvider<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
         internalView?.moveToEdge()
     }
 
+    override fun setBlockOutsideClicks(isEnable: Boolean) {
+        helper.enableBlockOutsideClicks = isEnable
+        // Notify the platform provider to update the outside click blocking
+        if (p is com.petterp.floatingx.imp.app.FxAppPlatformProvider) {
+            p.updateBlockOutsideClicks()
+        }
+    }
+
     override fun setTouchListener(listener: IFxTouchListener) {
         helper.iFxTouchListener = listener
     }
