@@ -1,6 +1,7 @@
 package com.petterp.floatingx.imp
 
 import android.view.View
+import android.view.WindowManager
 import androidx.annotation.LayoutRes
 import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.listener.control.IFxConfigControl
@@ -33,6 +34,7 @@ abstract class FxBasisControlImp<F : FxBasisHelper, P : IFxPlatformProvider<F>>(
     override fun getView() = internalView?.childView
     override fun getViewHolder() = internalView?.viewHolder
     override fun getManagerView() = internalView?.containerView
+    override fun getWindowManagerLayoutParams() = internalView?.windowManagerLayoutParams
 
     abstract fun createPlatformProvider(f: F): P
     open fun createConfigProvider(f: F, p: P): IFxConfigControl = FxBasicConfigProvider(f, p)

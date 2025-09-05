@@ -2,6 +2,7 @@ package com.petterp.floatingx.view
 
 import android.view.MotionEvent
 import android.view.View
+import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
@@ -17,6 +18,8 @@ interface IFxInternalHelper {
     val containerView: FrameLayout
 
     val viewHolder: FxViewHolder?
+
+    val windowManagerLayoutParams: WindowManager.LayoutParams?
 
     fun moveLocation(x: Float, y: Float, useAnimation: Boolean = true)
 

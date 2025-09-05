@@ -56,6 +56,37 @@ class SystemActivity : AppCompatActivity() {
                         FloatingX.controlOrNull(MultipleFxActivity.TAG_1)
                             ?.updateView(R.layout.item_floating_new)
                     }
+                    
+                    // Test the new getWindowManagerLayoutParams() functionality
+                    addItemView("测试 WindowManager.LayoutParams 获取") {
+                        val control = FloatingX.controlOrNull(MultipleFxActivity.TAG_1)
+                        if (control != null) {
+                            val layoutParams = control.getWindowManagerLayoutParams()
+                            if (layoutParams != null) {
+                                android.util.Log.i("SystemActivity", "系统悬浮窗 - 成功获取 WindowManager.LayoutParams")
+                                android.util.Log.d("SystemActivity", "当前 flags: ${layoutParams.flags}")
+                                android.util.Log.d("SystemActivity", "当前 type: ${layoutParams.type}")
+                            } else {
+                                android.util.Log.i("SystemActivity", "非系统悬浮窗 - WindowManager.LayoutParams 不可用")
+                            }
+                        }
+                    }
+                    
+                    addItemView("请求悬浮窗焦点 (演示用例)") {
+                        val control = FloatingX.controlOrNull(MultipleFxActivity.TAG_1)
+                        if (control != null) {
+                            com.petterp.floatingx.app.kotlin.TestWindowManagerLayoutParams
+                                .requestFocusFloatingView(control, this@SystemActivity)
+                        }
+                    }
+                    
+                    addItemView("移除悬浮窗焦点 (演示用例)") {
+                        val control = FloatingX.controlOrNull(MultipleFxActivity.TAG_1)
+                        if (control != null) {
+                            com.petterp.floatingx.app.kotlin.TestWindowManagerLayoutParams
+                                .loseFocusFloatingView(control, this@SystemActivity)
+                        }
+                    }
                 }
             }
         }

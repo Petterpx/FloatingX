@@ -1,6 +1,7 @@
 package com.petterp.floatingx.listener.control
 
 import android.view.View
+import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import com.petterp.floatingx.listener.provider.IFxContextProvider
@@ -42,6 +43,9 @@ interface IFxControl {
 
     /** 获取浮窗管理器view,即浮窗底层容器 */
     fun getManagerView(): FrameLayout?
+
+    /** 获取WindowManager.LayoutParams,仅在系统悬浮窗时返回非null值，用于动态修改窗口属性如焦点控制等 */
+    fun getWindowManagerLayoutParams(): WindowManager.LayoutParams?
 
     /** 用于快速刷新视图内容 */
     fun updateViewContent(provider: IFxHolderProvider)
