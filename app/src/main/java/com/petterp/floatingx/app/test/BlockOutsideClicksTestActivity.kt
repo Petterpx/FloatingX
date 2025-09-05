@@ -19,6 +19,8 @@ import com.petterp.floatingx.util.createFx
  */
 class BlockOutsideClicksTestActivity : AppCompatActivity() {
 
+    private var isModalBlocking = true  // Track the current state
+
     // Create a floating window with block outside clicks enabled by default
     private val modalFx by createFx {
         setLayout(R.layout.item_floating)
@@ -72,16 +74,14 @@ class BlockOutsideClicksTestActivity : AppCompatActivity() {
                     }
                     addItemView("切换模态浮窗的阻挡模式") {
                         // Toggle the block outside clicks setting
-                        val isCurrentlyBlocking = modalFx.configControl != null
-                        // We'll assume it's currently blocking and toggle it
-                        try {
-                            modalFx.configControl.setBlockOutsideClicks(false)
-                            Toast.makeText(this@BlockOutsideClicksTestActivity, "模态浮窗现在允许外部点击", Toast.LENGTH_SHORT).show()
-                        } catch (e: Exception) {
-                            // If already not blocking, enable it
-                            modalFx.configControl.setBlockOutsideClicks(true)
-                            Toast.makeText(this@BlockOutsideClicksTestActivity, "模态浮窗现在阻挡外部点击", Toast.LENGTH_SHORT).show()
+                        isModalBlocking = !isModalBlocking
+                        modalFx.configControl.setBlockOutsideClicks(isModalBlocking)
+                        val message = if (isModalBlocking) {
+                            "模态浮窗现在阻挡外部点击"
+                        } else {
+                            "模态浮窗现在允许外部点击"
                         }
+                        Toast.makeText(this@BlockOutsideClicksTestActivity, message, Toast.LENGTH_SHORT).show()
                     }
                     addItemView("另一个背景可点击按钮") {
                         Toast.makeText(

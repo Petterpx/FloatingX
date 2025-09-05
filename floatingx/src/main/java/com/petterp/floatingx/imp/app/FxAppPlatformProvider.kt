@@ -2,11 +2,9 @@ package com.petterp.floatingx.imp.app
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Color
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import com.petterp.floatingx.assist.helper.FxAppHelper
@@ -30,7 +28,6 @@ class FxAppPlatformProvider(
     private var _lifecycleImp: FxAppLifecycleImp? = null
     private var _internalView: FxDefaultContainerView? = null
     private var _containerGroup: WeakReference<ViewGroup>? = null
-    private var _overlayView: View? = null
 
     private val windowsInsetsListener = OnApplyWindowInsetsListener { _, insets ->
         val statusBar = insets.stableInsetTop
@@ -84,8 +81,8 @@ class FxAppPlatformProvider(
     }
 
     override fun hide() {
-        // Remove overlay when hiding
-        removeOverlayView()
+        // Remove touch interception when hiding
+        removeTouchInterception()
         detach()
     }
 
@@ -94,24 +91,27 @@ class FxAppPlatformProvider(
      */
     fun updateBlockOutsideClicks() {
         if (helper.enableBlockOutsideClicks) {
-            addOverlayView()
+            setupTouchInterception()
         } else {
-            removeOverlayView()
+            removeTouchInterception()
         }
     }
 
-    private fun addOverlayView() {
-        if (_overlayView != null) return
-        
+    private var originalTouchInterceptor: View.OnTouchListener? = null
+
+    private fun setupTouchInterception() {
         val containerView = containerGroupView ?: return
         
-        // Create an overlay view that covers the entire container
-        _overlayView = object : FrameLayout(context) {
-            override fun onTouchEvent(event: MotionEvent): Boolean {
-                // Check if the touch is inside the floating window
+        // Save original touch listener if any
+        if (originalTouchInterceptor == null) {
+            // Set our touch interceptor
+            val touchInterceptorTag = "fx_touch_interceptor".hashCode()
+            originalTouchInterceptor = containerView.getTag(touchInterceptorTag) as? View.OnTouchListener
+            
+            val touchInterceptor = View.OnTouchListener { _, event ->
+                // Check if touch is inside floating window
                 val fxView = _internalView
                 if (fxView != null && ViewCompat.isAttachedToWindow(fxView) && fxView.visibility == View.VISIBLE) {
-                    // Get floating window bounds
                     val location = IntArray(2)
                     fxView.getLocationOnScreen(location)
                     val fxLeft = location[0]
@@ -122,62 +122,36 @@ class FxAppPlatformProvider(
                     val x = event.rawX
                     val y = event.rawY
                     
-                    // If touch is inside floating window bounds, don't consume the event
+                    // If touch is inside floating window, let it pass through
                     if (x >= fxLeft && x <= fxRight && y >= fxTop && y <= fxBottom) {
-                        return false
+                        return@OnTouchListener false  // Don't consume, let floating window handle
                     }
+                    
+                    // Touch is outside floating window, consume the event
+                    return@OnTouchListener true
                 }
                 
-                // Consume all other touch events to block outside clicks
-                return true
+                // No floating window visible, don't consume
+                false
             }
             
-            override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-                // Similar logic for intercepting touch events
-                val fxView = _internalView
-                if (fxView != null && ViewCompat.isAttachedToWindow(fxView) && fxView.visibility == View.VISIBLE) {
-                    val location = IntArray(2)
-                    fxView.getLocationOnScreen(location)
-                    val fxLeft = location[0]
-                    val fxTop = location[1]
-                    val fxRight = fxLeft + fxView.width
-                    val fxBottom = fxTop + fxView.height
-                    
-                    val x = ev.rawX
-                    val y = ev.rawY
-                    
-                    // Don't intercept if touch is inside floating window
-                    if (x >= fxLeft && x <= fxRight && y >= fxTop && y <= fxBottom) {
-                        return false
-                    }
-                }
-                
-                // Intercept all other touches
-                return true
-            }
-        }.apply {
-            // Make overlay transparent but ensure it's clickable
-            setBackgroundColor(Color.TRANSPARENT)
-            isClickable = true
-            isFocusable = true
+            containerView.setTag(touchInterceptorTag, touchInterceptor)
+            containerView.setOnTouchListener(touchInterceptor)
         }
         
-        // Add overlay at index 0 so it's behind the floating window
-        val layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
-        containerView.addView(_overlayView, 0, layoutParams)
-        helper.fxLog.v("Outside click overlay added")
+        helper.fxLog.v("Touch interception enabled")
     }
     
-    private fun removeOverlayView() {
-        val overlay = _overlayView
-        if (overlay != null) {
-            containerGroupView?.safeRemoveView(overlay)
-            _overlayView = null
-            helper.fxLog.v("Outside click overlay removed")
-        }
+    private fun removeTouchInterception() {
+        val containerView = containerGroupView ?: return
+        
+        // Restore original touch listener
+        val touchInterceptorTag = "fx_touch_interceptor".hashCode()
+        containerView.setOnTouchListener(originalTouchInterceptor)
+        containerView.setTag(touchInterceptorTag, null)
+        originalTouchInterceptor = null
+        
+        helper.fxLog.v("Touch interception disabled")
     }
 
     private fun checkOrReInitGroupView(): ViewGroup? {
@@ -226,7 +200,7 @@ class FxAppPlatformProvider(
     override fun reset() {
         hide()
         clearWindowsInsetsListener()
-        removeOverlayView()
+        removeTouchInterception()
         _internalView = null
         _containerGroup?.clear()
         _containerGroup = null
@@ -237,7 +211,7 @@ class FxAppPlatformProvider(
     private fun detach() {
         _internalView?.visibility = View.GONE
         containerGroupView?.safeRemoveView(_internalView)
-        removeOverlayView()
+        removeTouchInterception()
         _containerGroup?.clear()
         _containerGroup = null
     }
