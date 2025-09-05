@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.FrameLayout
 import com.petterp.floatingx.assist.helper.FxBasisHelper
 import com.petterp.floatingx.util.INVALID_LAYOUT_ID
@@ -46,6 +47,7 @@ abstract class FxBasicContainerView @JvmOverloads constructor(
     override val childView: View? get() = _childView
     override val containerView: FrameLayout get() = this
     override val viewHolder: FxViewHolder? get() = _viewHolder
+    override val windowManagerLayoutParams: WindowManager.LayoutParams? get() = null
 
 
     open fun initView() {

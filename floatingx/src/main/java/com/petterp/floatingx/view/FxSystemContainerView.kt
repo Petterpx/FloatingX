@@ -51,6 +51,8 @@ class FxSystemContainerView @JvmOverloads constructor(
 
     override fun getY() = wl.y.toFloat()
 
+    override val windowManagerLayoutParams: WindowManager.LayoutParams? get() = if (::wl.isInitialized) wl else null
+
     override fun preCheckPointerDownTouch(event: MotionEvent): Boolean {
         // 当前屏幕存在手指时，check当前手势是否真的在浮窗之上
         return checkPointerDownTouch(this, event)
