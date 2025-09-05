@@ -64,6 +64,14 @@ interface IFxConfigControl {
      * */
     fun setEnableEdgeAdsorption(isEnable: Boolean)
 
+    /**
+     * 设置是否阻止点击浮窗外部区域
+     * 当启用后，浮窗外部区域将无法响应点击事件，只有浮窗本身可以交互
+     * 注意：此功能仅对APP级别的浮窗有效，系统级浮窗不支持此功能
+     * @param isEnable 默认false
+     */
+    fun setBlockOutsideClicks(isEnable: Boolean)
+
     /** 设置滑动监听 */
     fun setTouchListener(listener: IFxTouchListener)
 

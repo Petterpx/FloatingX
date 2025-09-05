@@ -34,6 +34,9 @@
             android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
         <activity android:name=".test.BlackActivity" />
         <activity android:name=".test.MultipleFxActivity" />
+        <activity 
+            android:name=".test.BlockOutsideClicksTestActivity"
+            android:configChanges="keyboard|orientation|keyboardHidden|screenSize|smallestScreenSize|screenLayout|locale|navigation|fontScale|mcc|mnc|uiMode" />
 
         <activity android:name=".TestActivity" />
         <activity

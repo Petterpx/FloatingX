@@ -2,8 +2,11 @@ package com.petterp.floatingx.imp.app
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Color
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import com.petterp.floatingx.assist.helper.FxAppHelper
@@ -27,6 +30,7 @@ class FxAppPlatformProvider(
     private var _lifecycleImp: FxAppLifecycleImp? = null
     private var _internalView: FxDefaultContainerView? = null
     private var _containerGroup: WeakReference<ViewGroup>? = null
+    private var _overlayView: View? = null
 
     private val windowsInsetsListener = OnApplyWindowInsetsListener { _, insets ->
         val statusBar = insets.stableInsetTop
@@ -75,10 +79,105 @@ class FxAppPlatformProvider(
         } else if (fxView.visibility != View.VISIBLE) {
             fxView.visibility = View.VISIBLE
         }
+        // Update overlay when showing
+        updateBlockOutsideClicks()
     }
 
     override fun hide() {
+        // Remove overlay when hiding
+        removeOverlayView()
         detach()
+    }
+
+    /**
+     * Update the outside click blocking state
+     */
+    fun updateBlockOutsideClicks() {
+        if (helper.enableBlockOutsideClicks) {
+            addOverlayView()
+        } else {
+            removeOverlayView()
+        }
+    }
+
+    private fun addOverlayView() {
+        if (_overlayView != null) return
+        
+        val containerView = containerGroupView ?: return
+        
+        // Create an overlay view that covers the entire container
+        _overlayView = object : FrameLayout(context) {
+            override fun onTouchEvent(event: MotionEvent): Boolean {
+                // Check if the touch is inside the floating window
+                val fxView = _internalView
+                if (fxView != null && ViewCompat.isAttachedToWindow(fxView) && fxView.visibility == View.VISIBLE) {
+                    // Get floating window bounds
+                    val location = IntArray(2)
+                    fxView.getLocationOnScreen(location)
+                    val fxLeft = location[0]
+                    val fxTop = location[1]
+                    val fxRight = fxLeft + fxView.width
+                    val fxBottom = fxTop + fxView.height
+                    
+                    val x = event.rawX
+                    val y = event.rawY
+                    
+                    // If touch is inside floating window bounds, don't consume the event
+                    if (x >= fxLeft && x <= fxRight && y >= fxTop && y <= fxBottom) {
+                        return false
+                    }
+                }
+                
+                // Consume all other touch events to block outside clicks
+                return true
+            }
+            
+            override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+                // Similar logic for intercepting touch events
+                val fxView = _internalView
+                if (fxView != null && ViewCompat.isAttachedToWindow(fxView) && fxView.visibility == View.VISIBLE) {
+                    val location = IntArray(2)
+                    fxView.getLocationOnScreen(location)
+                    val fxLeft = location[0]
+                    val fxTop = location[1]
+                    val fxRight = fxLeft + fxView.width
+                    val fxBottom = fxTop + fxView.height
+                    
+                    val x = ev.rawX
+                    val y = ev.rawY
+                    
+                    // Don't intercept if touch is inside floating window
+                    if (x >= fxLeft && x <= fxRight && y >= fxTop && y <= fxBottom) {
+                        return false
+                    }
+                }
+                
+                // Intercept all other touches
+                return true
+            }
+        }.apply {
+            // Make overlay transparent but ensure it's clickable
+            setBackgroundColor(Color.TRANSPARENT)
+            isClickable = true
+            isFocusable = true
+        }
+        
+        // Add overlay at index 0 so it's behind the floating window
+        val layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        containerView.addView(_overlayView, 0, layoutParams)
+        helper.fxLog.v("Outside click overlay added")
+    }
+    
+    private fun removeOverlayView() {
+        val overlay = _overlayView
+        if (overlay != null) {
+            containerGroupView?.safeRemoveView(overlay)
+            _overlayView = null
+            helper.fxLog.v("Outside click overlay removed")
+        }
     }
 
     private fun checkOrReInitGroupView(): ViewGroup? {
@@ -127,6 +226,7 @@ class FxAppPlatformProvider(
     override fun reset() {
         hide()
         clearWindowsInsetsListener()
+        removeOverlayView()
         _internalView = null
         _containerGroup?.clear()
         _containerGroup = null
@@ -137,6 +237,7 @@ class FxAppPlatformProvider(
     private fun detach() {
         _internalView?.visibility = View.GONE
         containerGroupView?.safeRemoveView(_internalView)
+        removeOverlayView()
         _containerGroup?.clear()
         _containerGroup = null
     }
