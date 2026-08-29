@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         mavenCentral()
         gradlePluginPortal()
@@ -20,6 +21,7 @@ rootProject.name = "FloatingX"
 include ':app'
 include ':floatingx'
 include ':floatingx_compose'
+include ':floatingx-core'
 
 static Properties readPropertiesIfExist(File propertiesFile) {
     Properties result = new Properties()

@@ -42,6 +42,8 @@ dependencies {
     implementation project(':floatingx')
     implementation libs.appcompat
     implementation libs.kotlin.stdlib
+
+    testImplementation libs.junit
 }
 
 kotlin {
