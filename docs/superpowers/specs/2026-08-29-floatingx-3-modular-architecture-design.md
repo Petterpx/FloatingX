@@ -49,7 +49,8 @@ app (demo)                                        ← 以上全部 + compose-bom
 | 项 | 值 | 对使用方的要求 |
 |---|---|---|
 | 仓库工具链 | AGP 8.13.2、Gradle 8.14.3、Kotlin 2.2.21、JDK 17 | 无（不传导） |
-| 所有模块 `compileSdk` / `targetSdk` / `minSdk` | 36 / 36 / 21 | 无 |
+| 所有模块 `compileSdk` / `targetSdk` | 36 / 36 | 无 |
+| `minSdk` | core/app/system/scope = 21；compose = 23（compose 1.11 与 lifecycle 2.11 的 AAR 本身要求 23）；demo = 23 | Compose 使用方 minSdk ≥ 23（本就如此） |
 | 库模块 Kotlin 不做 language/api 降级锁定 | 产物 metadata 跟随 Kotlin 2.2 | Kotlin ≥ 2.1 |
 | core → androidx.core 1.13.1 | aar-metadata `minCompileSdk=34` | compileSdk ≥ 34（与 2.x 持平） |
 | compose → compose-ui 1.11.4 | `minCompileSdk=35`, AGP ≥ 8.6 | compileSdk ≥ 35 |
