@@ -33,9 +33,6 @@ android {
         sourceCompatibility javeVersion
         targetCompatibility javeVersion
     }
-    kotlinOptions {
-        jvmTarget = libs.versions.jvmTarget.get()
-    }
     buildFeatures {
         buildConfig = false
     }
@@ -44,4 +41,10 @@ android {
 dependencies {
     implementation libs.appcompat
     implementation libs.kotlin.stdlib
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
 }

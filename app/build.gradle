@@ -28,10 +28,7 @@ android {
         sourceCompatibility = javeVersion
         targetCompatibility = javeVersion
     }
-    kotlinOptions {
-        jvmTarget = libs.versions.jvmTarget.get()
-    }
-    packagingOptions {
+    packaging {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
@@ -59,4 +56,10 @@ dependencies {
 
     implementation isDev ? project(path: ':floatingx_compose') : "io.github.petterpx:floatingx-compose:$version_name"
     implementation isDev ? project(path: ':floatingx') : "io.github.petterpx:floatingx:$version_name"
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
 }
