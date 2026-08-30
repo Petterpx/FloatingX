@@ -18,11 +18,21 @@ Three Gradle modules:
 
 ## 3.0 重构进行中
 
-设计与计划见 `docs/superpowers/specs/2026-08-29-floatingx-3-modular-architecture-design.md`
-与 `docs/superpowers/plans/`。新模块 `floatingx-core`（包 `com.petterp.floatingx.core`）已落地，
-用 `build-logic/` 的 `floatingx.library` convention plugin；旧的 `floatingx` / `floatingx_compose`
-模块在 demo 重写前保留。跑 core 测试：`./gradlew :floatingx-core:test`（当前 127 个用例，Robolectric
-`sdk=35`——SDK 36 的沙箱要 JDK 21，本仓库工具链是 JDK 17）。
+设计见 `docs/superpowers/specs/2026-08-29-floatingx-3-modular-architecture-design.md`，
+计划见 `docs/superpowers/plans/`（Plan 2 = `docs/superpowers/plans/2026-08-30-floatingx-3-plan-2-scope-app.md`）。
+已落地三个新模块，都用 `build-logic/` 的 `floatingx.library` convention plugin：
+
+| 新模块 | 包 | 内容 |
+|---|---|---|
+| `floatingx-core` | `com.petterp.floatingx.core` | 状态机、锚点、手势、feature、注册表 |
+| `floatingx-scope` | `com.petterp.floatingx.scope` | `ViewGroupHost` / `FragmentHost` 与 `fxScope` 局部浮窗 |
+| `floatingx-app` | `com.petterp.floatingx.app` | `AppHost`：跟随前台 Activity 的全局浮窗 |
+
+`floatingx-app` 用清单里声明的 `FxAppInitProvider`（ContentProvider）在进程启动时
+`FxActivityTracker.init(application)`，所以 install 写在任何时机都能拿到当前前台 Activity。
+旧的 `floatingx` / `floatingx_compose` 模块在 demo 重写前保留。跑新模块测试：
+`./gradlew :floatingx-core:test :floatingx-scope:test :floatingx-app:test`（当前 130 / 20 / 30 个用例，
+Robolectric `sdk=35`——SDK 36 的沙箱要 JDK 21，本仓库工具链是 JDK 17）。
 
 ## Build & Commands
 

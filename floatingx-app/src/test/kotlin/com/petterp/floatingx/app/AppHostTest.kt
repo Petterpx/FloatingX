@@ -262,4 +262,34 @@ class AppHostTest {
         assertEquals(true, host.context is android.view.ContextThemeWrapper)
         assertSame(app, AppHost.builder(app).build().context)
     }
+
+    @Test
+    fun `appHost dsl installs with blacklist`() {
+        val ctrlA = launch(Activity::class.java)
+        val control = FloatingX.install("dsl") {
+            view { ctx -> View(ctx).apply { layoutParams = ViewGroup.LayoutParams(100, 50) } }
+            appHost(app) { blacklist(BlackActivity::class.java) }
+        }
+        control.show()
+        assertSame(ctrlA.get(), control.attachedActivity)
+        launch(BlackActivity::class.java)
+        assertNull(control.attachedActivity)
+    }
+
+    @Test
+    fun `attachedActivity is null for non app hosts`() {
+        val parent = android.widget.FrameLayout(app)
+        val host = object : com.petterp.floatingx.core.host.FxHost {
+            override val context get() = app
+            override fun bind(session: com.petterp.floatingx.core.host.FxHostSession) = session.onHostReady()
+            override fun createContainer() = com.petterp.floatingx.core.container.FxLayerContainer(app)
+            override fun attach(container: com.petterp.floatingx.core.container.FxContainer) { parent.addView(container.view) }
+            override fun detach(container: com.petterp.floatingx.core.container.FxContainer) { parent.removeView(container.view) }
+            override fun bounds() = com.petterp.floatingx.core.layout.FxBounds(com.petterp.floatingx.core.layout.FxRect(0f, 0f, 100f, 100f))
+            override fun release() {}
+        }
+        val control = FloatingX.create(config(), host)
+        assertNull(control.attachedActivity)
+        control.cancel()
+    }
 }

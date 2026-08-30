@@ -286,7 +286,7 @@ public interface FxListener {   // 全部 default 空实现
 - `FloatingX`（core object）：`install(tag, config, host): FxControl`、`install(tag) { dsl }`（`@JvmSynthetic`）、`control(tag)`、`controlOrNull(tag)`、`controls(): List<FxControl>` 快照（#133）、`isInstalled(tag)`、`uninstall(tag)`、`uninstallAll()`。内部 `ConcurrentHashMap<String, FxControl>`；同 tag 重复 install 先 `cancel` 旧的。
 - 局部浮窗（scope）不进注册表，`FloatingX.create(config, host, tag = "")` 返回未注册的 `FxControl`，生命周期归调用方或 host（ViewGroup detach 自动 cancel）。tag 只用于日志与位置持久化的存储键：**留空则不做持久化**（多个局部浮窗会共用同一个键，互相覆盖），此时若配了 `storage` 会记一条 error 日志提示补 tag。
 - 监听器归 control 实例持有，`cancel()` 清空；框架内不持有 Activity 强引用（#140/#38）。
-- `FxActivityTracker`（core，`internal`）：首次需要时 `registerActivityLifecycleCallbacks`；`onActivityDestroyed` 清引用；提供 `topActivity: Activity?` 与 `addObserver`。不再使用 `ContentProvider` 自动初始化，`install` 必须传入 `Application`（或从 context 取 `applicationContext`）。
+- `FxActivityTracker`（core，`internal`）：首次需要时 `registerActivityLifecycleCallbacks`；`onActivityDestroyed` 清引用；提供 `topActivity: Activity?` 与 `addObserver`。core 自身不做任何自动初始化（不带 `ContentProvider`）；进程启动即初始化由 floatingx-app 的 `FxAppInitProvider`（清单里声明的 `ContentProvider`）负责，各 host 在 `bind()` 里再调一次兜底（`init` 幂等）。`install` 必须传入 `Application`（或从 context 取 `applicationContext`）。
 
 ### 2.8 日志与错误处理
 
@@ -301,22 +301,25 @@ public class AppHost private constructor(...) : FxHost {
     public class Builder(app: Application) {
         fun blacklist(vararg cls: Class<out Activity>); fun blacklist(vararg names: String)
         fun whitelist(...)
-        fun filter(predicate: (Activity) -> Boolean)          // 父类 / 任意规则（#221）
-        fun attachTo(target: AttachTarget)                    // Decor（默认）| Content
-        fun modal(enabled: Boolean, dismissOnOutsideTouch: Boolean = false)   // #212/#151，内部注册 ModalScrimFeature
+        fun filter(filter: AppActivityFilter)   // fun interface，Kotlin 可传 lambda
+        fun attachTo(target: AppAttachTarget)   // DECOR（默认）| CONTENT
+        fun theme(@StyleRes themeRes: Int)      // 内容 view 需要主题属性时包一层 ContextThemeWrapper
         fun build(): AppHost
     }
 }
 // Kotlin DSL
-public fun FxConfigScope.appHost(app: Application, block: AppHost.Builder.() -> Unit = {}): FxHost
+public fun FxInstallScope.appHost(app: Application, block: AppHost.Builder.() -> Unit = {}): AppHost   // 创建并设置 host
 ```
 
 行为：
-- 通过 `FxActivityTracker` 跟踪前台 Activity。re-parent 时机：API 29+ 用 `onActivityPostResumed`，以下用 `onActivityResumed` 后 `decorView.post`。挂载在新 Activity 首帧布局之内完成，位置由锚点在该次 `onLayout` 内推导，不存在"先 0×0 再修正"。
+- 通过 `FxActivityTracker` 跟踪前台 Activity。re-parent 时机：API 29+ 用 `onActivityPostResumed`，以下用 `onActivityResumed` 后主线程 `Handler.post`。挂载在新 Activity 首帧布局之内完成，位置由锚点在该次 `onLayout` 内推导，不存在"先 0×0 再修正"。换页时同一容器从旧 DecorView 静默挪到新 DecorView，engine 状态 / feature / 动画不重来，位置由 translation 保留、新父首次布局后按锚点校正。
+- 进程启动时 floatingx-app 的 `FxAppInitProvider`（ContentProvider，authority `${applicationId}.floatingx.app.init`）自动 `FxActivityTracker.init(application)`，所以任何时机 install 都能拿到当前前台 Activity；用 `tools:node="remove"` 去掉它或运行在非默认进程的应用须自行在 `Application.onCreate` 里调用 `FxActivityTracker.init(app)`。`host.bind()` 仍会调用 `init`（幂等）。
 - 过滤规则不通过的 Activity：`detach`（浮窗不显示），而不是像 2.x 一样留在旧 DecorView。
 - Activity destroy：若它是当前父容器 → `onHostLost`；否则忽略。`onHostLost` 不改 `desiredVisible`。
 - `attachedActivity: Activity?` 通过 `FxControl` 的扩展属性 `control.attachedActivity`（app 模块提供）。
-- `bounds()`：DecorView 尺寸 + `ViewCompat.getRootWindowInsets` 的 systemBars insets。
+- `bounds()`：父容器尺寸 + `ViewCompat.getRootWindowInsets` 的 systemBars ∪ displayCutout insets；CONTENT 目标时扣掉父容器已被系统栏挤开的偏移。
+- 父容器每次布局时 host 比较尺寸与 insets，只在真变化时回调 `onBoundsChanged`（否则页面任意 `requestLayout` 会打断拖动）。
+- `modal`（#212/#151）不在 host 上，而是 `FxConfigScope.modal(enabled, dismissOnOutsideTouch)` / `FxConfig.Builder.modal(...)`，对 app 与 scope 的 Layer 容器通用。
 
 ## 4. floatingx-system
 
@@ -345,13 +348,16 @@ public interface FxPermissionRequest { fun proceed(); fun deny(); fun useFallbac
 ## 5. floatingx-scope
 
 ```kotlin
-public class ViewGroupHost(viewGroup: ViewGroup) : FxHost
-public fun Activity.fxScope(block: FxConfigScope.() -> Unit): FxControl        // R.id.content
-public fun ViewGroup.fxScope(block: FxConfigScope.() -> Unit): FxControl
-public fun Fragment.fxScope(block: FxConfigScope.() -> Unit): FxControl        // compileOnly androidx.fragment
+public class ViewGroupHost(viewGroup: ViewGroup) : FxHost            // Java：ViewGroupHost.of(viewGroup)
+public class FragmentHost(fragment: Fragment) : FxHost               // compileOnly androidx.fragment
+public fun Activity.fxScope(tag: String = "", block: FxConfigScope.() -> Unit): FxControl    // R.id.content；API 29+ destroy 自动 cancel
+public fun ViewGroup.fxScope(tag: String = "", block: FxConfigScope.() -> Unit): FxControl
+public fun Fragment.fxScope(tag: String = "", block: FxConfigScope.() -> Unit): FxControl    // view 创建后挂载，fragment destroy 自动 cancel
+public fun FxInstallScope.viewGroupHost(viewGroup: ViewGroup): ViewGroupHost
+public fun FxInstallScope.fragmentHost(fragment: Fragment): FragmentHost
 ```
 
-- `ViewGroupHost` 用 Layer 容器；`viewGroup` detach 时 `onHostLost`，`ViewGroup` 被 GC 前应由调用方 `cancel`（文档要求）；Fragment 版本在 `viewLifecycleOwner` 的 view 创建后 attach、destroy 时 `cancel`（修 #244）。
+- `ViewGroupHost` 用 Layer 容器，bind 即 ready；`viewGroup` 从 window 卸下 → `onHostLost`，重新挂上 → `onHostReady`。`FragmentHost` 观察 `viewLifecycleOwnerLiveData`：view 创建后 ready、view 销毁即 lost（修 #244）。tag 为空则不做位置持久化。
 - 不进 `FloatingX` 注册表。
 - Java：`ViewGroupHost.of(viewGroup)` + `FloatingX.create(config, host)`。
 
