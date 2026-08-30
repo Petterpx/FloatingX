@@ -54,6 +54,14 @@ class ActivityRulesTest {
     }
 
     @Test
+    fun `whitelist by name is exact and does not admit subclasses`() {
+        val r = rules(whiteNames = setOf(BaseActivity::class.java.name))
+        assertTrue(r.accept(make(BaseActivity::class.java)))
+        assertFalse(r.accept(make(SubActivity::class.java)))
+        assertFalse(r.accept(make(OtherActivity::class.java)))
+    }
+
+    @Test
     fun `blacklist wins over whitelist`() {
         val r = rules(whiteClasses = listOf(BaseActivity::class.java), blackClasses = listOf(SubActivity::class.java))
         assertTrue(r.accept(make(BaseActivity::class.java)))
@@ -65,5 +73,19 @@ class ActivityRulesTest {
         val r = rules(filters = listOf(AppActivityFilter { true }, AppActivityFilter { it !is OtherActivity }))
         assertTrue(r.accept(make(BaseActivity::class.java)))
         assertFalse(r.accept(make(OtherActivity::class.java)))
+    }
+
+    @Test
+    fun `whitelist then blacklist then custom filter are applied in order`() {
+        // 白名单放行 BaseActivity 全家；黑名单按名字踢掉 SubActivity；自定义规则再踢掉 finishing 的页面
+        val r = rules(
+            whiteClasses = listOf(BaseActivity::class.java),
+            blackNames = setOf(SubActivity::class.java.name),
+            filters = listOf(AppActivityFilter { !it.isFinishing }),
+        )
+        assertTrue(r.accept(make(BaseActivity::class.java)))
+        assertFalse("白名单内但被黑名单命中", r.accept(make(SubActivity::class.java)))
+        assertFalse("不在白名单里", r.accept(make(OtherActivity::class.java)))
+        assertFalse("白名单+黑名单都过了，仍要过自定义规则", r.accept(make(BaseActivity::class.java).also { it.finish() }))
     }
 }

@@ -17,10 +17,7 @@ import com.petterp.floatingx.core.host.FxHost
 import com.petterp.floatingx.core.layout.FxGravity
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -109,6 +106,13 @@ class ViewGroupHostTest {
         controller.pause().stop().destroy() // DecorView 从 window 卸下 → onViewDetachedFromWindow
         assertEquals(FxState.INSTALLED, c.state)
         assertEquals(0, contentView.childCount)
+
+        // 把同一个 ViewGroup 挂到另一个活着的 window 上：onViewAttachedToWindow → ready → 重新 attach
+        val next = Robolectric.buildActivity(Activity::class.java).setup().get()
+        (contentView.parent as ViewGroup).removeView(contentView)
+        (next.window.decorView as ViewGroup).addView(contentView)
+        assertEquals(FxState.SHOWN, c.state)
+        assertEquals(1, contentView.childCount)
     }
 
     @Test

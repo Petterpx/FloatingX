@@ -13,6 +13,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -28,6 +29,17 @@ class FragmentHostTest {
             super.onCreate(savedInstanceState)
             control = fxScope(tag = "frag") { view { ctx -> View(ctx).apply { layoutParams = ViewGroup.LayoutParams(100, 50) } } }
             control.show()
+        }
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+            FrameLayout(requireContext())
+    }
+
+    /** 在自己的 onDestroy 里调 fxScope：此时 fragment 仍 attach，但 lifecycle 已是 DESTROYED */
+    class DestroyTimeFragment : Fragment() {
+        var error: IllegalStateException? = null
+        override fun onDestroy() {
+            super.onDestroy()
+            error = runCatching { fxScope("destroyed") { view { ctx -> View(ctx) } } }.exceptionOrNull() as? IllegalStateException
         }
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
             FrameLayout(requireContext())
@@ -94,6 +106,31 @@ class FragmentHostTest {
         val ex = assertThrows(IllegalStateException::class.java) {
             EarlyFragment().fxScope { view { ctx -> View(ctx) } }
         }
-        assertEquals(true, ex.message!!.contains("尚未 attach"))
+        assertTrue(ex.message!!.contains("尚未 attach"))
+    }
+
+    @Test
+    fun `fxScope after the fragment was removed is rejected`() {
+        val activity = activity()
+        val fragment = EarlyFragment()
+        val fm = activity.supportFragmentManager
+        fm.beginTransaction().add(android.R.id.content, fragment).commitNow()
+        fm.beginTransaction().remove(fragment).commitNow()
+        // 注意：FragmentManager 销毁 fragment 后会 initState()，lifecycle 被重置回 INITIALIZED，
+        // 所以这里挡住它的是 host 的 context 检查（fragment 已 detach），不是 DESTROYED 检查
+        assertThrows(IllegalStateException::class.java) {
+            fragment.fxScope("removed") { view { ctx -> View(ctx) } }
+        }
+    }
+
+    @Test
+    fun `fxScope inside onDestroy is rejected`() {
+        val activity = activity()
+        val fragment = DestroyTimeFragment()
+        val fm = activity.supportFragmentManager
+        fm.beginTransaction().add(android.R.id.content, fragment).commitNow()
+        fm.beginTransaction().remove(fragment).commitNow()
+        val ex = checkNotNull(fragment.error) { "onDestroy 里创建浮窗应当抛异常" }
+        assertTrue(ex.message, ex.message!!.contains("已 destroy"))
     }
 }

@@ -2,6 +2,7 @@ package com.petterp.floatingx.scope
 
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.petterp.floatingx.core.FloatingX
 import com.petterp.floatingx.core.FxControl
@@ -20,6 +21,8 @@ public fun FxInstallScope.fragmentHost(fragment: Fragment): FragmentHost =
  */
 @JvmSynthetic
 public fun Fragment.fxScope(tag: String = "", block: FxConfigScope.() -> Unit): FxControl {
+    // DESTROYED 的 fragment 上 viewLifecycleOwnerLiveData 再也不会有新值，浮窗永远 ready 不了，早点报错
+    check(lifecycle.currentState != Lifecycle.State.DESTROYED) { "Fragment 已 destroy，不能再创建浮窗" }
     val control = FloatingX.create(tag) {
         host = FragmentHost(this@fxScope)
         block()

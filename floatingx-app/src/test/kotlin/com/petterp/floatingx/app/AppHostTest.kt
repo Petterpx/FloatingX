@@ -259,7 +259,7 @@ class AppHostTest {
     @Test
     fun `theme wraps the application context`() {
         val host = AppHost.builder(app).theme(android.R.style.Theme_Material_Light).build()
-        assertEquals(true, host.context is android.view.ContextThemeWrapper)
+        assertTrue(host.context is android.view.ContextThemeWrapper)
         assertSame(app, AppHost.builder(app).build().context)
     }
 
