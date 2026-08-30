@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
+import androidx.annotation.VisibleForTesting
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.petterp.floatingx.core.container.FxContainer
@@ -101,8 +102,9 @@ public class FxWindowContainer(
 
     // ---------- host 侧 API ----------
 
-    /** 屏幕尺寸，gravity 换算需要；host 在 bind/attach/bounds 变化时调用 */
-    public fun setBounds(width: Int, height: Int) {
+    /** 屏幕尺寸，gravity 换算需要；对外只暴露 [refreshBounds]，直接写值仅供单测构造确定的屏幕尺寸 */
+    @VisibleForTesting
+    internal fun setBounds(width: Int, height: Int) {
         boundsW = width
         boundsH = height
     }

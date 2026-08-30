@@ -176,6 +176,29 @@ class SystemHostTest {
         assertEquals(FxState.SHOWN, control.state)
     }
 
+    /**
+     * addView 抛异常（权限被撤销 / type 不被允许）后 retryPermission 要能救回来。
+     * Robolectric 的影子 WindowManager 不会为任何 type 抛 BadToken/SecurityException，
+     * 所以这里手工还原"挂载失败后"的现场：窗口从 WindowManager 摘掉 + isAttachedToWm=false，
+     * 而 core 仍停在 SHOWN（真实场景就是这样：attach 吞掉异常，engine 照常进 SHOWN）。
+     */
+    @Test
+    fun `retryPermission remounts a window whose attach failed`() {
+        ShadowSettings.setCanDrawOverlays(true)
+        val host = SystemHost.builder(app).build()
+        val control = install(host)
+        control.show()
+        val w = window(control)
+        wm.removeViewImmediate(w)
+        w.isAttachedToWm = false
+        assertFalse(windowViews().contains(w))
+
+        host.retryPermission()
+        assertTrue(windowViews().contains(w))
+        assertTrue(w.isAttachedToWm)
+        assertEquals(FxState.SHOWN, control.state)
+    }
+
     @Test
     fun `manual strategy hands the decision to the interceptor`() {
         ShadowSettings.setCanDrawOverlays(false)
@@ -231,13 +254,17 @@ class SystemHostTest {
     }
 
     @Test
-    fun `bounds is the real screen size`() {
+    fun `bounds is the real screen size and goes empty after release`() {
         ShadowSettings.setCanDrawOverlays(true)
         val host = SystemHost.builder(app).build()
-        install(host)
+        val control = install(host)
         val b = host.bounds()
         assertTrue(b.rect.width > 0f)
         assertTrue(b.rect.height > 0f)
+        // release 之后没有容器：返回零尺寸，core 会当作"还不能定位"
+        control.cancel()
+        assertEquals(0f, host.bounds().rect.width, 0f)
+        assertEquals(0f, host.bounds().rect.height, 0f)
     }
 
     @Test

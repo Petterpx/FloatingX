@@ -14,8 +14,9 @@ internal class SystemWindowFeature : FxFeature {
     private var container: FxWindowContainer? = null
 
     override fun onAttach(scope: FxFeatureScope) {
-        val c = scope.container as? FxWindowContainer ?: return
-        container = c
+        // 先无条件赋值：降级到别的容器后重新 attach 时，必须把上一轮的旧容器清掉
+        container = scope.container as? FxWindowContainer
+        val c = container ?: return
         c.setWindowTouchable(scope.config.gesture.touchable)
     }
 

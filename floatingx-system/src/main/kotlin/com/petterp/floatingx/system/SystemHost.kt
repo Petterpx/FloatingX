@@ -3,7 +3,6 @@ package com.petterp.floatingx.system
 import android.app.Activity
 import android.content.Context
 import android.graphics.PixelFormat
-import android.graphics.Point
 import android.os.Build
 import android.util.Log
 import android.view.Gravity
@@ -50,9 +49,6 @@ public class SystemHost private constructor(
         )
     }
 
-    /** 没有容器时（release 之后）自己读屏幕尺寸的复用出参 */
-    private val screen = Point()
-
     /** 当前窗口 LayoutParams 的只读快照（拷贝） */
     public val windowLayoutParams: WindowManager.LayoutParams
         get() = WindowManager.LayoutParams().also { it.copyFrom(container?.windowParams ?: buildLayoutParams()) }
@@ -97,13 +93,12 @@ public class SystemHost private constructor(
         (container as FxWindowContainer).applyLayout(spec.x, spec.y, spec.gravity, spec.ltr)
     }
 
-    /** 屏幕尺寸以容器缓存的为准（旋转/insets 时容器自己刷新），没有容器才现读 */
+    /**
+     * 屏幕尺寸以容器缓存的为准（创建/挂载/旋转/insets 时刷新）。
+     * release 之后没有容器，返回全 0——core 把零尺寸当作"还不能定位"，不会拿脏数据算坐标。
+     */
     override fun bounds(): FxBounds {
-        val c = container
-        if (c == null) {
-            readScreen()
-            return FxBounds(FxRect(0f, 0f, screen.x.toFloat(), screen.y.toFloat()))
-        }
+        val c = container ?: return FxBounds(FxRect(0f, 0f, 0f, 0f))
         val insets = if (c.isAttachedToWm) c.windowInsets else FxInsets.NONE
         return FxBounds(FxRect(0f, 0f, c.boundsWidth.toFloat(), c.boundsHeight.toFloat()), insets)
     }
@@ -125,6 +120,16 @@ public class SystemHost private constructor(
     @MainThread
     public fun retryPermission() {
         if (released) return
+        val c = container
+        val s = session
+        // addView 失败过（权限被撤销 / type 不被允许）：容器还在 core 手里但没挂到 WindowManager 上，
+        // 此时 core 的状态是 ATTACHED/SHOWN，onHostReady 会被忽略。先让它退回 INSTALLED 再重新挂载，
+        // desiredVisible 会被保留（detach 对未挂载的容器直接 return，不会重复 removeView）
+        if (c != null && !c.isAttachedToWm && s != null && isPermissionGranted) {
+            s.onHostLost()
+            s.onHostReady()
+            return
+        }
         checkPermission()
     }
 
@@ -168,16 +173,6 @@ public class SystemHost private constructor(
 
     // ---------- internal ----------
 
-    private fun readScreen() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val b = wm.maximumWindowMetrics.bounds
-            screen.set(b.width(), b.height())
-        } else {
-            @Suppress("DEPRECATION")
-            wm.defaultDisplay.getRealSize(screen)
-        }
-    }
-
     private fun buildLayoutParams(): WindowManager.LayoutParams = defaultLayoutParams().also { customizer?.customize(it) }
 
     private fun defaultLayoutParams(): WindowManager.LayoutParams = WindowManager.LayoutParams().apply {
@@ -195,7 +190,9 @@ public class SystemHost private constructor(
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
             WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        gravity = Gravity.TOP or Gravity.START
+        // WMS 应用 LayoutParams.gravity 时不带布局方向，START 在 RTL 下不会自动翻转，直接写 LEFT 更诚实；
+        // 何况首次 applyLayout 就会按锚点覆盖它（见 WindowLayoutMath）
+        gravity = Gravity.TOP or Gravity.LEFT
     }
 
     // ---------- Builder ----------
