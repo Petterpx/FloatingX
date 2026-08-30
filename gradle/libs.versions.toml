@@ -10,7 +10,11 @@ compose-bom = "2026.06.01"
 compose-ui = "1.11.4"
 androidx-core = "1.13.1"
 androidx-annotation = "1.9.1"
-lifecycle = "2.11.0"
+# lifecycle 2.11.0 不可用：它的同族约束会把 compose-ui 传递来的 lifecycle-runtime-compose
+# 一起抬到 2.11.0，而 lifecycle-runtime-compose-android:2.11.0 的 aar-metadata 要求
+# compileSdk 37 / AGP 9.1（与 spec §1.1「不用 compose 1.12」同一条红线）。
+# 2.10.0 的 runtime-compose 只要求 compileSdk 35 / AGP 8.6，与本仓库 compileSdk 36 / AGP 8.13.2 匹配。
+lifecycle = "2.10.0"
 savedstate = "1.5.0"
 fragment = "1.8.9"
 coroutines = "1.11.0"

@@ -25,6 +25,7 @@ include ':floatingx-core'
 include ':floatingx-scope'
 include ':floatingx-app'
 include ':floatingx-system'
+include ':floatingx-compose'
 
 static Properties readPropertiesIfExist(File propertiesFile) {
     Properties result = new Properties()
