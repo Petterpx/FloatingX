@@ -52,17 +52,23 @@ private val flows = WeakHashMap<FxControl, FxControlFlows>()
 
 private fun FxControl.flows(): FxControlFlows {
     // 检查放在最前：注册完 listener 再抛线程异常会留下一个野监听器，初始化必须要么全成要么全不成
-    check(Looper.myLooper() == Looper.getMainLooper()) { "stateFlow()/positionFlow() 必须在主线程首次调用" }
+    check(Looper.myLooper() == Looper.getMainLooper()) { "stateFlow()/positionFlow() 必须在主线程调用" }
     return flows.getOrPut(this) {
         FxControlFlows(state, position).also { addListener(FxFlowsBridge(it)) }
     }
 }
 
-/** 浮窗状态。必须在主线程调用；flow 也只在主线程更新。同一 control 多次调用返回同一条 flow */
+/**
+ * 浮窗状态。必须在主线程调用；flow 也只在主线程更新。同一 control 多次调用返回同一条 flow。
+ * cancel() 之后 core 会清空 listeners，此时（或之后）拿到的 flow 停在 CANCELLED 上，不再更新。
+ */
 public fun FxControl.stateFlow(): StateFlow<FxState> = flows().state
 
 /**
- * 内容左上角屏幕坐标（拖动中每帧更新、moveTo/吸附结束更新）。
- * 必须在主线程调用；flow 也只在主线程更新。同一 control 多次调用返回同一条 flow
+ * 内容左上角的**屏幕坐标**（等同 `control.position`，拖动中每帧更新、moveTo/吸附结束更新）。
+ * 注意与 `FxListener.onDrag/onDragEnd` 回调里的 x/y 不同——那两个是相对容器的坐标。
+ *
+ * 必须在主线程调用；flow 也只在主线程更新。同一 control 多次调用返回同一条 flow。
+ * cancel() 之后 core 会清空 listeners，此时（或之后）拿到的 flow 停在最后一次坐标上，不再更新。
  */
 public fun FxControl.positionFlow(): StateFlow<FxPoint> = flows().position

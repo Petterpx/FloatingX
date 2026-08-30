@@ -55,16 +55,21 @@ class ComposeOwnerFeatureTest {
 
     /**
      * @param hostOwners 模拟宿主已经装好 ViewTree owner（ComponentActivity 的常态）。
-     *   false 时是裸 android.app.Activity：decor 上什么都没有，靠 ComposeOwnerFeature 的根 view 兜底。
+     *   false 时是裸 android.app.Activity：decor 上什么都没有——浮窗自带 Recomposer，照样能组合。
      * @param readyOnBind false 时 host 永远不 ready，浮窗从未 attach 过。
      */
     private fun parentInWindow(hostOwners: Boolean = true, readyOnBind: Boolean = true): Pair<FrameLayout, TestHost> {
+        val parent = windowParent(hostOwners)
+        return parent to TestHost(parent, readyOnBind)
+    }
+
+    /** 一个真实 Activity 窗口里的父容器；[hostOwners] 决定 decor 上有没有宿主自己的 ViewTree owner */
+    private fun windowParent(hostOwners: Boolean = true): FrameLayout {
         val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
-        // 窗口级 Recomposer 从 android.R.id.content 的直接子 view 往上找 LifecycleOwner
         if (hostOwners) hostOwner.attachTo(activity.window.decorView)
         val parent = FrameLayout(activity)
         activity.findViewById<ViewGroup>(android.R.id.content).addView(parent, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        return parent to TestHost(parent, readyOnBind)
+        return parent
     }
 
     private fun idle() = shadowOf(Looper.getMainLooper()).idle()
@@ -75,6 +80,7 @@ class ComposeOwnerFeatureTest {
     fun tearDown() {
         control?.takeIf { it.state != FxState.CANCELLED }?.cancel()
         control = null
+        hostOwner.destroy()
     }
 
     @Test
@@ -129,9 +135,12 @@ class ComposeOwnerFeatureTest {
         assertSame(owner(c), vmOwner)
     }
 
-    /** 裸 Activity 的 decor 上没有任何 owner：bind 时把浮窗自己的补到根 view 上，组合才跑得起来 */
+    /**
+     * 裸 Activity 的 decor 上没有任何 owner：内容自带 Recomposer 作为 parentCompositionContext，
+     * 根本不去找窗口级 Recomposer，所以照样组合，且**不往宿主根 view 上写任何东西**。
+     */
     @Test
-    fun `composition runs when the host root has no owner and the fallback is removed on cancel`() {
+    fun `composition runs when the host root has no owner and nothing is written onto it`() {
         val (parent, host) = parentInWindow(hostOwners = false)
         var compositions = 0
         val c = FloatingX.create("c") {
@@ -141,24 +150,110 @@ class ComposeOwnerFeatureTest {
         c.show()
         idle()
         assertTrue(compositions >= 1)
-        assertSame(owner(c), parent.rootView.findViewTreeLifecycleOwner())
+        assertNull(parent.rootView.findViewTreeLifecycleOwner())   // 宿主 decor 保持原样
         c.cancel()
-        assertNull(parent.rootView.findViewTreeLifecycleOwner())   // 不留一个已 destroy 的 owner 在宿主 decor 上
+        assertNull(parent.rootView.findViewTreeLifecycleOwner())
     }
 
-    /** detach 期间换内容：core 不会回调 onConfigChanged，下一次 attach 必须自己对账 */
+    /**
+     * CRITICAL 回归：AppHost 换页是**静默换父**（removeView + addView，不发 session 事件）。
+     * 新窗口的 decor 上没有 ViewTreeLifecycleOwner，旧实现会在 ComposeView.attachedToWindow 里
+     * 去查窗口级 Recomposer 而崩（ViewTreeLifecycleOwner not found from DecorView）。
+     */
     @Test
-    fun `content replaced while detached is reconciled on the next attach`() {
+    fun `container re-parented into another window keeps composing`() {
+        val (_, host) = parentInWindow(hostOwners = false)
+        val second = windowParent(hostOwners = false)
+        var compositions = 0
+        var restored = -1
+        val c = FloatingX.create("c") {
+            compose {
+                var count by rememberSaveable { mutableIntStateOf(0) }
+                SideEffect {
+                    compositions++
+                    if (count == 0) count = 7 else restored = count
+                }
+                Box(Modifier.size(10.dp))
+            }
+            this.host = host
+        }.also { control = it }
+        c.show()
+        idle()
+        val first = compositions
+        assertTrue(first >= 1)
+
+        host.moveSilently(second)   // 复刻 AppHost.moveTo：不抛异常
+        idle()
+
+        assertTrue("换窗口后应重新组合，compositions=$compositions", compositions > first)
+        assertEquals(7, restored)                       // rememberSaveable 过桥存活
+        assertSame(second, (c.contentView!!.parent as View).parent)
+        assertEquals(Lifecycle.State.RESUMED, owner(c).lifecycle.currentState)   // 生命周期没被打断
+    }
+
+    /** 容器本身就是窗口根 view（系统浮窗形态）：根 view 上只有浮窗自己的 owner，组合照跑 */
+    @Test
+    fun `composition runs when the container itself is the window root`() {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        var compositions = 0
+        val c = FloatingX.create("c") {
+            compose { SideEffect { compositions++ }; Box(Modifier.size(10.dp)) }
+            this.host = WindowTestHost(activity)
+        }.also { control = it }
+        c.show()
+        idle()
+        assertTrue(compositions >= 1)
+    }
+
+    /** detach 期间换内容：core 无条件广播 onConfigChanged，旧 owner 当场销毁，绑定推迟到下一次 attach */
+    @Test
+    fun `content replaced while detached destroys the old owner and binds on the next attach`() {
         val (_, host) = parentInWindow()
         val c = FloatingX.create("c") { compose { Box(Modifier.size(10.dp)) }; this.host = host }.also { control = it }
         val old = owner(c)
         host.lose()
         c.setContent(FxComposeContent { Box(Modifier.size(20.dp)) })
+        assertTrue(old.isDestroyed)   // 不用等到 attach
         host.ready()
-        assertTrue(old.isDestroyed)
         val new = owner(c)
         assertNotSame(old, new)
         assertEquals(Lifecycle.State.STARTED, new.lifecycle.currentState)
+    }
+
+    /** detach 期间连换两次：中间那份（B）的 owner 也必须被销毁，不能漏 */
+    @Test
+    fun `two content swaps while detached destroy every intermediate owner`() {
+        val (_, host) = parentInWindow()
+        val c = FloatingX.create("c") { compose { Box(Modifier.size(10.dp)) }; this.host = host }.also { control = it }
+        val a = owner(c)
+        host.lose()
+        val b = FxComposeContent { Box(Modifier.size(20.dp)) }
+        c.setContent(b)
+        val cc = FxComposeContent { Box(Modifier.size(30.dp)) }
+        c.setContent(cc)
+        assertTrue(a.isDestroyed)
+        assertTrue("中间那份内容的 owner 泄漏了", b.owner.isDestroyed)
+        assertFalse(cc.owner.isDestroyed)
+        host.ready()
+        assertSame(cc.owner, owner(c))
+        assertEquals(Lifecycle.State.STARTED, cc.owner.lifecycle.currentState)
+    }
+
+    /** 手动 removeFeature 摘掉 feature：onRemove 里把 owner 释放掉，不留给谁都不管 */
+    @Test
+    fun `removing the feature destroys the owner it holds`() {
+        val (_, host) = parentInWindow()
+        val c = FloatingX.create("c") { compose { Box(Modifier.size(10.dp)) }; this.host = host }.also { control = it }
+        val feature = c.config.features.first { it is ComposeOwnerFeature }
+        val o = owner(c)
+        val vm = ViewModelProvider(o)[ProbeViewModel::class.java]
+        val container = c.contentView!!.parent as View
+        assertSame(o, container.findViewTreeLifecycleOwner())
+        c.removeFeature(feature)
+        assertTrue(o.isDestroyed)
+        assertTrue(vm.cleared)
+        // 容器还活着，不能给它留一个已 destroy 的 owner
+        assertSame(hostOwner, container.findViewTreeLifecycleOwner())
     }
 
     /** host 始终没 ready（从未 attach）就 cancel：owner 也必须销毁，否则 ViewModel 永远不 clear */
