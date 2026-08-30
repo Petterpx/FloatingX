@@ -8,6 +8,7 @@ import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import androidx.test.core.app.ApplicationProvider
 import com.petterp.floatingx.core.FloatingX
+import com.petterp.floatingx.core.FxActivityTracker
 import com.petterp.floatingx.core.FxControl
 import com.petterp.floatingx.core.FxListener
 import com.petterp.floatingx.core.FxState
@@ -18,6 +19,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -61,6 +63,10 @@ class AppHostTest {
     private fun install(host: AppHost = AppHost.builder(app).build(), config: FxConfig = config()): FxControl =
         FloatingX.install("app-test", config, host)
 
+    /** 对应线上 FxAppInitProvider 在进程启动时做的事：tracker 必须早于第一个 Activity resume 注册 */
+    @Before
+    fun setUp() = FxActivityTracker.init(app)
+
     @After
     fun tearDown() {
         FloatingX.uninstallAll()
@@ -97,7 +103,8 @@ class AppHostTest {
         val b = launch(Activity::class.java).get()
         assertSame(decor(b), layerParent(control))
         assertEquals(FxState.SHOWN, control.state)
-        assertEquals(1, counting.attach)
+        // 监听器是 install 之后才加的，看不到 install 期那次 attach；静默换父又不派发任何事件，所以都是 0
+        assertEquals(0, counting.attach)
         assertEquals(0, counting.detach)
         assertSame(b, (control.host as AppHost).attachedActivity)
     }
@@ -113,7 +120,8 @@ class AppHostTest {
         ctrlB.pause().stop().destroy() // B 之后才销毁
         controllers.remove(ctrlB)
         assertSame(decor(ctrlA.get()), layerParent(control))
-        assertEquals(1, counting.attach)
+        // 同上：install 期的 attach 监听器没看到，去 B 再回 A 全是静默换父，不派发事件
+        assertEquals(0, counting.attach)
         assertEquals(0, counting.detach)
     }
 
@@ -132,7 +140,8 @@ class AppHostTest {
         ctrlA.resume().postResume()
         assertEquals(FxState.SHOWN, control.state)
         assertSame(decor(ctrlA.get()), layerParent(control))
-        assertEquals(2, counting.attach)
+        // install 期那次 attach 监听器没看到；这里的 1/1 是 B 销毁的 detach + 回到 A 的重新 attach
+        assertEquals(1, counting.attach)
         assertEquals(1, counting.detach)
     }
 

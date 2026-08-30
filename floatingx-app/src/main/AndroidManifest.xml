@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- 仅用于在首个 Activity resume 之前注册 FxActivityTracker，见 FxAppInitProvider -->
+        <provider
+            android:name="com.petterp.floatingx.app.FxAppInitProvider"
+            android:authorities="${applicationId}.floatingx.app.init"
+            android:exported="false"
+            android:initOrder="100" />
+    </application>
+
+</manifest>
