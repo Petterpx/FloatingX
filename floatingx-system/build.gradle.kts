@@ -8,7 +8,7 @@ android {
 
 dependencies {
     api(project(":floatingx-core"))
-    // WindowInsetsCompat / ViewCompat：系统窗口的 safe area
+    // WindowInsetsCompat：把 WindowMetrics 的屏幕级 insets 换算成 safe area
     implementation(libs.androidx.core)
     implementation(libs.kotlin.stdlib)
 }

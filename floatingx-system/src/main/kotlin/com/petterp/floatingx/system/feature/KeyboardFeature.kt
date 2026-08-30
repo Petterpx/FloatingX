@@ -5,6 +5,7 @@ import android.content.Context
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import com.petterp.floatingx.core.config.FxConfig
 import com.petterp.floatingx.core.feature.FxFeature
 import com.petterp.floatingx.core.feature.FxFeatureScope
 import com.petterp.floatingx.system.container.FxWindowContainer
@@ -19,7 +20,6 @@ public class KeyboardFeature(private val editTextIds: IntArray) : FxFeature {
     private var container: FxWindowContainer? = null
     private val bound = mutableListOf<View>()
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onAttach(scope: FxFeatureScope) {
         val c = scope.container as? FxWindowContainer
         if (c == null) {
@@ -27,6 +27,34 @@ public class KeyboardFeature(private val editTextIds: IntArray) : FxFeature {
             return
         }
         container = c
+        bind(c)
+    }
+
+    override fun onDetach() {
+        unbind()
+        container?.let {
+            it.onImeBack = null
+            it.setWindowFocusable(false)
+        }
+        container = null
+    }
+
+    /**
+     * 换内容（`control.setContent` / `update { layout(...) }`）后，之前绑的 EditText 已经被从容器里摘掉了，
+     * 必须重新在新内容上找一遍 id，否则键盘功能静默失效。
+     * core 的 update() 会先 createContent() 再广播 onConfigChanged，所以这里读到的 contentView 已是新的。
+     */
+    override fun onConfigChanged(old: FxConfig, new: FxConfig) {
+        if (old.content === new.content) return
+        val c = container ?: return
+        unbind()
+        // 旧 EditText 连同焦点一起没了，窗口先恢复不可聚焦，等新内容被触摸再唤起
+        c.setWindowFocusable(false)
+        bind(c)
+    }
+
+    @SuppressLint("ClickableViewAccessibility") // 监听器恒返回 false，不消费事件，无障碍点击照常派发
+    private fun bind(c: FxWindowContainer) {
         val root = c.contentView ?: return
         for (id in editTextIds) {
             val v = root.findViewById<View>(id) ?: continue
@@ -49,14 +77,9 @@ public class KeyboardFeature(private val editTextIds: IntArray) : FxFeature {
         }
     }
 
-    override fun onDetach() {
+    private fun unbind() {
         bound.forEach { it.setOnTouchListener(null) }
         bound.clear()
-        container?.let {
-            it.onImeBack = null
-            it.setWindowFocusable(false)
-        }
-        container = null
     }
 
     private fun imm(context: Context): InputMethodManager? =

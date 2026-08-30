@@ -1,5 +1,6 @@
 package com.petterp.floatingx.system.permission
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -29,6 +30,8 @@ internal class FxPermissionActivity : Activity() {
         requestId = intent?.getIntExtra(FxPermission.EXTRA_REQUEST_ID, 0) ?: 0
         if (savedInstanceState != null) return // 进程恢复：设置页仍在栈上，等 onActivityResult
         try {
+            // InlinedApi：ACTION_MANAGE_OVERLAY_PERMISSION 是 M 引入的常量，但 M 以下 isGranted() 恒为 true，走不到这里
+            @SuppressLint("InlinedApi")
             val settings = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
             @Suppress("DEPRECATION")
             startActivityForResult(settings, REQUEST_CODE)

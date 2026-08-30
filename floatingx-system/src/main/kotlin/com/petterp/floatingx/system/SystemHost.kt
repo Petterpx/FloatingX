@@ -1,20 +1,23 @@
 package com.petterp.floatingx.system
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.PixelFormat
 import android.os.Build
 import android.util.Log
+import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.WindowManager
 import androidx.annotation.MainThread
+import androidx.annotation.StyleRes
 import com.petterp.floatingx.core.container.FxContainer
 import com.petterp.floatingx.core.feature.FxFeature
 import com.petterp.floatingx.core.host.FxHost
 import com.petterp.floatingx.core.host.FxHostSession
 import com.petterp.floatingx.core.host.FxLayoutSpec
 import com.petterp.floatingx.core.layout.FxBounds
-import com.petterp.floatingx.core.layout.FxInsets
 import com.petterp.floatingx.core.layout.FxRect
 import com.petterp.floatingx.system.container.FxWindowContainer
 import com.petterp.floatingx.system.feature.KeyboardFeature
@@ -28,6 +31,11 @@ import com.petterp.floatingx.system.permission.FxPermissionStrategy
  * - 权限：Auto（默认，自动弹透明页申请）/ Manual（交给拦截器）/ Skip
  * - 被拒：有 fallback → requestSwap 降级（原 SYSTEM_AUTO）；无 → 停在 INSTALLED，之后 retryPermission()
  * - 默认 LayoutParams 见 defaultLayoutParams()，customizer 最后执行可覆盖任何字段
+ *
+ * **后台申请权限的限制**：Android 10（Q）起系统禁止后台启动 Activity。应用在后台（或从 Service）
+ * 触发 Auto 策略时，权限申请页可能**悄无声息地起不来**，什么都不会弹出，用户毫无感知。
+ * 需要在后台安装浮窗时，用 [FxPermissionStrategy.Manual] / [FxPermissionStrategy.Skip] 把申请推迟，
+ * 等应用回到前台再 [retryPermission]（或自行申请后再调用它）。
  */
 public class SystemHost private constructor(
     override val context: Context,
@@ -79,13 +87,24 @@ public class SystemHost private constructor(
             Log.e(TAG, "系统浮窗 addView 失败（权限被撤销或 type 不允许）", e)
         } catch (e: SecurityException) {
             Log.e(TAG, "系统浮窗 addView 失败（权限被撤销或 type 不允许）", e)
+        } catch (e: IllegalStateException) {
+            // "View has already been added to the window manager"：窗口其实还在屏幕上。
+            // 这里必须记成"已挂载"，否则 detach 会直接 return，窗口再也摘不掉
+            Log.e(TAG, "系统浮窗 addView 失败（该 view 已挂在 WindowManager 上），按已挂载处理", e)
+            c.isAttachedToWm = true
         }
     }
 
     override fun detach(container: FxContainer) {
         val c = container as FxWindowContainer
         if (!c.isAttachedToWm) return
-        wm.removeViewImmediate(c)
+        try {
+            wm.removeViewImmediate(c)
+        } catch (e: IllegalArgumentException) {
+            // "View not attached to window manager"：窗口早就没了（进程被 WMS 清过、外部先摘过），
+            // 按已摘掉处理即可，重复抛出只会把 cancel() 打断
+            Log.w(TAG, "系统浮窗 removeView 失败（该 view 未挂在 WindowManager 上），按已摘除处理", e)
+        }
         c.isAttachedToWm = false
     }
 
@@ -94,13 +113,13 @@ public class SystemHost private constructor(
     }
 
     /**
-     * 屏幕尺寸以容器缓存的为准（创建/挂载/旋转/insets 时刷新）。
+     * 屏幕尺寸与 insets 都以容器缓存的为准（创建/挂载/旋转时 refreshBounds 刷新）；
+     * insets 是屏幕级的，与窗口挂没挂上、挂在哪都无关。
      * release 之后没有容器，返回全 0——core 把零尺寸当作"还不能定位"，不会拿脏数据算坐标。
      */
     override fun bounds(): FxBounds {
         val c = container ?: return FxBounds(FxRect(0f, 0f, 0f, 0f))
-        val insets = if (c.isAttachedToWm) c.windowInsets else FxInsets.NONE
-        return FxBounds(FxRect(0f, 0f, c.boundsWidth.toFloat(), c.boundsHeight.toFloat()), insets)
+        return FxBounds(FxRect(0f, 0f, c.boundsWidth.toFloat(), c.boundsHeight.toFloat()), c.windowInsets)
     }
 
     override fun hostFeatures(): List<FxFeature> = features
@@ -116,16 +135,22 @@ public class SystemHost private constructor(
 
     // ---------- 权限 ----------
 
-    /** 权限被拒后业务方拿到权限时调用；已有权限则直接挂载。与 core 一致，只能在主线程调用 */
+    /**
+     * 权限被拒后业务方拿到权限时调用；已有权限则直接挂载。与 core 一致，只能在主线程调用。
+     *
+     * Q+ 后台起不了 Activity（见类注释），所以后台安装 + Auto 策略时页面可能根本没弹出来：
+     * 回到前台后调用本方法重新申请/挂载。
+     */
     @MainThread
     public fun retryPermission() {
         if (released) return
         val c = container
         val s = session
-        // addView 失败过（权限被撤销 / type 不被允许）：容器还在 core 手里但没挂到 WindowManager 上，
-        // 此时 core 的状态是 ATTACHED/SHOWN，onHostReady 会被忽略。先让它退回 INSTALLED 再重新挂载，
-        // desiredVisible 会被保留（detach 对未挂载的容器直接 return，不会重复 removeView）
-        if (c != null && !c.isAttachedToWm && s != null && isPermissionGranted) {
+        // addView 失败过（权限被撤销 / type 不被允许 / Skip 策略配了需要权限的 type）：
+        // 容器还在 core 手里但没挂到 WindowManager 上，此时 core 的状态是 ATTACHED/SHOWN，onHostReady 会被忽略。
+        // 先让它退回 INSTALLED 再重新挂载，desiredVisible 会被保留（detach 对未挂载的容器直接 return，不会重复 removeView）。
+        // Skip 策略下不看 isPermissionGranted——它压根不检查权限，否则这条恢复路径对 Skip 永远不生效
+        if (c != null && !c.isAttachedToWm && s != null && (strategy is FxPermissionStrategy.Skip || isPermissionGranted)) {
             s.onHostLost()
             s.onHostReady()
             return
@@ -175,6 +200,8 @@ public class SystemHost private constructor(
 
     private fun buildLayoutParams(): WindowManager.LayoutParams = defaultLayoutParams().also { customizer?.customize(it) }
 
+    // RtlHardcoded：WMS 应用 LayoutParams.gravity 时不带布局方向，START/END 由 WindowLayoutMath 自行解析成 LEFT/RIGHT
+    @SuppressLint("RtlHardcoded")
     private fun defaultLayoutParams(): WindowManager.LayoutParams = WindowManager.LayoutParams().apply {
         type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -198,8 +225,9 @@ public class SystemHost private constructor(
     // ---------- Builder ----------
 
     public class Builder(context: Context) {
-        /** 系统窗口活得比页面久，绝不能持有 Activity */
-        private val context: Context = if (context is Activity) context.applicationContext else context
+        /** 解包后的基准 context（一定不是 Activity）；[theme] 每次都基于它包一层，多次调用不会套娃 */
+        private val baseContext: Context = unwrapActivity(context)
+        private var context: Context = baseContext
         private var customizer: SystemLayoutParamsCustomizer? = null
         private var strategy: FxPermissionStrategy = FxPermissionStrategy.Auto
         private var fallback: FxHost? = null
@@ -219,7 +247,29 @@ public class SystemHost private constructor(
         /** 这些 EditText 被触摸时窗口临时可聚焦并弹出键盘 */
         public fun keyboard(vararg editTextIds: Int): Builder = apply { keyboardIds = editTextIds }
 
+        /** 内容 view 用（解包后的）application context 创建；需要主题属性（Material 组件等）时在这里指定 */
+        public fun theme(@StyleRes themeRes: Int): Builder = apply { context = ContextThemeWrapper(baseContext, themeRes) }
+
         public fun build(): SystemHost = SystemHost(context, customizer, strategy, fallback, backListener, keyboardIds)
+
+        private companion object {
+            /**
+             * 系统窗口活得比页面久，绝不能持有 Activity。
+             * Activity 常被 ContextThemeWrapper / ContextWrapper 包一层再传进来（Material 主题、动态换肤…），
+             * 所以要沿 baseContext 链一路查下去，任何一层是 Activity 都解包成 applicationContext。
+             */
+            fun unwrapActivity(context: Context): Context {
+                var c: Context? = context
+                while (c != null) {
+                    if (c is Activity) {
+                        Log.w(TAG, "SystemHost.Builder 收到 Activity（可能被 ContextWrapper 包裹），已解包为 applicationContext；需要主题请用 theme(themeRes)")
+                        return context.applicationContext
+                    }
+                    c = (c as? ContextWrapper)?.baseContext
+                }
+                return context
+            }
+        }
     }
 
     public companion object {

@@ -1,10 +1,13 @@
 package com.petterp.floatingx.system
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Build
+import android.view.ContextThemeWrapper
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -17,6 +20,7 @@ import com.petterp.floatingx.core.config.FxConfig
 import com.petterp.floatingx.core.config.FxContent
 import com.petterp.floatingx.core.container.FxContainer
 import com.petterp.floatingx.core.container.FxLayerContainer
+import com.petterp.floatingx.core.gesture.FxDrag
 import com.petterp.floatingx.core.gesture.FxGesture
 import com.petterp.floatingx.core.host.FxHost
 import com.petterp.floatingx.core.host.FxHostSession
@@ -36,6 +40,7 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -73,6 +78,40 @@ class SystemHostTest {
     private fun layout(w: FxWindowContainer) {
         w.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
         w.layout(0, 0, w.measuredWidth, w.measuredHeight)
+    }
+
+    /**
+     * 模拟"窗口跟着手指走"的一次真实拖动：raw（屏幕）坐标每步前进 [dx]/[dy]，
+     * 而相对坐标恒为落点 ([downX], [downY])——系统窗口拖动时就是这样，
+     * 所以 core 只能靠 rawX/rawY 算增量（见 FxGestureDetector.absX）。
+     *
+     * 事件走容器的 `dispatchTouchEvent`（FrameLayout 的正常派发路径：内容 view 不消费触摸，
+     * DOWN 先经 onInterceptTouchEvent，随后落到容器自己的 onTouchEvent；
+     * 后续 MOVE/UP 因为没有 touch target 直接进 onTouchEvent）。
+     */
+    private fun drag(w: FxWindowContainer, downX: Float, downY: Float, dx: Float, dy: Float, steps: Int) {
+        var rawX = w.contentPosition().x + downX
+        var rawY = w.contentPosition().y + downY
+        send(w, 0L, MotionEvent.ACTION_DOWN, rawX, rawY)
+        for (i in 1..steps) {
+            rawX += dx
+            rawY += dy
+            send(w, i.toLong(), MotionEvent.ACTION_MOVE, rawX, rawY)
+        }
+        send(w, steps + 1L, MotionEvent.ACTION_UP, rawX, rawY)
+    }
+
+    /**
+     * 用**当前**窗口位置把屏幕坐标换算成容器相对坐标：`obtain` 出来的事件 raw == x，
+     * 再 `offsetLocation` 只移动 x/y、不动 rawX/rawY，正好还原真实事件的形态。
+     * 窗口原点用 contentPosition() 而不是 windowParams.x/y——后者在 BOTTOM/RIGHT gravity 下是到对边的距离。
+     */
+    private fun send(w: FxWindowContainer, eventTime: Long, action: Int, rawX: Float, rawY: Float) {
+        val origin = w.contentPosition()
+        val ev = MotionEvent.obtain(0L, eventTime, action, rawX, rawY, 0)
+        ev.offsetLocation(-origin.x, -origin.y)
+        w.dispatchTouchEvent(ev)
+        ev.recycle()
     }
 
     @After
@@ -199,6 +238,41 @@ class SystemHostTest {
         assertEquals(FxState.SHOWN, control.state)
     }
 
+    /**
+     * addView 抛 IllegalStateException（"已经加过了"）说明窗口其实还在屏幕上：
+     * 必须记成已挂载，否则 detach 会直接 return，窗口再也摘不掉。
+     */
+    @Test
+    fun `attach on an already added window keeps it marked as attached`() {
+        ShadowSettings.setCanDrawOverlays(true)
+        val host = SystemHost.builder(app).build()
+        val control = install(host)
+        control.show()
+        val w = window(control)
+
+        host.attach(w) // 重复 addView 抛 IllegalStateException，必须被吞掉
+        assertTrue(w.isAttachedToWm)
+        // 只看状态位：Robolectric 的影子 WindowManager 在真实 addView 抛异常之前就把 view 记进列表了，
+        // 于是它的 views 里会重复一份，assert 列表反而测不出东西
+        host.detach(w)
+        assertFalse(w.isAttachedToWm)
+    }
+
+    /** 窗口被外部（WMS 清理 / 宿主自己 removeView）摘掉后，cancel 里的 removeViewImmediate 会抛 IAE，必须吞掉 */
+    @Test
+    fun `detach survives a window that is no longer attached to the window manager`() {
+        ShadowSettings.setCanDrawOverlays(true)
+        val host = SystemHost.builder(app).build()
+        val control = install(host)
+        control.show()
+        val w = window(control)
+        wm.removeViewImmediate(w)
+        assertTrue(w.isAttachedToWm) // host 还以为挂着
+
+        control.cancel()
+        assertFalse(w.isAttachedToWm)
+    }
+
     @Test
     fun `manual strategy hands the decision to the interceptor`() {
         ShadowSettings.setCanDrawOverlays(false)
@@ -280,9 +354,104 @@ class SystemHostTest {
         assertEquals(0.9f, window(control).windowParams.alpha, 0f)
     }
 
+    /**
+     * 端到端拖动：窗口跟着手指走（相对坐标恒定），位置必须严格按 raw 增量累加。
+     * 这是 insets 回归的护栏——一旦哪个环节每帧派发 onBoundsChanged，core 会清掉 dragInput，
+     * 后面几步增量就全丢了，位移会小于 N×(30,20)。
+     */
+    @Test
+    fun `dragging a window advances the position by the raw deltas`() {
+        ShadowSettings.setCanDrawOverlays(true)
+        val control = install(SystemHost.builder(app).build(), config(FxGesture.Normal.copy(drag = FxDrag.IMMEDIATE)))
+        control.show()
+        val w = window(control)
+        layout(w)
+        val startX = w.windowParams.x
+        val startY = w.windowParams.y
+
+        // 第一步 (30,20) 必须超过 touchSlop（8dp，mdpi 下 8px），否则拖动根本不会开始
+        drag(w, downX = 10f, downY = 10f, dx = 30f, dy = 20f, steps = 5)
+
+        assertEquals(startX + 5 * 30, w.windowParams.x)
+        assertEquals(startY + 5 * 20, w.windowParams.y)
+        assertEquals(Gravity.TOP or Gravity.LEFT, w.windowParams.gravity)
+        assertEquals((startX + 150).toFloat(), control.position.x, 0f)
+        assertEquals((startY + 100).toFloat(), control.position.y, 0f)
+    }
+
+    /** 非 TOP_START 锚点：LayoutParams 里存的是到对边的距离，位移要看 contentPosition，锚定边不能变 */
+    @Test
+    fun `dragging keeps the bottom end anchor gravity`() {
+        ShadowSettings.setCanDrawOverlays(true)
+        val config = FxConfig.builder(content()).anchor(FxGravity.BOTTOM_END, dx = 300f, dy = 300f)
+            .gesture(FxGesture.Normal.copy(drag = FxDrag.IMMEDIATE)).build()
+        val control = install(SystemHost.builder(app).build(), config)
+        control.show()
+        val w = window(control)
+        layout(w)
+        val start = w.contentPosition()
+        assertEquals(Gravity.BOTTOM or Gravity.RIGHT, w.windowParams.gravity)
+
+        drag(w, downX = 10f, downY = 10f, dx = 30f, dy = 20f, steps = 5)
+
+        assertEquals(start.x + 150f, w.contentPosition().x, 0f)
+        assertEquals(start.y + 100f, w.contentPosition().y, 0f)
+        // 松手后锚点被反算提交，落点仍在右下象限，所以窗口的锚定边不变
+        assertEquals(Gravity.BOTTOM or Gravity.RIGHT, w.windowParams.gravity)
+    }
+
     @Test
     fun `activity context is unwrapped to the application`() {
-        val activity = org.robolectric.Robolectric.buildActivity(android.app.Activity::class.java).setup().get()
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
         assertSame(app, SystemHost.builder(activity).build().context)
+    }
+
+    /** Activity 常被 ContextThemeWrapper 包一层再传进来（Material 主题）：也必须沿 baseContext 链解包 */
+    @Test
+    fun `an activity wrapped in a context wrapper is unwrapped too`() {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        val host = SystemHost.builder(ContextThemeWrapper(activity, android.R.style.Theme_DeviceDefault)).build()
+        assertNotSame(activity, host.context)
+        assertSame(app, host.context)
+    }
+
+    @Test
+    fun `theme wraps the application context even when an activity was passed in`() {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        val host = SystemHost.builder(ContextThemeWrapper(activity, android.R.style.Theme_DeviceDefault))
+            .theme(android.R.style.Theme_DeviceDefault_Light)
+            .build()
+        val ctx = host.context
+        assertTrue(ctx is ContextThemeWrapper)
+        assertSame(app, (ctx as ContextThemeWrapper).baseContext)
+    }
+
+    @Test
+    fun `theme on an application context yields a context theme wrapper`() {
+        val host = SystemHost.builder(app).theme(android.R.style.Theme_DeviceDefault).build()
+        val ctx = host.context
+        assertTrue(ctx is ContextThemeWrapper)
+        assertSame(app, (ctx as ContextThemeWrapper).baseContext)
+    }
+
+    /**
+     * Skip 策略也要能从"挂载失败"里恢复：`permission(skip())` + 需要权限的 type 时 addView 会失败，
+     * 恢复条件不能只看 isPermissionGranted（Skip 压根不检查权限，那样这条路径永远走不到）。
+     */
+    @Test
+    fun `retryPermission remounts a failed attach under the skip strategy`() {
+        ShadowSettings.setCanDrawOverlays(false)
+        val host = SystemHost.builder(app).permission(FxPermissionStrategy.skip()).build()
+        val control = install(host)
+        control.show()
+        val w = window(control)
+        // 还原"addView 抛异常后"的现场：窗口没挂上，但 core 仍停在 SHOWN
+        wm.removeViewImmediate(w)
+        w.isAttachedToWm = false
+
+        host.retryPermission()
+        assertTrue(windowViews().contains(w))
+        assertTrue(w.isAttachedToWm)
+        assertEquals(FxState.SHOWN, control.state)
     }
 }

@@ -1,5 +1,6 @@
 package com.petterp.floatingx.system.container
 
+import android.annotation.SuppressLint
 import android.view.Gravity
 import android.view.WindowManager
 import com.petterp.floatingx.core.layout.FxGravity
@@ -12,6 +13,8 @@ import kotlin.math.roundToInt
  * 让 WindowManager 自己保持锚定边：内容尺寸变化时窗口从锚定边生长，不会先跳到旧坐标再被修正。
  * 屏幕尺寸或内容尺寸未知（0）时退化为 TOP|LEFT + 直接坐标。
  */
+// RtlHardcoded：WMS 应用 LayoutParams.gravity 时不带布局方向，START/END 不会自动翻转，只能由这里按 ltr 解析成 LEFT/RIGHT
+@SuppressLint("RtlHardcoded")
 internal object WindowLayoutMath {
 
     fun apply(

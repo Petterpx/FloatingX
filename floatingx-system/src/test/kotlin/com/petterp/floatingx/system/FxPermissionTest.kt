@@ -2,7 +2,9 @@ package com.petterp.floatingx.system
 
 import android.app.Activity
 import android.app.Application
+import android.content.ActivityNotFoundException
 import android.content.ComponentName
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
@@ -13,6 +15,7 @@ import com.petterp.floatingx.system.permission.FxPermissionActivity
 import com.petterp.floatingx.system.permission.FxPermissionStrategy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -137,6 +140,38 @@ class FxPermissionTest {
         controller.pause().stop().destroy()
 
         assertEquals(listOf(true), results)
+    }
+
+    /**
+     * 透明页起不来（Q+ 后台限制、组件被裁、context 不合法…）时必须立刻回调 false，
+     * 并且不能在请求表里留下悬空条目——否则那个 id 永远占着，回调也永远不会来。
+     */
+    @Test
+    fun `request answers false and leaks nothing when the activity cannot be started`() {
+        ShadowSettings.setCanDrawOverlays(false)
+        var launched: Intent? = null
+        val broken = object : ContextWrapper(app) {
+            override fun startActivity(intent: Intent) {
+                launched = intent
+                throw ActivityNotFoundException("模拟后台启动被拦截")
+            }
+        }
+        val results = mutableListOf<Boolean>()
+        FxPermission.request(broken) { results += it }
+        assertEquals(listOf(false), results)
+
+        // 失败请求的条目已被移除：拿它的 id 再派发一次不该有任何回调
+        val failedId = launched!!.getIntExtra("fx_request_id", 0)
+        FxPermission.dispatch(failedId, true)
+        assertEquals(listOf(false), results)
+
+        // 下一次申请拿到新 id，并且照常工作
+        val next = mutableListOf<Boolean>()
+        FxPermission.request(app) { next += it }
+        val id = shadowOf(app).nextStartedActivity!!.getIntExtra("fx_request_id", 0)
+        assertNotEquals(failedId, id)
+        FxPermission.dispatch(id, true)
+        assertEquals(listOf(true), next)
     }
 
     @Test
