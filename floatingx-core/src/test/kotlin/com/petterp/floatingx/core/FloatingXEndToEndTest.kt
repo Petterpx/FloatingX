@@ -19,6 +19,7 @@ import com.petterp.floatingx.core.layout.FxAdsorb
 import com.petterp.floatingx.core.layout.FxAnchor
 import com.petterp.floatingx.core.layout.FxGravity
 import com.petterp.floatingx.core.layout.FxMargin
+import com.petterp.floatingx.core.layout.FxPoint
 import com.petterp.floatingx.core.storage.FxStorage
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -400,6 +401,19 @@ class FloatingXEndToEndTest {
         assertEquals(FxGravity.BOTTOM_START, last.anchor.gravity)
         assertEquals(FxGravity.BOTTOM_START, last.gravity)
         assertEquals(c.anchor, last.anchor)
+    }
+
+    /** Plan 4-A：commitAnchor 广播 onPositionChanged 之前必须先投影，监听器里读到的是新位置 */
+    @Test
+    fun `onPositionChanged listeners already see the new position`() {
+        val c = FloatingX.install("a", config(), TestHost(parent))
+        c.show(); layoutParent()
+        var seen: FxPoint? = null
+        c.addListener(object : FxListener {
+            override fun onPositionChanged(control: FxControl, anchor: FxAnchor) { seen = control.position }
+        })
+        c.moveTo(300f, 400f, animate = false)
+        assertEquals(FxPoint(300f, 400f), seen)
     }
 
     /** A4/A6：换 host 复用内容 view，旧容器被彻底释放，锚点与监听器都保留 */

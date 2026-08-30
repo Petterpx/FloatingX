@@ -8,6 +8,7 @@ import com.petterp.floatingx.core.config.FxConfig
 import com.petterp.floatingx.core.host.FxLayoutSpec
 import com.petterp.floatingx.core.layout.FxAdsorb
 import com.petterp.floatingx.core.layout.FxAdsorbResolver
+import com.petterp.floatingx.core.layout.FxAnchor
 import com.petterp.floatingx.core.layout.FxLayoutInput
 import com.petterp.floatingx.core.layout.FxLayoutResolver
 import com.petterp.floatingx.core.layout.FxPoint
@@ -153,15 +154,20 @@ internal class LocationFeature : FxFeature {
         commitAndApply(s, FxLayoutResolver.clamp(target, input), input)
     }
 
-    /** 先提交锚点再投影：apply 读的是 control.anchor，顺序反了最后一帧会带旧 gravity */
+    /**
+     * 先投影再提交锚点：commitAnchor 会广播 onPositionChanged，监听器在回调里读 control.position
+     * 必须已经是新坐标（spec §2.3）。投影显式带上即将提交的新锚点，所以最后一帧不会带旧 gravity。
+     */
     private fun commitAndApply(s: FxFeatureScope, target: FxPoint, input: FxLayoutInput) {
         settleTarget = null
-        s.commitAnchor(FxLayoutResolver.toAnchor(target, input))
-        apply(s, target)
+        val anchor = FxLayoutResolver.toAnchor(target, input)
+        apply(s, target, anchor)
+        s.commitAnchor(anchor)
     }
 
-    private fun apply(s: FxFeatureScope, p: FxPoint) {
-        s.host.updateLayout(s.container, FxLayoutSpec(p.x, p.y, s.control.anchor, s.container.isLtr))
+    /** anchor 默认取 control 上已提交的那个；提交前的最后一帧要显式传新锚点 */
+    private fun apply(s: FxFeatureScope, p: FxPoint, anchor: FxAnchor = s.control.anchor) {
+        s.host.updateLayout(s.container, FxLayoutSpec(p.x, p.y, anchor, s.container.isLtr))
     }
 
     private fun discardSettle() {

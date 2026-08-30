@@ -93,6 +93,11 @@ public open class FxConfigScope(base: FxConfig?) {
         features += feature
     }
 
+    /** 移除已登记的 feature（含 base 带过来的）。给「同一配置里重复调用要幂等」的 DSL 用，如 compose {} */
+    public fun removeFeatures(predicate: (FxFeature) -> Boolean) {
+        features.removeAll(predicate)
+    }
+
     /**
      * 拦截内容之外的触摸（#212），dismissOnOutsideTouch=true 时点击外部自动 hide（#151）。
      * 只对 Layer 容器（app / scope）生效；重复调用只保留最后一次。

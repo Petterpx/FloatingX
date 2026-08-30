@@ -60,6 +60,9 @@ public class FxConfig private constructor(
         public fun storage(storage: FxStorage?): Builder = apply { this.storage = storage }
         public fun addFeature(feature: FxFeature): Builder = apply { features += feature }
 
+        /** 见 FxConfigScope.removeFeatures */
+        public fun removeFeatures(predicate: (FxFeature) -> Boolean): Builder = apply { features.removeAll(predicate) }
+
         /** 见 FxConfigScope.modal */
         @JvmOverloads
         public fun modal(enabled: Boolean = true, dismissOnOutsideTouch: Boolean = false): Builder = apply {

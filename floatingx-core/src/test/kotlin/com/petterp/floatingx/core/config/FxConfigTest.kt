@@ -122,6 +122,18 @@ class FxConfigTest {
     }
 
     @Test
+    fun `removeFeatures drops matching features`() {
+        val config = FxConfigScope(null).apply { content(content); addFeature(feature); removeFeatures { it === feature } }.build()
+        assertTrue(config.features.isEmpty())
+    }
+
+    @Test
+    fun `builder removeFeatures mirrors dsl`() {
+        val config = FxConfig.builder(content).addFeature(feature).removeFeatures { it === feature }.build()
+        assertTrue(config.features.isEmpty())
+    }
+
+    @Test
     fun `builder modal mirrors dsl`() {
         val config = FxConfig.builder(content).modal().modal(false).modal(true, true).build()
         assertEquals(1, config.features.count { it is ModalScrimFeature })
