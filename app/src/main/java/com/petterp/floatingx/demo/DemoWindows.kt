@@ -2,8 +2,31 @@ package com.petterp.floatingx.demo
 
 import android.app.Application
 import android.view.View
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.petterp.floatingx.app.AppHost
 import com.petterp.floatingx.app.appHost
+import com.petterp.floatingx.compose.compose
+import com.petterp.floatingx.compose.positionFlow
+import com.petterp.floatingx.compose.stateFlow
 import com.petterp.floatingx.core.FloatingX
 import com.petterp.floatingx.core.FxControl
 import com.petterp.floatingx.core.FxListener
@@ -25,6 +48,9 @@ object DemoWindows {
     const val TAG_APP_2 = "demo-app-2"
     const val TAG_SYSTEM = "demo-system"
     const val TAG_COMPOSE = "demo-compose"
+
+    /** 系统窗口版的 compose 浮窗，另起一个 tag，可以和 [TAG_COMPOSE] 同时在屏幕上 */
+    const val TAG_COMPOSE_SYS = "demo-compose-sys"
 
     private val clickToast = object : FxListener {
         override fun onClick(control: FxControl, view: View) = DemoContent.toast(view.context, "点击了 ${control.tag}")
@@ -93,4 +119,54 @@ object DemoWindows {
     }.also { it.addListener(clickToast) }
 
     fun ensureSystem(app: Application): FxControl = FloatingX.controlOrNull(TAG_SYSTEM) ?: installSystem(app)
+
+    /** 浮窗自己的 ViewModel：存活范围是 FxComposeOwner，即 install ~ cancel，跟页面无关 */
+    class CounterViewModel : ViewModel() {
+        var clicks = 0
+    }
+
+    /**
+     * Compose 浮窗：整棵组合跑在浮窗自己的 [com.petterp.floatingx.compose.FxComposeOwner] 上——
+     * `viewModel()` 落在 owner 的 ViewModelStore，`rememberSaveable` 走 FxComposeContent 的过桥仓库，
+     * 所以换页、旋转、被黑名单卸下再回来都不丢状态（#210/#239）。
+     *
+     * [system] = true 时装成系统窗口（tag 换成 [TAG_COMPOSE_SYS]，权限被拒自动降级为 App 浮窗），
+     * 内容与 App 版完全一样：compose 内容不关心 host。
+     */
+    @JvmOverloads
+    fun installCompose(app: Application, system: Boolean = false): FxControl =
+        FloatingX.install(if (system) TAG_COMPOSE_SYS else TAG_COMPOSE) {
+            compose { control ->
+                val vm: CounterViewModel = viewModel() // 归 FxComposeOwner 的 ViewModelStore
+                var count by rememberSaveable { mutableIntStateOf(0) }
+                val state by control.stateFlow().collectAsState()
+                val pos by control.positionFlow().collectAsState()
+                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(110.dp)) {
+                    Column(
+                        Modifier.clickable { count++; vm.clicks++ },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text("count $count", color = Color.White)
+                        Text("vm ${vm.clicks}", color = Color.White, fontSize = 11.sp)
+                        Text("${pos.x.toInt()},${pos.y.toInt()} $state", color = Color.White, fontSize = 9.sp)
+                    }
+                }
+            }
+            // 系统窗口版错开一点，两个一起显示时不重叠
+            anchor(FxGravity.CENTER_START, dy = if (system) 60f else -100f)
+            enableLog("Fx-demo")
+            if (system) {
+                systemHost(app) {
+                    permission(FxPermissionStrategy.auto())
+                    fallback(AppHost.builder(app).theme(R.style.Theme_FloatingX).build())
+                }
+            } else {
+                appHost(app) { blacklist(BaseBlackActivity::class.java) }
+            }
+        }
+
+    @JvmOverloads
+    fun ensureCompose(app: Application, system: Boolean = false): FxControl =
+        FloatingX.controlOrNull(if (system) TAG_COMPOSE_SYS else TAG_COMPOSE) ?: installCompose(app, system)
 }

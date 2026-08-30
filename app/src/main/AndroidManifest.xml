@@ -30,11 +30,14 @@
         <activity android:name="com.petterp.floatingx.demo.pages.MultiWindowActivity" />
         <activity android:name="com.petterp.floatingx.demo.pages.ModalActivity" />
         <activity android:name="com.petterp.floatingx.demo.pages.SecondActivity" />
+        <activity android:name="com.petterp.floatingx.demo.pages.ComposeActivity" />
+        <activity android:name="com.petterp.floatingx.demo.pages.ComposeSecondActivity" />
         <activity android:name="com.petterp.floatingx.demo.pages.BlackActivity" />
         <activity
             android:name="com.petterp.floatingx.demo.pages.ImmersedActivity"
             android:theme="@style/Theme.FloatingX.Immersed" />
         <activity android:name="com.petterp.floatingx.demo.regression.Issue187Activity" />
+        <activity android:name="com.petterp.floatingx.demo.regression.Issue210Activity" />
         <activity android:name="com.petterp.floatingx.demo.regression.Issue221Activity" />
         <activity android:name="com.petterp.floatingx.demo.regression.Issue240Activity" />
         <activity android:name="com.petterp.floatingx.demo.regression.Issue244Activity" />

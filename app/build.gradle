@@ -52,6 +52,8 @@ dependencies {
     implementation platform(libs.compose.bom)
     implementation libs.compose.ui
     implementation libs.compose.material3
+    // 浮窗里的 viewModel()：解析到 FxComposeOwner 的 ViewModelStore（版本与库的 lifecycle 一致）
+    implementation libs.lifecycle.viewmodel.compose
     debugImplementation libs.compose.ui.tooling
     debugImplementation libs.leakcanary.android
 
