@@ -6,32 +6,32 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.petterpx/floatingx-core)](https://central.sonatype.com/artifact/io.github.petterpx/floatingx-core)
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 
-[简体中文](README.md) · [Wiki](https://github.com/Petterpx/FloatingX/wiki) · [DeepWiki Fast QA](https://deepwiki.com/Petterpx/FloatingX)
+[简体中文](README.md) · [Wiki](https://github.com/Petterpx/FloatingX/wiki) · [DeepWiki](https://deepwiki.com/Petterpx/FloatingX)
 
-**FloatingX** is a flexible and powerful floating-window solution for Android: app-level global
-windows (following the foreground Activity), system windows (`WindowManager`), local windows
-(ViewGroup / Activity / Fragment) and Jetpack Compose content — all through one API. 3.0 is a full
-rewrite split into five modules you can take one by one, and it is **not** API-compatible with 2.x.
+FloatingX is a floating window library for Android. It covers in-app global windows (following the
+current Activity), system windows, and scoped windows attached to a ViewGroup / Fragment; the content can
+be a View or Compose.
 
-## ✨ Features
+3.0 is a rewrite split into a few opt-in modules. The API is not compatible with 2.x; see
+[Migration from 2.x](https://github.com/Petterpx/FloatingX/wiki/Migration-from-2.x) if you are upgrading.
 
-- **Four hosts, one API**: app-level global window (follows the foreground Activity), system window (`WindowManager`), scoped window (ViewGroup / Activity / Fragment) and Jetpack Compose content.
-- **No rebuild on page change**: the same container is silently re-parented between Activities; state, position and animation are all kept.
-- **Anchor-based positioning**: stored as "which edge + offset", so content resize and screen rotation never drift the window; margin, bounds, safe area and no-clip overflow are supported.
-- **Gestures**: drag, edge adsorption with half-hide, a dedicated drag region (dragRegion), and a conflict policy against scrolling children (childPriority).
-- **Animation & persistence**: built-in fade / scale show-hide animations, fully customizable; position persisted per tag + orientation.
-- **Painless system windows**: three permission strategies (auto / manual / skip), automatic fallback to the app-level host when denied; customizable `LayoutParams`, keyboard and back-key support.
-- **Modal windows**: a scrim intercepts outside touches, optionally dismissing on outside tap.
-- **Call at any time**: state machine + command queue — `show` / `moveTo` issued before the host is ready are queued and replayed in order.
-- **Page control**: blacklist / whitelist / custom filter decide where the window appears (matched by Class, subclasses included).
-- **Compose-native**: every window owns an `FxComposeOwner`; `viewModel()` / `rememberSaveable` survive page changes; `stateFlow()` / `positionFlow()` are observable.
-- **Pick what you need, two entry points**: five modules pulled in on demand; Kotlin DSL and Java Builder, with `explicitApi` keeping the public surface clean.
+## Features
+
+- Follows Activity changes without rebuilding; position, state and animation are kept
+- Position is stored as an anchor (which edge + offset), so rotation and content resizing never drift it
+- Drag, edge snapping, half-hide, a restricted drag area, and no fighting with scrolling lists
+- Show / hide animations, optional position persistence
+- System windows: permission request and fallback to an in-app window when denied are handled for you
+- Can block outside touches (modal); show or hide per page with a black / white list
+- Calling show / moveTo before the host is ready is fine — it is queued until then
+- Compose content gets its own ViewModelStore and SavedState, nothing is lost across pages
+- Both a Kotlin DSL and a Java Builder
 
 ## Dependencies
 
 ```groovy
 dependencies {
-    implementation "io.github.petterpx:floatingx-core:3.0.0"      // pulled in by every other module; declare only when using core alone
+    implementation "io.github.petterpx:floatingx-core:3.0.0"      // pulled in by the other modules
     implementation "io.github.petterpx:floatingx-app:3.0.0"       // app-level global window (follows Activity)
     implementation "io.github.petterpx:floatingx-system:3.0.0"    // system window (WindowManager + permission)
     implementation "io.github.petterpx:floatingx-scope:3.0.0"     // local window (Activity / ViewGroup / Fragment)
@@ -39,8 +39,7 @@ dependencies {
 }
 ```
 
-`floatingx-core` comes transitively (`api`) with each of the other four modules, so it rarely needs to be declared; everything else is optional. minSdk 21 (23 for `floatingx-compose`);
-the `app` and `system` modules ship their own manifests, so you don't have to configure anything.
+Only add the modules you use; core comes along with them. minSdk 21 (23 for the compose module). Permissions and the provider are declared in the library manifests, nothing to add on your side.
 
 ## Quick start
 

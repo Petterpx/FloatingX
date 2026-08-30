@@ -6,31 +6,31 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.petterpx/floatingx-core)](https://central.sonatype.com/artifact/io.github.petterpx/floatingx-core)
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 
-[English](README_EN.md) · [文档 Wiki](https://github.com/Petterpx/FloatingX/wiki) · [AI 快速查文档](https://deepwiki.com/Petterpx/FloatingX)
+[English](README_EN.md) · [文档 Wiki](https://github.com/Petterpx/FloatingX/wiki) · [DeepWiki](https://deepwiki.com/Petterpx/FloatingX)
 
-**FloatingX** 是一个灵活且强大的 Android 悬浮窗解决方案：App 级全局浮窗（跟随前台 Activity）、
-系统级浮窗（`WindowManager`）、局部浮窗（ViewGroup / Activity / Fragment）与 Jetpack Compose 内容，
-一套 API 全部覆盖。3.0 是一次彻底重写，拆成五个可按需依赖的模块，不兼容 2.x 的 API。
+FloatingX 是一个 Android 悬浮窗库。支持 App 内全局浮窗（跟着 Activity 走）、系统级浮窗、
+局部浮窗（挂在某个 ViewGroup / Fragment 里），内容可以是 View，也可以是 Compose。
 
-## ✨ 特性
+3.0 是重写版本，拆成了几个模块按需引入；API 和 2.x 不兼容，老项目迁移看
+[从 2.x 迁移](https://github.com/Petterpx/FloatingX/wiki/从-2.x-迁移)。
 
-- **四种宿主，一套 API**：App 级全局浮窗（跟随前台 Activity）、系统级浮窗（`WindowManager`）、局部浮窗（ViewGroup / Activity / Fragment）、Jetpack Compose 内容。
-- **换页不重建**：同一个容器在 Activity 之间静默 reparent，状态、位置、动画全部保留。
-- **锚点定位**：按「贴哪条边 + 偏移」定位，内容尺寸变化、屏幕旋转都不跑偏；支持 margin、边界、safeArea、越界不裁剪。
-- **手势**：拖动、边缘吸附与半隐藏、指定拖动区域（dragRegion）、与子 view 滚动的冲突策略（childPriority）。
-- **动画与持久化**：内置 fade / scale 显示隐藏动画，可自定义；位置按 tag + 屏幕方向持久化。
-- **系统浮窗省心**：权限三策略（自动 / 手动 / 跳过），被拒可自动降级为 App 级浮窗；`LayoutParams` 可定制，支持键盘与返回键。
-- **Modal 浮窗**：遮罩拦截外部触摸，可点击外部关闭。
-- **任意时机调用**：状态机 + 命令队列，宿主未就绪时 `show` / `moveTo` 自动排队，就绪后按序回放。
-- **页面控制**：黑白名单 / 自定义 filter 决定浮窗在哪些页面出现（按 Class 匹配，子类一起命中）。
-- **Compose 原生**：每个浮窗自带 `FxComposeOwner`，`viewModel()` / `rememberSaveable` 跨页存活，`stateFlow()` / `positionFlow()` 可观察。
-- **按需依赖，双语入口**：五个模块按需引入；Kotlin DSL 与 Java Builder 两套入口，`explicitApi` 保证公开面清晰。
+## 特性
+
+- 跟着 Activity 换页时不会重建，位置、状态、动画都保留
+- 位置按锚点（贴哪条边 + 偏移）记，旋转、内容尺寸变了也不会跑偏
+- 拖动、贴边吸附、半隐藏、限定拖动区域，和列表滚动不打架
+- 显示 / 隐藏动画，位置可以持久化
+- 系统浮窗的权限申请、被拒后降级成 App 内浮窗，都处理好了
+- 可以挡住外部点击（modal），可以按页面黑白名单决定显不显示
+- 宿主还没准备好时调 show / moveTo 也没关系，会排队等它就绪
+- Compose 内容有自己的 ViewModelStore 和 SavedState，换页不丢
+- Kotlin DSL 和 Java Builder 都有
 
 ## 依赖
 
 ```groovy
 dependencies {
-    implementation "io.github.petterpx:floatingx-core:3.0.0"      // 其它模块都会自动带上，只用 core 自定义 Host 时才需要单独引
+    implementation "io.github.petterpx:floatingx-core:3.0.0"      // 其它模块会自动带上
     implementation "io.github.petterpx:floatingx-app:3.0.0"       // App 级全局浮窗（跟随 Activity）
     implementation "io.github.petterpx:floatingx-system:3.0.0"    // 系统级浮窗（WindowManager + 权限）
     implementation "io.github.petterpx:floatingx-scope:3.0.0"     // 局部浮窗（Activity / ViewGroup / Fragment）
@@ -38,8 +38,7 @@ dependencies {
 }
 ```
 
-`floatingx-core` 会被其它四个模块以 `api` 传递带上，通常不必单独声明；其余按需取用。minSdk 21（`floatingx-compose` 为 23），
-`app` / `system` 模块自带清单，接入方不需要额外配置任何东西。
+只引用到的模块就行，core 会跟着带上。minSdk 21（compose 模块 23），清单里的权限和 provider 都在库里声明好了。
 
 ## 快速开始
 
