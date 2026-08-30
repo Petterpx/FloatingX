@@ -386,8 +386,8 @@ public class ComposeOwnerFeature : FxFeature   // compose {} 自动注册
 ```
 
 - `FxComposeOwner`（`LifecycleOwner + ViewModelStoreOwner + SavedStateRegistryOwner`）由 **control**（engine）持有；每次容器 attach 时 `setViewTreeLifecycleOwner/ViewModelStoreOwner/SavedStateRegistryOwner`，容器 detach 只 `onPause/onStop`，**只在 `cancel()` 时 `onDestroy`**（修 #239/#210）。
-- 浮窗永远用自己的 `FxComposeOwner`（Activity 的 owner 随页面销毁正是 #210/#239 的根因）；owner 装在内容 view 上，attach 时也装到容器根 view（系统窗口的窗口级 Recomposer 从根 view 找 owner）。`ComposeView` 保持默认组合策略：卸下时 dispose、挂上时用当前窗口的 Recomposer 重新组合；ViewModel 与 `rememberSaveable` 通过 owner 跨页面/跨 host 存活。
-  - 落地补充：owner 装在内容 view（`FxContent.create()`）与容器 view 上；容器不是根 view 时（Layer 容器挂在宿主 decor 下），只有宿主根 view 上**没有** owner 才补一个浮窗自己的（裸 `android.app.Activity` 才会这样），detach/cancel 时摘掉，不把已 destroy 的 owner 留给宿主。
+- 浮窗永远用自己的 `FxComposeOwner`（Activity 的 owner 随页面销毁正是 #210/#239 的根因）；owner 装在内容 view 上，attach 时也装到容器 view 上。每个 `FxComposeContent` 持有自己的 `Recomposer` 并作为 `ComposeView` 的 `parentCompositionContext`，不依赖宿主窗口的 `Recomposer`；纯 `android.app.Activity` 宿主也能用。`ComposeView` 保持默认组合策略：卸下时 dispose、挂上时重新组合；ViewModel 与 `rememberSaveable` 通过 owner 跨页面/跨 host 存活。
+  - 落地补充：`ComposeView.resolveParentCompositionContext()` 优先返回显式设置的 `parentContext`，所以宿主根 view 上有没有 `ViewTreeLifecycleOwner` 完全不影响组合。这是 `AppHost` 换页（**静默换父**：`removeView` + `addView`，不发 session 事件、不走 feature 回调）能安全跨窗口的前提——否则 `ComposeView` 一 attach 到新窗口就会去新根 view 上找 owner 并抛 `ViewTreeLifecycleOwner not found from DecorView`。Recomposer 跟内容同生命周期，`release()`（换内容 / cancel）时取消。
   - `rememberSaveable` 的过桥仓库在 `FxComposeContent` 内（组合 dispose 时 `performSave`，重组时读回）：owner 的 `SavedStateRegistry` 没有 `performSave/performRestore` 的调用时机（那是宿主 Activity 的活），所以这类状态只在**进程内**跨 detach/re-attach 存活。
 - `ComposeView` 首次测量为 0 的问题由锚点模型自然消化：0 尺寸时不定位，等有效 `onSizeChanged`（修 #184）。
 - ViewTree owner 在 `FxContent.create()` 内部设置到内容 view 上（core 只认 `FxContent`，不感知 owner）；
