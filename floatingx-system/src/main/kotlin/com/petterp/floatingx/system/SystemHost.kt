@@ -18,6 +18,7 @@ import com.petterp.floatingx.core.layout.FxBounds
 import com.petterp.floatingx.core.layout.FxInsets
 import com.petterp.floatingx.core.layout.FxRect
 import com.petterp.floatingx.system.container.FxWindowContainer
+import com.petterp.floatingx.system.feature.KeyboardFeature
 import com.petterp.floatingx.system.feature.SystemWindowFeature
 import com.petterp.floatingx.system.permission.FxPermission
 import com.petterp.floatingx.system.permission.FxPermissionRequest
@@ -35,13 +36,19 @@ public class SystemHost private constructor(
     private val strategy: FxPermissionStrategy,
     private val fallback: FxHost?,
     private val backListener: SystemBackListener?,
+    private val keyboardIds: IntArray,
 ) : FxHost {
 
     private val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var session: FxHostSession? = null
     private var container: FxWindowContainer? = null
     private var released = false
-    private val features: List<FxFeature> by lazy { listOf<FxFeature>(SystemWindowFeature()) }
+    private val features: List<FxFeature> by lazy {
+        listOfNotNull<FxFeature>(
+            SystemWindowFeature(),
+            if (keyboardIds.isNotEmpty()) KeyboardFeature(keyboardIds) else null,
+        )
+    }
 
     /** 没有容器时（release 之后）自己读屏幕尺寸的复用出参 */
     private val screen = Point()
@@ -200,6 +207,7 @@ public class SystemHost private constructor(
         private var strategy: FxPermissionStrategy = FxPermissionStrategy.Auto
         private var fallback: FxHost? = null
         private var backListener: SystemBackListener? = null
+        private var keyboardIds: IntArray = IntArray(0)
 
         /** 在默认 LayoutParams 之后执行，可覆盖 type / flags / softInputMode 等任何字段 */
         public fun layoutParams(customizer: SystemLayoutParamsCustomizer): Builder = apply { this.customizer = customizer }
@@ -211,7 +219,10 @@ public class SystemHost private constructor(
 
         public fun onBackPressed(listener: SystemBackListener): Builder = apply { backListener = listener }
 
-        public fun build(): SystemHost = SystemHost(context, customizer, strategy, fallback, backListener)
+        /** 这些 EditText 被触摸时窗口临时可聚焦并弹出键盘 */
+        public fun keyboard(vararg editTextIds: Int): Builder = apply { keyboardIds = editTextIds }
+
+        public fun build(): SystemHost = SystemHost(context, customizer, strategy, fallback, backListener, keyboardIds)
     }
 
     public companion object {

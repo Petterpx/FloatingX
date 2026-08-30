@@ -47,6 +47,9 @@ public class FxWindowContainer(
     /** host 在 addView/removeView 时维护；只有挂在 WindowManager 上才能 updateViewLayout */
     public var isAttachedToWm: Boolean = false
 
+    /** 键盘弹出期间按返回键（IME 之前收到）：KeyboardFeature 用它收起键盘并恢复不可聚焦 */
+    public var onImeBack: (() -> Unit)? = null
+
     /** 最近一次 onApplyWindowInsets 的 systemBars ∪ displayCutout */
     public var windowInsets: FxInsets = FxInsets.NONE
         private set
@@ -205,6 +208,17 @@ public class FxWindowContainer(
             if (backListener?.onBackPressed() == true) return true
         }
         return super.dispatchKeyEvent(event)
+    }
+
+    override fun dispatchKeyEventPreIme(event: KeyEvent): Boolean {
+        if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_DOWN) {
+            val cb = onImeBack
+            if (cb != null) {
+                cb()
+                return true
+            }
+        }
+        return super.dispatchKeyEventPreIme(event)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
