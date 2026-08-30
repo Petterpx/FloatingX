@@ -8,26 +8,28 @@
 
 [简体中文](README.md) · [Wiki](https://github.com/Petterpx/FloatingX/wiki) · [DeepWiki](https://deepwiki.com/Petterpx/FloatingX)
 
-FloatingX is a floating window library for Android. It covers in-app global windows (following the
-current Activity), system windows, and scoped windows attached to a ViewGroup / Fragment; the content can
-be a View or Compose.
+**FloatingX** is a flexible and powerful floating window solution for Android.
 
-3.0 is a rewrite split into a few opt-in modules. The API is not compatible with 2.x; see
-[Migration from 2.x](https://github.com/Petterpx/FloatingX/wiki/Migration-from-2.x) if you are upgrading.
+3.0 is a ground-up rewrite split into opt-in modules; the API is not compatible with 2.x, see [Migration from 2.x](https://github.com/Petterpx/FloatingX/wiki/Migration-from-2.x).
 
-## Features
+## 👏 Features
 
-- Follows Activity changes without rebuilding; position, state and animation are kept
-- Position is stored as an anchor (which edge + offset), so rotation and content resizing never drift it
-- Drag, edge snapping, half-hide, a restricted drag area, and no fighting with scrolling lists
-- Show / hide animations, optional position persistence
-- System windows: permission request and fallback to an in-app window when denied are handled for you
-- Can block outside touches (modal); show or hide per page with a black / white list
-- Calling show / moveTo before the host is ready is fine — it is queued until then
-- Compose content gets its own ViewModelStore and SavedState, nothing is lost across pages
-- Both a Kotlin DSL and a Java Builder
+- Supports **Jetpack Compose**; each window owns a `ViewModelStore` / `SavedState` that survives page changes
+- Supports **system windows**, **in-app windows** and **scoped windows** (`ViewGroup` / `Fragment` / `Activity`)
+- Supports page changes **without rebuilding**; position, state and animation follow the Activity
+- Supports **anchor-based positioning**; rotation and content resizing never drift the window
+- Supports **edge snapping**, **half-hide**, **bounds** and **no-clip overflow**
+- Supports a **drag region**, **drag after long press**, and **conflict handling** with scrolling lists
+- Supports custom **show / hide animations**
+- Supports **saving and restoring the last position** (per tag + orientation)
+- Supports **blacklist / whitelist** to keep the window off given pages
+- Supports **modal windows** that block outside touches
+- Supports **system window permission** auto / manual request, with **automatic fallback** to an in-app window when denied
+- Supports calling `show` / `moveTo` before the host is ready; they run once it is
+- Supports a `kotlin` DSL and a `Java`-friendly Builder
+- Full logging: `enableLog(tag)` shows what Fx is doing
 
-## Dependencies
+## 👨‍💻‍ Dependencies
 
 ```groovy
 dependencies {
@@ -41,7 +43,7 @@ dependencies {
 
 Only add the modules you use; core comes along with them. minSdk 21 (23 for the compose module). Permissions and the provider are declared in the library manifests, nothing to add on your side.
 
-## Quick start
+## 🚀 Quick start
 
 ```kotlin
 val control = FloatingX.install("music") {
@@ -62,7 +64,7 @@ control.show()
 For Java, system windows, local windows and Compose windows, see
 [Getting Started](https://github.com/Petterpx/FloatingX/wiki/Getting-Started).
 
-## Documentation
+## 📖 Documentation
 
 The full documentation lives in the [**GitHub Wiki**](https://github.com/Petterpx/FloatingX/wiki)
 (English-titled pages are English, Chinese-titled pages are Chinese):
@@ -77,7 +79,7 @@ The full documentation lives in the [**GitHub Wiki**](https://github.com/Petterp
 - [FAQ](https://github.com/Petterpx/FloatingX/wiki/FAQ) · [Issue Coverage](https://github.com/Petterpx/FloatingX/wiki/Issue-Coverage) · [Architecture](https://github.com/Petterpx/FloatingX/wiki/Architecture) · [Demo](https://github.com/Petterpx/FloatingX/wiki/Demo)
 - Upgrading from 2.x: [Migration from 2.x](https://github.com/Petterpx/FloatingX/wiki/Migration-from-2.x), kept in sync with [`docs/MIGRATION.md`](docs/MIGRATION.md) in the repo
 
-## Demo GIFs
+## 🏄‍♀️ Demo GIFs
 
 | App host: drag / adsorb / follows pages | System host: stays on the launcher | Rotation: anchor kept |
 | --- | --- | --- |
@@ -87,12 +89,12 @@ The full documentation lives in the [**GitHub Wiki**](https://github.com/Petterp
 | --- | --- | --- |
 | ![Resize: anchor stays put (#187)](https://github.com/Petterpx/FloatingX/blob/main/image/fx-resize.gif?raw=true) | ![Compose: counter survives pages](https://github.com/Petterpx/FloatingX/blob/main/image/fx-compose.gif?raw=true) | ![Scoped: ViewGroup / Fragment](https://github.com/Petterpx/FloatingX/blob/main/image/fx-scope.gif?raw=true) |
 
-## Demo
+## 📱 Demo
 
 The `app` module is a full sample and regression harness — `./gradlew app:installDebug` installs it;
 the page list is on [Demo](https://github.com/Petterpx/FloatingX/wiki/Demo).
 
-## Thanks
+## 👍 Thanks
 
 The initial implementation idea of the basic **floating window View** comes from
 [EnFloatingView](https://github.com/leotyndale/EnFloatingView)'s
