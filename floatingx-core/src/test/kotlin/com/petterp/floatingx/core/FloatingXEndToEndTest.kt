@@ -66,12 +66,14 @@ class FloatingXEndToEndTest {
         override fun onDetach() {}
     }
 
-    /** 记录 attach/detach/cancel 调用顺序 */
+    /** 记录 attach/detach/config/cancel/remove 调用顺序 */
     private class LifecycleFeature : FxFeature {
         val calls = mutableListOf<String>()
         override fun onAttach(scope: FxFeatureScope) { calls += "attach" }
         override fun onDetach() { calls += "detach" }
         override fun onCancel() { calls += "cancel" }
+        override fun onRemove() { calls += "remove" }
+        override fun onConfigChanged(old: FxConfig, new: FxConfig) { calls += "config" }
     }
 
     /** onAttach 里再往 control 上加一个 feature —— 会在遍历中修改 features 列表 */
@@ -386,9 +388,9 @@ class FloatingXEndToEndTest {
         assertEquals(964f to 1704f, positionOf(c))
     }
 
-    /** A2/A3：settle 先提交锚点再投影，最后一条 spec 带的是新锚点 */
+    /** A2/A3：settle 先投影再提交锚点，最后一条 spec 带的就是这次提交的新锚点 */
     @Test
-    fun `settle commits the anchor before the last layout spec`() {
+    fun `settle applies the last layout spec with the anchor it is about to commit`() {
         val host = TestHost(parent)
         val c = FloatingX.install("a", config { adsorb(FxAdsorb.horizontal()) }, host)
         c.show(); layoutParent()
@@ -564,11 +566,66 @@ class FloatingXEndToEndTest {
         val control = FloatingX.create(FxConfig.builder(FxContent.view(content())).build(), first)
         control.show()
         first.session!!.requestSwap(second)
-        assertEquals(listOf("attach", "detach"), old.calls)
+        // 摘掉的 feature 收 onRemove（它之后再也收不到 onCancel 了）
+        assertEquals(listOf("attach", "detach", "remove"), old.calls)
         assertEquals(listOf("attach"), new.calls)
         control.cancel()
-        assertEquals(listOf("attach", "detach"), old.calls)   // 旧 host 的 feature 不再收到 cancel
+        assertEquals(listOf("attach", "detach", "remove"), old.calls)   // 旧 host 的 feature 不再收到 cancel
         assertEquals(listOf("attach", "detach", "cancel"), new.calls)
+    }
+
+    /** Plan 4-B：removeFeature 摘掉的 feature 先 onDetach 再 onRemove，之后不再收到任何回调 */
+    @Test
+    fun `removeFeature detaches then removes and the feature gets no cancel`() {
+        val feature = LifecycleFeature()
+        val c = FloatingX.install("a", config { addFeature(feature) }, TestHost(parent))
+        c.show()
+        assertEquals(listOf("attach"), feature.calls)
+        c.removeFeature(feature)
+        assertEquals(listOf("attach", "detach", "remove"), feature.calls)
+        c.cancel()
+        assertEquals(listOf("attach", "detach", "remove"), feature.calls)
+    }
+
+    /** 未挂载时 removeFeature 不会补发 onDetach，但 onRemove 照常 */
+    @Test
+    fun `removeFeature while detached only calls onRemove`() {
+        val feature = LifecycleFeature()
+        val host = TestHost(parent)
+        val c = FloatingX.install("a", config { addFeature(feature) }, host)
+        host.lose()
+        c.removeFeature(feature)
+        assertEquals(listOf("attach", "detach", "remove"), feature.calls)
+    }
+
+    /** update {} 摘掉的 feature 也走 onDetach + onRemove */
+    @Test
+    fun `update removing a feature calls onRemove`() {
+        val feature = LifecycleFeature()
+        val c = FloatingX.install("a", config { addFeature(feature) }, TestHost(parent))
+        c.update { removeFeatures { it === feature } }
+        assertTrue("remove" in feature.calls)
+        assertFalse(feature in c.config.features)
+    }
+
+    /**
+     * Plan 4-B：host 丢失期间 update {} 也要广播 onConfigChanged——
+     * detach 期间连换两次内容时，中间那份的资源必须当场有人回收。
+     */
+    @Test
+    fun `update while detached still broadcasts onConfigChanged`() {
+        val feature = LifecycleFeature()
+        val host = TestHost(parent)
+        val c = FloatingX.install("a", config { addFeature(feature) }, host)
+        c.show()
+        host.lose()
+        assertEquals(listOf("attach", "detach"), feature.calls)
+        c.setContent(FxContent.view(content()))
+        c.setContent(FxContent.view(content()))
+        assertEquals(listOf("attach", "detach", "config", "config"), feature.calls)
+        host.ready()   // 内置 feature 也不能在 detach 期间的 update 上炸
+        assertEquals(listOf("attach", "detach", "config", "config", "attach"), feature.calls)
+        assertNotNull(c.contentView)
     }
 
     @Test

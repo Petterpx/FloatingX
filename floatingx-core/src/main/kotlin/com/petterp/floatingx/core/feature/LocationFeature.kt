@@ -55,6 +55,9 @@ internal class LocationFeature : FxFeature {
     }
 
     override fun onConfigChanged(old: FxConfig, new: FxConfig) {
+        // 未挂载时也会收到（detach 期间 update {}）：没有 scope 就没有可投影的容器，
+        // 新配置会在下一次 onAttach → relayout 里生效
+        scope ?: return
         if (old.anchor != new.anchor) {
             // 用户显式改锚点：优先级高于在飞的 settle，直接丢弃，别让它把新锚点覆盖回去
             discardSettle()

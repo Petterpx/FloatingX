@@ -116,7 +116,9 @@ internal class FxControlImpl(
         val added = config.features - old.features.toSet()
         removed.forEach { removeFeature(it) }
         added.forEach { addFeature(it) }
-        if (featuresAttached) features.forEach { it.onConfigChanged(old, config) }
+        // 未挂载时也要广播：detach 期间连着换两次内容，中间那份的资源（如 compose owner）
+        // 必须当场有人回收，不能攒到下一次 onAttach 才对账（那时只看得见最后一份）
+        features.forEach { it.onConfigChanged(old, config) }
     }
 
     override fun updateContent(block: (FxViewHolder) -> Unit) { main(); holder?.let(block) }
@@ -138,7 +140,10 @@ internal class FxControlImpl(
 
     override fun removeFeature(feature: FxFeature) {
         main()
-        if (features.remove(feature) && featuresAttached) feature.onDetach()
+        if (!features.remove(feature)) return
+        if (featuresAttached) feature.onDetach()
+        // 摘掉之后它再也收不到 onCancel 了，这里给它最后一次释放跨 attach 周期资源的机会
+        feature.onRemove()
     }
 
     // ---------- FxEngineDelegate ----------

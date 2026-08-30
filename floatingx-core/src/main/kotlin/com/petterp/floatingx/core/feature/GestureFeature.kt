@@ -32,6 +32,8 @@ internal class GestureFeature(private val location: LocationFeature) : FxFeature
     }
 
     override fun onConfigChanged(old: FxConfig, new: FxConfig) {
+        // 未挂载时 detector 为空，下一次 onAttach 会用新配置重建，这里什么都不用做
+        scope ?: return
         if (old.gesture != new.gesture) {
             detector?.cancel()
             detector?.config = new.gesture

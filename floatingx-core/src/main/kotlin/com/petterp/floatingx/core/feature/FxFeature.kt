@@ -20,6 +20,18 @@ public interface FxFeature {
      * 用于释放跨 attach 周期的资源（如 compose 的 owner destroy），普通 detach 不该释放的东西放这里。
      */
     public fun onCancel() {}
+
+    /**
+     * 通过 removeFeature / update 从 control 移除时调用，在 onDetach 之后；整个生命周期至多一次。
+     * 用于释放跨 attach 周期的资源——与 onCancel 对称：feature 被摘掉之后 control 不再持有它，
+     * 它自己也就再收不到 onCancel 了。
+     */
+    public fun onRemove() {}
+
+    /**
+     * 配置变更时调用。**未挂载时也会回调**（detach 期间 `update {}` 换内容也要让 feature 对账），
+     * 实现必须容忍此时 scope 为空。
+     */
     public fun onConfigChanged(old: FxConfig, new: FxConfig) {}
     public fun onContentSizeChanged(size: FxSize) {}
     public fun onBoundsChanged() {}
