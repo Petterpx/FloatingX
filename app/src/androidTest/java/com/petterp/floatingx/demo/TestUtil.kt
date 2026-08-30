@@ -1,10 +1,14 @@
 package com.petterp.floatingx.demo
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.provider.Settings
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import com.petterp.floatingx.core.FloatingX
 import com.petterp.floatingx.core.FxControl
 import org.junit.Assume.assumeTrue
@@ -12,10 +16,12 @@ import org.junit.Assume.assumeTrue
 /**
  * instrumentation 用例共用的小工具。
  *
- * 两条纪律：
+ * 三条纪律：
  * 1. FloatingX 的写操作必须在主线程调用（[com.petterp.floatingx.core.internal.FxControlImpl] 的 mutator 会 check）；
  *    getter 虽然没有 check，但在别的线程读可能读到半帧状态，所以读写一律走 [onMain] / [onMainGet]；
- * 2. 换页、旋转、布局都是异步的，断言前用 [await] 等条件成立，而不是裸 sleep 一个固定时长。
+ * 2. 换页、旋转、布局都是异步的，断言前用 [await] 等条件成立，而不是裸 sleep 一个固定时长；
+ * 3. 二级跳页用 [navigateTo] + [pressBack]，**不要**用 `ActivityScenario.launch` / `close` 来模拟
+ *    「跳到第二页 / 返回」，原因见 [navigateTo] 的注释。
  */
 
 val app: Application get() = ApplicationProvider.getApplicationContext()
@@ -31,6 +37,20 @@ fun <T> onMainGet(block: () -> T): T {
 }
 
 fun idle() = InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+/**
+ * 从 scenario 里的 Activity 用普通 Intent 跳页（同任务栈，第一页保留在返回栈里）。
+ *
+ * 不能用 `ActivityScenario.launch(B::class.java)` 来模拟「跳到第二页」：它发的 intent 带
+ * `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK`，会把任务栈清空——第一页在跳转的那一刻
+ * 就被销毁了，返回栈里什么也不剩；随后的 `close()` 还会拉起测试包自己的 EmptyActivity，
+ * 于是前台永远回不到第一页，「返回后…」那半段断言必然超时。
+ */
+fun ActivityScenario<out Activity>.navigateTo(target: Class<out Activity>) =
+    onActivity { it.startActivity(Intent(it, target)) }
+
+/** 按系统返回键，等价于用户「返回上一页」。 */
+fun pressBack() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
 
 /** 没有悬浮窗权限时跳过（CI 用 appops 授权） */
 fun assumeOverlayPermission() = assumeTrue("需要 SYSTEM_ALERT_WINDOW 权限", Settings.canDrawOverlays(app))

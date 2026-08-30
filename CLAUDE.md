@@ -56,8 +56,12 @@ adb shell appops set com.petterp.floatingx.app SYSTEM_ALERT_WINDOW allow   # 系
 adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 adb shell settings put global animator_duration_scale 0
-./gradlew app:connectedDebugAndroidTest
+# 跑完 AGP 会卸载 apk，appops 授权随之丢失；留住 apk 才能免去每次重新授权
+./gradlew app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
 ```
+
+`ActivityScenario.launch()` 带 `NEW_TASK | CLEAR_TASK`，会把第一页销毁；用例里二级跳页一律用
+`TestUtil.kt` 的 `navigateTo()` + `pressBack()`，不用 `ActivityScenario.launch / close`。
 
 **Robolectric 固定 `sdk=35`**（各模块 `src/test/resources/robolectric.properties`）：SDK 36 的沙箱
 要求 JDK 21，而本仓库工具链是 JDK 17。改这个值前先确认工具链。

@@ -2,7 +2,6 @@ package com.petterp.floatingx.demo
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.petterp.floatingx.app.attachedActivity
@@ -46,7 +45,7 @@ class ComposeOwnerSurvivalTest {
         val viewModel = onMainGet { owner.counterViewModel() }
         assertEquals(Lifecycle.State.RESUMED, onMainGet { owner.lifecycle.currentState })
 
-        val second = ActivityScenario.launch(ComposeSecondActivity::class.java)
+        activityRule.scenario.navigateTo(ComposeSecondActivity::class.java)
         try {
             await("compose 浮窗没有跟到第二页") { control.attachedActivity is ComposeSecondActivity }
             // 换页没有走 detach，owner 连 STARTED 都不该降到
@@ -54,7 +53,7 @@ class ComposeOwnerSurvivalTest {
             assertEquals(Lifecycle.State.RESUMED, onMainGet { owner.lifecycle.currentState })
             assertSame("ViewModel 不该随页面重建", viewModel, onMainGet { owner.counterViewModel() })
         } finally {
-            second.close()
+            pressBack()
         }
 
         await("compose 浮窗没有回到首页") { control.attachedActivity is ComposeActivity }

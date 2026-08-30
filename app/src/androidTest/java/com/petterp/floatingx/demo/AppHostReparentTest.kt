@@ -1,6 +1,5 @@
 package com.petterp.floatingx.demo
 
-import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.petterp.floatingx.app.attachedActivity
@@ -46,7 +45,7 @@ class AppHostReparentTest {
         idle()
         val before = onMainGet { control.position }
 
-        val second = ActivityScenario.launch(SecondActivity::class.java)
+        activityRule.scenario.navigateTo(SecondActivity::class.java)
         try {
             await("浮窗没有跟到第二页") { control.attachedActivity is SecondActivity }
             // 换页只是换父 view：状态与坐标都不该重来
@@ -55,7 +54,7 @@ class AppHostReparentTest {
             assertEquals(before.x, onSecond.x, POSITION_TOLERANCE)
             assertEquals(before.y, onSecond.y, POSITION_TOLERANCE)
         } finally {
-            second.close()
+            pressBack()
         }
 
         await("返回后浮窗没有回到首页") { control.attachedActivity is AppHostActivity }
@@ -69,13 +68,13 @@ class AppHostReparentTest {
     fun blacklisted_activity_detaches_and_back_restores() {
         val control = installShownAppWindow()
         // BlackActivity 继承 BaseBlackActivity，黑名单按 isInstance 命中（#221）
-        val black = ActivityScenario.launch(BlackActivity::class.java)
+        activityRule.scenario.navigateTo(BlackActivity::class.java)
         try {
             // 容器被卸下 → 回到 INSTALLED；show 的意图（desiredVisible）保留着
             await("黑名单页上浮窗没有被卸下") { control.state == FxState.INSTALLED }
             assertNull(onMainGet { control.attachedActivity })
         } finally {
-            black.close()
+            pressBack()
         }
         await("离开黑名单页后浮窗没有恢复显示") { control.state == FxState.SHOWN }
         assertTrue(onMainGet { control.attachedActivity } is AppHostActivity)

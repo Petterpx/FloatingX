@@ -76,8 +76,12 @@ adb shell appops set com.petterp.floatingx.app SYSTEM_ALERT_WINDOW allow   # sys
 adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 adb shell settings put global animator_duration_scale 0
-./gradlew app:connectedDebugAndroidTest
+# AGP uninstalls the apks after the run and the appop grant goes with them; keep them installed
+./gradlew app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true
 ```
+
+`ActivityScenario.launch()` uses `NEW_TASK | CLEAR_TASK` and destroys the first Activity; for a second-level
+page in a test use `navigateTo()` + `pressBack()` from `TestUtil.kt`, never `ActivityScenario.launch / close`.
 
 ### Publishing
 
