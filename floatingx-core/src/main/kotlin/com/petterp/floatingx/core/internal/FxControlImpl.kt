@@ -55,8 +55,12 @@ internal class FxControlImpl(
     private val location = LocationFeature()
     private val gesture = GestureFeature(location)
     private val animation = AnimationFeature()
-    private val features = mutableListOf<FxFeature>(location, gesture, animation)
+    /** 用 COW 列表：六处 delegate 回调都在遍历它，而 feature 的回调里可能再 add/removeFeature */
+    private val features = CopyOnWriteArrayList<FxFeature>(listOf(location, gesture, animation))
     private var featuresAttached = false
+
+    /** cancel 重入闩：engine.cancel() 派发 onDetach 时 state 尚未变成 CANCELLED */
+    private var cancelling = false
     private var lastOrientation = initialHost.context.resources.configuration.orientation
     private val mainLooper = Looper.getMainLooper()
 
@@ -79,7 +83,8 @@ internal class FxControlImpl(
 
     override fun cancel() {
         main()
-        if (engine.state == FxState.CANCELLED) return
+        if (cancelling || engine.state == FxState.CANCELLED) return
+        cancelling = true
         engine.cancel()
         host.release()
         dispatch { it.onCancel(this) }
@@ -96,7 +101,9 @@ internal class FxControlImpl(
         main()
         val old = this.config
         this.config = config
-        if (old.anchor != config.anchor) anchor = config.anchor
+        // update { anchor } 是 spec §2.3 的三个持久化写入点之一：要提交而不是裸赋值。
+        // 必须先于 onConfigChanged 广播，好让 relayout 看到新锚点。
+        if (old.anchor != config.anchor) commitAnchor(config.anchor)
         if (old.content !== config.content) createContent()
         val removed = old.features - config.features.toSet()
         val added = config.features - old.features.toSet()
@@ -216,6 +223,8 @@ internal class FxControlImpl(
         container.setContent(view)
         contentView = view
         holder = FxViewHolder(view)
+        // 新 view 默认是 VISIBLE，换内容时要沿用当前可见性，否则隐藏中的浮窗会自己冒出来
+        container.setContentVisible(engine.state == FxState.SHOWN)
     }
 
     private fun storageKey(): String = "$tag:${host.context.resources.configuration.orientation}"

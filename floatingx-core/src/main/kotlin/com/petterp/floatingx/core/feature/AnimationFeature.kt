@@ -36,8 +36,16 @@ internal class AnimationFeature : FxFeature {
         running?.cancel()
         running = anim.hideAnimator(v).apply {
             addListener(object : AnimatorListenerAdapter() {
+                /**
+                 * cancel() 会先后触发 onAnimationCancel + onAnimationEnd。
+                 * 隐藏动画被中途取消（多半是紧接着又 show 了）时必须跳过 onEnd，
+                 * 否则会把刚显示出来的内容重新置为 INVISIBLE，导致浮窗永久看不见。
+                 */
+                private var cancelled = false
+                override fun onAnimationCancel(animation: Animator) { cancelled = true }
                 override fun onAnimationEnd(animation: Animator) {
                     running = null
+                    if (cancelled) return
                     onEnd()
                 }
             })
