@@ -2,6 +2,7 @@ package com.petterp.floatingx.core.config
 
 import com.petterp.floatingx.core.feature.FxFeature
 import com.petterp.floatingx.core.feature.FxFeatureScope
+import com.petterp.floatingx.core.feature.ModalScrimFeature
 import com.petterp.floatingx.core.gesture.FxDrag
 import com.petterp.floatingx.core.gesture.FxGesture
 import com.petterp.floatingx.core.layout.FxAdsorb
@@ -101,5 +102,28 @@ class FxConfigTest {
     @Test
     fun `install scope has no host by default`() {
         assertNull(FxInstallScope().host)
+    }
+
+    @Test
+    fun `dsl modal adds a single ModalScrimFeature`() {
+        val config = FxConfigScope(null).apply {
+            content(content)
+            modal()
+            modal(dismissOnOutsideTouch = true)
+        }.build()
+        assertEquals(1, config.features.count { it is ModalScrimFeature })
+    }
+
+    @Test
+    fun `dsl modal false removes ModalScrimFeature`() {
+        val base = FxConfigScope(null).apply { content(content); modal() }.build()
+        val updated = FxConfigScope(base).apply { modal(enabled = false) }.build()
+        assertTrue(updated.features.none { it is ModalScrimFeature })
+    }
+
+    @Test
+    fun `builder modal mirrors dsl`() {
+        val config = FxConfig.builder(content).modal().modal(false).modal(true, true).build()
+        assertEquals(1, config.features.count { it is ModalScrimFeature })
     }
 }

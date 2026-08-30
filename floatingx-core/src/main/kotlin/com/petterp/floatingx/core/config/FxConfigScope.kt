@@ -5,6 +5,7 @@ import android.view.View
 import androidx.annotation.LayoutRes
 import com.petterp.floatingx.core.animation.FxAnimation
 import com.petterp.floatingx.core.feature.FxFeature
+import com.petterp.floatingx.core.feature.ModalScrimFeature
 import com.petterp.floatingx.core.gesture.FxChildPriority
 import com.petterp.floatingx.core.gesture.FxDrag
 import com.petterp.floatingx.core.gesture.FxGesture
@@ -90,6 +91,15 @@ public open class FxConfigScope(base: FxConfig?) {
 
     public fun addFeature(feature: FxFeature) {
         features += feature
+    }
+
+    /**
+     * 拦截内容之外的触摸（#212），dismissOnOutsideTouch=true 时点击外部自动 hide（#151）。
+     * 只对 Layer 容器（app / scope）生效；重复调用只保留最后一次。
+     */
+    public fun modal(enabled: Boolean = true, dismissOnOutsideTouch: Boolean = false) {
+        features.removeAll { it is ModalScrimFeature }
+        if (enabled) features += ModalScrimFeature(dismissOnOutsideTouch)
     }
 
     public fun enableLog(tag: String = "Fx") {

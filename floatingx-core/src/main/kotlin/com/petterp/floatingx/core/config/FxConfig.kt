@@ -4,6 +4,7 @@ import com.petterp.floatingx.core.FxLogcatLogger
 import com.petterp.floatingx.core.FxLogger
 import com.petterp.floatingx.core.animation.FxAnimation
 import com.petterp.floatingx.core.feature.FxFeature
+import com.petterp.floatingx.core.feature.ModalScrimFeature
 import com.petterp.floatingx.core.gesture.FxGesture
 import com.petterp.floatingx.core.layout.FxAdsorb
 import com.petterp.floatingx.core.layout.FxAnchor
@@ -58,6 +59,14 @@ public class FxConfig private constructor(
         public fun animation(animation: FxAnimation?): Builder = apply { this.animation = animation }
         public fun storage(storage: FxStorage?): Builder = apply { this.storage = storage }
         public fun addFeature(feature: FxFeature): Builder = apply { features += feature }
+
+        /** 见 FxConfigScope.modal */
+        @JvmOverloads
+        public fun modal(enabled: Boolean = true, dismissOnOutsideTouch: Boolean = false): Builder = apply {
+            features.removeAll { it is ModalScrimFeature }
+            if (enabled) features += ModalScrimFeature(dismissOnOutsideTouch)
+        }
+
         public fun logger(logger: FxLogger?): Builder = apply { this.logger = logger }
 
         @JvmOverloads
