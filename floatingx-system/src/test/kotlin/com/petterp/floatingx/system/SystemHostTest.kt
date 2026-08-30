@@ -288,6 +288,43 @@ class SystemHostTest {
         assertEquals(FxState.SHOWN, control.state)
     }
 
+    /** Manual 的 deny() 只是"放弃"，配了 fallback 也不能偷偷降级——降级必须由 useFallback() 显式发起 */
+    @Test
+    fun `manual deny stays installed even with a fallback`() {
+        ShadowSettings.setCanDrawOverlays(false)
+        var request: FxPermissionRequest? = null
+        val parent = FrameLayout(app)
+        val fallback = LayerHost(parent)
+        val host = SystemHost.builder(app).permission(FxPermissionStrategy.manual { request = it }).fallback(fallback).build()
+        val control = install(host)
+        control.show()
+
+        request!!.deny()
+        assertSame(host, control.host)
+        assertEquals(FxState.INSTALLED, control.state)
+        assertEquals(0, parent.childCount)
+
+        // 之后拿到权限，retryPermission() 照常恢复成系统窗口
+        ShadowSettings.setCanDrawOverlays(true)
+        host.retryPermission()
+        assertSame(host, control.host)
+        assertEquals(FxState.SHOWN, control.state)
+    }
+
+    /** 没配 fallback 时 useFallback() 等同 deny()：停在 INSTALLED，不换 host */
+    @Test
+    fun `manual useFallback without a fallback stays installed`() {
+        ShadowSettings.setCanDrawOverlays(false)
+        var request: FxPermissionRequest? = null
+        val host = SystemHost.builder(app).permission(FxPermissionStrategy.manual { request = it }).build()
+        val control = install(host)
+        control.show()
+
+        request!!.useFallback()
+        assertSame(host, control.host)
+        assertEquals(FxState.INSTALLED, control.state)
+    }
+
     @Test
     fun `updateLayout maps the anchor gravity into layout params`() {
         ShadowSettings.setCanDrawOverlays(true)

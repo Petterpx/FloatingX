@@ -37,7 +37,7 @@ public interface FxPermissionRequest {
     /** 弹系统设置页申请 */
     public fun proceed()
 
-    /** 放弃：状态停在 INSTALLED，之后可 SystemHost.retryPermission() */
+    /** 放弃：**不会降级**（即便配了 fallback），状态停在 INSTALLED，之后可 SystemHost.retryPermission() */
     public fun deny()
 
     /** 直接降级到 Builder.fallback 指定的 host（未配置则等同 deny） */

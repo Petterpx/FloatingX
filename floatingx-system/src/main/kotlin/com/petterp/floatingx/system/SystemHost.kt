@@ -29,7 +29,8 @@ import com.petterp.floatingx.system.permission.FxPermissionStrategy
 /**
  * 系统级 host（spec §4）：容器是一个 WindowManager 窗口。
  * - 权限：Auto（默认，自动弹透明页申请）/ Manual（交给拦截器）/ Skip
- * - 被拒：有 fallback → requestSwap 降级（原 SYSTEM_AUTO）；无 → 停在 INSTALLED，之后 retryPermission()
+ * - Auto 被拒：有 fallback → requestSwap 降级（原 SYSTEM_AUTO）；无 → 停在 INSTALLED，之后 retryPermission()
+ * - Manual：`deny()` 一律停在 INSTALLED（不降级），要降级得显式调 `useFallback()`
  * - 默认 LayoutParams 见 defaultLayoutParams()，customizer 最后执行可覆盖任何字段
  *
  * **后台申请权限的限制**：Android 10（Q）起系统禁止后台启动 Activity。应用在后台（或从 Service）
@@ -173,13 +174,15 @@ public class SystemHost private constructor(
         }
     }
 
+    /** Auto 策略被系统拒绝：配了 fallback 就自动降级，没配则停在 INSTALLED */
     private fun denied() {
         val fb = fallback
-        if (fb != null) {
-            session?.requestSwap(fb)
-        } else {
-            Log.w(TAG, "悬浮窗权限被拒，浮窗停留在 INSTALLED；获得权限后调用 SystemHost.retryPermission()")
-        }
+        if (fb != null) session?.requestSwap(fb) else stayInstalled()
+    }
+
+    /** 放弃申请：什么都不做，浮窗停在 INSTALLED，业务方拿到权限后可 [retryPermission] 恢复 */
+    private fun stayInstalled() {
+        Log.w(TAG, "悬浮窗权限被拒/被放弃，浮窗停留在 INSTALLED；获得权限后调用 SystemHost.retryPermission()")
     }
 
     private val request = object : FxPermissionRequest {
@@ -187,12 +190,16 @@ public class SystemHost private constructor(
             if (!released) requestPermission()
         }
 
+        /** 放弃：绝不自动降级（要降级请显式调 [useFallback]），状态停在 INSTALLED */
         override fun deny() {
-            if (!released) denied()
+            if (!released) stayInstalled()
         }
 
+        /** 显式降级：没配 fallback 时等同 [deny] */
         override fun useFallback() {
-            if (!released) denied()
+            if (released) return
+            val fb = fallback
+            if (fb != null) session?.requestSwap(fb) else stayInstalled()
         }
     }
 
