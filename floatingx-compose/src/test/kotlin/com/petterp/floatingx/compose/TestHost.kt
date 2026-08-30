@@ -11,10 +11,10 @@ import com.petterp.floatingx.core.layout.FxBounds
 import com.petterp.floatingx.core.layout.FxRect
 
 /** 挂在 FrameLayout 上的最小 host；parent 应已在 Activity 窗口里，Compose 才会真正组合 */
-class TestHost(private val parent: FrameLayout) : FxHost {
+class TestHost(private val parent: FrameLayout, private val readyOnBind: Boolean = true) : FxHost {
     override val context: Context get() = parent.context
     var session: FxHostSession? = null
-    override fun bind(session: FxHostSession) { this.session = session; session.onHostReady() }
+    override fun bind(session: FxHostSession) { this.session = session; if (readyOnBind) session.onHostReady() }
     override fun createContainer(): FxContainer = FxLayerContainer(parent.context)
     override fun attach(container: FxContainer) {
         parent.addView(container.view, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))

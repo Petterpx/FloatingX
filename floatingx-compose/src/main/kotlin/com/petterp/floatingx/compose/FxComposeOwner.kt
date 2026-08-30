@@ -57,4 +57,18 @@ public class FxComposeOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateReg
         view.setViewTreeViewModelStoreOwner(this)
         view.setViewTreeSavedStateRegistryOwner(this)
     }
+
+    public companion object {
+        /**
+         * attachTo 的反操作：把 view 上的三个 ViewTree owner 摘掉。
+         * 浮窗换成非 compose 内容、或摘掉装在宿主根 view 上的兜底 owner 时用，
+         * 免得后来者捡到一个已经 destroy 的 owner（那比没有 owner 更糟：窗口级 Recomposer 会直接被取消）。
+         */
+        @JvmStatic
+        public fun detachFrom(view: View) {
+            view.setViewTreeLifecycleOwner(null)
+            view.setViewTreeViewModelStoreOwner(null)
+            view.setViewTreeSavedStateRegistryOwner(null)
+        }
+    }
 }

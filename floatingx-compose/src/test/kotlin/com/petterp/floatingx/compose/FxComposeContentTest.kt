@@ -12,6 +12,7 @@ import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertSame
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,5 +31,15 @@ class FxComposeContentTest {
         assertSame(content.owner, view.findViewTreeLifecycleOwner())
         assertSame(content.owner, view.findViewTreeViewModelStoreOwner())
         assertSame(content.owner, view.findViewTreeSavedStateRegistryOwner())
+    }
+
+    /** owner 随 control.cancel() 销毁后内容不能再复用：复用只会得到一个永远不组合的 ComposeView */
+    @Test
+    fun `a content destroyed with its control cannot be reused`() {
+        val content = FxComposeContent { Box(Modifier.size(10.dp)) }
+        content.create(context, FrameLayout(context))
+        content.owner.destroy()
+        val error = assertThrows(IllegalStateException::class.java) { content.create(context, FrameLayout(context)) }
+        assertTrue(error.message!!.contains("不能复用"))
     }
 }

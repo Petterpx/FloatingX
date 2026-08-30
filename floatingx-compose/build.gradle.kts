@@ -24,4 +24,6 @@ dependencies {
 
     // 测试里的组合内容只用 foundation 的 Box/size
     testImplementation("androidx.compose.foundation:foundation:1.11.4")
+    // 只为断言组合里的 LocalViewModelStoreOwner；产物不依赖它
+    testImplementation("androidx.lifecycle:lifecycle-viewmodel-compose:${libs.versions.lifecycle.get()}")
 }
