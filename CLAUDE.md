@@ -21,7 +21,8 @@ Three Gradle modules:
 设计与计划见 `docs/superpowers/specs/2026-08-29-floatingx-3-modular-architecture-design.md`
 与 `docs/superpowers/plans/`。新模块 `floatingx-core`（包 `com.petterp.floatingx.core`）已落地，
 用 `build-logic/` 的 `floatingx.library` convention plugin；旧的 `floatingx` / `floatingx_compose`
-模块在 demo 重写前保留。跑 core 测试：`./gradlew :floatingx-core:test`。
+模块在 demo 重写前保留。跑 core 测试：`./gradlew :floatingx-core:test`（当前 127 个用例，Robolectric
+`sdk=35`——SDK 36 的沙箱要 JDK 21，本仓库工具链是 JDK 17）。
 
 ## Build & Commands
 

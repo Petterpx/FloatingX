@@ -55,7 +55,7 @@ app (demo)                                        ← 以上全部 + compose-bom
 | core → androidx.core 1.13.1 | aar-metadata `minCompileSdk=34` | compileSdk ≥ 34（与 2.x 持平） |
 | compose → compose-ui 1.11.4 | `minCompileSdk=35`, AGP ≥ 8.6 | compileSdk ≥ 35 |
 | compose → lifecycle 2.11.0 / savedstate 1.5.0 | `minCompileSdk=34` | compileSdk ≥ 34 |
-| 测试 | JUnit 4.13.2、Robolectric 4.16.1（sdk=36）、androidx.test 1.7.0、espresso 3.7.0 | 无 |
+| 测试 | JUnit 4.13.2、Robolectric 4.16.1（sdk=35——SDK 36 沙箱需要 JDK 21，仓库工具链为 JDK 17）、androidx.test 1.7.0、espresso 3.7.0 | 无 |
 
 明确不用：compose 1.12（强制 compileSdk 37 + AGP 9.1，Compose 用次新的 1.11 线即可）、androidx.core ≥ 1.17（强制 compileSdk 36）。Kotlin 直接用 2.2.21，不做 languageVersion 降级兼容（用户明确要求，避免不一致）。
 
@@ -78,12 +78,15 @@ public interface FxHost {
     public fun createContainer(context: Context): FxContainer
     public fun attach(container: FxContainer)
     public fun detach(container: FxContainer)
-    /** 应用一次布局（x, y, w, h, gravity）。Window 容器写 LayoutParams，Layer 容器写子 view 坐标 */
+    /** 应用一次布局。Window 容器写 LayoutParams，Layer 容器写子 view 坐标 */
     public fun updateLayout(container: FxContainer, spec: FxLayoutSpec)
     /** 当前可用区域与 insets。用 WindowInsetsCompat，不再用厂商反射 */
     public fun bounds(): FxBounds
     public fun release()
 }
+
+/** 一次布局提交：内容左上角坐标 + 当前锚点 + 布局方向。gravity 只是 anchor.gravity 的快捷读法 */
+public data class FxLayoutSpec(val x: Float, val y: Float, val anchor: FxAnchor, val ltr: Boolean)
 
 public interface FxHostSession {
     public fun onHostReady()                 // 已有可挂载的父容器且尺寸有效
@@ -100,7 +103,9 @@ public interface FxHostSession {
 | `FxLayerContainer` | app / scope | `match_parent` 透明 `FrameLayout` 覆盖层，内容子 view 在其内定位 | 只改子 view 的 `translationX/Y`，父层不 re-layout（修 #240 裁剪）；scrim、透传都在 layer 上实现 |
 | `FxWindowContainer` | system | `wrap_content` 的 WindowManager 窗口 | 写回 `WindowManager.LayoutParams` 并 `updateViewLayout` |
 
-两者共同实现：`contentView`、`onSizeChanged` 回调、`hitTest(x, y)`（判断触点是否落在内容上）。
+两者共同实现：`contentView`、`onSizeChanged` 回调、`hitTest(x, y)`（判断触点是否落在内容上）、
+`isLayer`（只对 Layer 生效的 feature 用它判断，不再各自 `as?` 强转）、`releaseContent()`（摘掉内容 view
+与其 layout 监听；换 host 与 `cancel()` 时调用，避免旧容器被内容 view 的监听拖住）。
 
 ### 2.2 `FxEngine` —— 状态机 + 命令队列
 
@@ -193,16 +198,24 @@ public data class FxGesture(
 public interface FxFeature {
     public fun onAttach(scope: FxFeatureScope)
     public fun onDetach()
+    /** cancel 时来一次，在最后一次 onDetach 之后、host.release() 之前；跨 attach 周期的资源在这里放 */
+    public fun onCancel() {}
     public fun onConfigChanged(old: FxConfig, new: FxConfig) {}
-    public fun onSizeChanged(size: Size) {}
-    public fun onBoundsChanged(bounds: FxBounds) {}
-    public fun onTouchEvent(event: MotionEvent): Boolean = false   // 返回 true 表示消费，阻断后续 feature
+    public fun onContentSizeChanged(size: FxSize) {}
+    public fun onBoundsChanged() {}
+    public fun onShow() {}
+    public fun onHide() {}
 }
 public interface FxFeatureScope {           // feature 只能看到这些
+    public val control: FxControl
     public val config: FxConfig
-    public val container: FxContainer
-    public val engine: FxEngineApi         // moveTo / requestLayout / anchor 只读等受限 API
-    public val host: FxHostInfo            // bounds()、isLayer/isWindow
+    public val container: FxContainer       // 含 isLayer，只对 Layer 生效的 feature 用它判断
+    public val host: FxHost
+    public val logger: FxLogger?
+    public fun layoutInput(): FxLayoutInput?          // 内容尺寸/父容器尺寸无效时为 null
+    public fun commitAnchor(anchor: FxAnchor)         // 更新真值 + 持久化 + onPositionChanged
+    public fun dispatch(block: (FxListener) -> Unit)
+    public fun requestRelayout()
 }
 ```
 
@@ -210,7 +223,9 @@ public interface FxFeatureScope {           // feature 只能看到这些
 - 可选：`ModalScrimFeature`（core，仅 Layer 容器；拦截外部触摸 / 点击外部 hide，#212/#151）。
 - 模块可注册：`KeyboardFeature`（system）。
 - 用户：`addFeature(feature)`。
-- feature 之间不可互相引用；需要共享的数据走 `engine` 只读 API。
+- feature 之间不可互相引用；需要共享的数据走 `FxFeatureScope`。
+- 不做 `onTouchEvent` 责任链：触摸只有 `GestureFeature` 一家消费，外部 feature 需要拦截触摸时改容器状态
+  （如 `ModalScrimFeature` 设 `FxLayerContainer.modal`），避免第二套事件分发。
 
 ### 2.6 配置与内容
 
@@ -269,7 +284,7 @@ public interface FxListener {   // 全部 default 空实现
 ```
 
 - `FloatingX`（core object）：`install(tag, config, host): FxControl`、`install(tag) { dsl }`（`@JvmSynthetic`）、`control(tag)`、`controlOrNull(tag)`、`controls(): List<FxControl>` 快照（#133）、`isInstalled(tag)`、`uninstall(tag)`、`uninstallAll()`。内部 `ConcurrentHashMap<String, FxControl>`；同 tag 重复 install 先 `cancel` 旧的。
-- 局部浮窗（scope）不进注册表，`FloatingX.create(config, host)` 返回未注册的 `FxControl`，生命周期归调用方或 host（ViewGroup detach 自动 cancel）。
+- 局部浮窗（scope）不进注册表，`FloatingX.create(config, host, tag = "")` 返回未注册的 `FxControl`，生命周期归调用方或 host（ViewGroup detach 自动 cancel）。tag 只用于日志与位置持久化的存储键：**留空则不做持久化**（多个局部浮窗会共用同一个键，互相覆盖），此时若配了 `storage` 会记一条 error 日志提示补 tag。
 - 监听器归 control 实例持有，`cancel()` 清空；框架内不持有 Activity 强引用（#140/#38）。
 - `FxActivityTracker`（core，`internal`）：首次需要时 `registerActivityLifecycleCallbacks`；`onActivityDestroyed` 清引用；提供 `topActivity: Activity?` 与 `addObserver`。不再使用 `ContentProvider` 自动初始化，`install` 必须传入 `Application`（或从 context 取 `applicationContext`）。
 
@@ -352,6 +367,8 @@ public fun FxControl.positionFlow(): StateFlow<PointF>
 - `FxComposeOwner`（`LifecycleOwner + ViewModelStoreOwner + SavedStateRegistryOwner`）由 **control**（engine）持有；每次容器 attach 时 `setViewTreeLifecycleOwner/ViewModelStoreOwner/SavedStateRegistryOwner`，容器 detach 只 `onPause/onStop`，**只在 `cancel()` 时 `onDestroy`**（修 #239/#210）。
 - 若容器所在 view tree 已有 owner（AppHost 挂在 Activity 下），则不覆盖，直接复用 Activity 的。
 - `ComposeView` 首次测量为 0 的问题由锚点模型自然消化：0 尺寸时不定位，等有效 `onSizeChanged`（修 #184）。
+- ViewTree owner 在 `FxContent.create()` 内部设置到内容 view 上（core 只认 `FxContent`，不感知 owner）；
+  owner 的 `onDestroy` 挂在 `FxFeature.onCancel()` 上——core 保证它只在 `cancel()` 时来一次，普通 detach 不触发。
 - 仅此模块依赖 coroutines；core 无 Flow。
 
 ## 7. 公开 API 草案

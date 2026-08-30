@@ -4414,7 +4414,7 @@ git commit -m "feat(core): FxActivityTracker 与 Java 互操作测试；更新 C
 
 ## 完成标准（Plan 1）
 
-- `./gradlew test` 全绿，包含：`FxLayoutResolverTest`(15)、`FxAdsorbResolverTest`(9)、`FxSpStorageTest`(4)、`FxEngineTest`(12)、`FxGestureDetectorTest`(19)、`FxLayerContainerTest`(10)、`FxContentTest`(3)、`FxConfigTest`(6)、`FloatingXEndToEndTest`(18)、`FxActivityTrackerTest`(3)、`JavaApiTest`(1)、`DependencyBoundaryTest`(1)。
+- `./gradlew test` 全绿，`floatingx-core` 共 127 个用例：`FxLayoutResolverTest`(14)、`FxAdsorbResolverTest`(9)、`FxSpStorageTest`(6)、`FxEngineTest`(12)、`FxGestureDetectorTest`(19)、`FxRegionTest`(5)、`FxLayerContainerTest`(13)、`FxContentTest`(3)、`FxConfigTest`(6)、`FloatingXEndToEndTest`(32)、`FxActivityTrackerTest`(4)、`JavaApiTest`(3)、`DependencyBoundaryTest`(1)。
 - `publishToMavenLocal` 产出 `io.github.petterpx:floatingx-core:3.0.0-SNAPSHOT`。
 - 旧 demo `app:assembleDebug` 仍可编译。
 - core 的 `src/main` 没有任何被禁 import（测试守住）。
@@ -4425,3 +4425,28 @@ git commit -m "feat(core): FxActivityTracker 与 Java 互操作测试；更新 C
 - Plan 3：`floatingx-system`（Window 容器、`LayoutParams.gravity` 映射、权限、fallback、keyboard）。
 - Plan 4：`floatingx-compose`（`FxContent.Compose`、owner 归 control、Flow 扩展）。
 - Plan 5：demo 重写 + instrumentation 测试 + 删除旧模块 + `MIGRATION.md` / README。
+
+---
+
+## 最终评审修复记录（全分支评审后的一次性修复波）
+
+11 个 Task 完成后做了一次全分支评审，裁决出的修复在两个提交里落地（见 `git log feat/3.0-core`）：
+
+- `fix(core):` 代码修复
+  - A1 `FxControlImpl.layoutInput()` 增加父容器 0×0 守卫；A2 settle 改成"先提交锚点再投影"；
+    A3 `FxLayoutSpec` 带完整 `anchor`（`gravity` 变成派生属性）。
+  - A4 `FxContainer.releaseContent()`，`swapHost` / `cancel()` 调用，修旧容器被内容 view 的 layout 监听拖住的泄漏。
+  - A5 `LocationFeature.relayout()` 用最新 `layoutInput()` 给在飞的 settle 收尾；
+    显式 `update { anchor(..) }` 优先，丢弃在飞 settle（见下方"与 brief 的差异"）。
+  - A6 `swapHost` 端到端用例；A7 `FloatingX.create(config, host, tag = "")`，空 tag 不持久化；
+    A8 `FxContainer.isLayer`（不做 `FxFeature.onTouchEvent`）；A9 `FxFeature.onCancel()`。
+  - B1 `api(libs.androidx.annotation)`（公开 API 用了 `@IdRes/@LayoutRes`）；B2 几何类型 `@JvmOverloads` +
+    `FxLogger.e(message)` 单参重载；B3 `findScrollable` 先判可见性；B4 `FxGestureDetector.cancel(notify)`，
+    detach 不补发 `onDragEnd`；B5 DOWN 先清 `consumingOutside`；B6 拖动期间复用 `FxLayoutInput`；
+    B7 `POM_NAME` / `POM_DESCRIPTION` 更新为 3.0。
+  - C1 `FxRegionTest`；C2 storage 解析容错两例；C3 `onActivityPostResumed`；C4 横竖屏锚点各存一份的重载用例。
+- `docs:` 本文件与 spec 的同步、CI 增加 `android-actions/setup-android@v3`。
+
+与 brief 的差异：A5 的 brief 写"relayout 开头无条件用新 input 完成 settle"，但它给的用例要求
+`update { anchor(TOP_START) }` 之后锚点仍是 `TOP_START`——无条件收尾会用 settle 的反算锚点覆盖用户刚设的锚点。
+实现取"用户显式改锚点时丢弃在飞 settle，其余触发（尺寸/可用区变化）用新 input 收尾"，两个场景各一个用例覆盖。
