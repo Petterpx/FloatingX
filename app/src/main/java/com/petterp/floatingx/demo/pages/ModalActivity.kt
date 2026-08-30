@@ -1,7 +1,10 @@
 package com.petterp.floatingx.demo.pages
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.petterp.floatingx.core.FloatingX
@@ -24,6 +27,18 @@ class ModalActivity : AppCompatActivity() {
 
     private var fxOrNull: FxControl? = null
 
+    /** 「modal 下方按钮」被真正点到的次数：modal 打开时它应当一直是 0 */
+    @get:VisibleForTesting
+    var outsideClicks: Int = 0
+        private set
+
+    /** 本页的局部浮窗（未创建过为 null）；instrumentation 用例靠它断言状态 */
+    @get:VisibleForTesting
+    val modalControl: FxControl?
+        get() = fxOrNull
+
+    private lateinit var clicksView: TextView
+
     private val fx: FxControl
         get() = fxOrNull?.takeIf { it.state != FxState.CANCELLED } ?: fxScope("modal") {
             view { ctx -> DemoContent.card(ctx, "Modal") }
@@ -34,7 +49,23 @@ class ModalActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        clicksView = TextView(this).apply {
+            textSize = 13f
+            setTextColor(Color.DKGRAY)
+            val pad = (16 * resources.displayMetrics.density).toInt()
+            setPadding(pad, pad / 4, pad, pad / 4)
+        }
+        renderClicks()
         demoPage("Modal") {
+            // 放在最上面：浮窗是居中显示的，这个按钮要离它足够远，点下去才算"点在内容之外"
+            section("modal 拦截验证")
+            note("先点下面的「显示」，再点这个按钮：modal 开着时点击被容器吃掉（计数不变，浮窗自动隐藏），关掉 modal 后才会计数。")
+            custom(clicksView)
+            button("modal 下方按钮") {
+                outsideClicks++
+                renderClicks()
+            }
+
             section("浮窗")
             button("显示") { fx.show() }
             button("隐藏") { fx.hide() }
@@ -54,6 +85,10 @@ class ModalActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         fxOrNull?.takeIf { it.state != FxState.CANCELLED }?.cancel()
+    }
+
+    private fun renderClicks() {
+        clicksView.text = "点击次数：$outsideClicks"
     }
 
     private fun showDialogWithFloating() {
