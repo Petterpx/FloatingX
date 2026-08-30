@@ -31,7 +31,7 @@ Three Gradle modules:
 `floatingx-app` 用清单里声明的 `FxAppInitProvider`（ContentProvider）在进程启动时
 `FxActivityTracker.init(application)`，所以 install 写在任何时机都能拿到当前前台 Activity。
 旧的 `floatingx` / `floatingx_compose` 模块在 demo 重写前保留。跑新模块测试：
-`./gradlew :floatingx-core:test :floatingx-scope:test :floatingx-app:test`（当前 130 / 20 / 30 个用例，
+`./gradlew :floatingx-core:test :floatingx-scope:test :floatingx-app:test`（当前 130 / 22 / 32 个用例，
 Robolectric `sdk=35`——SDK 36 的沙箱要 JDK 21，本仓库工具链是 JDK 17）。
 
 ## Build & Commands

@@ -284,7 +284,7 @@ public interface FxListener {   // 全部 default 空实现
 ```
 
 - `FloatingX`（core object）：`install(tag, config, host): FxControl`、`install(tag) { dsl }`（`@JvmSynthetic`）、`control(tag)`、`controlOrNull(tag)`、`controls(): List<FxControl>` 快照（#133）、`isInstalled(tag)`、`uninstall(tag)`、`uninstallAll()`。内部 `ConcurrentHashMap<String, FxControl>`；同 tag 重复 install 先 `cancel` 旧的。
-- 局部浮窗（scope）不进注册表，`FloatingX.create(config, host, tag = "")` 返回未注册的 `FxControl`，生命周期归调用方或 host（ViewGroup detach 自动 cancel）。tag 只用于日志与位置持久化的存储键：**留空则不做持久化**（多个局部浮窗会共用同一个键，互相覆盖），此时若配了 `storage` 会记一条 error 日志提示补 tag。
+- 局部浮窗（scope）不进注册表，`FloatingX.create(config, host, tag = "")` 返回未注册的 `FxControl`，生命周期归调用方：ViewGroup 从 window 卸下只是 onHostLost（重新挂上再 ready），只有 Activity.fxScope（API 29+）与 Fragment.fxScope 在宿主 destroy 时自动 cancel。tag 只用于日志与位置持久化的存储键：**留空则不做持久化**（多个局部浮窗会共用同一个键，互相覆盖），此时若配了 `storage` 会记一条 error 日志提示补 tag。
 - 监听器归 control 实例持有，`cancel()` 清空；框架内不持有 Activity 强引用（#140/#38）。
 - `FxActivityTracker`（core，`internal`）：首次需要时 `registerActivityLifecycleCallbacks`；`onActivityDestroyed` 清引用；提供 `topActivity: Activity?` 与 `addObserver`。core 自身不做任何自动初始化（不带 `ContentProvider`）；进程启动即初始化由 floatingx-app 的 `FxAppInitProvider`（清单里声明的 `ContentProvider`）负责，各 host 在 `bind()` 里再调一次兜底（`init` 幂等）。`install` 必须传入 `Application`（或从 context 取 `applicationContext`）。
 
@@ -301,7 +301,7 @@ public class AppHost private constructor(...) : FxHost {
     public class Builder(app: Application) {
         fun blacklist(vararg cls: Class<out Activity>); fun blacklist(vararg names: String)
         fun whitelist(...)
-        fun filter(filter: AppActivityFilter)   // fun interface，Kotlin 可传 lambda
+        fun filter(filter: AppActivityFilter)   // #221；fun interface，Kotlin 可传 lambda
         fun attachTo(target: AppAttachTarget)   // DECOR（默认）| CONTENT
         fun theme(@StyleRes themeRes: Int)      // 内容 view 需要主题属性时包一层 ContextThemeWrapper
         fun build(): AppHost
@@ -425,7 +425,7 @@ Java 互操作约束：所有 DSL-only 入口标 `@JvmSynthetic`；`FxConfig.Bui
 1. 触摸 MOVE 路径：无对象分配（复用 `PointF/RectF`，无 lambda 捕获），无日志字符串拼接（`logger?.d { }` 惰性）。
 2. 移动只写 `translationX/Y`（Layer）或 `LayoutParams.x/y`（Window）；不调用 `requestLayout`。
 3. 定位在 `onLayout/onSizeChanged` 内同步完成，禁止 `post/postDelayed` 兜底；唯一定时器是长按。
-4. `bounds()` 结果按 host 缓存，仅在 `onBoundsChanged` 失效。
+4. `bounds()` 由 host 按需计算；触摸 MOVE 路径由 core 在拖动开始时缓存 `layoutInput`，host 的父布局监听只在尺寸或 insets 真变化时才派发 `onBoundsChanged`，且无变化路径不构造几何对象。
 5. 未启用日志时 `FxLogger` 为 `null`，不走任何格式化。
 6. 注册表读路径无锁（`ConcurrentHashMap.get`）。
 
@@ -446,7 +446,7 @@ Java 互操作约束：所有 DSL-only 入口标 `@JvmSynthetic`；`FxConfig.Bui
 | 92 横竖屏位置 / 184 storage 不触发 | closed | §2.3 `FxStorage` key 含 orientation，写入点唯一 |
 | 210 / 239 Compose 消失、owner 崩溃 | open | §6 owner 归 control |
 | 212 / 151 屏蔽外部触摸、点外部消失 / 154 & 198 Dialog 之上 | open/closed | §2.5 `ModalScrimFeature`；Dialog 之上文档化为用 `ViewGroupHost(dialog.window.decorView)` |
-| 221 黑名单父类 | open | §3 `filter(predicate)` |
+| 221 黑名单父类 | open | §3 `blacklist(Class)` 含子类 + `filter(AppActivityFilter)` |
 | 244 Fragment 不显示 | open | §5 等 view 创建 |
 | 183 降级后偏移不一致 / 188 拖不到底 | closed | §2.3 `safeArea` 统一 + §2.2 swap 保留配置 |
 | 133 遍历所有浮窗 / 200 系统浮窗坐标 | closed | §2.7 `controls()` / `position` |
@@ -463,7 +463,7 @@ Java 互操作约束：所有 DSL-only 入口标 `@JvmSynthetic`；`FxConfig.Bui
 | JVM | `FxEngine` | 状态迁移表；未 ready 时命令入队并按序回放；`hostLost` 保留 `desiredVisible`；swap 保留 anchor/listener；cancel 清队列 |
 | Robolectric | `FxGestureDetector` | 合成 `MotionEvent` 序列：点击 / 长按（按下期间触发）/ 拖动 / 多指（副指抬起不结束）/ AfterLongPress / dragRegion 外不拖 / touchable=false |
 | Robolectric | `AppHost` | A→B→back 挂载顺序与位置；B 先 destroy；黑名单页 detach；旋转（demo manifest 去掉 `configChanges`）；父类过滤 |
-| Robolectric | `ViewGroupHost` / Fragment | attach 时机、detach 自动 cancel |
+| Robolectric | `ViewGroupHost` / Fragment | attach 时机、window 卸下 → lost / 重挂 → ready；Fragment view 销毁 → lost、fragment destroy → cancel |
 | Robolectric | `SystemHost` | `ShadowSettings.canDrawOverlays`；LP 默认值 + customizer 覆盖；fallback swap |
 | Instrumentation (`app/androidTest`) | 真机/模拟器 | WM 窗口 resize 时 `LayoutParams` 序列无跳变；权限流程（CI 用 `adb shell appops set <pkg> SYSTEM_ALERT_WINDOW allow`）；Compose owner 跨 Activity 存活；Layer 容器 modal scrim |
 | CI | JUnit 文件扫描 | core 依赖边界；`explicitApi` |
