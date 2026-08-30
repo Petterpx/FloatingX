@@ -10,6 +10,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.petterp.floatingx.core.layout.FxSize
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -113,6 +114,41 @@ class FxLayerContainerTest {
         container.onBoundsChanged = { bounds++ }
         layout()
         assertEquals(1, bounds)
+    }
+
+    /** A8：Layer 容器自报家门，只对 Layer 生效的 feature 靠它判断 */
+    @Test
+    fun `layer container reports isLayer`() {
+        assertTrue(container.isLayer)
+    }
+
+    /** A4：releaseContent 摘掉内容与其 layout 监听，换 host / cancel 时不留旧容器引用 */
+    @Test
+    fun `releaseContent detaches the content and stops reporting its size`() {
+        val sizes = mutableListOf<FxSize>()
+        container.onContentSizeChanged = { sizes += it }
+        container.setContent(content); layout()
+        assertEquals(1, sizes.size)
+
+        container.releaseContent()
+        assertNull(container.contentView)
+        assertNull(content.parent)
+        assertEquals(0, container.childCount)
+
+        // 监听已摘除：内容再次 layout 不会回调到旧容器
+        content.layout(0, 0, 300, 400)
+        assertEquals(1, sizes.size)
+        container.releaseContent()          // 幂等
+    }
+
+    /** B5：上一轮丢了 UP，新的 DOWN 不能被卡死的 consumingOutside 吃掉 */
+    @Test
+    fun `a new down clears a stale outside-consuming state`() {
+        container.setContent(content); layout()
+        container.modal = true
+        assertTrue(container.dispatchTouchEvent(event(MotionEvent.ACTION_DOWN, 900f, 900f)))
+        container.modal = false             // 模拟中途关掉 modal 且没收到 UP
+        assertFalse(container.dispatchTouchEvent(event(MotionEvent.ACTION_DOWN, 900f, 900f)))
     }
 
     @Test

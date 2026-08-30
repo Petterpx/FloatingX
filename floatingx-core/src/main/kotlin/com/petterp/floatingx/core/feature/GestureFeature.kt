@@ -24,7 +24,8 @@ internal class GestureFeature(private val location: LocationFeature) : FxFeature
     }
 
     override fun onDetach() {
-        detector?.cancel()
+        // host 丢失时不补发 dragEnd：坐标已经没有意义，补发只会写错锚点
+        detector?.cancel(notify = false)
         scope?.container?.touchHandler = null
         detector = null
         scope = null
@@ -87,6 +88,7 @@ internal class GestureFeature(private val location: LocationFeature) : FxFeature
     }
 
     private fun findScrollable(v: View, x: Float, y: Float): Boolean {
+        if (v.visibility != View.VISIBLE) return false
         if (x < 0f || y < 0f || x > v.width || y > v.height) return false
         if (v.canScrollVertically(1) || v.canScrollVertically(-1) || v.canScrollHorizontally(1) || v.canScrollHorizontally(-1)) return true
         if (v is ViewGroup) {

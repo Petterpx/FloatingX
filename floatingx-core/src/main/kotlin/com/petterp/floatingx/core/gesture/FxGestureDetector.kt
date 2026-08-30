@@ -130,9 +130,13 @@ internal class FxGestureDetector(
         }
     }
 
-    /** 容器 detach 或配置切换时调用 */
-    fun cancel() {
-        if (dragging) callback.onDragEnd()
+    /**
+     * 容器 detach 或配置切换时调用。
+     * @param notify 是否补发 onDragEnd。detach（host 丢失）时传 false：
+     * 此时容器已经/即将卸下，补发的 dragEnd 坐标毫无意义，还会写一次错误的锚点。
+     */
+    fun cancel(notify: Boolean = true) {
+        if (dragging && notify) callback.onDragEnd()
         reset()
     }
 

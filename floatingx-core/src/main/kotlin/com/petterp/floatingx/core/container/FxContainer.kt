@@ -23,7 +23,17 @@ public interface FxContainer {
     public val contentView: View?
     public val isLtr: Boolean
 
+    /** 是否是覆盖层容器（FxLayerContainer）。只对 Layer 生效的 feature 用它判断，避免各自 as? 强转 */
+    public val isLayer: Boolean
+
     public fun setContent(view: View)
+
+    /**
+     * 解除与内容 view 的绑定：移除监听、把内容从容器里摘下来。
+     * 换 host（容器换新）与 cancel 时调用，防止旧容器的监听留在内容 view 上（内存泄漏）。
+     */
+    public fun releaseContent()
+
     public fun contentSize(): FxSize
     public fun setContentPosition(x: Float, y: Float)
 

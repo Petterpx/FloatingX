@@ -1,7 +1,7 @@
 package com.petterp.floatingx.core.layout
 
 /** 一次定位需要的全部输入 */
-public data class FxLayoutInput(
+public data class FxLayoutInput @JvmOverloads constructor(
     val bounds: FxBounds,
     val size: FxSize,
     val ltr: Boolean = true,

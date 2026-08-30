@@ -7,6 +7,7 @@ import com.petterp.floatingx.core.container.FxContainer
 import com.petterp.floatingx.core.container.FxLayerContainer
 import com.petterp.floatingx.core.host.FxHost
 import com.petterp.floatingx.core.host.FxHostSession
+import com.petterp.floatingx.core.host.FxLayoutSpec
 import com.petterp.floatingx.core.layout.FxBounds
 import com.petterp.floatingx.core.layout.FxInsets
 import com.petterp.floatingx.core.layout.FxRect
@@ -23,6 +24,9 @@ class TestHost(
     var detachCount = 0
     var released = false
 
+    /** 收到的每一次布局提交，用于断言 spec 的内容与顺序 */
+    val layoutSpecs = mutableListOf<FxLayoutSpec>()
+
     override fun bind(session: FxHostSession) {
         this.session = session
         if (readyOnBind) session.onHostReady()
@@ -33,6 +37,10 @@ class TestHost(
         attachCount++
     }
     override fun detach(container: FxContainer) { parent.removeView(container.view); detachCount++ }
+    override fun updateLayout(container: FxContainer, spec: FxLayoutSpec) {
+        layoutSpecs += spec
+        super<FxHost>.updateLayout(container, spec)
+    }
     override fun bounds(): FxBounds = FxBounds(FxRect(0f, 0f, parent.width.toFloat(), parent.height.toFloat()), insets)
     override fun release() { released = true }
 

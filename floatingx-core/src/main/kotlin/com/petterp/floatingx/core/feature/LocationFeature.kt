@@ -23,8 +23,14 @@ internal class LocationFeature : FxFeature {
     private var scope: FxFeatureScope? = null
     private var animator: ValueAnimator? = null
 
+    /** 动画中的 settle 目标；锚点尚未提交时非空，relayout 会拿最新 input 替它收尾 */
+    private var settleTarget: FxPoint? = null
+
     /** 内容尺寸无效时收到的 moveTo，首次有效布局后应用 */
     private var pending: FxPoint? = null
+
+    /** 一次拖动期间复用的布局输入：MOVE 路径不再每帧构造 FxLayoutInput/FxRect */
+    private var dragInput: FxLayoutInput? = null
 
     override fun onAttach(scope: FxFeatureScope) {
         this.scope = scope
@@ -32,21 +38,37 @@ internal class LocationFeature : FxFeature {
     }
 
     override fun onDetach() {
-        cancelAnimator()
+        discardSettle()
+        dragInput = null
         scope = null
     }
 
-    override fun onContentSizeChanged(size: FxSize) = relayout()
+    override fun onContentSizeChanged(size: FxSize) {
+        dragInput = null
+        relayout()
+    }
 
-    override fun onBoundsChanged() = relayout()
+    override fun onBoundsChanged() {
+        dragInput = null
+        relayout()
+    }
 
     override fun onConfigChanged(old: FxConfig, new: FxConfig) {
-        if (old.anchor != new.anchor || old.margin != new.margin || old.overflow != new.overflow || old.safeArea != new.safeArea) relayout()
+        if (old.anchor != new.anchor) {
+            // 用户显式改锚点：优先级高于在飞的 settle，直接丢弃，别让它把新锚点覆盖回去
+            discardSettle()
+            relayout()
+            return
+        }
+        if (old.margin != new.margin || old.overflow != new.overflow || old.safeArea != new.safeArea) relayout()
     }
 
     fun relayout() {
         val s = scope ?: return
         val input = s.layoutInput() ?: return
+        // 动画中的 settle 还没提交锚点：用最新 input 立刻收尾。
+        // 否则动画结束时会拿旋转/改尺寸前的旧 input 反算锚点，并把 relayout 的结果覆盖掉。
+        finishSettle(s, input)
         val p = pending
         if (p != null) {
             pending = null
@@ -72,12 +94,16 @@ internal class LocationFeature : FxFeature {
         moveTo(cur.x + dx, cur.y + dy, animate)
     }
 
-    fun onDragStart() = cancelAnimator()
+    fun onDragStart() {
+        val s = scope ?: return
+        discardSettle()
+        dragInput = s.layoutInput()
+    }
 
     /** 拖动中：rebound 时允许暂时出界，否则实时 clamp */
     fun onDrag(dx: Float, dy: Float) {
         val s = scope ?: return
-        val input = s.layoutInput() ?: return
+        val input = dragInput ?: return
         val cur = s.container.contentPosition()
         val next = FxPoint(cur.x + dx, cur.y + dy)
         val rebound = (s.config.adsorb as? FxAdsorb.Edges)?.rebound ?: false
@@ -86,19 +112,20 @@ internal class LocationFeature : FxFeature {
 
     fun onDragEnd() {
         val s = scope ?: return
-        val input = s.layoutInput() ?: return
+        val input = dragInput ?: s.layoutInput() ?: return
+        dragInput = null
         val target = FxAdsorbResolver.target(s.container.contentPosition(), input, s.config.adsorb)
         settle(s, target, input, animate = true)
     }
 
     private fun settle(s: FxFeatureScope, target: FxPoint, input: FxLayoutInput, animate: Boolean) {
-        cancelAnimator()
+        discardSettle()
         val from = s.container.contentPosition()
         if (!animate || from == target) {
-            apply(s, target)
-            commit(s, target, input)
+            commitAndApply(s, target, input)
             return
         }
+        settleTarget = target
         animator = ValueAnimator.ofFloat(0f, 1f).apply {
             duration = SETTLE_DURATION
             interpolator = DecelerateInterpolator()
@@ -112,20 +139,34 @@ internal class LocationFeature : FxFeature {
                 override fun onAnimationEnd(animation: Animator) {
                     animator = null
                     if (cancelled) return
-                    apply(s, target)
-                    commit(s, target, input)
+                    commitAndApply(s, target, input)
                 }
             })
             start()
         }
     }
 
-    private fun apply(s: FxFeatureScope, p: FxPoint) {
-        s.host.updateLayout(s.container, FxLayoutSpec(p.x, p.y, s.control.anchor.gravity, s.container.isLtr))
+    /** 用最新 input 给在飞的 settle 收尾；target 先按新可用区 clamp，避免反算出负偏移 */
+    private fun finishSettle(s: FxFeatureScope, input: FxLayoutInput) {
+        val target = settleTarget ?: return
+        cancelAnimator()
+        commitAndApply(s, FxLayoutResolver.clamp(target, input), input)
     }
 
-    private fun commit(s: FxFeatureScope, p: FxPoint, input: FxLayoutInput) {
-        s.commitAnchor(FxLayoutResolver.toAnchor(p, input))
+    /** 先提交锚点再投影：apply 读的是 control.anchor，顺序反了最后一帧会带旧 gravity */
+    private fun commitAndApply(s: FxFeatureScope, target: FxPoint, input: FxLayoutInput) {
+        settleTarget = null
+        s.commitAnchor(FxLayoutResolver.toAnchor(target, input))
+        apply(s, target)
+    }
+
+    private fun apply(s: FxFeatureScope, p: FxPoint) {
+        s.host.updateLayout(s.container, FxLayoutSpec(p.x, p.y, s.control.anchor, s.container.isLtr))
+    }
+
+    private fun discardSettle() {
+        cancelAnimator()
+        settleTarget = null
     }
 
     private fun cancelAnimator() {

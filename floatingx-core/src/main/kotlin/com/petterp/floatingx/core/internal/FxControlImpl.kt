@@ -68,6 +68,10 @@ internal class FxControlImpl(
         features += initialConfig.features
         createContent()
         loadStoredAnchor()?.let { anchor = it }
+        // 空 tag（FloatingX.create 未指定）时存储键会互相串，索性不持久化并提示（spec §2.7）
+        if (tag.isEmpty() && initialConfig.storage != null) {
+            logger?.e("tag 为空，局部浮窗不做位置持久化；请通过 create(config, host, tag) 指定 tag")
+        }
         host.bind(engine)
     }
 
@@ -86,7 +90,9 @@ internal class FxControlImpl(
         if (cancelling || engine.state == FxState.CANCELLED) return
         cancelling = true
         engine.cancel()
+        features.forEach { it.onCancel() }
         host.release()
+        container.releaseContent()
         dispatch { it.onCancel(this) }
         listeners.clear()
         onCancelled?.invoke(this)
@@ -186,6 +192,8 @@ internal class FxControlImpl(
     override fun swapHost(fallback: FxHost) {
         logger?.d { "[$tag] 切换 host: ${host::class.java.simpleName} -> ${fallback::class.java.simpleName}" }
         host.release()
+        // 先把内容从旧容器摘下来：否则旧容器的 layout 监听会一直挂在内容 view 上（泄漏旧容器）
+        container.releaseContent()
         host = fallback
         container = fallback.createContainer()
         contentView?.let { container.setContent(it) }
@@ -201,12 +209,15 @@ internal class FxControlImpl(
     override fun layoutInput(): FxLayoutInput? {
         val size = container.contentSize()
         if (!size.isValid) return null
-        return FxLayoutInput(host.bounds(), size, container.isLtr, config.margin, config.overflow, config.safeArea)
+        // 父容器还没 layout（0×0）时定位没有意义：算出来的位置会在下一次 bounds 变化时跳走
+        val bounds = host.bounds()
+        if (bounds.rect.width <= 0f || bounds.rect.height <= 0f) return null
+        return FxLayoutInput(bounds, size, container.isLtr, config.margin, config.overflow, config.safeArea)
     }
 
     override fun commitAnchor(anchor: FxAnchor) {
         this.anchor = anchor
-        config.storage?.save(storageKey(), anchor)
+        if (tag.isNotEmpty()) config.storage?.save(storageKey(), anchor)
         dispatch { it.onPositionChanged(this, anchor) }
     }
 
@@ -229,7 +240,7 @@ internal class FxControlImpl(
 
     private fun storageKey(): String = "$tag:${host.context.resources.configuration.orientation}"
 
-    private fun loadStoredAnchor(): FxAnchor? = config.storage?.load(storageKey())
+    private fun loadStoredAnchor(): FxAnchor? = if (tag.isEmpty()) null else config.storage?.load(storageKey())
 
     private fun main() {
         check(Looper.myLooper() == mainLooper) { "FloatingX[$tag] 的 API 必须在主线程调用" }

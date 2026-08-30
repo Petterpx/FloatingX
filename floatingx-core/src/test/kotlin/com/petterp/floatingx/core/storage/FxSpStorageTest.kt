@@ -35,6 +35,18 @@ class FxSpStorageTest {
     }
 
     @Test
+    fun `unknown gravity returns null`() {
+        context.getSharedPreferences("test_fx", Context.MODE_PRIVATE).edit().putString("g", "FOO,1,2").commit()
+        assertNull(storage.load("g"))
+    }
+
+    @Test
+    fun `non numeric offset returns null`() {
+        context.getSharedPreferences("test_fx", Context.MODE_PRIVATE).edit().putString("o", "CENTER,abc,2").commit()
+        assertNull(storage.load("o"))
+    }
+
+    @Test
     fun `clear removes key`() {
         storage.save("k", FxAnchor(FxGravity.CENTER))
         storage.clear("k")

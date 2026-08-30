@@ -6,7 +6,12 @@ import android.util.Log
 public interface FxLogger {
     /** 惰性拼接，只有启用日志时才会执行 lambda */
     public fun d(message: () -> String)
-    public fun e(message: String, error: Throwable? = null)
+    public fun e(message: String, error: Throwable?)
+
+    /** 默认参数在接口上对 Java 不可见，所以单独给一个重载 */
+    public fun e(message: String) {
+        e(message, null)
+    }
 }
 
 /** 默认 Logcat 实现，tag 形如 `Fx-<tag>` */

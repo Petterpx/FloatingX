@@ -32,15 +32,19 @@ public object FloatingX {
         return install(tag, scope.build(), host)
     }
 
-    /** 创建但不注册，生命周期由调用方管理（局部浮窗） */
+    /**
+     * 创建但不注册，生命周期由调用方管理（局部浮窗）。
+     * tag 只用于日志与位置持久化的存储键：留空则不做持久化（多个局部浮窗会共用同一个键）。
+     */
     @JvmStatic
-    public fun create(config: FxConfig, host: FxHost): FxControl = FxControlImpl("", config, host)
+    @JvmOverloads
+    public fun create(config: FxConfig, host: FxHost, tag: String = ""): FxControl = FxControlImpl(tag, config, host)
 
     @JvmSynthetic
-    public fun create(block: FxInstallScope.() -> Unit): FxControl {
+    public fun create(tag: String = "", block: FxInstallScope.() -> Unit): FxControl {
         val scope = FxInstallScope().apply(block)
         val host = requireNotNull(scope.host) { "create 必须指定 host" }
-        return create(scope.build(), host)
+        return create(scope.build(), host, tag)
     }
 
     @JvmStatic

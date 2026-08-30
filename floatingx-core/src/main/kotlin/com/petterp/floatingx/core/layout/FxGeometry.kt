@@ -31,14 +31,14 @@ public data class FxRect(val left: Float, val top: Float, val right: Float, val 
 }
 
 /** safe area（状态栏 / 导航栏 / 刘海）四边 */
-public data class FxInsets(val left: Float = 0f, val top: Float = 0f, val right: Float = 0f, val bottom: Float = 0f) {
+public data class FxInsets @JvmOverloads constructor(val left: Float = 0f, val top: Float = 0f, val right: Float = 0f, val bottom: Float = 0f) {
     public companion object {
         @JvmField public val NONE: FxInsets = FxInsets()
     }
 }
 
 /** 用户配置的四边留白 */
-public data class FxMargin(val left: Float = 0f, val top: Float = 0f, val right: Float = 0f, val bottom: Float = 0f) {
+public data class FxMargin @JvmOverloads constructor(val left: Float = 0f, val top: Float = 0f, val right: Float = 0f, val bottom: Float = 0f) {
     public companion object {
         @JvmField public val NONE: FxMargin = FxMargin()
 
@@ -47,7 +47,7 @@ public data class FxMargin(val left: Float = 0f, val top: Float = 0f, val right:
 }
 
 /** 允许内容超出可用区的哪些边（#235） */
-public data class FxOverflow(val top: Boolean = false, val bottom: Boolean = false, val left: Boolean = false, val right: Boolean = false) {
+public data class FxOverflow @JvmOverloads constructor(val top: Boolean = false, val bottom: Boolean = false, val left: Boolean = false, val right: Boolean = false) {
     public companion object {
         @JvmField public val NONE: FxOverflow = FxOverflow()
 
@@ -56,4 +56,4 @@ public data class FxOverflow(val top: Boolean = false, val bottom: Boolean = fal
 }
 
 /** host 提供的父区域：rect 为容器整体，insets 为其中的 safe area */
-public data class FxBounds(val rect: FxRect, val insets: FxInsets = FxInsets.NONE)
+public data class FxBounds @JvmOverloads constructor(val rect: FxRect, val insets: FxInsets = FxInsets.NONE)

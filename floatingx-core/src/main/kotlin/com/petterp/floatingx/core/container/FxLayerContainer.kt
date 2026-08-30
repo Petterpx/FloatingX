@@ -21,6 +21,7 @@ public class FxLayerContainer(context: Context) : FrameLayout(context), FxContai
     override var contentView: View? = null
         private set
     override val isLtr: Boolean get() = layoutDirection != View.LAYOUT_DIRECTION_RTL
+    override val isLayer: Boolean get() = true
     override var touchHandler: FxContainerTouchHandler? = null
     override var onContentSizeChanged: ((FxSize) -> Unit)? = null
     override var onBoundsChanged: (() -> Unit)? = null
@@ -68,6 +69,15 @@ public class FxLayerContainer(context: Context) : FrameLayout(context), FxContai
         contentView = view
     }
 
+    override fun releaseContent() {
+        val c = contentView ?: return
+        c.removeOnLayoutChangeListener(contentLayoutListener)
+        removeView(c)
+        contentView = null
+        lastW = 0
+        lastH = 0
+    }
+
     override fun contentSize(): FxSize =
         contentView?.let { FxSize(it.width.toFloat(), it.height.toFloat()) } ?: FxSize.EMPTY
 
@@ -100,6 +110,8 @@ public class FxLayerContainer(context: Context) : FrameLayout(context), FxContai
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         val action = ev.actionMasked
+        // 新的一次按下一定是新手势：上一轮若丢了 UP/CANCEL（父层拦截等），别让标志位卡死
+        if (action == MotionEvent.ACTION_DOWN) consumingOutside = false
         if (consumingOutside) {
             if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) consumingOutside = false
             return true

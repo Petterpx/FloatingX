@@ -12,11 +12,11 @@ public class ModalScrimFeature @JvmOverloads constructor(
     private var container: FxLayerContainer? = null
 
     override fun onAttach(scope: FxFeatureScope) {
-        val c = scope.container as? FxLayerContainer
-        if (c == null) {
+        if (!scope.container.isLayer) {
             scope.logger?.e("ModalScrimFeature 仅支持 Layer 容器（app/scope），当前容器为 ${scope.container::class.java.simpleName}")
             return
         }
+        val c = scope.container as FxLayerContainer
         c.modal = true
         c.onOutsideTouch = { if (dismissOnOutsideTouch) scope.control.hide() }
         container = c

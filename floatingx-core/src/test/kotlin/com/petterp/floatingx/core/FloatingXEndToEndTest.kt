@@ -1,6 +1,7 @@
 package com.petterp.floatingx.core
 
 import android.content.Context
+import android.content.res.Configuration
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.MeasureSpec
@@ -10,6 +11,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.petterp.floatingx.core.animation.FxAnimations
 import com.petterp.floatingx.core.config.FxConfig
 import com.petterp.floatingx.core.config.FxContent
+import com.petterp.floatingx.core.container.FxLayerContainer
 import com.petterp.floatingx.core.feature.FxFeature
 import com.petterp.floatingx.core.feature.FxFeatureScope
 import com.petterp.floatingx.core.feature.ModalScrimFeature
@@ -29,6 +31,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 
@@ -62,6 +65,14 @@ class FloatingXEndToEndTest {
         override fun onDetach() {}
     }
 
+    /** 记录 attach/detach/cancel 调用顺序 */
+    private class LifecycleFeature : FxFeature {
+        val calls = mutableListOf<String>()
+        override fun onAttach(scope: FxFeatureScope) { calls += "attach" }
+        override fun onDetach() { calls += "detach" }
+        override fun onCancel() { calls += "cancel" }
+    }
+
     /** onAttach 里再往 control 上加一个 feature —— 会在遍历中修改 features 列表 */
     private class AddingFeature(private val extra: FxFeature) : CountingFeature() {
         override fun onAttach(scope: FxFeatureScope) {
@@ -80,10 +91,14 @@ class FloatingXEndToEndTest {
     private fun config(block: FxConfig.Builder.() -> Unit = {}): FxConfig =
         FxConfig.builder(FxContent.view(content())).anchor(FxGravity.BOTTOM_END).margin(FxMargin.all(16f)).storage(storage).apply(block).build()
 
-    private fun layoutParent() {
-        parent.measure(MeasureSpec.makeMeasureSpec(1080, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(1920, MeasureSpec.EXACTLY))
-        parent.layout(0, 0, 1080, 1920)
+    private fun layoutParent() = layout(parent, 1080, 1920)
+
+    private fun layout(target: FrameLayout, w: Int, h: Int) {
+        target.measure(MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY))
+        target.layout(0, 0, w, h)
     }
+
+    private val orientationKey: String get() = "a:${context.resources.configuration.orientation}"
 
     private fun positionOf(c: FxControl) = c.contentView!!.let { it.translationX to it.translationY }
 
@@ -354,6 +369,160 @@ class FloatingXEndToEndTest {
         assertEquals(View.INVISIBLE, next.visibility)
         c.show()
         assertEquals(View.VISIBLE, next.visibility)
+    }
+
+    // ---------- 回归：最终评审修复波 ----------
+
+    /** A1：父容器还没 layout（0×0）时不定位，等第一次有效 bounds */
+    @Test
+    fun `no positioning while the parent has no size`() {
+        val c = FloatingX.install("a", config(), TestHost(parent))
+        c.show()
+        // 内容自己有尺寸了，但父容器仍是 0×0
+        c.contentView!!.layout(0, 0, 100, 200)
+        assertEquals(0f to 0f, positionOf(c))
+        layoutParent()
+        assertEquals(964f to 1704f, positionOf(c))
+    }
+
+    /** A2/A3：settle 先提交锚点再投影，最后一条 spec 带的是新锚点 */
+    @Test
+    fun `settle commits the anchor before the last layout spec`() {
+        val host = TestHost(parent)
+        val c = FloatingX.install("a", config { adsorb(FxAdsorb.horizontal()) }, host)
+        c.show(); layoutParent()
+        touch(MotionEvent.ACTION_DOWN, 970f, 1710f)
+        touch(MotionEvent.ACTION_MOVE, 900f, 1710f)
+        touch(MotionEvent.ACTION_MOVE, 400f, 1200f)
+        touch(MotionEvent.ACTION_UP, 400f, 1200f)
+        ShadowLooper.idleMainLooper(500, TimeUnit.MILLISECONDS)
+        val last = host.layoutSpecs.last()
+        assertEquals(FxGravity.BOTTOM_START, last.anchor.gravity)
+        assertEquals(FxGravity.BOTTOM_START, last.gravity)
+        assertEquals(c.anchor, last.anchor)
+    }
+
+    /** A4/A6：换 host 复用内容 view，旧容器被彻底释放，锚点与监听器都保留 */
+    @Test
+    fun `swap host keeps the content view anchor and listeners`() {
+        val parentB = FrameLayout(context)
+        val hostA = TestHost(parent)
+        val c = FloatingX.install("a", config(), hostA)
+        c.addListener(events)
+        c.show(); layoutParent()
+        c.moveTo(100f, 300f, animate = false)
+        val view = c.contentView!!
+        val oldContainer = parent.getChildAt(0) as FxLayerContainer
+
+        val hostB = TestHost(parentB)
+        hostA.session!!.requestSwap(hostB)
+        layout(parentB, 1080, 1920)
+
+        assertEquals(0, parent.childCount)
+        assertEquals(1, parentB.childCount)
+        assertSame(hostB, c.host)
+        assertTrue(hostA.released)
+        assertSame(view, c.contentView)
+        assertSame(parentB.getChildAt(0), view.parent)          // 内容已改挂到新容器
+        assertNull(oldContainer.contentView)                    // 旧容器不再持有内容（监听已摘除）
+        assertEquals(FxState.SHOWN, c.state)
+        assertEquals(FxAnchor(FxGravity.TOP_START, 84f, 284f), c.anchor)
+        assertEquals(100f to 300f, positionOf(c))
+        assertEquals(listOf("detach", "attach", "show"), events.list.takeLast(3))
+    }
+
+    /** A5：显式改锚点优先于在飞的 settle，动画不得把它覆盖回去 */
+    @Test
+    fun `explicit anchor update wins over an in-flight settle`() {
+        val c = FloatingX.install("a", config(), TestHost(parent))
+        c.show(); layoutParent()
+        c.moveTo(100f, 300f, animate = true)
+        c.update { anchor(FxGravity.TOP_START) }
+        ShadowLooper.idleMainLooper(500, TimeUnit.MILLISECONDS)
+        assertEquals(FxAnchor(FxGravity.TOP_START), c.anchor)
+        assertEquals(FxAnchor(FxGravity.TOP_START), storage.map[orientationKey])
+        assertEquals(16f to 16f, positionOf(c))
+    }
+
+    /** A5：settle 动画中可用区变化，用新 input 收尾，不能用动画开始时的旧 input 反算 */
+    @Test
+    fun `bounds change during a settle animation re-resolves with the new bounds`() {
+        val c = FloatingX.install("a", config(), TestHost(parent))
+        c.show(); layoutParent()
+        c.moveTo(900f, 1500f, animate = true)
+        layout(parent, 720, 1280)                               // 分屏/旋转：可用区变小
+        assertEquals(FxAnchor(FxGravity.BOTTOM_END), c.anchor)
+        assertEquals(604f to 1064f, positionOf(c))
+        ShadowLooper.idleMainLooper(500, TimeUnit.MILLISECONDS)
+        assertEquals(FxAnchor(FxGravity.BOTTOM_END), c.anchor)  // 动画不再补一次过期提交
+        assertEquals(604f to 1064f, positionOf(c))
+    }
+
+    /** A7：create 不带 tag 时不持久化（多个局部浮窗会共用同一个键） */
+    @Test
+    fun `create persists the anchor only when a tag is given`() {
+        val c1 = FloatingX.create(config(), TestHost(parent))
+        c1.show(); layoutParent()
+        c1.moveTo(100f, 300f, animate = false)
+        assertEquals(100f to 300f, positionOf(c1))
+        assertTrue(storage.map.isEmpty())
+        c1.cancel()
+
+        val parentB = FrameLayout(context)
+        val parentC = FrameLayout(context)
+        val c2 = FloatingX.create(config(), TestHost(parentB), "l1")
+        val c3 = FloatingX.create(config(), TestHost(parentC), "l2")
+        c2.show(); layout(parentB, 1080, 1920)
+        c3.show(); layout(parentC, 1080, 1920)
+        c2.moveTo(100f, 300f, animate = false)
+        c3.moveTo(200f, 400f, animate = false)
+        val orientation = context.resources.configuration.orientation
+        assertEquals(setOf("l1:$orientation", "l2:$orientation"), storage.map.keys)
+        c2.cancel(); c3.cancel()
+    }
+
+    /** A9：onCancel 只在 cancel 时来一次，且在最后一次 onDetach 之后 */
+    @Test
+    fun `feature onCancel fires once after the last detach`() {
+        val feature = LifecycleFeature()
+        val host = TestHost(parent)
+        val c = FloatingX.install("a", config { addFeature(feature) }, host)
+        c.show()
+        host.lose()
+        assertEquals(listOf("attach", "detach"), feature.calls)
+        host.ready()
+        c.cancel()
+        assertEquals(listOf("attach", "detach", "attach", "detach", "cancel"), feature.calls)
+    }
+
+    /** B4：拖动中 host 丢失，不补发坐标已失效的 dragEnd */
+    @Test
+    fun `host lost during a drag does not emit dragEnd`() {
+        val host = TestHost(parent)
+        val c = FloatingX.install("a", config { adsorb(FxAdsorb.horizontal()) }, host)
+        c.addListener(events)
+        c.show(); layoutParent()
+        touch(MotionEvent.ACTION_DOWN, 970f, 1710f)
+        touch(MotionEvent.ACTION_MOVE, 900f, 1710f)
+        assertTrue("dragStart" in events.list)
+        host.lose()
+        assertFalse("dragEnd" in events.list)
+    }
+
+    /** C4：横竖屏各存一份锚点，转屏后加载新方向那份 */
+    @Test
+    fun `orientation change reloads the anchor stored for that orientation`() {
+        storage.map["a:${Configuration.ORIENTATION_PORTRAIT}"] = FxAnchor(FxGravity.TOP_START, 10f, 20f)
+        storage.map["a:${Configuration.ORIENTATION_LANDSCAPE}"] = FxAnchor(FxGravity.BOTTOM_END, 30f, 40f)
+        val c = FloatingX.install("a", config(), TestHost(parent))
+        c.show(); layoutParent()
+        assertEquals(FxAnchor(FxGravity.TOP_START, 10f, 20f), c.anchor)
+        assertEquals(26f to 36f, positionOf(c))
+
+        RuntimeEnvironment.setQualifiers("+land")
+        layout(parent, 1920, 1080)
+        assertEquals(FxAnchor(FxGravity.BOTTOM_END, 30f, 40f), c.anchor)
+        assertEquals(1774f to 824f, positionOf(c))
     }
 
     @Test

@@ -13,8 +13,16 @@ import com.petterp.floatingx.core.config.FxConfig;
 import com.petterp.floatingx.core.config.FxContent;
 import com.petterp.floatingx.core.gesture.FxGesture;
 import com.petterp.floatingx.core.layout.FxAdsorb;
+import com.petterp.floatingx.core.layout.FxAnchor;
+import com.petterp.floatingx.core.layout.FxBounds;
 import com.petterp.floatingx.core.layout.FxGravity;
 import com.petterp.floatingx.core.layout.FxHalfHide;
+import com.petterp.floatingx.core.layout.FxInsets;
+import com.petterp.floatingx.core.layout.FxLayoutInput;
+import com.petterp.floatingx.core.layout.FxMargin;
+import com.petterp.floatingx.core.layout.FxOverflow;
+import com.petterp.floatingx.core.layout.FxRect;
+import com.petterp.floatingx.core.layout.FxSize;
 
 import org.junit.After;
 import org.junit.Test;
@@ -50,7 +58,7 @@ public class JavaApiTest {
         };
 
         FrameLayout parent = new FrameLayout(context);
-        FxControl control = FloatingX.install("java", config, new TestHost(parent, true, com.petterp.floatingx.core.layout.FxInsets.NONE));
+        FxControl control = FloatingX.install("java", config, new TestHost(parent, true, FxInsets.NONE));
         control.addListener(listener);
         control.show();
         control.moveTo(10f, 10f);
@@ -62,5 +70,43 @@ public class JavaApiTest {
         assertEquals(FxState.SHOWN, control.getState());
         assertEquals(1, shown[0]);
         assertEquals("java", FloatingX.control("java").getTag());
+    }
+
+    /** 几何/锚点类型带默认值，Java 侧必须能只传必需参数（@JvmOverloads） */
+    @Test
+    public void geometryTypesHaveJavaFriendlyOverloads() {
+        FxAnchor anchor = new FxAnchor(FxGravity.CENTER);
+        FxMargin margin = new FxMargin(1f);
+        FxInsets insets = new FxInsets();
+        FxOverflow overflow = new FxOverflow(true);
+        FxBounds bounds = new FxBounds(new FxRect(0f, 0f, 100f, 200f));
+        FxLayoutInput input = new FxLayoutInput(bounds, new FxSize(10f, 20f));
+
+        assertEquals(0f, anchor.getDx(), 0f);
+        assertEquals(0f, margin.getBottom(), 0f);
+        assertEquals(0f, insets.getTop(), 0f);
+        assertEquals(false, overflow.getBottom());
+        assertEquals(FxInsets.NONE, bounds.getInsets());
+        assertEquals(true, input.getSafeArea());
+
+        // FxLogger.e 的单参重载（接口默认参数对 Java 不可见）
+        FxLogger logger = new FxLogcatLogger("java");
+        logger.e("only message");
+        logger.e("message with error", new IllegalStateException("boom"));
+    }
+
+    /** create 的 tag 重载：不传 tag = 不持久化 */
+    @Test
+    public void createAcceptsAnOptionalTag() {
+        FxConfig config = FxConfig.builder(FxContent.view(new View(context))).build();
+        FrameLayout parent = new FrameLayout(context);
+        FxControl anonymous = FloatingX.create(config, new TestHost(parent, true, FxInsets.NONE));
+        assertEquals("", anonymous.getTag());
+        anonymous.cancel();
+
+        FxConfig other = FxConfig.builder(FxContent.view(new View(context))).build();
+        FxControl tagged = FloatingX.create(other, new TestHost(new FrameLayout(context), true, FxInsets.NONE), "local");
+        assertEquals("local", tagged.getTag());
+        tagged.cancel();
     }
 }

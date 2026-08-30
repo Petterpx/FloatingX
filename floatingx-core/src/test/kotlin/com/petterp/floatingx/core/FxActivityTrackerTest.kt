@@ -43,6 +43,20 @@ class FxActivityTrackerTest {
     }
 
     @Test
+    fun `post resumed is forwarded to observers`() {
+        val seen = mutableListOf<String>()
+        val observer = object : FxActivityTracker.Observer {
+            override fun onActivityResumed(activity: Activity) { seen += "resumed" }
+            override fun onActivityPostResumed(activity: Activity) { seen += "postResumed" }
+        }
+        FxActivityTracker.addObserver(observer)
+        val controller = Robolectric.buildActivity(Activity::class.java).create().start().resume().postResume()
+        FxActivityTracker.removeObserver(observer)
+        assertEquals(listOf("resumed", "postResumed"), seen)
+        assertSame(controller.get(), FxActivityTracker.topActivity)
+    }
+
+    @Test
     fun `init is idempotent`() {
         FxActivityTracker.init(app)
         FxActivityTracker.init(app)
