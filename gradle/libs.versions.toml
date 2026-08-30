@@ -35,7 +35,6 @@ espresso = "3.7.0"
 # 库模块（floatingx / floatingx_compose）的 minSdk 仍为 21，见上方 minSdk。
 simpleMinSdk = "23"
 simpleComposeSdk = "36"
-lifecycleRuntimeKtx = "2.11.0"
 
 [libraries]
 androidx-core = { module = "androidx.core:core", version.ref = "androidx-core" }
@@ -44,7 +43,7 @@ appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat"
 fragment = { module = "androidx.fragment:fragment", version.ref = "fragment" }
 lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "lifecycle" }
 lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycle" }
-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 savedstate = { module = "androidx.savedstate:savedstate", version.ref = "savedstate" }
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -56,6 +55,9 @@ leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", ve
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-versioned = { module = "androidx.compose.ui:ui", version.ref = "compose-ui" }
+# floatingx-compose 直接用了 rememberSaveable 的 SaveableStateRegistry，显式声明而不是靠 compose-ui 传递
+compose-runtime-saveable = { module = "androidx.compose.runtime:runtime-saveable", version.ref = "compose-ui" }
+compose-foundation-versioned = { module = "androidx.compose.foundation:foundation", version.ref = "compose-ui" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }

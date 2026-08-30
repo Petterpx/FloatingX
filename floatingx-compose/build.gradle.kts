@@ -16,6 +16,8 @@ dependencies {
     api(project(":floatingx-core"))
     // 公开 API 带 @Composable 与 CompositionLocal，必须 api 暴露
     api(libs.compose.ui.versioned)
+    // 直接用了 SaveableStateRegistry / LocalSaveableStateRegistry，显式声明而不是靠 compose-ui 传递
+    implementation(libs.compose.runtime.saveable)
     implementation(libs.lifecycle.runtime)
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.savedstate)
@@ -23,7 +25,7 @@ dependencies {
     implementation(libs.kotlin.stdlib)
 
     // 测试里的组合内容只用 foundation 的 Box/size
-    testImplementation("androidx.compose.foundation:foundation:1.11.4")
+    testImplementation(libs.compose.foundation.versioned)
     // 只为断言组合里的 LocalViewModelStoreOwner；产物不依赖它
-    testImplementation("androidx.lifecycle:lifecycle-viewmodel-compose:${libs.versions.lifecycle.get()}")
+    testImplementation(libs.lifecycle.viewmodel.compose)
 }

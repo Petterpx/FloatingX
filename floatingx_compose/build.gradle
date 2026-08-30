@@ -1,14 +1,6 @@
 plugins {
     alias(libs.plugins.android.lirary)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.vanniketch.maven.publish)
-}
-
-mavenPublishing {
-    def versionName = project.hasProperty("versionName") ? project.getProperty("versionName") : null
-    def isPublish = project.hasProperty("isPublish") ? project.getProperty("isPublish").toBoolean() : false
-    if (isPublish) signAllPublications()
-    coordinates("io.github.petterpx", "floatingx-compose", versionName)
 }
 
 android {
