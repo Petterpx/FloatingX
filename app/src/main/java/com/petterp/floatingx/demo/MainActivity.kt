@@ -6,8 +6,10 @@ import com.petterp.floatingx.core.FloatingX
 import com.petterp.floatingx.demo.pages.AppHostActivity
 import com.petterp.floatingx.demo.pages.BlackActivity
 import com.petterp.floatingx.demo.pages.ImmersedActivity
+import com.petterp.floatingx.demo.pages.ScopeHostActivity
 import com.petterp.floatingx.demo.pages.SecondActivity
 import com.petterp.floatingx.demo.pages.SystemHostActivity
+import com.petterp.floatingx.demo.regression.Issue244Activity
 import com.petterp.floatingx.demo.ui.demoPage
 
 class MainActivity : AppCompatActivity() {
@@ -22,10 +24,13 @@ class MainActivity : AppCompatActivity() {
             section("能力页")
             page("App 级全局浮窗", AppHostActivity::class.java)
             page("系统级浮窗（权限 / 键盘 / Service）", SystemHostActivity::class.java)
+            page("局部浮窗（Activity / ViewGroup / Fragment）", ScopeHostActivity::class.java)
             page("换页观察（attachedActivity）", SecondActivity::class.java)
             page("黑名单页（浮窗消失）", BlackActivity::class.java)
             page("沉浸页（无状态栏）", ImmersedActivity::class.java)
             // 后续 Task 逐个追加 page(...)
+            section("回归页")
+            page("#244 Fragment 内浮窗", Issue244Activity::class.java)
         }
     }
 }

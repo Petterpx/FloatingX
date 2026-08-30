@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Fragment 容器的固定 id：不能用 View.generateViewId()，
+      那个 id 旋转重建后会变，FragmentManager 恢复时按容器 id 找不到宿主。
+    -->
+    <item name="fragmentSlot" type="id" />
+</resources>
