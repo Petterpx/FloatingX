@@ -2039,3 +2039,58 @@ git commit -m "feat(system): systemHost DSL 与 Java API 测试；docs: spec §2
 - **Spec 覆盖：** §4 Builder 五个方法（layoutParams / permission / fallback / keyboard / onBackPressed）→ Task 6/7；`windowLayoutParams` 快照 → Task 6；默认 LP + customizer 最后执行 → Task 6；`touchable=false → FLAG_NOT_TOUCHABLE` → Task 6 `SystemWindowFeature`；键盘临时可聚焦 → Task 7；任意 context 申请权限 + SparseArray 分发 + Manual 拦截器 → Task 5；被拒 → swap / INSTALLED + retry → Task 6；`bounds()` WindowMetrics/RealSize + insets → Task 4/6；§2.3 gravity 映射 → Task 4；§10 "SystemHost：canDrawOverlays、LP 默认值 + customizer、fallback swap" → Task 6 用例。
 - **占位扫描：** 无。
 - **类型一致性：** `FxWindowContainer.windowParams`（Task 4 定义，Task 6/7/8 一律用它）；`applyLayout(x, y, gravity: FxGravity, ltr)` 在 Task 4 定义、Task 6 `updateLayout` 调用；`FxPermission.dispatch(id, granted)` internal，Task 6 测试同模块可用；`FxPermissionStrategy.Auto/Skip` 为 object，`when` 用 `is` 判断；`hostFeatures()` Task 2 定义、Task 6/7 覆写。
+
+## 执行记录（SDD ledger 归档，供 Plan 4–5 参考）
+
+分支 feat/3.0-system，11 个功能提交 + 2 个修复波提交（0ab5c34..dcb6d6f）；最终 ./gradlew test：core 133 / scope 22 / app 32 / system 60，0 失败；system lint 0 警告。
+
+### Pre-flight scan
+
+| Pair / Task | Produces vs consumes | Finding |
+|---|---|---|
+| T1 ↔ T5 | T1 manifest 引用 `permission.FxPermissionActivity`（T5 才创建）；库模块 assemble/test 不校验 manifest 类存在，只有 lint 会 | 一致（T1–T4 不跑 lint，计划已注明） |
+| T2 ↔ T6/T7 | T2 `FxHost.hostFeatures()` 默认空 + FxControlImpl init/swap 接入；T6 返回 SystemWindowFeature，T7 追加 KeyboardFeature，要求实例稳定（lazy） | 一致 |
+| T3 ↔ T4/T6 | T3 检测器 slop/增量用 rawX 偏移；T4 容器 hitTest/触摸转发不变；Layer 语义等价（Robolectric obtain 的 raw==x） | 一致 |
+| T4 ↔ T6 | `windowParams`、`applyLayout(x,y,gravity,ltr)`、`setBounds`、`isAttachedToWm`、`windowInsets`、`setWindowTouchable/Focusable`；T6 全部按此调用 | 一致（layoutParams→windowParams 已在写计划时改名） |
+| T5 ↔ T6 | `FxPermission.request(context, FxPermissionCallback)`、`dispatch(id, granted)` internal、`EXTRA_REQUEST_ID = "fx_request_id"`；T6 测试用同一字符串 | 一致 |
+| T6 ↔ T7 | T6 Builder 无 keyboard()，T7 补 keyboardIds 构造参数 + `features` 改 listOfNotNull | 一致 |
+| T6 ↔ T8 | `SystemHost.Builder` 全部方法 + `isPermissionGranted` + `windowLayoutParams` 在 Java 测试使用 | 一致 |
+| T6 自身 | 测试用 `FxGesture.Normal.copy(touchable=false)`——FxGesture 是否 data class 待实现者核对，计划给了 DSL 替代 | 一致 |
+| T4 自身 | 首帧闪现防护：positioned 前 GONE；setContentVisible(true) 在 positioned 后才 VISIBLE | 一致 |
+| T5 自身 | `shadowOf(activity).receiveResult` API 名可能因 Robolectric 版本而异，计划给了两级兜底 | 一致 |
+
+- Ruling: 就地建分支 feat/3.0-system；实现者一律 `model: opus`（用户 CLAUDE.md）；评审按复杂度 sonnet/opus；完成后本地 ff 合回 main、不 push（沿用 Plan 1/2 用户选择）。
+- Ruling: spec §4 默认 flags 加 FLAG_LAYOUT_NO_LIMITS（半隐/overflow 必需；core 已按 safe area clamp）— 若错，代价是用户可用 customizer 去掉该 flag。
+- Ruling: `keyboard()` 保留在 SystemHost.Builder，但通过新增的 `FxHost.hostFeatures()` 以 feature 落地（core 小扩展）；`touchable→FLAG_NOT_TOUCHABLE` 同路径 — 若错，代价是一个 core 钩子。
+
+### Tasks
+- Task 1: complete (commits 0ab5c34..d8843fe, review clean)
+- Task 2: minor (deferred): config.features 与 hostFeatures() 出现同一实例时无去重；host feature 与 update(config) 的交互无直接测试。
+- Task 2: complete (commits d8843fe..54cf347, review clean)
+- Task 3: minor (deferred): FxGestureDetector 文件级 KDoc "收到的坐标均为容器坐标" 一句与新增说明并列易误读。
+- Task 3: complete (commits 54cf347..e8dc048, review clean)
+- Task 4: Ruling: 评审 Important 1（容器在 onConfigurationChanged/insets 变化时用旧 boundsW/H 派发，同步链路里 host 无法先刷新）— 由容器自行 `refreshBounds()`（通过 wm 读屏幕尺寸）再派发 onBoundsChanged，host 的 bounds() 复用容器缓存；并入 Task 6 实施 — 若错，代价是容器多持有一份屏幕尺寸读取逻辑。
+- Task 4: Ruling: 评审 Important 2（touchHandler 转发 / onContentSizeChanged 仅真变化 / onConfigurationChanged→onBoundsChanged / insets→onBoundsChanged 无测试）与 Minor 4（toInt 改 roundToInt）并入 Task 6 实施；Important 3 由 Task 6 既有的 gravity 回环用例覆盖。
+- Task 4: minor (deferred): hitTest 假设内容 left/top=0 且无 margin；BACK 的 ACTION_DOWN 未消费；onConfigurationChanged 对任何配置变化都派发（relayout 幂等）；GONE 根 view 下 ViewRootImpl 仍会 measure/layout 的假设需真机验证（Plan 5）。
+- Task 4: complete (commits e8dc048..8b2f3b2, review approved; 3 Important 并入 Task 6)
+- Task 5: Ruling: spec §4 要求的 `noHistory` 与 startActivityForResult 流程冲突（被设置页遮住即被系统 finish，onActivityResult 不回调）— 去掉 noHistory，保留 excludeFromRecents + taskAffinity="" + NEW_TASK，onDestroy 兜底派发未完成回调；request 标 @MainThread；spec §4 由 Task 8 同步 — 若错，代价是权限页在极端情况下多留一个不可见 task 直到回调完成。
+- Task 5: fix round 1/5 (Critical noHistory + 2 Important 派出; 与 Task 6 实现并行，文件无重叠)
+- Task 5: minor (deferred): 进程死亡后静态回调表丢失，恢复的权限页 dispatch 为空操作（"进程死亡即请求作废"，SystemHost 可在需要时重申请）。
+- Task 5: complete (commits 8b2f3b2..c118273 + 57cb4e6, review clean after 1 fix round)
+- Task 6: implementer concerns: attach 失败（BadToken/SecurityException）后 engine 停在 ATTACHED 无窗口、retryPermission 无法恢复；release() 额外兜底 detach。交评审判定。
+- Task 6: Ruling: 评审 Important（attach 抛 BadToken/SecurityException 后 engine 停在 ATTACHED/SHOWN 无窗口，retryPermission 无法恢复）— 在 retryPermission() 里：容器存在且未挂到 WM 且有权限时先 onHostLost 再 onHostReady 让 engine 重新 attachAndRestore；并入 Task 7 实施 — 若错，代价是一次多余的 detach/attach。
+- Task 6: minor 并入 Task 7：setBounds 改 internal/@VisibleForTesting；删 SystemHost.readScreen 重复（container 为空时返回零 rect）；SystemWindowFeature.onAttach 无条件赋值 container；默认 LP gravity 写 TOP|LEFT。
+- Task 6: minor (deferred): Builder 只解包裸 Activity（ContextThemeWrapper(activity) 仍持有 Activity）；denied() 用 Log.w 不受 FxLogger 门控（host 拿不到 logger）。
+- Task 6: complete (commits 57cb4e6..2dc6166, review approved; 1 Important 并入 Task 7)
+- Task 7: implementer concerns: 键盘弹出时按返回会同时触发 SystemBackListener（DOWN 被 pre-IME 吞、UP 仍到 dispatchKeyEvent）；IME 被点击外部收起时 focusable 不恢复（真机验证）。
+- Task 7: Ruling: 评审 Important（BACK 的 DOWN 被 pre-IME 吞掉后 UP 仍触发 SystemBackListener）— FxWindowContainer 记录 imeBackConsumed 标志，对应 UP 也吞掉且不调 listener；放入最终修复波 — 若错，代价是键盘收起那一次返回不透传给业务（本就不该）。
+- Task 7: minor (deferred): 点击外部收起 IME 时 focusable 不恢复（真机验证，Plan 5）；KeyboardFeature.onAttach 在 contentView 为空提前返回前已赋 container。
+- Task 7: complete (commits 2dc6166..0672a4f, review approved; 1 Important 入最终修复波)
+- Task 8: minor (deferred): spec §7 Kotlin 样例 `host = systemHost(app){}` 冗余赋值；§2.1 createContainer(context) 与实现 createContainer() 不一致（Plan 1 遗留）。
+- Task 8: complete (commits 0672a4f..9cd5428, review clean)
+- Final review (opus, 0ab5c34..9cd5428): 1 Critical / 5 Important / 11 minor；除 insets 来源外所有裁决被确认。
+- Ruling: 系统窗口 safe-area insets 改为屏幕级（R+ `wm.currentWindowMetrics.windowInsets` 在 refreshBounds() 里读；R 以下 NONE），删除"窗口自身 onApplyWindowInsets → onBoundsChanged"路径；spec §4 insets 一条同步 — 若错，代价是 R 以下系统窗口无 safe area（2.x 亦如此）。
+- Final fix wave（一次派出）：Critical 1；Important 2 RTL layoutDirection、3 后台申请守卫 + startActivity try/catch、4 Builder 解包 ContextWrapper 链 + theme()、5 拖动集成测试、6 双 BACK（imeBackConsumed + CANCEL/失焦清标志）；minor 7 Skip 恢复、8 attach/detach 加宽 catch、9 KeyboardFeature 内容替换重绑、17 lint 抑制；文档：FxGestureDetector KDoc、spec §7 样例、§2.1 createContainer()、§4 insets/LP 陷阱/fallback context/SYSTEM_ALERT_WINDOW 说明。
+- Final review minor (deferred → Plan 5 真机清单)：GONE 首帧假设、拖过状态栏边界、外部点击收起 IME 后 focusable、运行时撤权后 addView 失败、RTL 锚点；createWindowContext（R+）；hitTest 在 Window 容器为死代码；每帧 FxPoint/FxLayoutSpec 分配（Plan 1 遗留）。
+- Final fix wave: commits 9cd5428..dcb6d6f（Critical 1 + Important 2–6 + minor 7–10 + docs 11–13）; scoped re-review 派出
+- Final re-review: 13/13 ADDRESSED；minor 观察：insets 只在 create/attach/配置变化时刷新（immersive 切换不触发）；FxPermission catch(Exception) 偏宽；size 取 maximumWindowMetrics 而 insets 取 currentWindowMetrics（非视觉 context 下一致）。
