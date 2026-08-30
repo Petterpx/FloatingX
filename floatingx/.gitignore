@@ -1,9 +1,0 @@
-/build
-/release
-/debug
-.settings
-.classpath
-.project
-.idea/sonarlint
-bin
-/bugly

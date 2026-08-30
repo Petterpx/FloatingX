@@ -1,22 +1,21 @@
 plugins {
-    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.compose.compiler)
 }
 
-
 android {
-
-    compileSdk libs.versions.simpleComposeSdk.get().toInteger()
+    namespace 'com.petterp.floatingx.app'
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {
         applicationId "com.petterp.floatingx.app"
         minSdk libs.versions.simpleMinSdk.get().toInteger()
-        targetSdk libs.versions.simpleComposeSdk.get().toInteger()
-        versionCode 1
-        versionName "1.0"
+        targetSdk libs.versions.targetSdk.get().toInteger()
+        versionCode 300
+        versionName "3.0.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
     buildTypes {
         release {
             minifyEnabled true
@@ -24,44 +23,42 @@ android {
         }
     }
     compileOptions {
-        def javeVersion = JavaVersion.toVersion(libs.versions.jvmTarget.get())
-        sourceCompatibility = javeVersion
-        targetCompatibility = javeVersion
-    }
-    packaging {
-        resources {
-            excludes += '/META-INF/{AL2.0,LGPL2.1}'
-        }
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     buildFeatures {
         compose true
-        buildConfig = true
     }
-    namespace 'com.petterp.floatingx.app'
-}
-
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation platform(libs.compose.bom)
-    implementation(libs.compose.ui)
-    implementation(libs.compose.material3)
-    debugImplementation(libs.compose.ui.tooling)
-
-    implementation libs.appcompat
-    implementation libs.material
-    implementation libs.constraintlayout
-    debugImplementation libs.leakcanary.android
-    debugImplementation libs.codelocator.core
-//    debugImplementation libs.leakcanary.object1.watcher.android.startup
-
-    implementation isDev ? project(path: ':floatingx_compose') : "io.github.petterpx:floatingx-compose:$version_name"
-    implementation isDev ? project(path: ':floatingx') : "io.github.petterpx:floatingx:$version_name"
-
-    testImplementation libs.junit
+    packaging {
+        resources { excludes += '/META-INF/{AL2.0,LGPL2.1}' }
+    }
 }
 
 kotlin {
-    compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
-    }
+    compilerOptions { jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17 }
+}
+
+dependencies {
+    // isDev=false 时改用已发布产物，验证 maven 坐标是否可用
+    implementation isDev ? project(':floatingx-core') : "io.github.petterpx:floatingx-core:${rootProject.ext.versionName}"
+    implementation isDev ? project(':floatingx-app') : "io.github.petterpx:floatingx-app:${rootProject.ext.versionName}"
+    implementation isDev ? project(':floatingx-scope') : "io.github.petterpx:floatingx-scope:${rootProject.ext.versionName}"
+    implementation isDev ? project(':floatingx-system') : "io.github.petterpx:floatingx-system:${rootProject.ext.versionName}"
+    implementation isDev ? project(':floatingx-compose') : "io.github.petterpx:floatingx-compose:${rootProject.ext.versionName}"
+
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.fragment
+    implementation platform(libs.compose.bom)
+    implementation libs.compose.ui
+    implementation libs.compose.material3
+    debugImplementation libs.compose.ui.tooling
+    debugImplementation libs.leakcanary.android
+
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.rules
+    androidTestImplementation libs.espresso.core
+    androidTestImplementation libs.androidx.test.uiautomator
 }

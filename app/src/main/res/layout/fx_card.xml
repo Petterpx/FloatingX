@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fxCard"
+    android:layout_width="96dp"
+    android:layout_height="96dp"
+    app:cardBackgroundColor="#E53935"
+    app:cardCornerRadius="48dp"
+    app:cardElevation="4dp">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Fx"
+        android:textColor="@android:color/white"
+        android:textSize="14sp" />
+</com.google.android.material.card.MaterialCardView>
