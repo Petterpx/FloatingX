@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import com.petterp.floatingx.app.R
+import com.petterp.floatingx.demo.R
 
 /** 各页共用的浮窗内容 */
 object DemoContent {

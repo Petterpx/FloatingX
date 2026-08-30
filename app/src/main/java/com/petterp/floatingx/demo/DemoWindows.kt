@@ -3,7 +3,6 @@ package com.petterp.floatingx.demo
 import android.app.Application
 import android.view.View
 import com.petterp.floatingx.app.AppHost
-import com.petterp.floatingx.app.R
 import com.petterp.floatingx.app.appHost
 import com.petterp.floatingx.core.FloatingX
 import com.petterp.floatingx.core.FxControl
@@ -13,6 +12,7 @@ import com.petterp.floatingx.core.layout.FxEdge
 import com.petterp.floatingx.core.layout.FxGravity
 import com.petterp.floatingx.core.layout.FxHalfHide
 import com.petterp.floatingx.core.storage.FxSpStorage
+import com.petterp.floatingx.demo.pages.BaseBlackActivity
 import com.petterp.floatingx.demo.ui.DemoContent
 import com.petterp.floatingx.system.permission.FxPermissionStrategy
 import com.petterp.floatingx.system.systemHost
@@ -22,9 +22,6 @@ object DemoWindows {
     const val TAG_APP = "demo-app"
     const val TAG_SYSTEM = "demo-system"
     const val TAG_COMPOSE = "demo-compose"
-
-    /** 黑名单页用类名字符串声明，避免 DemoWindows 依赖具体页面 */
-    private const val BLACK_ACTIVITY = "com.petterp.floatingx.demo.pages.BlackActivity"
 
     private val clickToast = object : FxListener {
         override fun onClick(control: FxControl, view: View) = DemoContent.toast(view.context, "点击了 ${control.tag}")
@@ -41,7 +38,8 @@ object DemoWindows {
         persist(FxSpStorage(app))
         enableLog("Fx-demo")
         appHost(app) {
-            blacklist(BLACK_ACTIVITY)
+            // 传 Class 而非类名字符串：按 isInstance 匹配，子类一起命中（#221）
+            blacklist(BaseBlackActivity::class.java)
             theme(R.style.Theme_FloatingX)
         }
     }.also { it.addListener(clickToast) }

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace 'com.petterp.floatingx.app'
+    namespace 'com.petterp.floatingx.demo'
     compileSdk libs.versions.compileSdk.get().toInteger()
 
     defaultConfig {

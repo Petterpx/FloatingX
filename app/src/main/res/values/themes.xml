@@ -2,4 +2,10 @@
     <!-- demo 主题：MaterialButton / MaterialSwitch / MaterialCardView 需要 Material3 主题属性；
          DayNight 自带深色适配，所以不再单独维护 values-night -->
     <style name="Theme.FloatingX" parent="Theme.Material3.DayNight.NoActionBar" />
+
+    <!-- 沉浸页：状态栏透明且不做半透明遮罩；刘海适配在 values-v28（属性 API 28 才有） -->
+    <style name="Theme.FloatingX.Immersed" parent="Theme.FloatingX">
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
 </resources>

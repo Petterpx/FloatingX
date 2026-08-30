@@ -1,0 +1,8 @@
+<resources>
+    <!-- windowLayoutInDisplayCutoutMode 是 API 28 才有的属性，单独放这里避免低版本 lint 报错 -->
+    <style name="Theme.FloatingX.Immersed" parent="Theme.FloatingX">
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    </style>
+</resources>
