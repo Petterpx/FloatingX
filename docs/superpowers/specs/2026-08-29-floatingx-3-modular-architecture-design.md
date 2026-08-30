@@ -38,7 +38,7 @@ floatingx-core     com.petterp.floatingx.core     ← androidx.core 1.13.1, kotl
 floatingx-app      com.petterp.floatingx.app      ← core
 floatingx-system   com.petterp.floatingx.system   ← core
 floatingx-scope    com.petterp.floatingx.scope    ← core, compileOnly androidx.fragment 1.8.9
-floatingx-compose  com.petterp.floatingx.compose  ← core, compose-ui 1.11.4, lifecycle-runtime/viewmodel 2.11.0, savedstate 1.5.0, kotlinx-coroutines-android 1.11.0
+floatingx-compose  com.petterp.floatingx.compose  ← core, compose-ui 1.11.4, lifecycle-runtime/viewmodel 2.10.0, savedstate 1.5.0, kotlinx-coroutines-android 1.11.0
 app (demo)                                        ← 以上全部 + compose-bom 2026.06.01
 ```
 
@@ -50,14 +50,14 @@ app (demo)                                        ← 以上全部 + compose-bom
 |---|---|---|
 | 仓库工具链 | AGP 8.13.2、Gradle 8.14.3、Kotlin 2.2.21、JDK 17 | 无（不传导） |
 | 所有模块 `compileSdk` / `targetSdk` | 36 / 36 | 无 |
-| `minSdk` | core/app/system/scope = 21；compose = 23（compose 1.11 与 lifecycle 2.11 的 AAR 本身要求 23）；demo = 23 | Compose 使用方 minSdk ≥ 23（本就如此） |
+| `minSdk` | core/app/system/scope = 21；compose = 23（compose 1.11 与 lifecycle 2.10 的 AAR 本身要求 23）；demo = 23 | Compose 使用方 minSdk ≥ 23（本就如此） |
 | 库模块 Kotlin 不做 language/api 降级锁定 | 产物 metadata 跟随 Kotlin 2.2 | Kotlin ≥ 2.1 |
 | core → androidx.core 1.13.1 | aar-metadata `minCompileSdk=34` | compileSdk ≥ 34（与 2.x 持平） |
 | compose → compose-ui 1.11.4 | `minCompileSdk=35`, AGP ≥ 8.6 | compileSdk ≥ 35 |
-| compose → lifecycle 2.11.0 / savedstate 1.5.0 | `minCompileSdk=34` | compileSdk ≥ 34 |
+| compose → lifecycle 2.10.0 / savedstate 1.5.0 | `minCompileSdk=34` | compileSdk ≥ 34 |
 | 测试 | JUnit 4.13.2、Robolectric 4.16.1（sdk=35——SDK 36 沙箱需要 JDK 21，仓库工具链为 JDK 17）、androidx.test 1.7.0、espresso 3.7.0 | 无 |
 
-明确不用：compose 1.12（强制 compileSdk 37 + AGP 9.1，Compose 用次新的 1.11 线即可）、androidx.core ≥ 1.17（强制 compileSdk 36）。Kotlin 直接用 2.2.21，不做 languageVersion 降级兼容（用户明确要求，避免不一致）。
+明确不用：compose 1.12（强制 compileSdk 37 + AGP 9.1，Compose 用次新的 1.11 线即可）、lifecycle 2.11（`lifecycle-runtime-compose-android:2.11.0` 的 aar-metadata 要求 compileSdk 37 + AGP 9.1，而且它的同族约束会把 compose-ui 传递来的 runtime-compose 一起抬上去；2.10 的 runtime-compose 只要 compileSdk 35 / AGP 8.6，与本仓库 36 / 8.13.2 匹配）、androidx.core ≥ 1.17（强制 compileSdk 36）。Kotlin 直接用 2.2.21，不做 languageVersion 降级兼容（用户明确要求，避免不一致）。
 
 - Maven 坐标 `io.github.petterpx:floatingx-{core,app,system,scope,compose}`。旧的 `floatingx` / `floatingx-compose` 两个 artifact 停止发布，旧模块目录删除。
 - 根包 `com.petterp.floatingx` 保留；每个模块独占一个子包，禁止跨模块使用 `internal` 之外的非公开 API。
@@ -380,14 +380,19 @@ public fun FxInstallScope.fragmentHost(fragment: Fragment): FragmentHost
 public fun FxConfigScope.compose(content: @Composable (FxControl) -> Unit)    // FxContent.Compose
 public val LocalFxControl: ProvidableCompositionLocal<FxControl>
 public fun FxControl.stateFlow(): StateFlow<FxState>
-public fun FxControl.positionFlow(): StateFlow<PointF>
+public fun FxControl.positionFlow(): StateFlow<FxPoint>
+public class FxComposeContent(content: @Composable (FxControl) -> Unit) : FxContent()
+public class ComposeOwnerFeature : FxFeature   // compose {} 自动注册
 ```
 
 - `FxComposeOwner`（`LifecycleOwner + ViewModelStoreOwner + SavedStateRegistryOwner`）由 **control**（engine）持有；每次容器 attach 时 `setViewTreeLifecycleOwner/ViewModelStoreOwner/SavedStateRegistryOwner`，容器 detach 只 `onPause/onStop`，**只在 `cancel()` 时 `onDestroy`**（修 #239/#210）。
-- 若容器所在 view tree 已有 owner（AppHost 挂在 Activity 下），则不覆盖，直接复用 Activity 的。
+- 浮窗永远用自己的 `FxComposeOwner`（Activity 的 owner 随页面销毁正是 #210/#239 的根因）；owner 装在内容 view 上，attach 时也装到容器根 view（系统窗口的窗口级 Recomposer 从根 view 找 owner）。`ComposeView` 保持默认组合策略：卸下时 dispose、挂上时用当前窗口的 Recomposer 重新组合；ViewModel 与 `rememberSaveable` 通过 owner 跨页面/跨 host 存活。
+  - 落地补充：owner 装在内容 view（`FxContent.create()`）与容器 view 上；容器不是根 view 时（Layer 容器挂在宿主 decor 下），只有宿主根 view 上**没有** owner 才补一个浮窗自己的（裸 `android.app.Activity` 才会这样），detach/cancel 时摘掉，不把已 destroy 的 owner 留给宿主。
+  - `rememberSaveable` 的过桥仓库在 `FxComposeContent` 内（组合 dispose 时 `performSave`，重组时读回）：owner 的 `SavedStateRegistry` 没有 `performSave/performRestore` 的调用时机（那是宿主 Activity 的活），所以这类状态只在**进程内**跨 detach/re-attach 存活。
 - `ComposeView` 首次测量为 0 的问题由锚点模型自然消化：0 尺寸时不定位，等有效 `onSizeChanged`（修 #184）。
 - ViewTree owner 在 `FxContent.create()` 内部设置到内容 view 上（core 只认 `FxContent`，不感知 owner）；
-  owner 的 `onDestroy` 挂在 `FxFeature.onCancel()` 上——core 保证它只在 `cancel()` 时来一次，普通 detach 不触发。
+  生命周期映射：attach → STARTED，show → RESUMED，hide → STARTED，detach → CREATED，只有 cancel → DESTROYED + `ViewModelStore.clear()`。
+  destroy 挂在 `FxFeature.onCancel()` 上——core 保证它只在 `cancel()` 时来一次，普通 detach 不触发。
 - 仅此模块依赖 coroutines；core 无 Flow。
 
 ## 7. 公开 API 草案

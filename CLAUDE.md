@@ -20,8 +20,9 @@ Three Gradle modules:
 
 设计见 `docs/superpowers/specs/2026-08-29-floatingx-3-modular-architecture-design.md`，
 计划见 `docs/superpowers/plans/`（Plan 2 = `docs/superpowers/plans/2026-08-30-floatingx-3-plan-2-scope-app.md`，
-Plan 3 = `docs/superpowers/plans/2026-08-30-floatingx-3-plan-3-system.md`）。
-已落地四个新模块，都用 `build-logic/` 的 `floatingx.library` convention plugin：
+Plan 3 = `docs/superpowers/plans/2026-08-30-floatingx-3-plan-3-system.md`，
+Plan 4 = `docs/superpowers/plans/2026-08-30-floatingx-3-plan-4-compose.md`）。
+已落地五个新模块，都用 `build-logic/` 的 `floatingx.library` convention plugin：
 
 | 新模块 | 包 | 内容 |
 |---|---|---|
@@ -29,13 +30,14 @@ Plan 3 = `docs/superpowers/plans/2026-08-30-floatingx-3-plan-3-system.md`）。
 | `floatingx-scope` | `com.petterp.floatingx.scope` | `ViewGroupHost` / `FragmentHost` 与 `fxScope` 局部浮窗 |
 | `floatingx-app` | `com.petterp.floatingx.app` | `AppHost`：跟随前台 Activity 的全局浮窗 |
 | `floatingx-system` | `com.petterp.floatingx.system` | `SystemHost`：WindowManager 窗口、悬浮窗权限、键盘适配 |
+| `floatingx-compose` | `com.petterp.floatingx.compose` | `compose {}` DSL、归 control 所有的 `FxComposeOwner`、`stateFlow`/`positionFlow`（minSdk 23） |
 
 `floatingx-app` 用清单里声明的 `FxAppInitProvider`（ContentProvider）在进程启动时
 `FxActivityTracker.init(application)`，所以 install 写在任何时机都能拿到当前前台 Activity。
 `floatingx-system` 的权限申请页 `FxPermissionActivity` 也由本模块清单声明，接入方无需自行配置。
 旧的 `floatingx` / `floatingx_compose` 模块在 demo 重写前保留。跑新模块测试：
-`./gradlew :floatingx-core:test :floatingx-scope:test :floatingx-app:test :floatingx-system:test`
-（当前 133 / 22 / 32 / 47 个用例，Robolectric `sdk=35`——SDK 36 的沙箱要 JDK 21，本仓库工具链是 JDK 17）。
+`./gradlew :floatingx-core:test :floatingx-scope:test :floatingx-app:test :floatingx-system:test :floatingx-compose:test`
+（当前 136 / 22 / 32 / 60 / 20 个用例，Robolectric `sdk=35`——SDK 36 的沙箱要 JDK 21，本仓库工具链是 JDK 17）。
 
 ## Build & Commands
 
