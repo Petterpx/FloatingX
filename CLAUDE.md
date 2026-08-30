@@ -5,141 +5,160 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project
 
 FloatingX — an Android floating-window (悬浮窗) library published to Maven Central as
-`io.github.petterpx:floatingx` / `io.github.petterpx:floatingx-compose`. Comments, logs and docs
-are written in Chinese; keep that convention when editing library sources.
+`io.github.petterpx:floatingx-{core,app,scope,system,compose}`. Comments, logs and docs are written
+in Chinese; keep that convention when editing library sources.
 
-Three Gradle modules:
+3.0 is a full rewrite; the 2.x modules (`floatingx/`, `floatingx_compose/`) are gone and the API is
+not backwards compatible (see `docs/MIGRATION.md`).
 
-| Module | Purpose |
-|---|---|
-| `floatingx` | The core library. Pure View-based, only depends on `appcompat` + `kotlin-stdlib`. |
-| `floatingx_compose` | Optional add-on providing a `ViewTreeLifecycleOwner`/`SavedStateRegistry` so Compose content can live inside a **system** floating window. |
-| `app` | Demo app; also the only real test harness (see Validation). |
+## 模块
 
-## 3.0 重构进行中
+所有库模块都用 `build-logic/` 的 `floatingx.library` convention plugin
+（minSdk 21 / compileSdk 36 / Java 17 / `explicitApi()` / `jvmDefault=enable` / maven 坐标 / Robolectric）。
+模块自己的 `build.gradle.kts` 只声明依赖。
 
-设计见 `docs/superpowers/specs/2026-08-29-floatingx-3-modular-architecture-design.md`，
-计划见 `docs/superpowers/plans/`（Plan 2 = `docs/superpowers/plans/2026-08-30-floatingx-3-plan-2-scope-app.md`，
-Plan 3 = `docs/superpowers/plans/2026-08-30-floatingx-3-plan-3-system.md`，
-Plan 4 = `docs/superpowers/plans/2026-08-30-floatingx-3-plan-4-compose.md`）。
-已落地五个新模块，都用 `build-logic/` 的 `floatingx.library` convention plugin：
-
-| 新模块 | 包 | 内容 |
-|---|---|---|
-| `floatingx-core` | `com.petterp.floatingx.core` | 状态机、锚点、手势、feature、注册表 |
-| `floatingx-scope` | `com.petterp.floatingx.scope` | `ViewGroupHost` / `FragmentHost` 与 `fxScope` 局部浮窗 |
-| `floatingx-app` | `com.petterp.floatingx.app` | `AppHost`：跟随前台 Activity 的全局浮窗 |
-| `floatingx-system` | `com.petterp.floatingx.system` | `SystemHost`：WindowManager 窗口、悬浮窗权限、键盘适配 |
-| `floatingx-compose` | `com.petterp.floatingx.compose` | `compose {}` DSL、归 control 所有的 `FxComposeOwner`、`stateFlow`/`positionFlow`（minSdk 23） |
+| 模块 | 包 | 内容 | 依赖 |
+|---|---|---|---|
+| `floatingx-core` | `com.petterp.floatingx.core` | 状态机 `FxEngine`、锚点定位、手势、feature、`FxControl`、`FloatingX` 注册表、`FxSpStorage` | `androidx.annotation`(api)、`androidx.core` |
+| `floatingx-app` | `com.petterp.floatingx.app` | `AppHost`：跟随前台 Activity 的全局浮窗；黑白名单 / filter | core、`androidx.core` |
+| `floatingx-system` | `com.petterp.floatingx.system` | `SystemHost`：`WindowManager` 窗口、悬浮窗权限、键盘 / 返回键 | core、`androidx.core` |
+| `floatingx-scope` | `com.petterp.floatingx.scope` | `ViewGroupHost` / `FragmentHost` 与 `fxScope {}` 局部浮窗 | core、`androidx.fragment`(**compileOnly**) |
+| `floatingx-compose` | `com.petterp.floatingx.compose` | `compose {}` DSL、归 control 所有的 `FxComposeOwner`、`stateFlow()` / `positionFlow()`（**minSdk 23**） | core、compose-ui(api)、lifecycle 2.10.0、savedstate、coroutines |
+| `app` | `com.petterp.floatingx.demo` | demo + instrumentation 测试工程（minSdk 23） | 以上全部 |
 
 `floatingx-app` 用清单里声明的 `FxAppInitProvider`（ContentProvider）在进程启动时
 `FxActivityTracker.init(application)`，所以 install 写在任何时机都能拿到当前前台 Activity。
-`floatingx-system` 的权限申请页 `FxPermissionActivity` 也由本模块清单声明，接入方无需自行配置。
-旧的 `floatingx` / `floatingx_compose` 模块在 demo 重写前保留。跑新模块测试：
-`./gradlew :floatingx-core:test :floatingx-scope:test :floatingx-app:test :floatingx-system:test :floatingx-compose:test`
-（当前 136 / 22 / 32 / 60 / 20 个用例，Robolectric `sdk=35`——SDK 36 的沙箱要 JDK 21，本仓库工具链是 JDK 17）。
+`floatingx-system` 的清单声明了 `SYSTEM_ALERT_WINDOW` 与权限申请页 `FxPermissionActivity`，
+接入方无需自行配置。
+
+依赖边界（CI 有 JUnit 扫描断言）：core 源码不得 import `android.view.WindowManager`、
+`androidx.fragment`、`androidx.compose`、`androidx.lifecycle`、`androidx.appcompat`。
 
 ## Build & Commands
 
-Java 17 is required (AGP 8.x). Version catalog: `gradle/libs.versions.toml`.
+Java 17 is required (AGP 8.13.2 / Gradle 8.14.3 / Kotlin 2.2.21). Version catalog:
+`gradle/libs.versions.toml`.
 
 ```bash
-./gradlew publishToMavenLocal -PisPublish=false -PversionName=1.0   # what CI runs on every PR
-./gradlew app:assembleDebug                                          # build the demo apk
-./gradlew app:installDebug                                           # install demo on device
+./gradlew test                                                       # 全部 JVM/Robolectric 单测（CI 必跑）
+./gradlew :floatingx-core:test                                       # 单模块（core 140 / scope 22 / app 32 / system 60 / compose 25 用例）
+./gradlew app:assembleDebug                                          # 构建 demo apk
+./gradlew app:installDebug                                           # 安装 demo
+./gradlew publishToMavenLocal -PisPublish=false -PversionName=3.0.0-SNAPSHOT   # CI 每个 PR 都跑
 ./gradlew lint                                                       # android lint
-./gradlew test                                                       # only placeholder ExampleUnitTest exists
 ```
 
-Publishing (release workflow, on GitHub Release):
+Instrumentation（需要设备 / 模拟器，CI 用 `reactivecircus/android-emulator-runner`，api-level 34）：
+
+```bash
+./gradlew app:installDebug app:installDebugAndroidTest
+adb shell appops set com.petterp.floatingx.app SYSTEM_ALERT_WINDOW allow   # 系统浮窗用例需要
+adb shell settings put global window_animation_scale 0
+adb shell settings put global transition_animation_scale 0
+adb shell settings put global animator_duration_scale 0
+./gradlew app:connectedDebugAndroidTest
+```
+
+**Robolectric 固定 `sdk=35`**（各模块 `src/test/resources/robolectric.properties`）：SDK 36 的沙箱
+要求 JDK 21，而本仓库工具链是 JDK 17。改这个值前先确认工具链。
+
+Publishing（release workflow，GitHub Release 触发）：
 `./gradlew publishAndReleaseToMavenCentral --no-configuration-cache -PisPublish=true -PversionName=$TAG`
 
-Gradle properties that change behaviour (`settings.gradle` reads them into `rootProject.ext`):
+Gradle properties（`settings.gradle` 读进 `rootProject.ext`）：
 
-- `-PversionName` / `-PversionCode` — default to `git describe --tags` and `git rev-list HEAD --count`.
-- `-PisPublish` — when `true`, `signAllPublications()` is applied (needs GPG env vars).
-- `isDev` in `local.properties` (default `true`) — `true` makes `app` depend on the local
-  `:floatingx` / `:floatingx_compose` projects; `false` switches it to the published artifacts.
+- `-PversionName` / `-PversionCode` — 默认取 `git describe --tags` 与 `git rev-list HEAD --count`。
+- `-PisPublish` — `true` 时应用 `signAllPublications()`（需要 GPG 环境变量）。
+- `isDev` in `local.properties`（默认 `true`）— `true` 时 `app` 依赖本地 project，`false` 切到已发布产物。
 
-Notes that contradict `.github/copilot-instructions.md` — trust this file:
+日志 tag 是 `Fx-<scope>`（`Fx-system` 等）与用户自己传的（demo 用 `Fx-demo`），
+所以用 `adb logcat | grep "Fx-"`。只有配置里调过 `enableLog(tag)` 才会有日志。
 
-- **There is no `detekt` task.** `check/detekt/detekt.yml` and the jar exist, but no Gradle plugin
-  applies them and the CI detekt step is commented out in `.github/workflows/android.yml`.
-- The library modules have **no tests at all** (`floatingx/src/` contains only `main`); `app` and
-  `floatingx_compose` only carry generated `ExampleUnitTest`. Behaviour is verified by hand
-  through the demo app.
-- Log tags are `Fx-<scope>` (e.g. `Fx-app`, `Fx-system`, `Fx-activity`), not `FloatingX`, so use
-  `adb logcat | grep "Fx-"`. Logs only appear when `setEnableLog(true)` was called on the builder.
+## Architecture：Host / Engine / Feature
 
-## Architecture
+三个正交的角色，取代 2.x 的 Helper → Control → Provider：
 
-### Three-layer split: Helper (config) → Control (public API) → Provider (platform)
+1. **Host（`core.host.FxHost`）—— 浮窗挂在哪。**
+   `bind(session)` / `createContainer()` / `attach` / `detach` / `bounds()` / `release()`，
+   通过 `FxHostSession` 向 engine 报告 `onHostReady` / `onHostLost` / `onBoundsChanged` / `requestSwap`。
+   - `AppHost`（app）：容器是 `FxLayerContainer`，挂到当前前台 Activity 的 **DecorView**
+     （默认，不是 `R.id.content`，这样拖动才是真正全屏）；换页时把**同一个容器**静默 reparent，
+     engine 状态、feature、动画都不重来。被黑白名单/filter 拒绝的页面上整体卸下。
+   - `SystemHost`（system）：容器是 `FxWindowContainer`，挂到 `WindowManager`；
+     权限三策略 `Auto/Manual/Skip`，被拒时 `requestSwap(fallback)` 降级到 `AppHost`（原 `SYSTEM_AUTO`）。
+   - `ViewGroupHost` / `FragmentHost`（scope）：挂到任意 `ViewGroup` / Fragment 根 view；
+     不进注册表，生命周期归调用方。
 
-1. **Helper** — `assist/helper/`. Immutable-ish config built by a DSL/Java builder.
-   `FxBasisHelper` holds every shared option as `internal @JvmField`; `FxAppHelper` adds
-   global-only concerns (tag, black/whitelist, `FxScopeType`, permission interceptor, keyboard
-   adaptation); `FxScopeHelper` adds the `toControl(Activity|Fragment|ViewGroup)` entry points.
-   Helpers are the single source of truth — `updateConfig {}` mutates the helper, and the view
-   helpers re-read it.
+2. **Engine（`core.engine.FxEngine`）—— 状态机 + 命令队列。**
+   `INSTALLED → ATTACHED → SHOWN`，终态 `CANCELLED`。host 未 ready 时 `show/hide/moveTo` 入队，
+   ready 后按序回放；`onHostLost` 保留 `desiredVisible`，`swapHost` 保留 anchor / listener / feature。
+   内容 view 归 engine 所有（不归 host），所以换页、换 host 都不会重建内容。
 
-2. **Control** — `imp/FxBasisControlImp` implements the user-facing `IFxControl` (`show`, `hide`,
-   `cancel`, `move`, `updateView`, `updateViewContent`, click listeners) and delegates everything
-   platform-specific to a provider. Subclasses only override `createPlatformProvider()` and
-   optionally `createConfigProvider()` / `createAnimationProvider()`. **`initProvider()` must be
-   called right after constructing a control** — the provider fields are `lateinit`.
+3. **Feature（`core.feature.FxFeature`）—— 容器行为插件。**
+   `onAttach(scope)` / `onDetach` / `onCancel` / `onRemove` / `onConfigChanged` /
+   `onContentSizeChanged` / `onBoundsChanged` / `onShow` / `onHide`。
+   内置 `LocationFeature`（锚点、margin、overflow、safeArea、吸附、持久化）、
+   `GestureFeature`、`AnimationFeature`、`ModalScrimFeature`；
+   host 还能通过 `hostFeatures()` 追加（system 的 `SystemWindowFeature` / `KeyboardFeature`），
+   compose 模块追加 `ComposeOwnerFeature`。feature 之间不互相引用，共享数据走 `FxFeatureScope`。
 
-3. **Provider** — `imp/{app,system,scope}/`, all implementing `IFxPlatformProvider`. A provider owns
-   the container view, the container `ViewGroup`, and attach/detach:
-   - `FxAppPlatformProvider` — app-level, no permission. Adds `FxDefaultContainerView` to the
-     current Activity's **`DecorView`** (deliberately not `R.id.content`, so dragging is truly
-     fullscreen and unaffected by status/navigation bars). Follows the foreground Activity via
-     `FxAppLifecycleImp` (an `ActivityLifecycleCallbacks` registered on the `Application`).
-   - `FxSystemPlatformProvider` — system-level. Adds `FxSystemContainerView` to `WindowManager`,
-     handles the `SYSTEM_ALERT_WINDOW` permission request (via the invisible
-     `FxPermissionActivity`/fragment in `util/`), and with `FxScopeType.SYSTEM_AUTO` silently
-     falls back to the app-level implementation when permission is denied.
-   - `FxScopePlatFromProvider` — local floating window bound to a given `ViewGroup`
-     (Activity → `R.id.content`, Fragment → its root view, or any `ViewGroup`).
+**新增行为时优先加一个 `FxFeature`，而不是往容器里塞代码；新增配置项优先加到 `FxConfigScope` +
+`FxConfig.Builder`，而不是加构造参数。** 两边都要加：Kotlin DSL 走 `FxConfigScope`，Java 走
+`FxConfig.Builder`。
 
-   `FloatingX.install()` picks `FxSystemControlImp` vs `FxAppControlImp` from
-   `FxScopeType.hasPermission` at install time.
+### 配置与内容
 
-### Global registry
+`FxConfig` 不可变；Kotlin 用 `FxConfigScope` DSL（`FloatingX.install(tag) {}` 是 `FxInstallScope`，
+多一个 `host`），Java 用 `FxConfig.builder(FxContent.layout(id))`。
+`control.update {}` 基于旧配置局部修改。内容是 `FxContent.Layout / Static / Provider`。
 
-`FloatingX` (object) keeps `HashMap<tag, IFxAppControl>`. Every global floating window is addressed
-by a tag (`FX_DEFAULT_TAG` when unset); installing over an existing tag cancels the old one. Local
-(scope) floating windows are **not** registered here — their lifetime is the caller's.
+### 定位
 
-### The container view and its helpers
-
-`view/FxBasicContainerView` is a `FrameLayout` subclass that hosts the user's layout/view and wraps
-it in a `FxViewHolder`. It delegates all behaviour to a fixed list of `FxViewBasicHelper`s, each
-receiving `initConfig` / `onInit` / `onSizeChanged` / `onConfigurationChanged` / `onPreCancel`:
-
-- `FxViewTouchHelper` — multi-touch gesture arbitration, click vs. drag, long-press, `FxDisplayMode`.
-- `FxViewLocationHelper` — coordinates, gravity, boundaries, edge adsorption, rebound, half-hide,
-  rotation/config-change restore, and persistence through `IFxConfigStorage`.
-- `FxViewAnimationHelper` — show/hide animation driven by `FxAnimation`.
-
-Subclasses (`FxDefaultContainerView`, `FxSystemContainerView`) implement only the platform-specific
-bits: `updateXY`, `parentSize`, and the touch-down/move/cancel hooks (the system variant writes back
-to `WindowManager.LayoutParams`; the default variant moves the view directly).
-
-When adding a new behaviour, prefer a new `FxViewBasicHelper` over code in the container view, and a
-new flag on `FxBasisHelper` + its `Builder` over a new constructor parameter.
+纯 Kotlin 的几何类型（`core.layout.FxGeometry`，刻意不用 `android.graphics.*`），
+`FxLayoutResolver` / `FxAdsorbResolver` 因此可以在纯 JVM 里表驱动测试。
+存的是 `FxAnchor(gravity, dx, dy)` 而不是左上角坐标——这是 3.0 修掉一大票尺寸/旋转 issue 的根因。
 
 ### Java interop
 
-The public API is Kotlin but must stay Java-friendly: builders expose `builder()` +
-`@JvmStatic`/`@JvmOverloads`, DSL-only entry points are marked `@JvmSynthetic`, and callback
-interfaces meant for Java (`IFxContextProvider`, `IFxHolderProvider`) are written in Java. Keep
-`CustomJavaApplication.java` in the demo compiling.
+公开 API 全是 Kotlin，但都留了 Java 入口：DSL-only 入口标 `@JvmSynthetic`；
+`FxConfig.Builder` / `AppHost.Builder` / `SystemHost.Builder` / `ViewGroupHost.of` /
+`FxPermissionStrategy.auto()/manual()/skip()` 是 Java 侧入口；`FxListener` 全默认方法
+（convention plugin 开了 `jvmDefault=enable`）；`AppActivityFilter` /
+`SystemLayoutParamsCustomizer` / `FxRegion` 是 `fun interface`。
+**改公开 API 后必须保证 `app/src/main/java/com/petterp/floatingx/demo/java/JavaDemo.java` 仍然编译。**
 
 ## Validation
 
-There is no automated coverage, so exercise changes through the demo app —
-`MainActivity` (local windows) and `TestActivity`, which links to `MultipleFxActivity` (multi-window
-by tag), `ScopeActivity` (Activity/Fragment/ViewGroup scopes), `SystemActivity` (system window +
-permission flow), `ImmersedActivity` (no status bar), `SimpleRvActivity` (RecyclerView scroll
-interaction) and `BlackActivity` (blacklist). Compose usage lives in `kotlin/FxComposeSimple.kt`
-and requires `enableComposeSupport()` on the `AppHelper.Builder`.
+三层：
+
+1. `./gradlew test` — 五个模块共 279 个 JVM / Robolectric 用例。
+2. `./gradlew app:connectedDebugAndroidTest` — `app/src/androidTest/`：
+   `AppHostReparentTest`（换页 reparent + 黑名单）、`RotationTest`（旋转重建 + 锚点持久化）、
+   `SystemWindowResizeTest`（WM 窗口 resize 时 LayoutParams 无跳变）、
+   `ComposeOwnerSurvivalTest`（owner 跨 Activity 存活）、`ModalScrimTest`（modal 拦截）。
+   共用工具在 `TestUtil.kt`（主线程调用 + `await` 条件等待，禁止裸 sleep）。
+3. demo 手工验证 —— `app` 模块，`./gradlew app:installDebug`：
+
+**能力页**（`demo/pages/`）：`AppHostActivity`、`SystemHostActivity`、`ScopeHostActivity`、
+`GestureActivity`、`LayoutActivity`、`MultiWindowActivity`、`ModalActivity`、
+`ComposeActivity` / `ComposeSecondActivity`、`SecondActivity`、`BlackActivity`、`ImmersedActivity`。
+
+**回归页**（`demo/regression/`，按 issue 编号命名）：`Issue187Activity`（尺寸变化锚点不动）、
+`Issue210Activity`（Compose 跨页存活）、`Issue221Activity`（黑名单命中子类）、
+`Issue240Activity`（越界不被裁剪）、`Issue244Activity`（Fragment 内浮窗）。
+
+全局浮窗集中在 `demo/DemoWindows.kt` 安装（页面按钮只操作 `FxControl`）；
+Java 样例在 `demo/java/JavaDemo.java`；页面骨架 DSL 在 `demo/ui/DemoPage.kt`，
+浮窗内容在 `demo/ui/DemoContent.kt`。demo 的 Activity **一律不配 `configChanges`**（旋转走 recreate）。
+
+## 计划与裁决归档
+
+设计与实施计划都在 `docs/superpowers/`：
+
+- Spec：`docs/superpowers/specs/2026-08-29-floatingx-3-modular-architecture-design.md`
+  （§1.1 版本矩阵、§2 core、§3–6 各模块、§7 公开 API、§9 issue 覆盖矩阵、§10 测试策略）。
+- Plans：`docs/superpowers/plans/`（plan 1 core、plan 2 scope+app、plan 3 system、plan 4 compose、
+  plan 5 demo）。
+
+用户文档：`README.md` / `README_EN.md`（结构一致，中英对照）、`docs/MIGRATION.md`（2.x → 3.0 对照）。
+改公开 API 时三份都要同步。
