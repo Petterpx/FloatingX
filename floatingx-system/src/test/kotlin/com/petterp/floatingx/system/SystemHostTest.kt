@@ -268,6 +268,19 @@ class SystemHostTest {
     }
 
     @Test
+    fun `systemHost dsl installs with a fallback`() {
+        ShadowSettings.setCanDrawOverlays(true)
+        val parent = FrameLayout(app)
+        val control = FloatingX.install("dsl") {
+            view { ctx -> View(ctx).apply { layoutParams = ViewGroup.LayoutParams(100, 50) } }
+            systemHost(app) { fallback(LayerHost(parent)); layoutParams { it.alpha = 0.9f } }
+        }
+        control.show()
+        assertTrue(control.host is SystemHost)
+        assertEquals(0.9f, window(control).windowParams.alpha, 0f)
+    }
+
+    @Test
     fun `activity context is unwrapped to the application`() {
         val activity = org.robolectric.Robolectric.buildActivity(android.app.Activity::class.java).setup().get()
         assertSame(app, SystemHost.builder(activity).build().context)

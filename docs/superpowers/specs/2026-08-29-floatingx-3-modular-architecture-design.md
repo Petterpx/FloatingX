@@ -83,6 +83,7 @@ public interface FxHost {
     /** 当前可用区域与 insets。用 WindowInsetsCompat，不再用厂商反射 */
     public fun bounds(): FxBounds
     public fun release()
+    public fun hostFeatures(): List<FxFeature> = emptyList()   // host 自带 feature（键盘、窗口 flag 映射），换 host 时替换
 }
 
 /** 一次布局提交：内容左上角坐标 + 当前锚点 + 布局方向。gravity 只是 anchor.gravity 的快捷读法 */
@@ -191,6 +192,7 @@ public data class FxGesture(
 - `onInterceptTouchEvent` 只在"确定进入拖动"那一刻返回 true（`childPriority` 决定 slop 前是否让子 view 先消费）。
 - 拖动中每个 MOVE 直接 `host.updateLayout`，不经动画、不经 `post`；`PointF/RectF` 复用，触摸路径零分配。
 - `dragRegion` 支持 `FxRegion.child(viewId)` / `FxRegion.rect(RectF)` / `FxRegion.custom((x, y) -> Boolean)`。
+- slop 与拖动增量按屏幕坐标（rawX 偏移）计算，落点判断按容器相对坐标——Window 容器随手指移动时相对坐标不可用。
 
 ### 2.5 `FxFeature` —— 容器行为插件
 
@@ -326,24 +328,31 @@ public fun FxInstallScope.appHost(app: Application, block: AppHost.Builder.() ->
 ```kotlin
 public class SystemHost private constructor(...) : FxHost {
     public class Builder(context: Context) {
-        fun layoutParams(customizer: (WindowManager.LayoutParams) -> Unit)   // #194/#220/#241/#235/#155/#211
-        fun permission(strategy: FxPermissionStrategy)                       // Auto（默认）| Manual(interceptor) | Skip
+        fun layoutParams(customizer: SystemLayoutParamsCustomizer)           // #194/#220/#241/#235/#155/#211
+        fun permission(strategy: FxPermissionStrategy)                       // auto()（默认）| manual(interceptor) | skip()
         fun fallback(host: FxHost)                                           // 权限被拒时 requestSwap（原 SYSTEM_AUTO）
-        fun keyboard(enabled: Boolean, vararg editTextIds: Int)              // 注册 KeyboardFeature
-        fun onBackPressed(listener: () -> Boolean)
+        fun keyboard(vararg editTextIds: Int)                                // hostFeatures() 提供 KeyboardFeature
+        fun onBackPressed(listener: SystemBackListener)
         fun build(): SystemHost
     }
     public val windowLayoutParams: WindowManager.LayoutParams   // 只读快照
+    public val isPermissionGranted: Boolean
+    public fun retryPermission()                                // 被拒后业务方自行拿到权限时调用
 }
-public fun interface FxPermissionInterceptor { fun onRequest(control: FxPermissionRequest) }
+public fun interface FxPermissionInterceptor { fun onRequest(request: FxPermissionRequest) }
 public interface FxPermissionRequest { fun proceed(); fun deny(); fun useFallback() }
+// Kotlin DSL
+public fun FxInstallScope.systemHost(context: Context, block: SystemHost.Builder.() -> Unit = {}): SystemHost   // 创建并设置 host
 ```
 
-- 默认 `LayoutParams`：O+ `TYPE_APPLICATION_OVERLAY` 否则 `TYPE_PHONE`；`FLAG_NOT_FOCUSABLE or FLAG_NOT_TOUCH_MODAL or FLAG_LAYOUT_IN_SCREEN`；`gravity` 由 `anchor.gravity` 映射；`width/height = WRAP_CONTENT`。用户 customizer 最后执行，可覆盖任何字段（含 `type`、`softInputMode`、`FLAG_LAYOUT_NO_LIMITS`）。
+- 默认 `LayoutParams`：O+ `TYPE_APPLICATION_OVERLAY` 否则 `TYPE_PHONE`；`FLAG_NOT_FOCUSABLE or FLAG_NOT_TOUCH_MODAL or FLAG_LAYOUT_IN_SCREEN or FLAG_LAYOUT_NO_LIMITS`（半隐 / overflow 需要窗口能放到屏幕外；core 已按 safe area clamp，不会误出界）；`format = TRANSLUCENT`；`gravity` 由 `anchor.gravity` 映射；`width/height = WRAP_CONTENT`。用户 customizer 最后执行，可覆盖任何字段（含 `type`、`softInputMode`）。
 - `touchable=false` 映射为 `FLAG_NOT_TOUCHABLE`；`KeyboardFeature` 需要焦点时临时去掉 `FLAG_NOT_FOCUSABLE` 并 `updateViewLayout`，失焦后恢复。
-- 权限：`FxPermission.isGranted(context)`；申请通过透明 `FxPermissionActivity`（`excludeFromRecents`、`noHistory`）从**任意 context** 启动（Service 可用，#192），结果通过静态 `SparseArray<callback>` 按 requestId 分发。`Manual` 策略把 `FxPermissionRequest` 交给用户拦截器。
+- 权限：`FxPermission.isGranted(context)`；申请通过透明 `FxPermissionActivity`（`excludeFromRecents` + 独立 task（`NEW_TASK` + `taskAffinity=""`）——不能用 `noHistory`，否则被设置页遮住时会被系统 finish，收不到 `onActivityResult`）从**任意 context** 启动（Service 可用，#192），回调通过 `FxPermission` 内部的 `SparseArray<FxPermissionCallback>` 按 requestId 分发。`Manual` 策略把 `FxPermissionRequest` 交给用户拦截器。该 Activity 由本模块清单声明，接入方无需自行配置。
 - 被拒且有 `fallback` → `session.requestSwap(fallback)`；无 fallback → 状态停留在 `Installed`，`desiredVisible=true`，用户可稍后 `retryPermission()`。
-- `bounds()`：`WindowMetrics`（R+）/ `Display.getRealSize`，insets 来自 `WindowInsetsCompat`（`FxWindowContainer` attach 后可取）。
+- `bounds()`：`WindowMetrics`（R+）/ `Display.getRealSize` 由容器读取（`FxWindowContainer.refreshBounds()`），insets 来自容器的 `onApplyWindowInsets`（`WindowInsetsCompat`，attach 后可取）。
+- 旋转 / insets 变化时由 `FxWindowContainer` 自己刷新屏幕尺寸后再回调 `onBoundsChanged`（同步链路里 host 来不及刷新）。
+- `Builder` 传入 Activity 时解包为 `applicationContext`（系统窗口活得比页面久，不能持有 Activity）。
+- attach 失败（`BadTokenException` / `SecurityException`）时窗口保持未挂载并记录日志（不崩溃）；`retryPermission()` 检测到容器未挂到 WindowManager 时会 `onHostLost` → `onHostReady` 重新挂载。
 
 ## 5. floatingx-scope
 
