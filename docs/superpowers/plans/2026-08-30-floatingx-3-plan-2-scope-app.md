@@ -2023,3 +2023,60 @@ git commit -m "feat(app): appHost DSL 与 attachedActivity 扩展；docs: spec �
 - **Spec 覆盖：** §3 全部行为（跟踪、re-parent 时机、过滤即 detach、destroy 判定、attachedActivity、bounds insets）→ Task 6/7/8；§3 `modal` → Task 2（裁决迁移）；§5 三个入口 + Java `of` + 不进注册表 + Fragment 等 view → Task 3/4/5；§7 Java 样例 → Task 4/8 的 Java 测试；§8 性能（无 post 兜底、换父无分配）→ Task 7 实现；§10 "AppHost：A→B→back 顺序、B 先 destroy、黑名单 detach、父类过滤"与"ViewGroupHost / Fragment：attach 时机、detach 自动 cancel" → Task 6/7/3/5 的用例。§10 的"旋转（demo manifest 去掉 configChanges）"留给 Plan 5 的 demo/instrumentation。
 - **占位扫描：** 无 TBD/TODO；每个代码步骤都有完整代码。
 - **类型一致性：** `ViewGroupHost.viewGroup`（public val，Task 3/4 测试读取）；`AppHost.attachedActivity/target/application/accepts`（Task 7 定义，Task 8 使用）；`AppHost.contentInsets` 签名在 Task 7 的 Interfaces 与实现一致；`AppActivityFilter.accept`（Task 6）在 Task 7 Builder 与 Task 8 Java 测试一致；`FxInstallScope.host` 是 core 已有的 `var host: FxHost?`。
+
+## 执行记录（SDD ledger 归档，供 Plan 3–5 参考）
+
+分支 feat/3.0-scope-app，10 个功能提交 + 2 个修复波提交（d53a938..3165ee9）；最终 ./gradlew test：core 130 / scope 22 / app 32，0 失败。
+
+### Pre-flight scan
+
+| Pair / Task | Produces vs consumes | Finding |
+|---|---|---|
+| T1 ↔ T3 | T1 放占位 ViewGroupHost.kt（internal object），T3 整体替换 | 一致 |
+| T1 ↔ T5 | T1 边界测试只允许 FragmentHost.kt / FxFragmentScope.kt import fragment/lifecycle；T5 文件名正是这两个 | 一致 |
+| T1 ↔ T6/T7 | T1 的 AppAttachTarget（DECOR/CONTENT）被 T7 parentOf/contentInsets 使用 | 一致 |
+| T2 ↔ T4/T8 | T2 `Builder.modal(enabled=true, dismiss=false)` @JvmOverloads；T4 Java 用 `modal(true,true)`，T8 Java 用 `modal()` | 一致 |
+| T3 ↔ T4 | T4 测试读 `ViewGroupHost.viewGroup`（T3 声明 public val） | 一致 |
+| T4 ↔ T5 | 都用 core 的 `FxInstallScope.host` var 与 `FloatingX.create(tag){}` | 一致 |
+| T6 ↔ T7 | ActivityRules(5 个集合参数) + ACCEPT_ALL；T7 Builder 按同一顺序构造 | 一致 |
+| T7 ↔ T8 | T8 用 attachedActivity / accepts / Builder 全部方法 / `FxAppExtKt.getAttachedActivity`（文件名 FxAppExt.kt） | 一致 |
+| T1 自身 | 两个 DependencyBoundaryTest 与 core 的同名测试逻辑块近似重复 | Ruling 见下 |
+| T2 自身 | 测试为纯 JVM（FxContent.layout(1)），实现无 Android 依赖 | 一致 |
+| T3 自身 | `window detach` 用例依赖 Robolectric destroy 移除 decor；计划已给兜底 | 一致 |
+| T5 自身 | `non view group root` 用例期望异常从 create 冒出：bind→LiveData 立即投递（fragment RESUMED）→checkNotNull | 一致 |
+| T7 自身 | API<29 用 Handler.post（已从 decorView.post 改）；测试 @Config(sdk=28) 先 idle 再断言 | 一致 |
+| T8 自身 | spec §3/§5 修订步骤与 T2/T4/T7 裁决一一对应 | 一致 |
+
+- Ruling: 三个模块各自保留一份 DependencyBoundaryTest（逻辑近似重复）— 测试源集之间没有共享代码的途径，为此建 test-fixtures 模块不值得（YAGNI）— 若错，代价是三处各改一次。
+- Ruling: 就地建分支 feat/3.0-scope-app 而不建 worktree — 用户在 Plan 1 明确选择就地分支并要求本地合回 main，沿用 — 若错，代价是切分支时工作区变化（无未提交改动，风险为零）。
+- Ruling: 实现者一律 `model: opus`（用户 CLAUDE.md "编码阶段用 Opus 5"）；评审按 diff 复杂度选 sonnet/opus。
+
+### Tasks
+- Task 1: minor (deferred): app 的 DependencyBoundaryTest 在 startsWith 判断前先算 imported（与 scope 版风格不一致）；两份测试近似重复（见 pre-flight ruling）；占位 ScopeModule 由 Task 3 删除。
+- Task 1: ⚠️ POM/测试输出无法从 diff 验证 — 实现者报告含 grep 输出（core=compile、无 fragment），接受。
+- Task 1: complete (commits d53a938..27db162, review clean)
+- Task 2: minor (deferred): modal 的 KDoc 在 FxConfigScope / ModalScrimFeature 两处近似重复；Builder.modal(false) 单独路径无直接测试。
+- Task 2: complete (commits 27db162..41fda35, review clean)
+- Task 3: minor (deferred): ViewGroupHostTest 有 3 个未用 import（assertFalse/assertNull/assertTrue，计划原文）；`window detach…re-attach` 用例只断言 lost 一半；LinearLayout 等非叠放父容器无运行时守卫（KDoc 已说明）。
+- Task 3: complete (commits 41fda35..3e4b020, review clean)
+- Task 4: Ruling: Java 测试文件放 `src/test/java/`（计划写 src/test/kotlin，实际 javac 对 kotlin 目录 NO-SOURCE，测试静默不跑；core 的 JavaApiTest 也在 java 目录）— 采纳实现者纠正，Task 8 的 JavaAppApiTest 同样放 src/test/java — 若错，代价为零。
+- Task 4: minor (deferred): `tag is forwarded for persistence` 只断言 tag 传递，未配 storage 验证持久化真正生效；CancelOnDestroy 的 CANCELLED 守卫与 core cancel() 幂等重复。
+- Task 4: complete (commits 3e4b020..cfc4263, review clean)
+- Task 5: minor (deferred): (1) LiveData null 分支实为死代码（viewLifecycleOwnerLiveData 从不置 null），缺注释；(2) release() 不移除当前 view owner 上的 viewLifecycleObserver（与 ViewGroupHost 不对称）；(3) 非 ViewGroup 根抛 ISE 发生在 LifecycleRegistry.addObserver 派发链内，会卡住该 fragment 的 registry（计划原文规定的抛出点）；(4) fragment 已 DESTROYED 后调用 fxScope 会产生永不 ready/cancel 的僵尸 control，建议 check(currentState != DESTROYED)；(5) fragmentHost DSL 与 onViewCreated 入口无测试；(6) FragmentHost 无 of()/public fragment，与 ViewGroupHost 不对称；(7) 与 ViewGroupHost 的 createContainer/attach/bounds 近似重复；(8) retained fragment 复用旧 Activity context 的容器，缺 KDoc 提示；(9) assertEquals(true, …) 应为 assertTrue。
+- Task 5: complete (commits cfc4263..46cd223, review clean)
+- Task 6: minor (deferred): whiteNames（按名白名单）与"自定义过滤 + 黑白名单组合"路径无测试；用户过滤器抛异常无守卫（Task 7 决定）。
+- Task 6: complete (commits 46cd223..ca8302d, review clean)
+- Task 7: Ruling: FxActivityTracker.init 在 Activity 已 resume 后调用拿不到 topActivity（Android 不回放回调）— core 不改，floatingx-app 增加 `FxAppInitProvider`（ContentProvider，manifest 自动合并）在进程启动时 `FxActivityTracker.init(application)`；用户若移除该 provider 须自行 init；spec §2.7/§3 由 Task 8 补注 — 若错，代价是 merged manifest 多一个 provider（启动 <1ms）。
+- Task 7: Ruling: 计划里 `re-parents silently` / `follows back navigation` / `destroying the attached activity` 三个用例的 attach/detach 计数期望有误（监听器在 install 之后添加，观察不到 install 时的 attach；静默换父不派发）— 采纳实现者验证值 (0,0)/(0,0)/(1,1)，AppHost 实现不动 — 若错，代价为零。
+- Task 7: fix round 1/5 (2 rulings applied — FxAppInitProvider + 测试计数; commits ca82220..6bccea6) — 首次评审尚未派出，本轮后派整任务评审
+- Task 7: Ruling: 计划原文的 parentLayoutListener 无条件派发 onBoundsChanged 是缺陷（core LocationFeature.onBoundsChanged 会清 dragInput 并 relayout → 页面任意 requestLayout 会冻结拖动并弹回）— 改为缓存上次派发的 bounds（尺寸 + 四边 insets），只在变化时派发；换父与 lose 时清缓存 — 若错，代价是 insets 变化但尺寸不变的极端场景少一次校正（缓存含 insets，已覆盖）。
+- Task 7: minor (deferred): AppHost 实现 Observer 使 onActivityXxx 成为公开 API（计划形状）；tmpLocation 共享数组依赖主线程假设未注明；onCreate 非 Application 时静默；`below api 29` 用例未断言 idle 前仍 INSTALLED；`cancel releases` 未断言容器已移除；moveTo 用 rules.accept 而非 accepts()。
+- Task 7: fix round 2/5 (1 Important + 8 minors dispatched — bounds 门控/bind 复用/release 清理/mount DRY/accepts/provider KDoc/manifest 测试/core KDoc；item 9 不成立已弃; commits 6bccea6..6afcd1d) — scoped re-review 派出
+- Task 7: minor (deferred): computeBounds 无变化路径仍分配一个 FxInsets（contentInsets 在比较前调用）；release() 里的容器兜底移除在当前 core 顺序下不可达（cancel/swap 都先 detach），AppHost.kt:95 注释对 swapHost 顺序描述不准；spec §3 需补 FxAppInitProvider（Task 8）；Plan 3 SystemHost 需要自己的 init 途径（provider authority 不能共用）。
+- Task 7: complete (commits ca8302d..6afcd1d, review clean after 2 fix rounds)
+- Task 8: minor (deferred): AppHost.Builder.blacklist/whitelist(vararg Class) 在 Java 调用点触发 unchecked generic array creation 警告（可加 @SafeVarargs）；spec §3 filter 行丢了 #221 引用、§9 仍写 `§3 filter(predicate)`；JavaAppApiTest 需 setupContentProvider（Robolectric 不自动创建 manifest provider）。
+- Task 8: complete (commits 6afcd1d..0dc5eba, review clean)
+- Final review (opus, d53a938..0dc5eba): 0 Critical / 4 Important / 15 minor；所有裁决被确认。修复波一次派出：Important 1–4 + 分流为 fix-before-merge 的 7 条 minor。
+- Ruling: spec §8.4 "bounds() 按 host 缓存" 改为记录实际方案——host 按需计算，触摸 MOVE 路径由 core 在拖动开始时缓存 layoutInput，AppHost 父布局监听只在 bounds 真变化时派发且无变化路径不构造 FxInsets — 若错，代价是每次父布局多几次 insets 查询（父布局本就稀少）。
+- Final review minor (deferred to Plan 5 / 3.0 发布前): 用户过滤器抛异常无守卫；FxAppInitProvider 非 Application 静默；attachedActivity 强引用（已在 destroy/lose/release 清空）；ViewGroupHost 非叠放父容器无日志；Activity.fxScope 在 setContentView 前调用会被 removeAllViews；retained fragment 复用旧 context KDoc；settle 动画期间静默换父用旧 layoutInput 收尾（core，200ms 窗口）；`below api 29` 未断言 idle 前 INSTALLED；@SafeVarargs 待试；AppHost 旋转用例留给 Plan 5 instrumentation。
+- Final fix wave: commits 0dc5eba..3165ee9（Important 1–4 + 7 minor）; scoped re-review 派出
