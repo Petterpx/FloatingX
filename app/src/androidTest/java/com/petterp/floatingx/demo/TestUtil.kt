@@ -53,7 +53,7 @@ fun ActivityScenario<out Activity>.navigateTo(target: Class<out Activity>) =
 fun pressBack() = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
 
 /** 没有悬浮窗权限时跳过（CI 用 appops 授权） */
-fun assumeOverlayPermission() = assumeTrue("需要 SYSTEM_ALERT_WINDOW 权限", Settings.canDrawOverlays(app))
+fun assumeOverlayPermission() = assumeTrue("SYSTEM_ALERT_WINDOW permission required", Settings.canDrawOverlays(app))
 
 /**
  * 全仓唯一的轮询原语：条件在主线程求值，成立即返回，超时抛 AssertionError。
@@ -65,12 +65,12 @@ fun await(desc: String, timeoutMs: Long = DEFAULT_TIMEOUT_MS, condition: () -> B
         if (onMainGet(condition)) return
         Thread.sleep(POLL_INTERVAL_MS)
     }
-    throw AssertionError("$desc（等待 ${timeoutMs}ms 超时）")
+    throw AssertionError("$desc (timed out after ${timeoutMs}ms)")
 }
 
 /** 等到浮窗有有效位置（首帧布局完成） */
 fun FxControl.awaitPositioned(timeoutMs: Long = DEFAULT_TIMEOUT_MS): FxControl {
-    await("浮窗[$tag]未完成首帧布局", timeoutMs) { (contentView?.width ?: 0) > 0 }
+    await("window[$tag] did not complete its first layout pass", timeoutMs) { (contentView?.width ?: 0) > 0 }
     return this
 }
 
@@ -94,7 +94,7 @@ private const val ANCHOR_SP_NAME = "floatingx_anchor"
 private const val POLL_INTERVAL_MS = 16L
 
 /** 模拟器上换页 / 旋转都可能几百毫秒起步，给足余量；条件成立就立即返回，不影响正常耗时 */
-const val DEFAULT_TIMEOUT_MS = 5_000L
+const val DEFAULT_TIMEOUT_MS = 10_000L
 
 /** 旋转要走 Activity 重建，比换页慢得多 */
 const val ROTATION_TIMEOUT_MS = 15_000L

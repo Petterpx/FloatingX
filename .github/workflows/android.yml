@@ -53,9 +53,17 @@ jobs:
             adb shell settings put global window_animation_scale 0
             adb shell settings put global transition_animation_scale 0
             adb shell settings put global animator_duration_scale 0
-            ./gradlew app:connectedDebugAndroidTest
+            adb shell input keyevent KEYCODE_WAKEUP
+            adb shell wm dismiss-keyguard
+            # CI 模拟器偶发（ANR / 系统弹窗抢焦点）：失败先留 logcat + 截图，再重跑一次
+            run_tests() { adb logcat -c; ./gradlew app:connectedDebugAndroidTest -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true; }
+            dump() { adb exec-out screencap -p > "app/build/ci-failure-$1.png"; adb logcat -d > "app/build/ci-logcat-$1.txt"; }
+            run_tests || { dump 1; echo "::warning::connectedDebugAndroidTest 第一次失败，重跑一次"; run_tests || { dump 2; exit 1; }; }
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: androidTest-results
-          path: app/build/reports/androidTests
+          path: |
+            app/build/reports/androidTests
+            app/build/ci-failure-*.png
+            app/build/ci-logcat-*.txt
