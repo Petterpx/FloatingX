@@ -9,6 +9,7 @@ vanniktech-maven-publish = "0.34.0"
 compose-bom = "2026.06.01"
 compose-ui = "1.11.4"
 androidx-core = "1.13.1"
+androidx-annotation = "1.9.1"
 lifecycle = "2.11.0"
 savedstate = "1.5.0"
 fragment = "1.8.9"
@@ -34,6 +35,7 @@ lifecycleRuntimeKtx = "2.11.0"
 
 [libraries]
 androidx-core = { module = "androidx.core:core", version.ref = "androidx-core" }
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidx-annotation" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 fragment = { module = "androidx.fragment:fragment", version.ref = "fragment" }
 lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "lifecycle" }
