@@ -14,7 +14,7 @@ import kotlin.math.abs
  * - MOVE 路径零分配
  *
  * 容器的 onInterceptTouchEvent → onIntercept()；onTouchEvent → onTouch()。
- * 收到的坐标均为容器坐标。
+ * 传入的 MotionEvent 坐标是容器相对坐标；slop 与拖动增量内部换算成屏幕坐标（rawX 偏移），落点判断仍用容器坐标。
  */
 internal class FxGestureDetector(
     private val touchSlop: Float,

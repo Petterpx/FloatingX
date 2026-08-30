@@ -75,7 +75,7 @@ public interface FxHost {
     /** engine 绑定时调用；host 通过 session 向 engine 回报事件 */
     public fun bind(session: FxHostSession)
     /** 创建容器。Layer 或 Window 由 host 决定 */
-    public fun createContainer(context: Context): FxContainer
+    public fun createContainer(): FxContainer
     public fun attach(container: FxContainer)
     public fun detach(container: FxContainer)
     /** 应用一次布局。Window 容器写 LayoutParams，Layer 容器写子 view 坐标 */
@@ -333,6 +333,7 @@ public class SystemHost private constructor(...) : FxHost {
         fun fallback(host: FxHost)                                           // 权限被拒时 requestSwap（原 SYSTEM_AUTO）
         fun keyboard(vararg editTextIds: Int)                                // hostFeatures() 提供 KeyboardFeature
         fun onBackPressed(listener: SystemBackListener)
+        fun theme(@StyleRes themeRes: Int)                                   // 内容 view 用带主题的 application context 创建
         fun build(): SystemHost
     }
     public val windowLayoutParams: WindowManager.LayoutParams   // 只读快照
@@ -347,12 +348,15 @@ public fun FxInstallScope.systemHost(context: Context, block: SystemHost.Builder
 
 - 默认 `LayoutParams`：O+ `TYPE_APPLICATION_OVERLAY` 否则 `TYPE_PHONE`；`FLAG_NOT_FOCUSABLE or FLAG_NOT_TOUCH_MODAL or FLAG_LAYOUT_IN_SCREEN or FLAG_LAYOUT_NO_LIMITS`（半隐 / overflow 需要窗口能放到屏幕外；core 已按 safe area clamp，不会误出界）；`format = TRANSLUCENT`；`gravity` 由 `anchor.gravity` 映射；`width/height = WRAP_CONTENT`。用户 customizer 最后执行，可覆盖任何字段（含 `type`、`softInputMode`）。
 - `touchable=false` 映射为 `FLAG_NOT_TOUCHABLE`；`KeyboardFeature` 需要焦点时临时去掉 `FLAG_NOT_FOCUSABLE` 并 `updateViewLayout`，失焦后恢复。
-- 权限：`FxPermission.isGranted(context)`；申请通过透明 `FxPermissionActivity`（`excludeFromRecents` + 独立 task（`NEW_TASK` + `taskAffinity=""`）——不能用 `noHistory`，否则被设置页遮住时会被系统 finish，收不到 `onActivityResult`）从**任意 context** 启动（Service 可用，#192），回调通过 `FxPermission` 内部的 `SparseArray<FxPermissionCallback>` 按 requestId 分发。`Manual` 策略把 `FxPermissionRequest` 交给用户拦截器。该 Activity 由本模块清单声明，接入方无需自行配置。
+- 权限：`FxPermission.isGranted(context)`；申请通过透明 `FxPermissionActivity`（`excludeFromRecents` + 独立 task（`NEW_TASK` + `taskAffinity=""`）——不能用 `noHistory`，否则被设置页遮住时会被系统 finish，收不到 `onActivityResult`）从**任意 context** 启动（Service 可用，#192），回调通过 `FxPermission` 内部的 `SparseArray<FxPermissionCallback>` 按 requestId 分发。`Manual` 策略把 `FxPermissionRequest` 交给用户拦截器。该 Activity 由本模块清单声明，接入方无需自行配置。Q+ 后台无法启动 Activity：后台申请不会弹页面，业务应在前台时申请或用 `Manual`/`Skip` + `retryPermission()`。
 - 被拒且有 `fallback` → `session.requestSwap(fallback)`；无 fallback → 状态停留在 `Installed`，`desiredVisible=true`，用户可稍后 `retryPermission()`。
-- `bounds()`：`WindowMetrics`（R+）/ `Display.getRealSize` 由容器读取（`FxWindowContainer.refreshBounds()`），insets 来自容器的 `onApplyWindowInsets`（`WindowInsetsCompat`，attach 后可取）。
-- 旋转 / insets 变化时由 `FxWindowContainer` 自己刷新屏幕尺寸后再回调 `onBoundsChanged`（同步链路里 host 来不及刷新）。
-- `Builder` 传入 Activity 时解包为 `applicationContext`（系统窗口活得比页面久，不能持有 Activity）。
-- attach 失败（`BadTokenException` / `SecurityException`）时窗口保持未挂载并记录日志（不崩溃）；`retryPermission()` 检测到容器未挂到 WindowManager 时会 `onHostLost` → `onHostReady` 重新挂载。
+- `bounds()`：`WindowMetrics`（R+）/ `Display.getRealSize` 由容器读取（`FxWindowContainer.refreshBounds()`）；insets 来自 `WindowMetrics`（R+，屏幕级，与窗口位置无关）；R 以下为 NONE——不能用窗口自身的 `onApplyWindowInsets`（wrap_content 窗口拿到的是与自身 frame 相交的值，拖到状态栏边缘会触发 `onBoundsChanged` 打断拖动）。
+- 旋转 / 配置变化时由 `FxWindowContainer` 自己刷新布局方向与屏幕尺寸后再回调 `onBoundsChanged`（同步链路里 host 来不及刷新）。直接加到 `WindowManager` 上的 view 没有父级可继承布局方向，容器必须显式把 `Configuration.layoutDirection` 写进 `View.layoutDirection`，否则 RTL 语言下 START/END 会解析反。
+- `Builder` 传入 Activity 时解包为 `applicationContext`（系统窗口活得比页面久，不能持有 Activity）；沿 `ContextWrapper.baseContext` 链逐层检查，被 `ContextThemeWrapper` 包着的 Activity 也会被解包。需要主题属性时用 `theme(themeRes)`（在 application context 外包一层 `ContextThemeWrapper`，与 `AppHost.Builder.theme` 一致）。
+- attach 失败（`BadTokenException` / `SecurityException` / `IllegalStateException`）时窗口保持未挂载并记录日志（不崩溃）；`retryPermission()` 检测到容器未挂到 WindowManager 时会 `onHostLost` → `onHostReady` 重新挂载（`Skip` 策略同样适用——它压根不检查权限）。detach 时的 `IllegalArgumentException`（view 已不在 WindowManager 上）同样吞掉并把 `isAttachedToWm` 归位。
+- **LP 陷阱**：gravity 映射与 `contentPositionOnScreen()` 依赖 `FLAG_LAYOUT_IN_SCREEN | FLAG_LAYOUT_NO_LIMITS`，customizer 清掉它们会让坐标基准变成 inset 区域；`TYPE_PHONE`（O 以下）已废弃、部分 ROM 拒绝；`permission(skip())` 配了需要权限的 type 时 addView 失败只在 `Fx-system` logcat 可见。
+- **fallback 换 host 后**内容 view 仍持有 SystemHost 的 application context（主题属性 / `view.context` 弹窗行为可能与新 host 下不同）。
+- **本模块清单声明 `SYSTEM_ALERT_WINDOW`**，会合并进所有使用方（只用 `skip()` + 非 overlay type 的应用也会带上）。
 
 ## 5. floatingx-scope
 
@@ -399,7 +403,7 @@ val control = FloatingX.install("music") {
     animation(FxAnimations.slideIn())
     persist(FxSpStorage(app))
     enableLog()
-    host = systemHost(app) {
+    systemHost(app) {
         layoutParams { it.type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY }
         fallback(appHost(app) { blacklist(SplashActivity::class.java) })
     }
