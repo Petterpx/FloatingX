@@ -267,6 +267,21 @@ class FloatingXEndToEndTest {
         assertEquals(FxState.ATTACHED, modal.state)          // dismissOnOutsideTouch → hide
     }
 
+    /** dismissOnOutsideTouch 把浮窗藏起来之后，modal 不能继续吃触摸——否则整页都点不动了 */
+    @Test
+    fun `a hidden modal window stops swallowing outside touches`() {
+        val modal = FloatingX.install("m", config { addFeature(ModalScrimFeature(dismissOnOutsideTouch = true)) }, TestHost(parent))
+        modal.show(); layoutParent()
+        val layer = parent.getChildAt(0)
+        assertTrue(layer.dispatchTouchEvent(MotionEvent.obtain(0L, 1L, MotionEvent.ACTION_DOWN, 10f, 10f, 0)))
+        assertEquals(FxState.ATTACHED, modal.state)
+
+        assertFalse(layer.dispatchTouchEvent(MotionEvent.obtain(0L, 2L, MotionEvent.ACTION_DOWN, 10f, 10f, 0)))
+
+        modal.show()
+        assertTrue(layer.dispatchTouchEvent(MotionEvent.obtain(0L, 3L, MotionEvent.ACTION_DOWN, 10f, 10f, 0)))
+    }
+
     @Test
     fun `cancel detaches releases host and unregisters`() {
         val host = TestHost(parent)

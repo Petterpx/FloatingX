@@ -96,6 +96,23 @@ class FxLayerContainerTest {
         assertEquals(1, outside)
     }
 
+    /** 内容隐藏时 modal 必须放行：hitTest 对隐藏内容恒 false，再消费就等于把整页触摸吃光 */
+    @Test
+    fun `modal does not swallow outside touch while the content is hidden`() {
+        var outside = 0
+        container.setContent(content); layout()
+        container.modal = true
+        container.onOutsideTouch = { outside++ }
+        container.setContentVisible(false)
+        assertFalse(container.dispatchTouchEvent(event(MotionEvent.ACTION_DOWN, 900f, 900f)))
+        assertEquals(0, outside)
+
+        // 重新显示后照旧消费
+        container.setContentVisible(true)
+        assertTrue(container.dispatchTouchEvent(event(MotionEvent.ACTION_DOWN, 900f, 900f)))
+        assertEquals(1, outside)
+    }
+
     @Test
     fun `down inside content goes to touch handler`() {
         val seen = mutableListOf<String>()

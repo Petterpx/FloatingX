@@ -12,7 +12,7 @@ import com.petterp.floatingx.core.layout.FxSize
 /**
  * Layer 容器（spec §2.1）：一个 match_parent 的透明覆盖层，内容子 view 在其中用 translation 定位。
  * - 移动只改 translation，父层永不 re-layout（修 #240）
- * - 落在内容之外的 DOWN 直接返回 false 透传给下层（修 #243）；modal 时则消费（#212）
+ * - 落在内容之外的 DOWN 直接返回 false 透传给下层（修 #243）；modal **且内容可见**时才消费（#212）
  * - clipChildren=false 允许内容随 FxOverflow 超出边界（#235）
  */
 public class FxLayerContainer(context: Context) : FrameLayout(context), FxContainer {
@@ -117,7 +117,9 @@ public class FxLayerContainer(context: Context) : FrameLayout(context), FxContai
             return true
         }
         if (action == MotionEvent.ACTION_DOWN && !hitTest(ev.x, ev.y)) {
-            if (modal) {
+            // 只有"内容存在且可见"时才走 modal 分支：hitTest 对隐藏内容恒为 false，
+            // 否则浮窗一旦 hide()，modal 就会把整页触摸全部吃掉，用户什么都点不动
+            if (modal && contentView?.visibility == View.VISIBLE) {
                 consumingOutside = true
                 onOutsideTouch?.invoke()
                 return true

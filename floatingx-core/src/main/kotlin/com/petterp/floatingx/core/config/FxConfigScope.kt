@@ -99,8 +99,8 @@ public open class FxConfigScope(base: FxConfig?) {
     }
 
     /**
-     * 拦截内容之外的触摸（#212），dismissOnOutsideTouch=true 时点击外部自动 hide（#151）。
-     * 只对 Layer 容器（app / scope）生效；重复调用只保留最后一次。
+     * 浮窗显示中时拦截内容之外的触摸（#212），dismissOnOutsideTouch=true 时点击外部自动 hide（#151）；
+     * 浮窗隐藏后触摸照常透传。只对 Layer 容器（app / scope）生效；重复调用只保留最后一次。
      */
     public fun modal(enabled: Boolean = true, dismissOnOutsideTouch: Boolean = false) {
         features.removeAll { it is ModalScrimFeature }
