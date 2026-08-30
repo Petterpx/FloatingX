@@ -10,6 +10,7 @@ import kotlin.math.abs
  * - 全部用 actionMasked；跟踪主指针 id，主指抬起时把控制权转移给剩下的手指
  * - 长按在按下期间由定时器触发，与是否有点击监听无关（#218）
  * - 点击 = 抬起时仍在 slop 内且长按未触发；无额外时间阈值
+ * - slop 与拖动增量按屏幕坐标计算（rawX 偏移），落点判断按容器相对坐标
  * - MOVE 路径零分配
  *
  * 容器的 onInterceptTouchEvent → onIntercept()；onTouchEvent → onTouch()。
@@ -68,8 +69,8 @@ internal class FxGestureDetector(
                 if (config.childPriority == FxChildPriority.AUTO && childScrollable && config.drag == FxDrag.IMMEDIATE) return false
                 val idx = ev.findPointerIndex(pointerId)
                 if (idx < 0) return false
-                val x = ev.getX(idx)
-                val y = ev.getY(idx)
+                val x = absX(ev, idx)
+                val y = absY(ev, idx)
                 updateMoved(x, y)
                 if (shouldStartDrag()) { startDrag(); true } else false
             }
@@ -89,8 +90,8 @@ internal class FxGestureDetector(
             MotionEvent.ACTION_MOVE -> {
                 val idx = ev.findPointerIndex(pointerId)
                 if (idx < 0) return true
-                val x = ev.getX(idx)
-                val y = ev.getY(idx)
+                val x = absX(ev, idx)
+                val y = absY(ev, idx)
                 if (!dragging) {
                     updateMoved(x, y)
                     if (shouldStartDrag()) startDrag()
@@ -107,8 +108,8 @@ internal class FxGestureDetector(
                 if (ev.getPointerId(idx) == pointerId) {
                     val newIdx = if (idx == 0) 1 else 0
                     pointerId = ev.getPointerId(newIdx)
-                    lastX = ev.getX(newIdx)
-                    lastY = ev.getY(newIdx)
+                    lastX = absX(ev, newIdx)
+                    lastY = absY(ev, newIdx)
                 }
                 return true
             }
@@ -140,15 +141,21 @@ internal class FxGestureDetector(
         reset()
     }
 
+    /** 当前事件的窗口屏幕偏移：rawX - x 对同一事件的所有 pointer 相同。窗口随手指移动时（Window 容器）相对坐标不可用 */
+    private fun absX(ev: MotionEvent, idx: Int): Float = ev.getX(idx) + (ev.rawX - ev.x)
+
+    private fun absY(ev: MotionEvent, idx: Int): Float = ev.getY(idx) + (ev.rawY - ev.y)
+
     private fun begin(ev: MotionEvent) {
         reset()
         pointerId = ev.getPointerId(0)
-        downX = ev.x
-        downY = ev.y
+        downX = ev.rawX
+        downY = ev.rawY
         lastX = downX
         lastY = downY
-        canDrag = config.drag != FxDrag.DISABLED && callback.canDragFrom(downX, downY)
-        childScrollable = callback.hasScrollableChildAt(downX, downY)
+        // 落点判断用相对坐标：dragRegion / 可滚动子 view 都是内容坐标系
+        canDrag = config.drag != FxDrag.DISABLED && callback.canDragFrom(ev.x, ev.y)
+        childScrollable = callback.hasScrollableChildAt(ev.x, ev.y)
         if (config.longPress || config.drag == FxDrag.AFTER_LONG_PRESS) {
             val timeout = if (config.longPressTimeout > 0) config.longPressTimeout else defaultLongPressTimeout
             handler.postDelayed(longPressRunnable, timeout)

@@ -195,4 +195,30 @@ class FxGestureDetectorTest {
         detector.cancel()
         assertEquals(listOf("dragStart", "drag:30,0", "dragEnd"), recorder.events)
     }
+
+    /** 模拟窗口随手指移动：每个 MOVE 的相对坐标不变，只有 raw 坐标在走 */
+    @Test
+    fun `drag deltas follow raw coordinates when the window moves under the finger`() {
+        val calls = mutableListOf<String>()
+        val detector = FxGestureDetector(touchSlop = 8f, defaultLongPressTimeout = 500L, callback = object : FxGestureDetector.Callback {
+            override fun onClick() { calls += "click" }
+            override fun onLongPress() { calls += "longPress" }
+            override fun onDragStart() { calls += "dragStart" }
+            override fun onDrag(dx: Float, dy: Float) { calls += "drag:${dx.toInt()},${dy.toInt()}" }
+            override fun onDragEnd() { calls += "dragEnd" }
+            override fun canDragFrom(x: Float, y: Float): Boolean { calls += "canDrag:${x.toInt()},${y.toInt()}"; return true }
+            override fun hasScrollableChildAt(x: Float, y: Float) = false
+        })
+        fun event(action: Int, rawX: Float, rawY: Float, windowX: Float, windowY: Float): MotionEvent =
+            MotionEvent.obtain(0L, 0L, action, rawX, rawY, 0).apply { offsetLocation(-windowX, -windowY) } // getX = raw - window
+
+        // 手指按在窗口 (100,100) 内的 (10,10)
+        detector.onTouch(event(MotionEvent.ACTION_DOWN, 110f, 110f, 100f, 100f))
+        // 手指移到 (140,110)，窗口已经跟着挪到 (130,100)：相对坐标仍是 (10,10)
+        detector.onTouch(event(MotionEvent.ACTION_MOVE, 140f, 110f, 130f, 100f))
+        detector.onTouch(event(MotionEvent.ACTION_MOVE, 160f, 130f, 150f, 120f))
+        detector.onTouch(event(MotionEvent.ACTION_UP, 160f, 130f, 150f, 120f))
+
+        assertEquals(listOf("canDrag:10,10", "dragStart", "drag:30,0", "drag:20,20", "dragEnd"), calls)
+    }
 }
