@@ -6,7 +6,7 @@
 
 **Architecture:** Compose 的窗口级 Recomposer 由"当前窗口根 view 的 ViewTreeLifecycleOwner"驱动，且 view 从窗口卸下时该 Recomposer 会被取消；所以浮窗每次挂到新窗口都要用当前窗口的 Recomposer 重新组合（保持 `ComposeView` 默认的 `DisposeOnDetachedFromWindowOrReleasedFromPool` 策略），而**状态**由我们自己的 owner 保住：`ViewModel` 在 owner 的 `ViewModelStore` 里、`rememberSaveable` 走 owner 的 `SavedStateRegistry`，二者都只在 `cancel()` 时销毁。owner 设在内容 view 上（Compose 向上查找即命中）并在 attach 时也设到容器根 view 上（系统窗口的根就是容器，窗口级 Recomposer 需要它）。flow 通过 `FxListener` 桥接，无 core 改动。
 
-**Tech Stack:** Kotlin 2.2.21 + compose 编译器插件（`org.jetbrains.kotlin.plugin.compose`，版本随 Kotlin）、compose-ui 1.11.4、lifecycle-runtime/viewmodel 2.11.0、savedstate 1.5.0、kotlinx-coroutines-android 1.11.0、minSdk 23、Robolectric 4.16.1（sdk=35）。
+**Tech Stack:** Kotlin 2.2.21 + compose 编译器插件（`org.jetbrains.kotlin.plugin.compose`，版本随 Kotlin）、compose-ui 1.11.4、lifecycle-runtime/viewmodel 2.10.0（2.11 的 runtime-compose 要求 compileSdk 37）、savedstate 1.5.0、kotlinx-coroutines-android 1.11.0、minSdk 23、Robolectric 4.16.1（sdk=35）。
 
 **Spec:** `docs/superpowers/specs/2026-08-29-floatingx-3-modular-architecture-design.md` §6（§1.1 版本矩阵；§6 两处按本计划裁决修订，见 Task 5）。
 
@@ -885,3 +885,53 @@ Run: `./gradlew test`；commit `feat(compose): compose {} 去重（core FxConfig
 - **Spec 覆盖：** §6 四个 API（`compose`、`LocalFxControl`、`stateFlow`、`positionFlow`）→ Task 3/4；owner 归 control、detach 只 pause/stop、cancel 才 destroy → Task 2/3；0 尺寸不定位由核心锚点模型已覆盖（无需本模块动作）；owner 在 `FxContent.create()` 内设置、destroy 挂 `FxFeature.onCancel` → Task 3；仅本模块依赖 coroutines → Task 1。
 - **占位扫描：** 无。
 - **类型一致性：** `FxComposeContent.owner`（Task 3 定义，Task 3/5 测试使用）、`FxComposeOwner.moveTo/destroy/attachTo/isDestroyed`（Task 2 定义，Task 3 使用）、`TestHost.lose()/ready()`（Task 3 定义，Task 3/4 使用）、`removeFeatures`（Task 5 定义，Task 5 使用）。
+
+## 执行记录（SDD ledger 归档，供 Plan 5 参考）
+
+分支 feat/3.0-compose，8 个功能提交 + 4 个修复波提交（3ba6208..a40b64f）；最终 ./gradlew test：core 140 / scope 22 / app 32 / system 60 / compose 25，0 失败；publishToMavenLocal 只发布五个新模块。
+
+### Pre-flight scan
+
+| Pair / Task | Produces vs consumes | Finding |
+|---|---|---|
+| T1 ↔ T2 | T1 占位 `ComposeModule` 在 FxComposeOwner.kt，T2 整体替换 | 一致 |
+| T2 ↔ T3 | `FxComposeOwner.moveTo/destroy/attachTo/isDestroyed`；T3 feature 全部按此调用 | 一致 |
+| T3 ↔ T4 | 共用 TestHost（T3 创建，含 lose/ready）；T4 的 flows 测试用 FrameLayout 无窗口（不需组合） | 一致 |
+| T3 ↔ T5 | T3 DSL 先不去重，T5 加 core `FxConfigScope.removeFeatures` 后去重；T3 测试只断言 feature 数为 1（单次调用） | 一致 |
+| T1 自身 | compose 编译器插件 alias `compose-compiler`（version.ref = kotlin）已在目录；`api(libs.compose.ui.versioned)` 别名存在 | 一致 |
+| T3 自身 | `rememberSaveable` 跨 detach 恢复依赖 AbstractComposeView 的 DisposableSaveableStateRegistry；Robolectric 下需 Activity 窗口 + idle | 一致（计划已给排查顺序） |
+| T4 自身 | WeakHashMap 以 control 为键；FxControlImpl 未覆写 equals/hashCode（identity） | 一致 |
+
+- Ruling: 就地分支 feat/3.0-compose；实现者 opus；评审按复杂度；完成后本地 ff 合回 main（沿用）。
+- Ruling: 浮窗永远用自己的 FxComposeOwner，不复用 Activity 的（spec §6 修订，T5 落实）— 若错，代价是与 Activity 共享 ViewModelStore 的场景需要用户自行 CompositionLocalProvider。
+- Ruling: positionFlow 用 FxPoint 而非 PointF — 若错，代价是一次类型转换。
+
+### Tasks
+- Task 1: Ruling: lifecycle 2.11.0 → 2.10.0（compose-ui 1.11.4 传递的 lifecycle-runtime-compose 会被 2.11 的 sibling 约束提升，而 2.11 的 runtime-compose 要求 compileSdk 37 + AGP 9.1，违反主流兼容线；2.10 只要 35 / AGP 8.6）— 接受；spec §1.1 由 Task 5 同步并把 lifecycle 2.11 列入"明确不用" — 若错，代价是 lifecycle 少一个小版本的特性（本模块不用）。
+- Task 1: complete (commits 3ba6208..cf72949, review clean)
+- Task 2: minor (deferred): moveTo 的 require 分支无测试；attachTo 多次调用/旧 view 无说明.
+- Task 2: complete (commits cf72949..6b6a703, review clean)
+- Task 3: Ruling: 计划假设"rememberSaveable 通过 owner 的 SavedStateRegistry 跨 detach 恢复"不成立（AbstractComposeView 只注册 provider，无人 performSave）— 接受实现者方案：FxComposeContent.bind() 内桥接进程内 SaveableStateRegistry（LocalSaveableStateRegistry + DisposableEffect 保存），cancel/换内容时 release()；进程死亡不恢复（文档注明）— 若错，代价是一层 CompositionLocal 包装。
+- Task 3: Ruling: 窗口级 Recomposer 需要根 view 有 ViewTreeLifecycleOwner；纯 android.app.Activity 宿主没有 → Task 5 在 bind 时若 `container.view.rootView.findViewTreeLifecycleOwner() == null` 则把 owner 也装到根 view；compose→非 compose 内容切换时清掉容器上的 owner tag — 若错，代价是根 view 多一个 tag。
+- Task 3: Ruling: 评审 Important（host 丢失期间 setContent 不会触发 onConfigChanged——core 只在 featuresAttached 时广播——旧 FxComposeContent 的 owner 永不 destroy）— ComposeOwnerFeature.onAttach 时若 `bound != null && bound !== config.content` 先 destroy+release 旧的；onCancel 在 bound 为空时回退到 config.content；并入 Task 5 — 若错，代价是几行对账逻辑。
+- Task 3: 并入 Task 5 的 minor：cancel 后复用 FxComposeContent 应 check(!owner.isDestroyed)；补 container.view owner 断言与组合内 LocalLifecycleOwner/LocalViewModelStoreOwner 断言；类 KDoc 注明 rememberSaveable 进程内保存、不跨进程死亡；根 view 无 owner 时装 owner（前一条 ruling）。
+- Task 3: minor (deferred): runtime-saveable 无显式依赖别名；`content(FxComposeContent(content))` 可写 this.content；报告里 isShowing 在 onAttach 的说明有误（实现正确）。
+- Task 3: complete (commits 6b6a703..067b3e9, review approved; 1 Important 并入 Task 5)
+- Task 4: Ruling: core `LocationFeature.commitAndApply` 改为先 apply 再 commitAnchor（监听器 onPositionChanged 里 control.position 即新坐标；Plan 1 遗留项）并加 core 回归测试；compose flows 去掉反解，直接读 control.position；`FxEngine.transition` 的"先 action 后改 state"保持不动（flows 按回调写目标状态即可）— 并入 Task 5 — 若错，代价是 core 一个三行改动。
+- Task 4: Important（首次调用非主线程时 addListener/addFeature 非原子，监听器泄漏）→ 已追加到 Task 5：flows() 先做主线程 check；额外 feature 随 A 项删除。
+- Task 4: minor (deferred): cancel() 期间 stateFlow 会瞬时经过 INSTALLED（engine 两步派发，conflation 下不可见）。
+- Task 4: complete (commits 067b3e9..bb19ccc, review approved; 1 Important 并入 Task 5)
+- Task 5: implementer deviations（交评审）：ComposeOwnerFeature 加可选构造参数 content + declare()（host 从未 ready 即 cancel 的场景）；compose{} 复用既有 feature 实例而非 remove+new；根 view 兜底 owner 在 detach/cancel 时摘掉。
+- Task 5: Ruling: 评审 Important（FxControlImpl.update 里 commitAnchor 在 onConfigChanged/relayout 之前广播，positionFlow 过期）— core update() 拆为"先赋 anchor + 持久化，onConfigChanged 之后再 dispatch onPositionChanged"，加 core 与 compose 测试（update{anchor} 后 positionFlow == control.position）；入最终修复波 — 若错，代价是 update{anchor} 的监听器回调晚一步。
+- Task 5: minor 入修复波：EndToEndTest `settle commits the anchor before the last layout spec` 名称/KDoc 与实现相反；flows() 报错文案"首次"；compose{} 多个 ComposeOwnerFeature 时只保留最后一个其余无 onCancel（取第一个并 log）；根兜底"已知限制"补第二个窗口共用 recomposer 的说明。
+- Task 5: minor (deferred): host 从未 ready 时 update{compose{}} 旧 owner 泄漏（declare 覆盖 lastContent）；lifecycle-viewmodel-compose 硬编码坐标；Builder.removeFeatures 对 Java 是 Function1。
+- Task 5: complete pending final fix wave (commits bb19ccc..5f84c6c)
+- Final review (opus, 3ba6208..5f84c6c): 1 Critical / 6 Important / 7 minor；两条核心裁决（自有 owner、进程内 saveable 桥）被对照 compose-ui 1.11.4 源码确认正确。
+- Ruling: Critical（纯 Activity 第二页静默换父崩溃）— FxComposeContent 持有自己的 Recomposer（AndroidUiDispatcher.CurrentThread，runRecomposeAndApplyChanges，owner destroy/release 时 cancel）并 setParentCompositionContext；删除根 view 兜底（同时消除 Important 4 与"recomposer 留在宿主 decor"限制）— 若错，代价是每个 compose 浮窗多一个 Recomposer 协程。
+- Ruling: Important 2（旧 floatingx_compose 与新模块同坐标）— 旧 floatingx / floatingx_compose 去掉 maven-publish 插件与 mavenPublishing 块（Plan 5 会删模块）— 若错，代价为零。
+- Ruling: Important 3（detached 期间连续换内容泄漏中间 owner）— core FxControlImpl.update 无条件广播 onConfigChanged（core 内置 feature 若依赖 scope 需加 null 守卫），ComposeOwnerFeature 删除 onAttach 对账分支 — 若错，代价是 detached 时多几次空回调。
+- Ruling: Important 5 — core 加 `FxFeature.onRemove()` 默认空（removeFeature / update 移除时在 onDetach 之后调用）；ComposeOwnerFeature.onRemove → destroy；compose{} 保持复用实例 — 若错，代价是一个多余钩子。
+- Ruling: Important 6 — 补测试：换到另一窗口重挂、容器即根（windowManager.addView）、拖动中的 positionFlow。
+- Final review minor (deferred): saveable 桥接受任意值（KDoc 注明）；构造须主线程（KDoc）；stateFlow 在 cancel 后调用会注册永不触发的监听器；positionFlow 是屏幕坐标而 onDrag 是容器坐标（KDoc）。
+- Final fix wave: commits 5f84c6c..a40b64f（Critical 1 + Important 2–6 + minor 6–11）; scoped re-review 派出
+- Final re-review: 11/11 ADDRESSED；minor 观察：FxComposeContent 若不经 compose{}（无 ComposeOwnerFeature）会泄漏 Recomposer；自有 Recomposer 不随宿主 STOP 暂停（系统窗口后台仍请求帧）；cancel 后 update/setContent 仍会广播；计划 Tech Stack 行仍写 lifecycle 2.11.0（正文 §1.1 已改 2.10.0）。
