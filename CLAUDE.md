@@ -41,7 +41,7 @@ Java 17 is required (AGP 8.13.2 / Gradle 8.14.3 / Kotlin 2.2.21). Version catalo
 
 ```bash
 ./gradlew test                                                       # 全部 JVM/Robolectric 单测（CI 必跑）
-./gradlew :floatingx-core:test                                       # 单模块（core 140 / scope 22 / app 32 / system 60 / compose 25 用例）
+./gradlew :floatingx-core:test                                       # 单模块（core 142 / scope 22 / app 32 / system 62 / compose 25 用例）
 ./gradlew app:assembleDebug                                          # 构建 demo apk
 ./gradlew app:installDebug                                           # 安装 demo
 ./gradlew publishToMavenLocal -PisPublish=false -PversionName=3.0.0-SNAPSHOT   # CI 每个 PR 都跑
@@ -131,7 +131,7 @@ Gradle properties（`settings.gradle` 读进 `rootProject.ext`）：
 
 三层：
 
-1. `./gradlew test` — 五个模块共 279 个 JVM / Robolectric 用例。
+1. `./gradlew test` — 五个模块共 283 个 JVM / Robolectric 用例。
 2. `./gradlew app:connectedDebugAndroidTest` — `app/src/androidTest/`：
    `AppHostReparentTest`（换页 reparent + 黑名单）、`RotationTest`（旋转重建 + 锚点持久化）、
    `SystemWindowResizeTest`（WM 窗口 resize 时 LayoutParams 无跳变）、

@@ -235,7 +235,7 @@ the host — app-level and system windows are written exactly the same way.
 | Position persistence | `persist(FxSpStorage(context))` | Key includes the tag and the orientation, so portrait and landscape are remembered separately; or implement `FxStorage` |
 | Black / white list | `appHost(app) { blacklist(X::class.java); whitelist(...); filter { … } }` | The Class form matches with `isInstance`, so **subclasses are hit too**; class-name strings also work |
 | Attach target | `appHost(app) { attachTo(AppAttachTarget.DECOR / CONTENT) }` | DecorView by default (truly full-screen dragging) |
-| Modal | `modal(enabled, dismissOnOutsideTouch)` | Intercepts touches outside the content, optionally hiding on outside touch (app / scope only) |
+| Modal | `modal(enabled, dismissOnOutsideTouch)` | Intercepts touches outside the content while the window is shown (a hidden window lets them through), optionally hiding on outside touch (app / scope only) |
 | Keyboard | `systemHost(app) { keyboard(R.id.etInput) }` | System windows are not focusable by default; touching these EditTexts makes them temporarily focusable |
 | Back key | `systemHost(app) { onBackPressed { true } }` | Only delivered while the keyboard is up (that's when the window is focusable) |
 | Multiple windows | `FloatingX.install(tag) {}` / `controls()` / `uninstall(tag)` | Global windows are keyed by tag; installing over a tag cancels the old one |
@@ -247,7 +247,7 @@ the host — app-level and system windows are written exactly the same way.
 ### `FxControl`
 
 ```kotlin
-control.show(); control.hide(); control.cancel()          // a cancelled control is not reusable; further calls throw IllegalStateException
+control.show(); control.hide(); control.cancel()          // cancel() is idempotent; after it show/hide/moveTo/moveBy throw IllegalStateException
 control.moveTo(100f, 200f); control.moveTo(100f, 200f, animate = true)
 control.moveBy(-20f, 0f); control.moveBy(-20f, 0f, animate = true)
 control.update { anchor(FxGravity.BOTTOM_END); gesture { drag = FxDrag.DISABLED } }   // patch the config

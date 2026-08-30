@@ -224,7 +224,7 @@ FloatingX.install("compose") {
 | 位置持久化 | `persist(FxSpStorage(context))` | key 含 tag 与屏幕方向，横竖屏分别记忆；也可实现 `FxStorage` |
 | 黑白名单 | `appHost(app) { blacklist(X::class.java); whitelist(...); filter { … } }` | Class 版按 `isInstance` 匹配，**子类一起命中**；也支持类全名字符串 |
 | 挂载点 | `appHost(app) { attachTo(AppAttachTarget.DECOR / CONTENT) }` | 默认 DecorView（拖动范围真正全屏） |
-| Modal | `modal(enabled, dismissOnOutsideTouch)` | 拦截内容之外的触摸，可选点外部自动 hide（只对 app / scope 生效） |
+| Modal | `modal(enabled, dismissOnOutsideTouch)` | 浮窗显示中时拦截内容之外的触摸（隐藏后自动放行），可选点外部自动 hide（只对 app / scope 生效） |
 | 键盘 | `systemHost(app) { keyboard(R.id.etInput) }` | 系统窗口默认不可聚焦，触到这些 EditText 才临时可聚焦 |
 | 返回键 | `systemHost(app) { onBackPressed { true } }` | 仅键盘弹起期间窗口可聚焦，才收得到 |
 | 多浮窗 | `FloatingX.install(tag) {}` / `controls()` / `uninstall(tag)` | 全局浮窗按 tag 隔离，同 tag 再 install 会先 cancel 旧的 |
@@ -236,7 +236,7 @@ FloatingX.install("compose") {
 ### `FxControl`
 
 ```kotlin
-control.show(); control.hide(); control.cancel()          // cancel 之后不可复用，再调用抛 IllegalStateException
+control.show(); control.hide(); control.cancel()          // cancel() 幂等；cancel 之后 show/hide/moveTo/moveBy 抛 IllegalStateException
 control.moveTo(100f, 200f); control.moveTo(100f, 200f, animate = true)
 control.moveBy(-20f, 0f); control.moveBy(-20f, 0f, animate = true)
 control.update { anchor(FxGravity.BOTTOM_END); gesture { drag = FxDrag.DISABLED } }   // 局部改配置

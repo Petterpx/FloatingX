@@ -41,10 +41,10 @@ Robolectric config). Module `build.gradle.kts` files only declare dependencies.
 **NEVER CANCEL builds or tests — set generous timeouts.**
 
 ```bash
-# Unit tests: 279 JVM/Robolectric cases across the five modules. 2-5 min, timeout 10+ min.
+# Unit tests: 283 JVM/Robolectric cases across the five modules. 2-5 min, timeout 10+ min.
 ./gradlew test
 
-# One module (core 140 / scope 22 / app 32 / system 60 / compose 25 cases)
+# One module (core 142 / scope 22 / app 32 / system 62 / compose 25 cases)
 ./gradlew :floatingx-core:test
 
 # What CI runs on every PR. 3-8 min, timeout 15+ min.
