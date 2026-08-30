@@ -20,6 +20,9 @@ import com.petterp.floatingx.system.systemHost
 /** 全局浮窗集中在这里安装；页面按钮只操作 FxControl */
 object DemoWindows {
     const val TAG_APP = "demo-app"
+
+    /** 第二个 App 级浮窗，用来演示按 tag 管理多窗口 */
+    const val TAG_APP_2 = "demo-app-2"
     const val TAG_SYSTEM = "demo-system"
     const val TAG_COMPOSE = "demo-compose"
 
@@ -29,10 +32,18 @@ object DemoWindows {
         override fun onLongClick(control: FxControl, view: View) = DemoContent.toast(view.context, "长按了 ${control.tag}")
     }
 
-    /** App 级全局浮窗：黑名单页不显示、贴边 + 半隐、位置持久化 */
-    fun installApp(app: Application): FxControl = FloatingX.install(TAG_APP) {
-        view { ctx -> DemoContent.card(ctx, "App") }
-        anchor(FxGravity.CENTER_END, dy = 120f)
+    /**
+     * App 级全局浮窗：黑名单页不显示、贴边 + 半隐、位置持久化。
+     *
+     * [tag] 默认是 [TAG_APP]；多窗口页用 [TAG_APP_2] 再装一个（注册表按 tag 隔离，
+     * 持久化的存储键也是按 tag 分的，两个窗口各记各的位置）。
+     */
+    @JvmOverloads
+    fun installApp(app: Application, tag: String = TAG_APP): FxControl = FloatingX.install(tag) {
+        val label = if (tag == TAG_APP) "App" else "App2"
+        view { ctx -> DemoContent.card(ctx, label) }
+        // 第二个窗口错开一点，否则默认位置完全重叠，看不出是两个
+        anchor(FxGravity.CENTER_END, dy = if (tag == TAG_APP) 120f else 260f)
         margin(top = 24f, bottom = 24f)
         adsorb(FxAdsorb.Edges(setOf(FxEdge.START, FxEdge.END), halfHide = FxHalfHide(0.3f)))
         persist(FxSpStorage(app))
@@ -44,7 +55,9 @@ object DemoWindows {
         }
     }.also { it.addListener(clickToast) }
 
-    fun ensureApp(app: Application): FxControl = FloatingX.controlOrNull(TAG_APP) ?: installApp(app)
+    @JvmOverloads
+    fun ensureApp(app: Application, tag: String = TAG_APP): FxControl =
+        FloatingX.controlOrNull(tag) ?: installApp(app, tag)
 
     /**
      * 系统浮窗：默认自动申请权限，被拒降级为 App 浮窗。
