@@ -4,7 +4,7 @@ package com.petterp.floatingx.core.layout
 public enum class FxEdge { START, END, TOP, BOTTOM }
 
 /** 半隐比例：贴 START 边时隐藏 start 比例，贴 END 边时隐藏 end 比例（#204 左右可不同） */
-public data class FxHalfHide(val start: Float, val end: Float = start) {
+public data class FxHalfHide @JvmOverloads constructor(val start: Float, val end: Float = start) {
     init {
         require(start in 0f..1f && end in 0f..1f) { "halfHide 比例必须在 0..1 之间: start=$start end=$end" }
     }
