@@ -2,6 +2,7 @@ package com.petterp.floatingx.core.host
 
 import android.content.Context
 import com.petterp.floatingx.core.container.FxContainer
+import com.petterp.floatingx.core.feature.FxFeature
 import com.petterp.floatingx.core.layout.FxBounds
 
 /**
@@ -29,6 +30,12 @@ public interface FxHost {
 
     /** 当前可用区域与 safe area insets */
     public fun bounds(): FxBounds
+
+    /**
+     * host 自带的行为插件（如系统窗口的键盘适配、touchable→窗口 flag 映射）。
+     * control 创建时与 config.features 一起挂入，换 host 时随之替换。必须每次返回同一批实例。
+     */
+    public fun hostFeatures(): List<FxFeature> = emptyList()
 
     /** control cancel 或 swap 时调用，释放监听/回调 */
     public fun release()

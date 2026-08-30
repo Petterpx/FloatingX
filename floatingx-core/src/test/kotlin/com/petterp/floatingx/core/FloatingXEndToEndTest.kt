@@ -525,6 +525,38 @@ class FloatingXEndToEndTest {
         assertEquals(1774f to 824f, positionOf(c))
     }
 
+    // ---------- host 自带 feature（spec §2.1/§2.5 扩展） ----------
+
+    /** host.hostFeatures() 随 control 一起挂载，走完整的 attach/detach/cancel 生命周期 */
+    @Test
+    fun `host features attach with the control and detach on host loss`() {
+        val f = LifecycleFeature()
+        val host = TestHost(parent, features = listOf(f))
+        val control = FloatingX.create(FxConfig.builder(FxContent.view(content())).build(), host)
+        assertEquals(listOf("attach"), f.calls)
+        host.lose()
+        assertEquals(listOf("attach", "detach"), f.calls)
+        control.cancel()
+        assertEquals(listOf("attach", "detach", "cancel"), f.calls)
+    }
+
+    /** 换 host 时旧 host 的 feature 摘掉、新 host 的挂上 */
+    @Test
+    fun `swapHost drops the old host features and adds the new ones`() {
+        val old = LifecycleFeature()
+        val new = LifecycleFeature()
+        val first = TestHost(parent, features = listOf(old))
+        val second = TestHost(FrameLayout(context), features = listOf(new))
+        val control = FloatingX.create(FxConfig.builder(FxContent.view(content())).build(), first)
+        control.show()
+        first.session!!.requestSwap(second)
+        assertEquals(listOf("attach", "detach"), old.calls)
+        assertEquals(listOf("attach"), new.calls)
+        control.cancel()
+        assertEquals(listOf("attach", "detach"), old.calls)   // 旧 host 的 feature 不再收到 cancel
+        assertEquals(listOf("attach", "detach", "cancel"), new.calls)
+    }
+
     @Test
     fun `calls off the main thread throw`() {
         val c = FloatingX.install("a", config(), TestHost(parent))

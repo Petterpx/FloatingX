@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.petterp.floatingx.core.container.FxContainer
 import com.petterp.floatingx.core.container.FxLayerContainer
+import com.petterp.floatingx.core.feature.FxFeature
 import com.petterp.floatingx.core.host.FxHost
 import com.petterp.floatingx.core.host.FxHostSession
 import com.petterp.floatingx.core.host.FxLayoutSpec
@@ -13,10 +14,12 @@ import com.petterp.floatingx.core.layout.FxInsets
 import com.petterp.floatingx.core.layout.FxRect
 
 /** 把容器挂到给定 FrameLayout 上的最小 host，等价于 Plan 2 的 ViewGroupHost */
-class TestHost(
+class TestHost @JvmOverloads constructor(
     private val parent: FrameLayout,
     private val readyOnBind: Boolean = true,
     private val insets: FxInsets = FxInsets.NONE,
+    /** host 自带的 feature，每次返回同一批实例 */
+    private val features: List<FxFeature> = emptyList(),
 ) : FxHost {
     override val context: Context get() = parent.context
     var session: FxHostSession? = null
@@ -31,6 +34,7 @@ class TestHost(
         this.session = session
         if (readyOnBind) session.onHostReady()
     }
+    override fun hostFeatures(): List<FxFeature> = features
     override fun createContainer(): FxContainer = FxLayerContainer(parent.context)
     override fun attach(container: FxContainer) {
         parent.addView(container.view, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))

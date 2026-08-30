@@ -66,6 +66,7 @@ internal class FxControlImpl(
 
     init {
         features += initialConfig.features
+        features += initialHost.hostFeatures()
         createContent()
         loadStoredAnchor()?.let { anchor = it }
         // 空 tag（FloatingX.create 未指定）时存储键会互相串，索性不持久化并提示（spec §2.7）
@@ -191,12 +192,14 @@ internal class FxControlImpl(
 
     override fun swapHost(fallback: FxHost) {
         logger?.d { "[$tag] 切换 host: ${host::class.java.simpleName} -> ${fallback::class.java.simpleName}" }
+        host.hostFeatures().forEach { removeFeature(it) }
         host.release()
         // 先把内容从旧容器摘下来：否则旧容器的 layout 监听会一直挂在内容 view 上（泄漏旧容器）
         container.releaseContent()
         host = fallback
         container = fallback.createContainer()
         contentView?.let { container.setContent(it) }
+        fallback.hostFeatures().forEach { addFeature(it) }
         fallback.bind(engine)
     }
 
