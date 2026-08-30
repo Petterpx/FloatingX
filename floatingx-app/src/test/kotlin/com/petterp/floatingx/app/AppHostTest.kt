@@ -14,11 +14,14 @@ import com.petterp.floatingx.core.FxListener
 import com.petterp.floatingx.core.FxState
 import com.petterp.floatingx.core.config.FxConfig
 import com.petterp.floatingx.core.config.FxContent
+import com.petterp.floatingx.core.feature.FxFeature
+import com.petterp.floatingx.core.feature.FxFeatureScope
 import com.petterp.floatingx.core.layout.FxGravity
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,6 +44,14 @@ class AppHostTest {
         var detach = 0
         override fun onAttach(control: FxControl) { attach++ }
         override fun onDetach(control: FxControl) { detach++ }
+    }
+
+    /** 直接数 core 收到多少次 onBoundsChanged——这正是父布局监听要过滤的东西 */
+    private class BoundsCounting : FxFeature {
+        var bounds = 0
+        override fun onAttach(scope: FxFeatureScope) = Unit
+        override fun onDetach() = Unit
+        override fun onBoundsChanged() { bounds++ }
     }
 
     private fun content(): FxContent = FxContent.provider { ctx -> View(ctx).apply { layoutParams = ViewGroup.LayoutParams(100, 50) } }
@@ -183,6 +194,28 @@ class AppHostTest {
     }
 
     @Test
+    fun `parent relayout with unchanged bounds is not forwarded to core`() {
+        val counting = BoundsCounting()
+        val a = launch(Activity::class.java).get()
+        val control = install(config = FxConfig.builder(content()).anchor(FxGravity.TOP_START).addFeature(counting).build())
+        control.show()
+        layoutDecor(a)
+        control.moveTo(300f, 400f, animate = false)
+        val dispatched = counting.bounds
+        // 模拟页面里某个子 view requestLayout 引发的父容器重排：尺寸与 insets 都没变，不该惊动 core
+        // （core 的 LocationFeature.onBoundsChanged 会清掉 dragInput，拖动中收到就会卡住手势）
+        decor(a).requestLayout()
+        layoutDecor(a)
+        assertEquals(dispatched, counting.bounds)
+        assertEquals(300f, control.position.x, 0f)
+        assertEquals(400f, control.position.y, 0f)
+        // 真的变了（旋转/分屏/insets）仍要派发。不断言具体次数：core 自己还有一条
+        // FxLayerContainer.onSizeChanged -> engine.onBoundsChanged 的通路，尺寸真变时两条都会走
+        layoutDecor(a, 720, 1280)
+        assertTrue("可用区真变化时必须转达给 core", counting.bounds > dispatched)
+    }
+
+    @Test
     fun `bounds follow the decor size`() {
         val a = launch(Activity::class.java).get()
         val control = install()
@@ -216,7 +249,9 @@ class AppHostTest {
         launch(Activity::class.java)
         val control = install()
         val host = control.host as AppHost
+        val layer = checkNotNull(control.contentView?.parent as? View) { "install 后容器应已挂上" }
         control.cancel()
+        assertNull(layer.parent) // 容器已从 decor 上摘掉
         launch(Activity::class.java)
         assertNull(host.attachedActivity)
     }

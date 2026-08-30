@@ -51,14 +51,27 @@ public class AppHost private constructor(
     private val tmpLocation = IntArray(2)
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    /** 父容器每次布局（首帧、旋转、insets 变化）都让 core 按锚点重算；relayout 只写 translation，不会成环 */
-    private val parentLayoutListener = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> session?.onBoundsChanged() }
+    /** 可用区快照 [宽, 高, insets 左, 上, 右, 下]；bounds() 与布局监听共用，避免为了比较而构造 FxBounds */
+    private val boundsScratch = FloatArray(BOUNDS_SIZE)
+    private val lastBounds = FloatArray(BOUNDS_SIZE)
+    private var hasLastBounds = false
+
+    /**
+     * 父容器布局回调。**必须做变化过滤**：只要页面里任何子孙 view 调过 requestLayout
+     * （TextView.setText、RecyclerView 增删、软键盘弹出……），父容器的 layout 就会重跑并触发这里，
+     * 频率远高于「首帧 / 旋转 / insets 变化」。而 core 的 LocationFeature.onBoundsChanged 会清掉
+     * dragInput 并 relayout——拖动中途收到就会卡住这一轮手势并弹回已提交的锚点，吸附动画也会被截断。
+     * 所以这里只在可用区（父容器尺寸 + insets）真的变了时才派发；换父与 lost 时清缓存，
+     * 保证新父的第一次布局一定派发（spec 需要的锚点校正）。
+     */
+    private val parentLayoutListener = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> onParentLayout() }
 
     public fun accepts(activity: Activity): Boolean = rules.accept(activity)
 
     // ---------- FxHost ----------
 
     override fun bind(session: FxHostSession) {
+        check(!released) { "AppHost 已 release，不能复用；请新建一个 AppHost" }
         this.session = session
         FxActivityTracker.init(application)
         FxActivityTracker.addObserver(this)
@@ -70,36 +83,32 @@ public class AppHost private constructor(
     override fun attach(container: FxContainer) {
         val p = checkNotNull(parent) { "AppHost 尚未 ready 就被 attach" }
         this.container = container
-        p.addView(container.view, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-        p.addOnLayoutChangeListener(parentLayoutListener)
+        mount(p, container.view)
     }
 
     override fun detach(container: FxContainer) {
-        (container.view.parent as? ViewGroup)?.let {
-            it.removeOnLayoutChangeListener(parentLayoutListener)
-            it.removeView(container.view)
-        }
+        (container.view.parent as? ViewGroup)?.let { unmount(it, container.view) }
         this.container = null
     }
 
     override fun bounds(): FxBounds {
-        val p = parent ?: return FxBounds(FxRect(0f, 0f, 0f, 0f))
-        val rect = FxRect(0f, 0f, p.width.toFloat(), p.height.toFloat())
-        val windowInsets = ViewCompat.getRootWindowInsets(p) ?: return FxBounds(rect)
-        val bars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
-        p.getLocationInWindow(tmpLocation)
-        val root = p.rootView
-        return FxBounds(rect, contentInsets(bars, target, tmpLocation[0], tmpLocation[1], p.width, p.height, root.width, root.height))
+        if (!computeBounds(boundsScratch)) return FxBounds(FxRect(0f, 0f, 0f, 0f))
+        val s = boundsScratch
+        return FxBounds(FxRect(0f, 0f, s[0], s[1]), FxInsets(s[2], s[3], s[4], s[5]))
     }
 
     override fun release() {
         released = true
         FxActivityTracker.removeObserver(this)
+        mainHandler.removeCallbacksAndMessages(null)
+        // core 的 swapHost 会直接 release 而不先 detach（降级到别的 host），容器还挂在页面上，这里兜底摘掉
+        container?.view?.let { v -> (v.parent as? ViewGroup)?.let { unmount(it, v) } }
         parent?.removeOnLayoutChangeListener(parentLayoutListener)
         parent = null
         attachedActivity = null
         container = null
         session = null
+        hasLastBounds = false
     }
 
     // ---------- FxActivityTracker.Observer ----------
@@ -122,7 +131,7 @@ public class AppHost private constructor(
 
     private fun moveTo(activity: Activity) {
         if (released || activity === attachedActivity) return
-        if (!rules.accept(activity)) {
+        if (!accepts(activity)) {
             if (attachedActivity != null) lose()
             return
         }
@@ -131,11 +140,11 @@ public class AppHost private constructor(
         val c = container
         attachedActivity = activity
         parent = newParent
+        // 新父的可用区（尺寸/insets）与旧父无关：清掉快照，让新父第一次布局一定派发，core 才能按锚点校正
+        hasLastBounds = false
         if (c != null && oldParent != null) {
-            oldParent.removeOnLayoutChangeListener(parentLayoutListener)
-            oldParent.removeView(c.view)
-            newParent.addView(c.view, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-            newParent.addOnLayoutChangeListener(parentLayoutListener)
+            unmount(oldParent, c.view)
+            mount(newParent, c.view)
             session?.onBoundsChanged()
         } else {
             session?.onHostReady()
@@ -146,7 +155,51 @@ public class AppHost private constructor(
         parent?.removeOnLayoutChangeListener(parentLayoutListener)
         attachedActivity = null
         parent = null
+        hasLastBounds = false
         session?.onHostLost()
+    }
+
+    private fun mount(parent: ViewGroup, view: View) {
+        parent.addView(view, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        parent.addOnLayoutChangeListener(parentLayoutListener)
+    }
+
+    private fun unmount(parent: ViewGroup, view: View) {
+        parent.removeOnLayoutChangeListener(parentLayoutListener)
+        parent.removeView(view)
+    }
+
+    private fun onParentLayout() {
+        val s = boundsScratch
+        if (!computeBounds(s)) return
+        if (hasLastBounds && s.contentEquals(lastBounds)) return
+        s.copyInto(lastBounds)
+        hasLastBounds = true
+        session?.onBoundsChanged()
+    }
+
+    /**
+     * 把当前可用区算进 [out]（下标见 [boundsScratch]），父容器不存在则返回 false。
+     * 独立成函数是为了让 bounds() 与布局监听共用同一段计算：监听只比较 6 个 float，不构造 FxBounds。
+     */
+    private fun computeBounds(out: FloatArray): Boolean {
+        val p = parent ?: return false
+        out[0] = p.width.toFloat()
+        out[1] = p.height.toFloat()
+        val windowInsets = ViewCompat.getRootWindowInsets(p)
+        if (windowInsets == null) {
+            out.fill(0f, 2, BOUNDS_SIZE)
+            return true
+        }
+        val bars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+        p.getLocationInWindow(tmpLocation)
+        val root = p.rootView
+        val insets = contentInsets(bars, target, tmpLocation[0], tmpLocation[1], p.width, p.height, root.width, root.height)
+        out[2] = insets.left
+        out[3] = insets.top
+        out[4] = insets.right
+        out[5] = insets.bottom
+        return true
     }
 
     private fun parentOf(activity: Activity): ViewGroup = when (target) {
@@ -193,6 +246,9 @@ public class AppHost private constructor(
     }
 
     public companion object {
+        /** 可用区快照的长度：宽、高 + 四边 insets */
+        private const val BOUNDS_SIZE = 6
+
         @JvmStatic
         public fun builder(application: Application): Builder = Builder(application)
 

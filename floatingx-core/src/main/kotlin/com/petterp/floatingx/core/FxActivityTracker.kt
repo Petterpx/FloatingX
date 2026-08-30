@@ -7,8 +7,12 @@ import java.lang.ref.WeakReference
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
- * 前台 Activity 跟踪（spec §2.7）。不再用 ContentProvider 自动初始化：
- * 需要它的 host（app/system）在构造时调用 init(application)。
+ * 前台 Activity 跟踪（spec §2.7）。core 自身不做任何自动初始化（不带 ContentProvider）：
+ * - 进程启动即初始化由 app 模块的 `FxAppInitProvider` 负责（它在清单里声明，onCreate 时调 [init]）；
+ * - 各 host（app/system）在 `bind()` 里仍会再调一次 [init] 兜底，[init] 幂等，重复调用无副作用。
+ *
+ * 注意 [init] 只能注册后续回调，无法补种「注册之前就已经 resume」的 Activity：
+ * 那种情况下 [topActivity] 为 null，直到下一次 Activity resume 才有值。
  * onActivityDestroyed 一定清引用，避免 2.x 的 topActivity 指向已销毁 Activity。
  */
 public object FxActivityTracker {
