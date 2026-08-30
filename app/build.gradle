@@ -49,6 +49,8 @@ dependencies {
     implementation libs.appcompat
     implementation libs.material
     implementation libs.fragment
+    // demo 直接用 RecyclerView（手势 / 滚动示例），显式声明而不是靠 material 传递
+    implementation libs.androidx.recyclerview
     implementation platform(libs.compose.bom)
     implementation libs.compose.ui
     implementation libs.compose.material3

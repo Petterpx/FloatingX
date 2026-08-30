@@ -39,7 +39,7 @@ class GestureActivity : AppCompatActivity() {
         override fun onDragEnd(control: FxControl, x: Float, y: Float) = log("onDragEnd(${x.toInt()}, ${y.toInt()})")
     }
 
-    // cancel 之后的 FxControl 不可复用，按钮统一走 get()：没有或已 cancel 就重建
+    // cancel 之后的 FxControl 不可复用（show/hide/moveTo 会抛 IllegalStateException），按钮统一走 get()：没有或已 cancel 就重建
     private var fxOrNull: FxControl? = null
 
     private val fx: FxControl

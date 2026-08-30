@@ -1,5 +1,7 @@
 <resources>
-    <!-- windowLayoutInDisplayCutoutMode 是 API 28 才有的属性，单独放这里避免低版本 lint 报错 -->
+    <!-- windowLayoutInDisplayCutoutMode 是 API 28 才有的属性，单独放这里避免低版本 lint 报错。
+         这里整条 style 覆盖了 values/themes.xml 的同名 style（而不是继承它，parent 是 Theme.FloatingX），
+         所以 windowTranslucentStatus / statusBarColor 必须原样重述一遍，否则 v28+ 上会丢掉。 -->
     <style name="Theme.FloatingX.Immersed" parent="Theme.FloatingX">
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>

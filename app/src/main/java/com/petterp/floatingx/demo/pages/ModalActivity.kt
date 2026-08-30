@@ -27,7 +27,7 @@ class ModalActivity : AppCompatActivity() {
 
     private var fxOrNull: FxControl? = null
 
-    /** 「modal 下方按钮」被真正点到的次数：modal 打开时它应当一直是 0 */
+    /** 「modal 下方按钮」被真正点到的次数：modal 打开**且浮窗显示中**时它应当一直不变 */
     @get:VisibleForTesting
     var outsideClicks: Int = 0
         private set
@@ -59,7 +59,7 @@ class ModalActivity : AppCompatActivity() {
         demoPage("Modal") {
             // 放在最上面：浮窗是居中显示的，这个按钮要离它足够远，点下去才算"点在内容之外"
             section("modal 拦截验证")
-            note("先点下面的「显示」，再点这个按钮：modal 开着时点击被容器吃掉（计数不变，浮窗自动隐藏），关掉 modal 后才会计数。")
+            note("先点下面的「显示」，再点这个按钮：浮窗显示中时点击被容器吃掉（计数不变，浮窗自动隐藏）；浮窗隐藏之后（或关掉 modal）触摸就照常透传，计数会涨。")
             custom(clicksView)
             button("modal 下方按钮") {
                 outsideClicks++
@@ -71,7 +71,7 @@ class ModalActivity : AppCompatActivity() {
             button("隐藏") { fx.hide() }
 
             section("modal")
-            note("开启时：浮窗之外的触摸被容器吃掉（下面的按钮点不动），并且点一下外部浮窗自动 hide；关闭时触摸照常透传。")
+            note("开启时：浮窗**显示中**才拦截（浮窗之外的触摸被容器吃掉，下面的按钮点不动），并且点一下外部浮窗自动 hide；浮窗隐藏或关闭 modal 后触摸照常透传。")
             toggle("modal（拦截外部触摸 + 点外部自动 hide）", true) { enabled ->
                 fx.update { modal(enabled, dismissOnOutsideTouch = true) }
             }

@@ -76,20 +76,38 @@ class DemoPageScope(private val root: LinearLayout) {
     fun page(text: String, cls: Class<out Activity>) = button(text) { it.context.startActivity(Intent(it.context, cls)) }
 }
 
+/**
+ * 主题是 NoActionBar，[Activity.setTitle] 在页面上看不见，
+ * 所以标题额外在列顶画一个加粗 TextView（setTitle 也留着，最近任务列表等地方还用得上）。
+ */
+private fun Activity.addTitle(column: LinearLayout, title: String) {
+    setTitle(title)
+    val pad = (16 * resources.displayMetrics.density).toInt()
+    column.addView(
+        TextView(this).apply {
+            text = title
+            textSize = 20f
+            setTextColor(Color.BLACK)
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(pad, pad, pad, pad / 2)
+        },
+    )
+}
+
 /** Activity 直接 setContentView 一个可滚动的示例页 */
 fun Activity.demoPage(title: String? = null, block: DemoPageScope.() -> Unit) {
-    title?.let { setTitle(it) }
     val column = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+    title?.let { addTitle(column, it) }
     DemoPageScope(column).block()
     setContentView(NestedScrollView(this).apply { addView(column) })
 }
 
 /** 可以在页面顶部放一个真实的 ViewGroup（局部浮窗宿主）再接示例列表 */
 fun Activity.demoPageWithHeader(header: View, title: String? = null, block: DemoPageScope.() -> Unit) {
-    title?.let { setTitle(it) }
     val outer = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
     outer.addView(header)
     val column = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+    title?.let { addTitle(column, it) }
     DemoPageScope(column).block()
     outer.addView(
         NestedScrollView(this).apply { addView(column) },

@@ -13,8 +13,8 @@ import org.junit.Assume.assumeTrue
  * instrumentation 用例共用的小工具。
  *
  * 两条纪律：
- * 1. FloatingX 的所有 API 都必须在主线程调用（[com.petterp.floatingx.core.internal.FxControlImpl] 会 check），
- *    所以读写 control 一律走 [onMain] / [onMainGet]；
+ * 1. FloatingX 的写操作必须在主线程调用（[com.petterp.floatingx.core.internal.FxControlImpl] 的 mutator 会 check）；
+ *    getter 虽然没有 check，但在别的线程读可能读到半帧状态，所以读写一律走 [onMain] / [onMainGet]；
  * 2. 换页、旋转、布局都是异步的，断言前用 [await] 等条件成立，而不是裸 sleep 一个固定时长。
  */
 

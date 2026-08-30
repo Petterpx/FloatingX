@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    /** cancel 之后的 FxControl 不可复用，再调用会抛 IllegalStateException，所以先看状态 */
+    /** cancel() 本身幂等（重复调用直接返回），这里看一眼状态只是不做无谓的调用；cancel 之后的 show/hide/moveTo 才会抛 IllegalStateException */
     private fun cancelJavaScope() {
         javaScope?.takeIf { it.state != FxState.CANCELLED }?.cancel()
         javaScope = null

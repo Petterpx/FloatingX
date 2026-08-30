@@ -44,7 +44,7 @@ class ScopeHostActivity : AppCompatActivity() {
     /** Fragment 宿主：id 用资源 id，旋转重建后 FragmentManager 才找得回来 */
     private val slot: FrameLayout by lazy { fragmentSlot(this, 200) }
 
-    // cancel 之后的 FxControl 不可复用（再调用会抛 IllegalStateException），
+    // cancel 之后的 FxControl 不可复用（show/hide/moveTo 会抛 IllegalStateException，cancel() 本身幂等），
     // 所以按钮统一走 get()：没有或已 cancel 就重新建一个。
     private var boxFxOrNull: FxControl? = null
     private var actFxOrNull: FxControl? = null

@@ -56,7 +56,7 @@ class SystemHostActivity : AppCompatActivity() {
                     },
                 ).show()
             }
-            note("Manual 的对话框里：去开启=proceed()、降级=useFallback()、取消=deny()；本页配了 fallback，所以 deny 也会降级，不配才停在 INSTALLED。")
+            note("Manual 的对话框里：去开启=proceed()、降级=useFallback()、取消=deny()。deny() 只是放弃，配了 fallback 也停在 INSTALLED（可用 retryPermission() 恢复），只有 useFallback() 才降级。")
             button("Skip（不检查权限，type 由 customizer 决定）") {
                 DemoWindows.installSystem(application, FxPermissionStrategy.skip(), fallback = false).show()
             }
@@ -116,6 +116,11 @@ class SystemHostActivity : AppCompatActivity() {
 
     /** Manual 策略：三个方法只应调用一个，所以对话框不可取消，必须点一个按钮 */
     private fun showPermissionDialog(request: FxPermissionRequest) {
+        // 页面正在销毁时弹不出对话框，request 会永远悬着：直接 deny()（停在 INSTALLED，可 retryPermission 恢复）
+        if (isFinishing || isDestroyed) {
+            request.deny()
+            return
+        }
         AlertDialog.Builder(this)
             .setTitle("需要悬浮窗权限")
             .setMessage("Manual 策略把决定权交给业务方：可以先解释用途，再决定申请、降级还是放弃。")
