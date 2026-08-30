@@ -13,6 +13,7 @@ import com.petterp.floatingx.demo.R
 /** 各页共用的浮窗内容 */
 object DemoContent {
 
+    private const val CARD_SIZE_DP = 120
     private const val RESIZABLE_INIT_DP = 140
     private const val RESIZABLE_MIN_DP = 100
     private const val RESIZABLE_MAX_DP = 280
@@ -20,8 +21,12 @@ object DemoContent {
 
     /** 圆形卡片；用 theme 化的 context 才能解析 Material 属性 */
     fun card(context: Context, text: String): View =
-        LayoutInflater.from(context).inflate(R.layout.fx_card, null, false).also {
-            it.findViewById<TextView>(R.id.tvTitle).text = text
+        LayoutInflater.from(context).inflate(R.layout.fx_card, null, false).also { root ->
+            // 同 resizable：inflate(root = null) 不会带上 XML 里的 layout_width/height（没有 parent 就
+            // 解析不出 LayoutParams），不补的话 120dp 圆卡会退化成 wrap_content，只剩文字那么大
+            val size = CARD_SIZE_DP.dp(context)
+            root.layoutParams = ViewGroup.LayoutParams(size, size)
+            root.findViewById<TextView>(R.id.tvTitle).text = text
         }
 
     /**

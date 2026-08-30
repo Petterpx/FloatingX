@@ -141,7 +141,7 @@ object DemoWindows {
                 var count by rememberSaveable { mutableIntStateOf(0) }
                 val state by control.stateFlow().collectAsState()
                 val pos by control.positionFlow().collectAsState()
-                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(110.dp)) {
+                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(120.dp)) {
                     Column(
                         Modifier.clickable { count++; vm.clicks++ },
                         horizontalAlignment = Alignment.CenterHorizontally,
