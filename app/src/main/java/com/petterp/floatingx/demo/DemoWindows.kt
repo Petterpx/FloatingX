@@ -46,13 +46,19 @@ object DemoWindows {
 
     fun ensureApp(app: Application): FxControl = FloatingX.controlOrNull(TAG_APP) ?: installApp(app)
 
-    /** 系统浮窗：默认自动申请权限，被拒降级为 App 浮窗 */
+    /**
+     * 系统浮窗：默认自动申请权限，被拒降级为 App 浮窗。
+     *
+     * [keyboard] = true 时换成带 EditText 的内容，并登记 keyboard/onBackPressed，
+     * 用来验证系统窗口里唤起软键盘（窗口默认 FLAG_NOT_FOCUSABLE，触到 EditText 才临时可聚焦）。
+     */
     fun installSystem(
         app: Application,
         strategy: FxPermissionStrategy = FxPermissionStrategy.auto(),
         fallback: Boolean = true,
+        keyboard: Boolean = false,
     ): FxControl = FloatingX.install(TAG_SYSTEM) {
-        view { ctx -> DemoContent.card(ctx, "Sys") }
+        if (keyboard) layout(R.layout.fx_input) else view { ctx -> DemoContent.card(ctx, "Sys") }
         anchor(FxGravity.TOP_START, dx = 24f, dy = 200f)
         adsorb(FxAdsorb.Edges(setOf(FxEdge.START, FxEdge.END)))
         persist(FxSpStorage(app))
@@ -60,8 +66,16 @@ object DemoWindows {
         systemHost(app) {
             theme(R.style.Theme_FloatingX)
             permission(strategy)
-            // this. 消歧：这里的 fallback 既是 Builder 方法名也是本函数的参数名
+            // this. 消歧：这里的 fallback / keyboard 既是 Builder 方法名也是本函数的参数名
             if (fallback) this.fallback(AppHost.builder(app).theme(R.style.Theme_FloatingX).build())
+            if (keyboard) {
+                this.keyboard(R.id.etInput)
+                // 键盘弹起期间窗口才可聚焦，也才收得到返回键；而收键盘的那次返回会被吞掉，不会走到这里
+                onBackPressed {
+                    DemoContent.toast(app, "系统浮窗收到返回键")
+                    true
+                }
+            }
         }
     }.also { it.addListener(clickToast) }
 

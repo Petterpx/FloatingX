@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+    带输入框的系统浮窗内容：验证 SystemHost.keyboard(etInput) 唤起键盘。
+    卡片不写死背景/文字颜色，跟随 Theme.FloatingX（DayNight）走，深色模式下也看得见。
+-->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fxInputCard"
+    android:layout_width="220dp"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <EditText
+            android:id="@+id/etInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="点我弹键盘"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvInputTip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            android:text="按返回键先收起键盘"
+            android:textSize="11sp" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

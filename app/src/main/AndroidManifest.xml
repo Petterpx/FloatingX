@@ -23,11 +23,21 @@
             </intent-filter>
         </activity>
         <activity android:name="com.petterp.floatingx.demo.pages.AppHostActivity" />
+        <activity android:name="com.petterp.floatingx.demo.pages.SystemHostActivity" />
         <activity android:name="com.petterp.floatingx.demo.pages.SecondActivity" />
         <activity android:name="com.petterp.floatingx.demo.pages.BlackActivity" />
         <activity
             android:name="com.petterp.floatingx.demo.pages.ImmersedActivity"
             android:theme="@style/Theme.FloatingX.Immersed" />
+        <!-- 前台 Service 装系统浮窗（#192）：U 起 specialUse 类型必须带子类型说明 -->
+        <service
+            android:name="com.petterp.floatingx.demo.service.DemoService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="floating window demo" />
+        </service>
         <!-- 后续 Task 追加页面；一律不配 configChanges（spec §10：旋转走 recreate） -->
     </application>
 </manifest>

@@ -7,6 +7,7 @@ import com.petterp.floatingx.demo.pages.AppHostActivity
 import com.petterp.floatingx.demo.pages.BlackActivity
 import com.petterp.floatingx.demo.pages.ImmersedActivity
 import com.petterp.floatingx.demo.pages.SecondActivity
+import com.petterp.floatingx.demo.pages.SystemHostActivity
 import com.petterp.floatingx.demo.ui.demoPage
 
 class MainActivity : AppCompatActivity() {
@@ -20,6 +21,7 @@ class MainActivity : AppCompatActivity() {
             button("卸载全部全局浮窗") { FloatingX.uninstallAll() }
             section("能力页")
             page("App 级全局浮窗", AppHostActivity::class.java)
+            page("系统级浮窗（权限 / 键盘 / Service）", SystemHostActivity::class.java)
             page("换页观察（attachedActivity）", SecondActivity::class.java)
             page("黑名单页（浮窗消失）", BlackActivity::class.java)
             page("沉浸页（无状态栏）", ImmersedActivity::class.java)
