@@ -20,6 +20,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Unit tests
         run: ./gradlew test --stacktrace
+      - name: Assemble demo & instrumentation apk
+        run: ./gradlew app:assembleDebug app:assembleDebugAndroidTest --stacktrace
       - name: Publish to maven local
         run: ./gradlew publishToMavenLocal -PisPublish=false -PversionName=3.0.0-SNAPSHOT --stacktrace
 
@@ -33,6 +35,7 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -41,7 +44,9 @@ jobs:
         with:
           api-level: 34
           arch: x86_64
+          target: google_apis
           profile: pixel_6
+          force-avd-creation: false
           script: |
             ./gradlew app:installDebug app:installDebugAndroidTest
             adb shell appops set com.petterp.floatingx.app SYSTEM_ALERT_WINDOW allow
