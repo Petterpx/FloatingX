@@ -2,12 +2,19 @@ package com.petterp.floatingx.system
 
 import android.content.Context
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.test.core.app.ApplicationProvider
+import com.petterp.floatingx.core.container.FxContainerTouchHandler
 import com.petterp.floatingx.core.layout.FxGravity
+import com.petterp.floatingx.core.layout.FxInsets
+import com.petterp.floatingx.core.layout.FxSize
 import com.petterp.floatingx.system.container.FxWindowContainer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -32,6 +39,10 @@ class FxWindowContainerTest {
 
     private fun container(back: SystemBackListener? = null): FxWindowContainer = FxWindowContainer(context, wm, lp(), back).also { c ->
         c.setContent(View(context).apply { layoutParams = ViewGroup.LayoutParams(100, 50) })
+        measureAndLayout(c)
+    }
+
+    private fun measureAndLayout(c: FxWindowContainer) {
         c.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED))
         c.layout(0, 0, c.measuredWidth, c.measuredHeight)
     }
@@ -123,5 +134,72 @@ class FxWindowContainerTest {
         c.releaseContent()
         assertEquals(0, c.childCount)
         assertEquals(null, c.contentView)
+    }
+
+    @Test
+    fun `touch events are forwarded to the touch handler`() {
+        val c = container()
+        val intercepted = mutableListOf<Int>()
+        val touched = mutableListOf<Int>()
+        c.touchHandler = object : FxContainerTouchHandler {
+            override fun onIntercept(ev: MotionEvent): Boolean {
+                intercepted += ev.actionMasked
+                return false
+            }
+
+            override fun onTouch(ev: MotionEvent): Boolean {
+                touched += ev.actionMasked
+                return true
+            }
+        }
+        val down = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_DOWN, 10f, 10f, 0)
+        assertFalse(c.onInterceptTouchEvent(down))
+        assertTrue(c.onTouchEvent(down))
+        down.recycle()
+        assertEquals(listOf(MotionEvent.ACTION_DOWN), intercepted)
+        assertEquals(listOf(MotionEvent.ACTION_DOWN), touched)
+    }
+
+    @Test
+    fun `content size is reported once per real change`() {
+        val c = FxWindowContainer(context, wm, lp(), null)
+        val sizes = mutableListOf<FxSize>()
+        c.onContentSizeChanged = { sizes += it }
+        c.setContent(View(context).apply { layoutParams = ViewGroup.LayoutParams(100, 50) })
+        measureAndLayout(c)
+        assertEquals(listOf(FxSize(100f, 50f)), sizes)
+        // 同尺寸重新布局（内容自己 requestLayout）不该再回调
+        c.contentView!!.requestLayout()
+        measureAndLayout(c)
+        assertEquals(1, sizes.size)
+    }
+
+    @Test
+    fun `configuration change refreshes the screen size and notifies`() {
+        val c = container()
+        var hits = 0
+        c.onBoundsChanged = { hits++ }
+        c.setBounds(1, 1)
+        c.dispatchConfigurationChanged(context.resources.configuration)
+        assertEquals(1, hits)
+        // 旋转后容器必须先刷新自己的屏幕尺寸，否则 host 拿到的是旋转前的旧值
+        assertEquals(context.resources.displayMetrics.widthPixels, c.boundsWidth)
+        assertEquals(context.resources.displayMetrics.heightPixels, c.boundsHeight)
+    }
+
+    @Test
+    fun `window insets are reported once per change`() {
+        val c = container()
+        var hits = 0
+        c.onBoundsChanged = { hits++ }
+        val insets = WindowInsetsCompat.Builder()
+            .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.of(0, 63, 0, 126))
+            .build()
+        ViewCompat.dispatchApplyWindowInsets(c, insets)
+        assertEquals(FxInsets(0f, 63f, 0f, 126f), c.windowInsets)
+        assertEquals(1, hits)
+        assertEquals(context.resources.displayMetrics.widthPixels, c.boundsWidth)
+        ViewCompat.dispatchApplyWindowInsets(c, insets)
+        assertEquals(1, hits)
     }
 }

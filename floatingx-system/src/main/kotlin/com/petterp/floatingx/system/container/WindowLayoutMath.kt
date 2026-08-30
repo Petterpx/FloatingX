@@ -5,6 +5,7 @@ import android.view.WindowManager
 import com.petterp.floatingx.core.layout.FxGravity
 import com.petterp.floatingx.core.layout.FxHorizontal
 import com.petterp.floatingx.core.layout.FxVertical
+import kotlin.math.roundToInt
 
 /**
  * 把 core 的"内容左上角屏幕坐标 + 锚点 gravity"换算成 WindowManager.LayoutParams 的 gravity + 偏移（spec §2.3 / #187）。
@@ -26,8 +27,8 @@ internal object WindowLayoutMath {
     ) {
         if (boundsW <= 0 || boundsH <= 0 || contentW <= 0 || contentH <= 0) {
             lp.gravity = Gravity.TOP or Gravity.LEFT
-            lp.x = x.toInt()
-            lp.y = y.toInt()
+            lp.x = x.roundToInt()
+            lp.y = y.roundToInt()
             return
         }
         val h = when (gravity.horizontal) {
@@ -41,15 +42,16 @@ internal object WindowLayoutMath {
             FxVertical.CENTER -> Gravity.CENTER_VERTICAL
         }
         lp.gravity = h or v
+        // 四舍五入而不是截断：截断会把亚像素的偏移一路吞掉，连续换算后位置会向左上漂移
         lp.x = when (h) {
             Gravity.LEFT -> x
             Gravity.RIGHT -> boundsW - x - contentW
             else -> x - (boundsW - contentW) / 2f
-        }.toInt()
+        }.roundToInt()
         lp.y = when (v) {
             Gravity.TOP -> y
             Gravity.BOTTOM -> boundsH - y - contentH
             else -> y - (boundsH - contentH) / 2f
-        }.toInt()
+        }.roundToInt()
     }
 }

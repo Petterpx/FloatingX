@@ -2,6 +2,8 @@ package com.petterp.floatingx.system.container
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Point
+import android.os.Build
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -49,8 +51,15 @@ public class FxWindowContainer(
     public var windowInsets: FxInsets = FxInsets.NONE
         private set
 
+    /** 当前用于 gravity 换算的屏幕宽高（[refreshBounds] / [setBounds] 写入） */
+    public val boundsWidth: Int get() = boundsW
+    public val boundsHeight: Int get() = boundsH
+
     private var boundsW = 0
     private var boundsH = 0
+
+    /** getRealSize 的复用出参，旋转/insets 每次刷新都不再分配 */
+    private val screenPoint = Point()
     private var posX = 0f
     private var posY = 0f
     private var lastGravity = FxGravity.TOP_START
@@ -79,6 +88,8 @@ public class FxWindowContainer(
             val next = FxInsets(i.left.toFloat(), i.top.toFloat(), i.right.toFloat(), i.bottom.toFloat())
             if (next != windowInsets) {
                 windowInsets = next
+                // 派发前先刷新屏幕尺寸：insets 变化常伴随可用区变化，host 读到的必须是新值
+                refreshBounds()
                 onBoundsChanged?.invoke()
             }
             insets
@@ -91,6 +102,22 @@ public class FxWindowContainer(
     public fun setBounds(width: Int, height: Int) {
         boundsW = width
         boundsH = height
+    }
+
+    /**
+     * 从 WindowManager 读一次真实屏幕尺寸并缓存。
+     * 旋转 / insets 变化时容器**自己**先刷新再派发 onBoundsChanged：
+     * 否则 host 与 WindowLayoutMath 会拿旋转前的旧尺寸换算非 TOP_START 锚点，位置直接跳错。
+     */
+    public fun refreshBounds() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val b = wm.maximumWindowMetrics.bounds
+            setBounds(b.width(), b.height())
+        } else {
+            @Suppress("DEPRECATION")
+            wm.defaultDisplay.getRealSize(screenPoint)
+            setBounds(screenPoint.x, screenPoint.y)
+        }
     }
 
     /** 提交一次布局：左上角屏幕坐标 + 锚点 gravity（SystemHost.updateLayout 调用） */
@@ -182,6 +209,8 @@ public class FxWindowContainer(
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
+        // 旋转/分屏：先把自己的屏幕尺寸换成新的，再让 core 重新定位
+        refreshBounds()
         onBoundsChanged?.invoke()
     }
 }

@@ -46,6 +46,13 @@ class WindowLayoutMathTest {
     }
 
     @Test
+    fun `fractional coordinates round to the nearest pixel`() {
+        val lp = apply(20.6f, 30.4f, FxGravity.TOP_START)
+        assertEquals(21, lp.x)
+        assertEquals(30, lp.y)
+    }
+
+    @Test
     fun `unknown bounds fall back to top left`() {
         val lp = apply(300f, 400f, FxGravity.BOTTOM_END, bw = 0, bh = 0)
         assertEquals(Gravity.TOP or Gravity.LEFT, lp.gravity)
