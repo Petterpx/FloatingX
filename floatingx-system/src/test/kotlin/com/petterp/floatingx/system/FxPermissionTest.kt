@@ -2,7 +2,9 @@ package com.petterp.floatingx.system
 
 import android.app.Activity
 import android.app.Application
+import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Build
 import android.provider.Settings
 import androidx.test.core.app.ApplicationProvider
@@ -90,6 +92,51 @@ class FxPermissionTest {
         shadowOf(activity).receiveResult(settings.intent, Activity.RESULT_OK, null)
         assertEquals(listOf("a" to true), results) // 只回调请求 a，b 仍在等自己的 Activity
         assertTrue(activity.isFinishing)
+    }
+
+    /**
+     * 回归 #critical：manifest 里绝不能有 android:noHistory——被系统设置页覆盖（onStop）时框架会立刻
+     * finish 掉 noHistory 页，onActivityResult 永远收不到。excludeFromRecents 则必须保留。
+     */
+    @Test
+    fun `permission activity is excluded from recents but not noHistory`() {
+        val component = ComponentName(app, FxPermissionActivity::class.java)
+        val info = app.packageManager.getActivityInfo(component, 0)
+        assertEquals(0, info.flags and ActivityInfo.FLAG_NO_HISTORY)
+        assertTrue(info.flags and ActivityInfo.FLAG_EXCLUDE_FROM_RECENTS != 0)
+    }
+
+    @Test
+    fun `activity finished without a result still reports the current state exactly once`() {
+        ShadowSettings.setCanDrawOverlays(false)
+        val results = mutableListOf<Boolean>()
+        FxPermission.request(app) { results += it }
+        val launch = shadowOf(app).nextStartedActivity!!
+
+        val controller = Robolectric.buildActivity(FxPermissionActivity::class.java, launch).create()
+        // 用户在设置页里把任务栈划掉：没有 onActivityResult，只有 finish + destroy
+        ShadowSettings.setCanDrawOverlays(true)
+        controller.get().finish()
+        controller.pause().stop().destroy()
+
+        assertEquals(listOf(true), results)
+    }
+
+    @Test
+    fun `destroy after a delivered result does not dispatch twice`() {
+        ShadowSettings.setCanDrawOverlays(false)
+        val results = mutableListOf<Boolean>()
+        FxPermission.request(app) { results += it }
+        val launch = shadowOf(app).nextStartedActivity!!
+
+        val controller = Robolectric.buildActivity(FxPermissionActivity::class.java, launch).create()
+        val activity = controller.get()
+        val settings = shadowOf(activity).nextStartedActivityForResult!!
+        ShadowSettings.setCanDrawOverlays(true)
+        shadowOf(activity).receiveResult(settings.intent, Activity.RESULT_OK, null)
+        controller.pause().stop().destroy()
+
+        assertEquals(listOf(true), results)
     }
 
     @Test

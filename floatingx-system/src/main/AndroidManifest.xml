@@ -4,12 +4,13 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application>
-        <!-- 透明的权限申请页：从任意 context 启动（Service 可用，#192），不进最近任务、无历史 -->
+        <!-- 透明的权限申请页：从任意 context 启动（Service 可用，#192），独立任务栈、不进最近任务。
+             注意不能加 android:noHistory——它会让本页在被系统设置页覆盖（onStop）时立刻被 finish 掉，
+             onActivityResult 永远收不到，调用方的回调就此悬空。本页拿到结果后自己 finish。 -->
         <activity
             android:name="com.petterp.floatingx.system.permission.FxPermissionActivity"
             android:excludeFromRecents="true"
             android:exported="false"
-            android:noHistory="true"
             android:taskAffinity=""
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
     </application>
