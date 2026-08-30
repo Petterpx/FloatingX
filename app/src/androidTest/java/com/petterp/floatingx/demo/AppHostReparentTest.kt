@@ -47,7 +47,7 @@ class AppHostReparentTest {
 
         activityRule.scenario.navigateTo(SecondActivity::class.java)
         try {
-            await("浮窗没有跟到第二页") { control.attachedActivity is SecondActivity }
+            await("the window did not follow to the second page") { control.attachedActivity is SecondActivity }
             // 换页只是换父 view：状态与坐标都不该重来
             assertEquals(FxState.SHOWN, onMainGet { control.state })
             val onSecond = onMainGet { control.position }
@@ -57,7 +57,7 @@ class AppHostReparentTest {
             pressBack()
         }
 
-        await("返回后浮窗没有回到首页") { control.attachedActivity is AppHostActivity }
+        await("the window did not come back to the first page") { control.attachedActivity is AppHostActivity }
         assertEquals(FxState.SHOWN, onMainGet { control.state })
         val back = onMainGet { control.position }
         assertEquals(before.x, back.x, POSITION_TOLERANCE)
@@ -71,12 +71,12 @@ class AppHostReparentTest {
         activityRule.scenario.navigateTo(BlackActivity::class.java)
         try {
             // 容器被卸下 → 回到 INSTALLED；show 的意图（desiredVisible）保留着
-            await("黑名单页上浮窗没有被卸下") { control.state == FxState.INSTALLED }
+            await("the window was not detached on the blacklisted page") { control.state == FxState.INSTALLED }
             assertNull(onMainGet { control.attachedActivity })
         } finally {
             pressBack()
         }
-        await("离开黑名单页后浮窗没有恢复显示") { control.state == FxState.SHOWN }
+        await("the window did not come back after leaving the blacklisted page") { control.state == FxState.SHOWN }
         assertTrue(onMainGet { control.attachedActivity } is AppHostActivity)
     }
 

@@ -5,6 +5,7 @@
 -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fxResizableCard"
     android:layout_width="140dp"
     android:layout_height="140dp"
@@ -22,7 +23,7 @@
             android:id="@+id/tvSize"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="140x140"
+            tools:text="140 x 140"
             android:textSize="12sp"
             android:textStyle="bold" />
 
@@ -35,7 +36,7 @@
             android:insetBottom="0dp"
             android:minWidth="0dp"
             android:minHeight="0dp"
-            android:text="变大"
+            android:text="@string/fx_btn_grow"
             android:textSize="12sp" />
 
         <com.google.android.material.button.MaterialButton
@@ -47,7 +48,7 @@
             android:insetBottom="0dp"
             android:minWidth="0dp"
             android:minHeight="0dp"
-            android:text="变小"
+            android:text="@string/fx_btn_shrink"
             android:textSize="12sp" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

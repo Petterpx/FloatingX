@@ -33,50 +33,50 @@ class AppHostActivity : AppCompatActivity() {
             val pad = (16 * resources.displayMetrics.density).toInt()
             setPadding(pad, pad / 4, pad, pad / 2)
         }
-        demoPage("App 级全局浮窗") {
-            section("显示/隐藏")
-            button("显示") { c.show() }
-            button("隐藏") { c.hide() }
-            button("cancel（卸载）") { c.cancel() }
+        demoPage(R.string.page_app_host_title) {
+            section(R.string.section_show_hide)
+            button(R.string.btn_show) { c.show() }
+            button(R.string.btn_hide) { c.hide() }
+            button(R.string.btn_cancel_uninstall) { c.cancel() }
 
-            section("移动")
-            button("moveTo(100,300)") { c.moveTo(100f, 300f) }
-            button("moveBy(-40,0)") { c.moveBy(-40f, 0f) }
-            button("moveTo 不带动画") { c.moveTo(0f, 0f, animate = false) }
+            section(R.string.section_move)
+            button(R.string.btn_move_to_100_300) { c.moveTo(100f, 300f) }
+            button(R.string.btn_move_by) { c.moveBy(-40f, 0f) }
+            button(R.string.btn_move_to_no_anim) { c.moveTo(0f, 0f, animate = false) }
 
-            section("锚点 / 边界")
+            section(R.string.section_anchor_bounds)
             FxGravity.entries.forEach { gravity ->
-                button("anchor(${gravity.name})") { c.update { anchor(gravity) } }
+                button(text(R.string.btn_anchor, gravity.name)) { c.update { anchor(gravity) } }
             }
-            button("margin 全 48") { c.update { margin(48f, 48f, 48f, 48f) } }
-            button("允许上下越界") { c.update { overflow(top = true, bottom = true) } }
-            toggle("safeArea（避开系统栏/刘海）", true) { enabled -> c.update { safeArea = enabled } }
+            button(R.string.btn_margin_all_48) { c.update { margin(48f, 48f, 48f, 48f) } }
+            button(R.string.btn_overflow_vertical) { c.update { overflow(top = true, bottom = true) } }
+            toggle(R.string.toggle_safe_area, true) { enabled -> c.update { safeArea = enabled } }
 
-            section("吸附")
-            button("四向吸附") {
+            section(R.string.section_adsorb)
+            button(R.string.btn_adsorb_all) {
                 c.update { adsorb(FxAdsorb.Edges(setOf(FxEdge.START, FxEdge.END, FxEdge.TOP, FxEdge.BOTTOM))) }
             }
-            button("左右吸附 + 半隐 30%") {
+            button(R.string.btn_adsorb_sides_half) {
                 c.update { adsorb(FxAdsorb.Edges(setOf(FxEdge.START, FxEdge.END), halfHide = FxHalfHide(0.3f))) }
             }
-            button("关闭吸附") { c.update { adsorb(FxAdsorb.None) } }
-            toggle("越界回弹（rebound）", true) { enabled ->
+            button(R.string.btn_adsorb_off) { c.update { adsorb(FxAdsorb.None) } }
+            toggle(R.string.toggle_rebound, true) { enabled ->
                 c.update { adsorb(FxAdsorb.Edges(setOf(FxEdge.START, FxEdge.END), rebound = enabled)) }
             }
 
-            section("内容")
-            button("换成 layout 内容") { c.setContent(FxContent.layout(R.layout.fx_card)) }
-            button("改标题文字") { c.updateContent { it.setText(R.id.tvTitle, "Hi") } }
+            section(R.string.section_content)
+            button(R.string.btn_content_layout) { c.setContent(FxContent.layout(R.layout.fx_card)) }
+            button(R.string.btn_content_title) { c.updateContent { it.setText(R.id.tvTitle, getString(R.string.fx_text_hi)) } }
 
-            section("动画")
-            button("scale 动画") { c.update { animation(FxAnimations.scale()) } }
-            button("fade 动画") { c.update { animation(FxAnimations.fade()) } }
-            button("无动画") { c.update { animation(null) } }
+            section(R.string.section_animation)
+            button(R.string.btn_anim_scale) { c.update { animation(FxAnimations.scale()) } }
+            button(R.string.btn_anim_fade) { c.update { animation(FxAnimations.fade()) } }
+            button(R.string.btn_anim_none) { c.update { animation(null) } }
 
-            section("换页 / 过滤")
-            page("进入第二页（观察 attachedActivity）", SecondActivity::class.java)
-            page("进入黑名单页（浮窗消失）", BlackActivity::class.java)
-            page("进入沉浸页（无状态栏）", ImmersedActivity::class.java)
+            section(R.string.section_navigation_filter)
+            page(R.string.nav_second_observe, SecondActivity::class.java)
+            page(R.string.nav_black_disappear, BlackActivity::class.java)
+            page(R.string.nav_immersed_no_status_bar, ImmersedActivity::class.java)
             custom(attachedView)
         }
     }
@@ -95,6 +95,7 @@ class AppHostActivity : AppCompatActivity() {
     }
 
     private fun refreshAttached() {
-        attachedView.text = "当前挂载：" + (c.attachedActivity?.javaClass?.simpleName ?: "未挂载")
+        val name = c.attachedActivity?.javaClass?.simpleName ?: getString(R.string.label_not_attached)
+        attachedView.text = getString(R.string.label_attached, name)
     }
 }

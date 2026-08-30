@@ -53,9 +53,11 @@ object DemoWindows {
     const val TAG_COMPOSE_SYS = "demo-compose-sys"
 
     private val clickToast = object : FxListener {
-        override fun onClick(control: FxControl, view: View) = DemoContent.toast(view.context, "点击了 ${control.tag}")
+        override fun onClick(control: FxControl, view: View) =
+            DemoContent.toast(view.context, R.string.toast_clicked, control.tag)
 
-        override fun onLongClick(control: FxControl, view: View) = DemoContent.toast(view.context, "长按了 ${control.tag}")
+        override fun onLongClick(control: FxControl, view: View) =
+            DemoContent.toast(view.context, R.string.toast_long_pressed, control.tag)
     }
 
     /**
@@ -111,7 +113,7 @@ object DemoWindows {
                 this.keyboard(R.id.etInput)
                 // 键盘弹起期间窗口才可聚焦，也才收得到返回键；而收键盘的那次返回会被吞掉，不会走到这里
                 onBackPressed {
-                    DemoContent.toast(app, "系统浮窗收到返回键")
+                    DemoContent.toast(app, R.string.toast_system_back_pressed)
                     true
                 }
             }

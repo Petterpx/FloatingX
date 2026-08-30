@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.petterp.floatingx.demo.R
@@ -41,7 +42,8 @@ object DemoContent {
             root.layoutParams = ViewGroup.LayoutParams(size, size)
             root.findViewById<View>(R.id.btnGrow).setOnClickListener { resize(root, 40) }
             root.findViewById<View>(R.id.btnShrink).setOnClickListener { resize(root, -40) }
-            root.findViewById<TextView>(R.id.tvSize).text = "$RESIZABLE_INIT_DP x $RESIZABLE_INIT_DP"
+            root.findViewById<TextView>(R.id.tvSize).text =
+                context.getString(R.string.fx_size_format, RESIZABLE_INIT_DP, RESIZABLE_INIT_DP)
         }
 
     /**
@@ -61,8 +63,11 @@ object DemoContent {
         lp.height = (height + delta).coerceIn(min, max)
         view.layoutParams = lp
         view.requestLayout()
-        view.findViewById<TextView>(R.id.tvSize)?.text =
-            "${(lp.width / density).toInt()} x ${(lp.height / density).toInt()}"
+        view.findViewById<TextView>(R.id.tvSize)?.text = view.context.getString(
+            R.string.fx_size_format,
+            (lp.width / density).toInt(),
+            (lp.height / density).toInt(),
+        )
     }
 
     /** header + 可滚动列表的内容：演示 dragRegion 与 childPriority */
@@ -78,6 +83,11 @@ object DemoContent {
 
     fun toast(context: Context, message: String) {
         Toast.makeText(context.applicationContext, message, Toast.LENGTH_SHORT).show()
+    }
+
+    /** 资源 id 版；需要参数时传 [formatArgs]（占位符 `%1$s`） */
+    fun toast(context: Context, @StringRes message: Int, vararg formatArgs: Any) {
+        toast(context, context.getString(message, *formatArgs))
     }
 
     private fun Int.dp(context: Context): Int = (this * context.resources.displayMetrics.density).toInt()

@@ -2,6 +2,7 @@ package com.petterp.floatingx.demo.pages
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.petterp.floatingx.demo.R
 import com.petterp.floatingx.demo.ui.demoPage
 
 /**
@@ -12,9 +13,9 @@ open class BaseBlackActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        demoPage("黑名单页") {
-            note("本页在黑名单（按父类 BaseBlackActivity 命中，#221），浮窗不显示；返回后恢复。")
-            button("返回") { finish() }
+        demoPage(R.string.page_black_title) {
+            note(R.string.note_black_page)
+            button(R.string.btn_back) { finish() }
         }
     }
 }

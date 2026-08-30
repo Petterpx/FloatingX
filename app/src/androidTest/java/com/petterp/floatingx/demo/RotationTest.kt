@@ -72,7 +72,7 @@ class RotationTest {
         val landscapeActivityId = onMainGet { System.identityHashCode(control.attachedActivity) }
         rotateTo(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         awaitReattached(control, landscapeActivityId)
-        await("转回竖屏后位置没有回到旋转前", ROTATION_TIMEOUT_MS) {
+        await("the position was not restored after rotating back to portrait", ROTATION_TIMEOUT_MS) {
             val p = control.position
             abs(p.x - portraitPosition.x) <= POSITION_TOLERANCE &&
                 abs(p.y - portraitPosition.y) <= POSITION_TOLERANCE
@@ -90,7 +90,7 @@ class RotationTest {
 
     /** 等 Activity 重建完成并把浮窗重新挂上：新实例 + 已挂载 */
     private fun awaitReattached(control: FxControl, previousActivityId: Int) {
-        await("旋转后浮窗没有挂到重建出来的 Activity 上", ROTATION_TIMEOUT_MS) {
+        await("the window was not attached to the recreated Activity after the rotation", ROTATION_TIMEOUT_MS) {
             val activity = control.attachedActivity
             activity is AppHostActivity && System.identityHashCode(activity) != previousActivityId
         }

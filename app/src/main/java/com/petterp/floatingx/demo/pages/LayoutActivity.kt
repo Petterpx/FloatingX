@@ -10,6 +10,7 @@ import com.petterp.floatingx.core.layout.FxGravity
 import com.petterp.floatingx.core.layout.FxHalfHide
 import com.petterp.floatingx.core.storage.FxSpStorage
 import com.petterp.floatingx.core.update
+import com.petterp.floatingx.demo.R
 import com.petterp.floatingx.demo.ui.DemoContent
 import com.petterp.floatingx.demo.ui.demoPage
 import com.petterp.floatingx.scope.fxScope
@@ -34,66 +35,66 @@ class LayoutActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        demoPage("布局") {
-            section("浮窗")
-            button("显示") { fx.show() }
-            button("隐藏") { fx.hide() }
+        demoPage(R.string.page_layout_title) {
+            section(R.string.section_window)
+            button(R.string.btn_show) { fx.show() }
+            button(R.string.btn_hide) { fx.hide() }
 
-            section("锚点")
-            note("锚点 = 内容贴哪个角/边；拖动结束后 core 会把落点换算回锚点（这也是持久化存的东西）。")
+            section(R.string.section_anchor)
+            note(R.string.note_anchor)
             FxGravity.entries.forEach { gravity ->
-                button("anchor(${gravity.name})") { fx.update { anchor(gravity) } }
+                button(text(R.string.btn_anchor, gravity.name)) { fx.update { anchor(gravity) } }
             }
 
-            section("越界")
-            note("默认不允许越界：内容被约束在可用区内。打开某个方向后，那一侧可以拖出去。")
-            toggle("上方越界", false) { enabled ->
+            section(R.string.section_overflow)
+            note(R.string.note_overflow)
+            toggle(R.string.toggle_overflow_top, false) { enabled ->
                 overflowTop = enabled
                 applyOverflow()
             }
-            toggle("下方越界", false) { enabled ->
+            toggle(R.string.toggle_overflow_bottom, false) { enabled ->
                 overflowBottom = enabled
                 applyOverflow()
             }
-            toggle("左侧越界", false) { enabled ->
+            toggle(R.string.toggle_overflow_left, false) { enabled ->
                 overflowLeft = enabled
                 applyOverflow()
             }
-            toggle("右侧越界", false) { enabled ->
+            toggle(R.string.toggle_overflow_right, false) { enabled ->
                 overflowRight = enabled
                 applyOverflow()
             }
 
-            section("吸附")
-            button("四向吸附") {
+            section(R.string.section_adsorb)
+            button(R.string.btn_adsorb_all) {
                 fx.update { adsorb(FxAdsorb.Edges(setOf(FxEdge.START, FxEdge.END, FxEdge.TOP, FxEdge.BOTTOM))) }
             }
-            button("左右吸附 + 半隐 30%") {
+            button(R.string.btn_adsorb_sides_half) {
                 fx.update { adsorb(FxAdsorb.Edges(setOf(FxEdge.START, FxEdge.END), halfHide = FxHalfHide(0.3f))) }
             }
-            button("关闭吸附") { fx.update { adsorb(FxAdsorb.None) } }
-            toggle("越界回弹（rebound）", true) { enabled ->
+            button(R.string.btn_adsorb_off) { fx.update { adsorb(FxAdsorb.None) } }
+            toggle(R.string.toggle_rebound, true) { enabled ->
                 fx.update { adsorb(FxAdsorb.Edges(setOf(FxEdge.START, FxEdge.END), rebound = enabled)) }
             }
 
-            section("内容尺寸")
-            note("尺寸变化时锚点不动（#187）：先把浮窗拖到某个角，再变大/变小，贴着的那条边不会挪。")
-            button("变大（+40dp）") { resize(40) }
-            button("变小（-40dp）") { resize(-40) }
+            section(R.string.section_content_size)
+            note(R.string.note_content_size)
+            button(R.string.btn_grow_40) { resize(40) }
+            button(R.string.btn_shrink_40) { resize(-40) }
 
-            section("持久化")
-            toggle("persist(FxSpStorage)", false) { enabled ->
+            section(R.string.section_persist)
+            toggle(R.string.toggle_persist, false) { enabled ->
                 fx.update { persist(if (enabled) FxSpStorage(this@LayoutActivity) else null) }
             }
-            note("开启后每次锚点提交（拖动结束 / moveTo / update{anchor}）都会写入；读取只发生在浮窗创建时，所以要退出本页再进来才看得到恢复效果。")
-            button("清除记忆") {
+            note(R.string.note_persist)
+            button(R.string.btn_clear_storage) {
                 FxSpStorage(this@LayoutActivity).apply {
                     clear("$TAG:1")
                     clear("$TAG:2")
                 }
-                DemoContent.toast(this@LayoutActivity, "已清除 $TAG 的横竖屏记忆")
+                DemoContent.toast(this@LayoutActivity, R.string.toast_storage_cleared, TAG)
             }
-            note("旋转屏幕后位置按方向分别恢复：存储键是「tag:orientation」（1=竖屏、2=横屏），横竖屏各记一份。")
+            note(R.string.note_persist_orientation)
         }
     }
 

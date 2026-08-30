@@ -47,16 +47,16 @@ class ComposeOwnerSurvivalTest {
 
         activityRule.scenario.navigateTo(ComposeSecondActivity::class.java)
         try {
-            await("compose 浮窗没有跟到第二页") { control.attachedActivity is ComposeSecondActivity }
+            await("the compose window did not follow to the second page") { control.attachedActivity is ComposeSecondActivity }
             // 换页没有走 detach，owner 连 STARTED 都不该降到
-            assertSame("owner 不该随页面重建", owner, onMainGet { control.composeOwner() })
+            assertSame("the owner must not be rebuilt with the page", owner, onMainGet { control.composeOwner() })
             assertEquals(Lifecycle.State.RESUMED, onMainGet { owner.lifecycle.currentState })
-            assertSame("ViewModel 不该随页面重建", viewModel, onMainGet { owner.counterViewModel() })
+            assertSame("the ViewModel must not be rebuilt with the page", viewModel, onMainGet { owner.counterViewModel() })
         } finally {
             pressBack()
         }
 
-        await("compose 浮窗没有回到首页") { control.attachedActivity is ComposeActivity }
+        await("the compose window did not come back to the first page") { control.attachedActivity is ComposeActivity }
         assertSame(owner, onMainGet { control.composeOwner() })
         assertSame(viewModel, onMainGet { owner.counterViewModel() })
         assertEquals(Lifecycle.State.RESUMED, onMainGet { owner.lifecycle.currentState })
@@ -64,7 +64,7 @@ class ComposeOwnerSurvivalTest {
 
         // cancel 是终态：owner DESTROYED，ViewModelStore 一并清空
         onMain { control.cancel() }
-        assertTrue("cancel 之后 owner 必须 destroy", onMainGet { owner.isDestroyed })
+        assertTrue("the owner must be destroyed after cancel", onMainGet { owner.isDestroyed })
     }
 
     private fun FxControl.composeOwner(): FxComposeOwner = (config.content as FxComposeContent).owner

@@ -75,7 +75,7 @@ public final class JavaDemo {
             @Override
             public void onClick(FxControl c, View view) {
                 // DemoContent 是 Kotlin object，Java 侧通过 INSTANCE 访问
-                DemoContent.INSTANCE.toast(view.getContext(), "点击了 " + c.getTag());
+                DemoContent.INSTANCE.toast(view.getContext(), view.getContext().getString(R.string.toast_clicked, c.getTag()));
             }
         });
         control.show();

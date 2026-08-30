@@ -34,20 +34,15 @@ class Issue187Activity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        demoPage("#187 尺寸变化锚点不动") {
-            note(
-                "复现步骤：\n" +
-                    "1. 点「显示」，浮窗默认贴右下（BOTTOM_END）；\n" +
-                    "2. 反复点「变大 / 变小」（也可以点卡片里的按钮）；\n" +
-                    "3. 期望：右下角始终不动，尺寸只往左上方向长——2.x 会越变越往右下溢出。",
-            )
-            button("显示") { c.show() }
-            button("隐藏") { c.hide() }
-            button("变大（+40dp）") { resize(40) }
-            button("变小（-40dp）") { resize(-40) }
-            button("切换锚点（四角轮换）") { switchGravity() }
-            note("拖到任意位置再变尺寸同样成立：拖动结束时 core 会把落点换算成最近的锚点。")
-            note("有悬浮窗权限时，同一个用例在「系统级浮窗」页也成立：系统窗口改的是 WindowManager 的 x/y，尺寸变化一样按锚点重算。")
+        demoPage(R.string.page_issue187_title) {
+            note(R.string.note_issue187_steps)
+            button(R.string.btn_show) { c.show() }
+            button(R.string.btn_hide) { c.hide() }
+            button(R.string.btn_grow_40) { resize(40) }
+            button(R.string.btn_shrink_40) { resize(-40) }
+            button(R.string.btn_switch_anchor) { switchGravity() }
+            note(R.string.note_issue187_drag)
+            note(R.string.note_issue187_system)
         }
     }
 
@@ -66,7 +61,7 @@ class Issue187Activity : AppCompatActivity() {
         gravityIndex = (gravityIndex + 1) % gravities.size
         val gravity = gravities[gravityIndex]
         c.update { anchor(gravity) }
-        DemoContent.toast(this, "锚点：${gravity.name}")
+        DemoContent.toast(this, R.string.toast_anchor, gravity.name)
     }
 
     private companion object {

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.petterp.floatingx.app.attachedActivity
 import com.petterp.floatingx.core.FxControl
 import com.petterp.floatingx.demo.DemoWindows
+import com.petterp.floatingx.demo.R
 import com.petterp.floatingx.demo.ui.DemoContent
 import com.petterp.floatingx.demo.ui.demoPage
 
@@ -15,12 +16,13 @@ class SecondActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        demoPage("第二页") {
-            note("浮窗应无动画地跟到本页：容器只是换了父 View，engine 状态、feature、动画都不重来，位置由 translation 保留。")
-            button("attachedActivity") {
-                DemoContent.toast(this@SecondActivity, c.attachedActivity?.javaClass?.simpleName ?: "未挂载")
+        demoPage(R.string.page_second_title) {
+            note(R.string.note_second_page)
+            button(R.string.btn_attached_activity) {
+                val name = c.attachedActivity?.javaClass?.simpleName ?: getString(R.string.label_not_attached)
+                DemoContent.toast(this@SecondActivity, name)
             }
-            button("返回") { finish() }
+            button(R.string.btn_back) { finish() }
         }
     }
 }

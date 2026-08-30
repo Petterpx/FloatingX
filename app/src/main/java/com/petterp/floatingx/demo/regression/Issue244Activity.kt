@@ -17,15 +17,10 @@ class Issue244Activity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        demoPage("#244 Fragment 内浮窗") {
-            note(
-                "复现步骤：\n" +
-                    "1. 点下面的按钮添加 Fragment；\n" +
-                    "2. ScopeFragment 在 onCreate 里调用 fxScope(\"scope-frag\").show()，此时它还没有根 view；\n" +
-                    "3. 期望：Fragment 的 view 一创建，「Frag」浮窗就出现在下面的灰色区域里，并且只能在区域内拖动。",
-            )
-            note("再点一次按钮会 replace 掉旧 Fragment：旧 fragment destroy → 浮窗自动 cancel，新 fragment 重新建一个。")
-            button("添加 Fragment（onCreate 里建浮窗）") {
+        demoPage(R.string.page_issue244_title) {
+            note(R.string.note_issue244_steps)
+            note(R.string.note_issue244_replace)
+            button(R.string.btn_fragment_add_oncreate) {
                 supportFragmentManager.beginTransaction().replace(R.id.fragmentSlot, ScopeFragment()).commit()
             }
             custom(slot)

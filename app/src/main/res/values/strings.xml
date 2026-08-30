@@ -1,3 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">FloatingX</string>
+
+    <!-- 通用 -->
+    <string name="btn_show">Show</string>
+    <string name="btn_hide">Hide</string>
+    <string name="btn_back">Back</string>
+    <string name="btn_cancel">cancel</string>
+    <string name="btn_cancel_uninstall">cancel (uninstall)</string>
+    <string name="section_window">Floating window</string>
+
+    <!-- 页面标题 -->
+    <string name="page_main_title">FloatingX 3.0</string>
+    <string name="page_app_host_title">App-level global window</string>
+    <string name="page_system_host_title">System-level window</string>
+    <string name="page_scope_host_title">Scoped window</string>
+    <string name="page_gesture_title">Gestures</string>
+    <string name="page_layout_title">Layout</string>
+    <string name="page_multi_window_title">Multiple windows (by tag)</string>
+    <string name="page_modal_title">Modal</string>
+    <string name="page_compose_title">Compose window</string>
+    <string name="page_compose_second_title">Compose second page</string>
+    <string name="page_second_title">Second page</string>
+    <string name="page_black_title">Blacklisted page</string>
+    <string name="page_immersed_title">Immersive page</string>
+    <string name="page_issue187_title">#187 Anchor stays put when the size changes</string>
+    <string name="page_issue210_title">#210 Compose survives page switches</string>
+    <string name="page_issue221_title">#221 Blacklist matches subclasses</string>
+    <string name="page_issue240_title">#240 Overflow is not clipped</string>
+    <string name="page_issue244_title">#244 Floating window inside a Fragment</string>
+
+    <!-- MainActivity -->
+    <string name="section_quick_actions">Quick actions</string>
+    <string name="btn_show_app_window">Show the app-level global window</string>
+    <string name="btn_show_system_window">Show the system window (auto request, fall back if denied)</string>
+    <string name="btn_hide_all">Hide every global window</string>
+    <string name="btn_uninstall_all">Uninstall every global window</string>
+    <string name="section_features">Feature pages</string>
+    <string name="nav_system_host">System window (permission / keyboard / service)</string>
+    <string name="nav_scope_host">Scoped window (Activity / ViewGroup / Fragment)</string>
+    <string name="nav_gesture">Gestures (drag mode / region / child priority)</string>
+    <string name="nav_layout">Layout (anchor / overflow / adsorption / persistence)</string>
+    <string name="nav_multi_window">Multiple windows (managed by tag)</string>
+    <string name="nav_modal">Modal (intercept outside touches / above a Dialog)</string>
+    <string name="nav_compose">Compose window (ViewModel / rememberSaveable / state flows)</string>
+    <string name="note_main_extra_pages">The three pages below are companion scenarios for the app-level window; they are also reachable from the App-level global window page.</string>
+    <string name="nav_second">Page switch (attachedActivity)</string>
+    <string name="nav_black">Blacklisted page (the window disappears)</string>
+    <string name="nav_immersed">Immersive page (no status bar)</string>
+    <string name="section_regressions">Regression pages</string>
+    <string name="section_java">Java</string>
+    <string name="note_java">The same three windows written once more with the Java builders (JavaDemo.java), checking how Java-friendly the public API is.</string>
+    <string name="btn_java_install_app">Java: install the app-level window (tag=%1$s)</string>
+    <string name="btn_java_install_system">Java: install the system window (tag=%1$s)</string>
+    <string name="btn_java_scope">Java: scoped window on this page (tag=%1$s)</string>
+    <string name="toast_installed">Installed %1$s</string>
+    <string name="toast_java_scope_created">Created %1$s (destroyed when you leave this page)</string>
+
+    <!-- AppHostActivity -->
+    <string name="section_show_hide">Show / hide</string>
+    <string name="section_move">Move</string>
+    <string name="btn_move_to_100_300">moveTo(100, 300)</string>
+    <string name="btn_move_by">moveBy(-40, 0)</string>
+    <string name="btn_move_to_no_anim">moveTo without animation</string>
+    <string name="section_anchor_bounds">Anchor / bounds</string>
+    <string name="btn_anchor">anchor(%1$s)</string>
+    <string name="btn_margin_all_48">margin 48 on every side</string>
+    <string name="btn_overflow_vertical">Allow top and bottom overflow</string>
+    <string name="toggle_safe_area">safeArea (keep clear of system bars / notch)</string>
+    <string name="toggle_safe_area_short">safeArea</string>
+    <string name="section_adsorb">Adsorption</string>
+    <string name="btn_adsorb_all">Adsorb to all four edges</string>
+    <string name="btn_adsorb_sides_half" formatted="false">Adsorb left / right + 30% half-hide</string>
+    <string name="btn_adsorb_off">Turn adsorption off</string>
+    <string name="toggle_rebound">Rebound when out of bounds</string>
+    <string name="section_content">Content</string>
+    <string name="btn_content_layout">Switch to layout content</string>
+    <string name="btn_content_title">Change the title text</string>
+    <string name="section_animation">Animation</string>
+    <string name="btn_anim_scale">scale animation</string>
+    <string name="btn_anim_fade">fade animation</string>
+    <string name="btn_anim_none">No animation</string>
+    <string name="section_navigation_filter">Page switch / filter</string>
+    <string name="nav_second_observe">Open the second page (watch attachedActivity)</string>
+    <string name="nav_black_disappear">Open the blacklisted page (the window disappears)</string>
+    <string name="nav_immersed_no_status_bar">Open the immersive page (no status bar)</string>
+    <string name="label_attached">Attached to: %1$s</string>
+    <string name="label_not_attached">not attached</string>
+
+    <!-- SystemHostActivity -->
+    <string name="section_permission">Permission</string>
+    <string name="label_overlay_permission">Overlay permission: %1$s</string>
+    <string name="state_granted">granted</string>
+    <string name="state_not_granted">not granted</string>
+    <string name="btn_perm_auto">Auto (default): install and show</string>
+    <string name="btn_perm_manual">Manual: show a dialog, then request</string>
+    <string name="note_perm_manual">In the Manual dialog: Open settings = proceed(), Use fallback = useFallback(), Cancel = deny(). deny() only gives up — even with a fallback configured the window stays at INSTALLED (recoverable with retryPermission()); only useFallback() really falls back.</string>
+    <string name="btn_perm_skip">Skip (no permission check, type decided by the customizer)</string>
+    <string name="note_perm_skip">Skip never checks the permission: without it addView fails (see the Fx-system log); once the permission is granted, tap retryPermission() to recover.</string>
+    <string name="btn_retry_permission">retryPermission()</string>
+    <string name="btn_open_settings">Open the system settings page</string>
+    <string name="toast_not_system_host">Not a system window right now (it fell back to AppHost)</string>
+    <string name="section_layout_params">LayoutParams</string>
+    <string name="note_layout_params">The customizer runs after the default LayoutParams, so type / flags / alpha and the rest can all be overridden. alpha 0.5 reinstalls with a minimal config; tap the install button above to get the default config back.</string>
+    <string name="btn_alpha_half">alpha 0.5 (reinstall)</string>
+    <string name="btn_read_lp">Read the current LayoutParams</string>
+    <string name="section_touch">Touch</string>
+    <string name="note_touchable_system">With touchable off the window gets FLAG_NOT_TOUCHABLE and every touch passes straight through to the app below.</string>
+    <string name="toggle_touchable">touchable</string>
+    <string name="section_keyboard_back">Keyboard / back key</string>
+    <string name="btn_install_keyboard_window">Install a system window with an EditText</string>
+    <string name="note_keyboard">Tap the EditText to open the keyboard; Back dismisses the keyboard and does not trigger onBackPressed.</string>
+    <string name="section_service">Service</string>
+    <string name="note_service">A system window only needs an application context, so a Service can install one too (#192). On API 33+ a foreground service still starts without the notification permission — only the notification stays invisible.</string>
+    <string name="btn_install_from_service">Install from a foreground service (#192)</string>
+    <string name="btn_stop_service">Stop the service</string>
+    <string name="section_fallback">Fallback</string>
+    <string name="note_fallback">Deny the permission to watch the fallback: fallback(AppHost) is configured by default, so a denied window switches to the app-level implementation and keeps showing. Without a fallback it stays at INSTALLED, waiting for retryPermission().</string>
+    <string name="btn_uninstall_system">Uninstall the system window</string>
+    <string name="dialog_permission_title">Overlay permission needed</string>
+    <string name="dialog_permission_message">The Manual strategy hands the decision to you: explain what the permission is for, then request it, fall back, or give up.</string>
+    <string name="dialog_permission_positive">Open settings</string>
+    <string name="dialog_permission_neutral">Use fallback</string>
+    <string name="dialog_permission_negative">Cancel</string>
+
+    <!-- ScopeHostActivity -->
+    <string name="label_viewgroup_host">ViewGroup host: the window can only move inside this area</string>
+    <string name="label_fragment_root">Fragment root view</string>
+    <string name="section_scope_viewgroup">Window inside a ViewGroup</string>
+    <string name="btn_drag_disabled">Disable dragging</string>
+    <string name="btn_drag_long_press">Drag after a long press</string>
+    <string name="btn_drag_immediate">Restore (drag on touch down)</string>
+    <string name="section_scope_activity">Window inside an Activity</string>
+    <string name="btn_cancel_recreate">cancel (destroy; Show rebuilds it)</string>
+    <string name="note_scope_activity">API 29+ cancels the window automatically when the page is destroyed; on older versions cancel it yourself in onDestroy (this page does both). The position is remembered with FxSpStorage and restored when you come back.</string>
+    <string name="section_fragment">Fragment</string>
+    <string name="note_scope_fragment">ScopeFragment calls fxScope().show() in onCreate, before its view exists, so the window has to wait for that view — exactly #244.</string>
+    <string name="btn_fragment_add">Add the Fragment (with a window inside)</string>
+    <string name="btn_fragment_remove">Remove the Fragment (its window is cancelled)</string>
+    <string name="btn_fragment_detach">detach the Fragment (view destroyed, window gone)</string>
+    <string name="btn_fragment_attach">attach the Fragment (view rebuilt, window returns)</string>
+
+    <!-- GestureActivity -->
+    <string name="section_drag_mode">Drag mode</string>
+    <string name="btn_drag_mode_immediate">IMMEDIATE (drag on touch down, default)</string>
+    <string name="btn_drag_mode_long_press">AFTER_LONG_PRESS (drag only after a long press, #222)</string>
+    <string name="btn_drag_mode_disabled">DISABLED (no dragging, taps only)</string>
+    <string name="section_drag_region">Drag region</string>
+    <string name="note_drag_region">dragRegion limits where a drag may start (#165); touches outside the region go to the content as usual.</string>
+    <string name="btn_drag_region_header">Only the header can start a drag</string>
+    <string name="btn_drag_region_any">Drag from anywhere</string>
+    <string name="section_child_priority">Child view priority</string>
+    <string name="note_child_priority">When the content holds a scrollable RecyclerView, who owns a vertical gesture:</string>
+    <string name="btn_child_priority_auto">AUTO (yield when the spot below can scroll, default)</string>
+    <string name="btn_child_priority_parent">PARENT (take over past the slop, the list cannot scroll)</string>
+    <string name="btn_child_priority_child">CHILD (never take over, only the list scrolls)</string>
+    <string name="section_pass_through">Pass-through</string>
+    <string name="note_touchable_gesture">With touchable off the window takes no touches at all (#243/#108) — tapping it is the same as tapping the page below.</string>
+    <string name="section_callbacks">Callbacks</string>
+    <string name="note_callbacks">onClick / onLongClick / onDragStart / onDragEnd from addListener:</string>
+    <string name="hint_gesture_log">(try tapping, long-pressing or dragging the window)</string>
+    <string name="item_row">Row %1$d</string>
+
+    <!-- LayoutActivity -->
+    <string name="section_anchor">Anchor</string>
+    <string name="note_anchor">The anchor is the edge or corner the content hugs; when a drag ends, core converts the drop point back into an anchor (that is also what gets persisted).</string>
+    <string name="section_overflow">Overflow</string>
+    <string name="note_overflow">Overflow is off by default: the content is kept inside the usable area. Turn on a direction and the window can be dragged past that side.</string>
+    <string name="toggle_overflow_top">Overflow at the top</string>
+    <string name="toggle_overflow_bottom">Overflow at the bottom</string>
+    <string name="toggle_overflow_left">Overflow on the left</string>
+    <string name="toggle_overflow_right">Overflow on the right</string>
+    <string name="section_content_size">Content size</string>
+    <string name="note_content_size">The anchor stays put when the size changes (#187): drag the window into a corner, then grow or shrink it — the edge it hugs never moves.</string>
+    <string name="btn_grow_40">Grow (+40dp)</string>
+    <string name="btn_shrink_40">Shrink (-40dp)</string>
+    <string name="section_persist">Persistence</string>
+    <string name="toggle_persist">persist(FxSpStorage)</string>
+    <string name="note_persist">Once on, every anchor commit (drag end / moveTo / update{anchor}) is written; reading happens only when the window is created, so leave this page and come back to see it restored.</string>
+    <string name="btn_clear_storage">Clear the saved position</string>
+    <string name="toast_storage_cleared">Cleared the saved portrait and landscape positions for %1$s</string>
+    <string name="note_persist_orientation">After a rotation the position is restored per orientation: the storage key is tag:orientation (1 = portrait, 2 = landscape), one entry each.</string>
+
+    <!-- MultiWindowActivity -->
+    <string name="section_install_show">Install / show</string>
+    <string name="note_multi_window">The two windows use different tags, so their config, persisted position and listeners are all independent.</string>
+    <string name="btn_show_tag">Show %1$s</string>
+    <string name="section_registry">Registry</string>
+    <string name="btn_iterate_controls">Iterate controls()</string>
+    <string name="toast_no_global_windows">No global windows right now</string>
+    <string name="btn_is_installed">isInstalled(...)</string>
+    <string name="note_scope_not_in_registry">Scoped windows (fxScope / FloatingX.create) never enter the registry, so controls() does not list them.</string>
+    <string name="section_reinstall">Installing the same tag again</string>
+    <string name="note_reinstall">Installing the same tag again replaces the entry in the registry and cancels the old control right away (a terminal state — every later call throws).</string>
+    <string name="btn_reinstall_tag">Install %1$s again</string>
+    <string name="toast_reinstall_result">old control=%1$s, new control=%2$s, controls().size=%3$d</string>
+    <string name="section_uninstall">Uninstall</string>
+    <string name="btn_uninstall_tag">uninstall(%1$s)</string>
+    <string name="btn_uninstall_all_api">uninstallAll()</string>
+
+    <!-- ModalActivity -->
+    <string name="section_modal_check">Modal interception check</string>
+    <string name="note_modal_check">Tap Show below first, then tap this button: while the window is showing the container swallows the tap (the counter holds and the window hides itself); once the window is hidden — or modal is off — touches pass through again and the counter goes up.</string>
+    <string name="label_click_count">Taps: %1$d</string>
+    <string name="btn_modal_outside">Button below the modal</string>
+    <string name="section_modal">modal</string>
+    <string name="note_modal">While on, interception only happens when the window is showing (touches outside it are swallowed and the button below is dead) and one outside tap hides the window; once hidden, or with modal off, touches pass through as usual.</string>
+    <string name="toggle_modal">modal (intercept outside touches + hide on outside tap)</string>
+    <string name="section_dialog_overlay">Window above a Dialog</string>
+    <string name="note_dialog_overlay">A Dialog is its own Window, stacked above the Activity: to cover it, attach the floating window to the Dialog decorView.</string>
+    <string name="btn_show_dialog_window">Show a Dialog with a window on top</string>
+    <string name="dialog_plain_title">A plain Dialog</string>
+    <string name="dialog_plain_message">The Dlg window in the top-right corner is attached to this Dialog decorView; it can be dragged inside the Dialog and is cancelled when the Dialog closes.</string>
+    <string name="dialog_close">Close</string>
+
+    <!-- ComposeActivity / ComposeSecondActivity -->
+    <string name="section_compose_app">App-level compose window</string>
+    <string name="note_compose_counters">Tap the window to count: count uses rememberSaveable, vm uses viewModel(), and the third line shows the live coordinates from positionFlow() and the state from stateFlow().</string>
+    <string name="btn_show_compose">Show the Compose window</string>
+    <string name="toast_compose_cancelled">Cancelled; tapping Show rebuilds it (counters reset)</string>
+    <string name="section_state_survival">State survival</string>
+    <string name="note_compose_rotation">count survives a rotation (rememberSaveable runs on FxComposeOwner)</string>
+    <string name="nav_compose_second">Open the second page: count and vm should hold</string>
+    <string name="nav_compose_black">Open the blacklisted page: the window disappears, count holds after you return</string>
+    <string name="nav_issue210">#210 regression page</string>
+    <string name="section_compose_system">System window variant</string>
+    <string name="note_compose_system">The same compose content in a system window (tag=%1$s): the permission is requested automatically and it falls back to an app window when denied. It can be shown alongside the app-level one above.</string>
+    <string name="btn_show_compose_system">Show the system-window compose</string>
+    <string name="btn_uninstall_compose_system">Uninstall the system-window variant</string>
+    <string name="note_compose_second_1">The window follows you here and both count and vm should keep their values:\n- the container only changed parent view; FxComposeOwner belongs to the control and does not die with the page (#210);\n- if the composition was ever disposed, rememberSaveable values are brought back by the FxComposeContent bridge registry.</string>
+    <string name="note_compose_second_2">Keep tapping the window here; the number should carry on where it left off when you go back.</string>
+
+    <!-- SecondActivity / BlackActivity / ImmersedActivity -->
+    <string name="note_second_page">The window should follow you here without any animation: the container only changed parent view, so engine state, features and animations are untouched and the position is kept as a translation.</string>
+    <string name="btn_attached_activity">attachedActivity</string>
+    <string name="note_black_page">This page is blacklisted (matched through its parent BaseBlackActivity, #221), so the window is hidden; it comes back when you leave.</string>
+    <string name="note_immersed">With safeArea on the window keeps out of the notch and navigation bar; turn it off and it can sit right on the screen edge.</string>
+
+    <!-- 回归页 -->
+    <string name="note_issue187_steps">Steps:\n1. Tap Show — the window starts at the bottom right (BOTTOM_END);\n2. Tap Grow / Shrink a few times (the buttons inside the card work too);\n3. Expected: the bottom-right corner never moves and the card only grows towards the top left — 2.x drifted further off screen every time.</string>
+    <string name="btn_switch_anchor">Switch anchor (cycle the four corners)</string>
+    <string name="note_issue187_drag">It holds after dragging anywhere too: when a drag ends, core converts the drop point into the nearest anchor.</string>
+    <string name="note_issue187_system">With the overlay permission granted the same case holds on the System-level window page: a system window moves the WindowManager x/y, and size changes are still recomputed from the anchor.</string>
+    <string name="toast_anchor">Anchor: %1$s</string>
+    <string name="note_issue210_steps">Steps:\n1. Tap Show the Compose window, then tap the window a few times to raise count / vm;\n2. Open the second page or the blacklisted page, or rotate the screen;\n3. Expected: the window stays (except on the blacklisted page, where the config asks it to disappear), count and vm keep their values when you return, and the window never turns blank or crashes.</string>
+    <string name="nav_issue210_second">Across pages: open the second page and come back</string>
+    <string name="nav_issue210_black">Detach and re-attach: open the blacklisted page and come back</string>
+    <string name="note_issue210_black">On the blacklisted page the container is detached (the owner drops to CREATED and the composition is disposed); on return it recomposes — count comes back from the bridge registry and vm is the very same instance.</string>
+    <string name="btn_print_state">Print the current state</string>
+    <string name="note_issue210_cancel">Control group: only cancel destroys the owner, which clears the ViewModel, so the next Show gives you a brand new window.</string>
+    <string name="btn_cancel_reset_count">cancel (counters should reset)</string>
+    <string name="note_issue221_blacklist">DemoWindows.installApp registers the parent class:\n    blacklist(BaseBlackActivity::class.java)\nBlackActivity is not registered itself, it only extends BaseBlackActivity — isInstance matching stops it all the same.</string>
+    <string name="note_issue221_filters">The three filter styles on AppHost.Builder:\n· blacklist(Class...) / whitelist(Class...): subclasses included;\n· blacklist(String...) / whitelist(String...): exact fully qualified names;\n· filter { activity -> ... }: any rule you like (by package, by Intent extras, …), callable several times, all of them must pass.</string>
+    <string name="btn_show_app">Show the app window</string>
+    <string name="nav_issue221_black">Open BlackActivity (a subclass; the window should disappear)</string>
+    <string name="note_issue221_expect">Expected: the window disappears on BlackActivity (the container is detached) and comes back on its own when you return.</string>
+    <string name="note_issue240_steps">Steps:\n1. Tap Show, then Allow bottom overflow and turn adsorption off (otherwise it snaps back to an edge);\n2. Drag the window to the very bottom, over the navigation bar;\n3. Expected: the content stays fully visible, is never cut in half, and stays put after you let go.</string>
+    <string name="btn_overflow_bottom_on">Allow bottom overflow (overflow(bottom = true))</string>
+    <string name="btn_overflow_reset">Back to no overflow (overflow())</string>
+    <string name="btn_adsorb_off_stay">Turn adsorption off (stays where you drop it)</string>
+    <string name="btn_adsorb_sides">Restore left / right adsorption</string>
+    <string name="note_issue240_safe_area">With safeArea off the usable area covers the whole window, so the floater can rest on the status or navigation bar; overflow then lets it go beyond the usable area as well.</string>
+    <string name="note_issue240_decor">It is attached to the DecorView: the drag area is the whole window, status and navigation bars included (attach it to android.R.id.content and the content area clips it).</string>
+    <string name="note_issue244_steps">Steps:\n1. Tap the button below to add the Fragment;\n2. ScopeFragment calls fxScope(\"scope-frag\").show() in onCreate, before it has a root view;\n3. Expected: as soon as the Fragment view is created the Frag window shows up inside the grey area below, and it can only be dragged inside that area.</string>
+    <string name="note_issue244_replace">Tapping again replaces the old Fragment: the old fragment is destroyed, its window is cancelled automatically, and the new fragment builds a fresh one.</string>
+    <string name="btn_fragment_add_oncreate">Add the Fragment (window built in onCreate)</string>
+
+    <!-- 浮窗内容（fx_card / fx_card_resizable / fx_input / fx_list） -->
+    <string name="fx_label">Fx</string>
+    <string name="fx_text_hi">Hi</string>
+    <string name="fx_btn_grow">Grow</string>
+    <string name="fx_btn_shrink">Shrink</string>
+    <string name="fx_size_format">%1$d x %2$d</string>
+    <string name="fx_hint_keyboard">Tap to open the keyboard</string>
+    <string name="fx_tip_back_key">Press Back to dismiss the keyboard first</string>
+    <string name="fx_list_header">Header (drag region)</string>
+
+    <!-- DemoWindows 的监听回调 / DemoService 通知 -->
+    <string name="toast_clicked">Tapped %1$s</string>
+    <string name="toast_long_pressed">Long-pressed %1$s</string>
+    <string name="toast_system_back_pressed">The system window received the back key</string>
+    <string name="notification_channel_name">FloatingX demo</string>
+    <string name="notification_service_text">A foreground service is hosting the system window</string>
 </resources>

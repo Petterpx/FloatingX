@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.petterp.floatingx.core.FxControl
@@ -35,7 +36,7 @@ class ScopeHostActivity : AppCompatActivity() {
 
     /** ViewGroup 宿主：给 demoPageWithHeader 当 header 的黄色方块，高度必须写死才占得住位置 */
     private val box: FrameLayout by lazy {
-        hostBox(this, "ViewGroup 宿主：浮窗只能在本区域内活动").apply {
+        hostBox(this, R.string.label_viewgroup_host).apply {
             val height = (240 * resources.displayMetrics.density).toInt()
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, height)
         }
@@ -66,32 +67,32 @@ class ScopeHostActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        demoPageWithHeader(box, "局部浮窗") {
-            section("ViewGroup 内浮窗")
-            button("显示") { boxFx.show() }
-            button("隐藏") { boxFx.hide() }
-            button("禁止拖动") { boxFx.update { gesture { drag = FxDrag.DISABLED } } }
-            button("长按后可拖") { boxFx.update { gesture { drag = FxDrag.AFTER_LONG_PRESS } } }
-            button("恢复（按下即可拖）") { boxFx.update { gesture { drag = FxDrag.IMMEDIATE } } }
+        demoPageWithHeader(box, R.string.page_scope_host_title) {
+            section(R.string.section_scope_viewgroup)
+            button(R.string.btn_show) { boxFx.show() }
+            button(R.string.btn_hide) { boxFx.hide() }
+            button(R.string.btn_drag_disabled) { boxFx.update { gesture { drag = FxDrag.DISABLED } } }
+            button(R.string.btn_drag_long_press) { boxFx.update { gesture { drag = FxDrag.AFTER_LONG_PRESS } } }
+            button(R.string.btn_drag_immediate) { boxFx.update { gesture { drag = FxDrag.IMMEDIATE } } }
 
-            section("Activity 内浮窗")
-            button("显示") { actFx.show() }
-            button("隐藏") { actFx.hide() }
-            button("cancel（销毁，再点显示会重建）") { actFx.cancel() }
-            note("API 29+ 页面销毁自动 cancel；低版本需自行在 onDestroy 里 cancel（本页两种都做了）。位置用 FxSpStorage 记住，返回本页会恢复。")
+            section(R.string.section_scope_activity)
+            button(R.string.btn_show) { actFx.show() }
+            button(R.string.btn_hide) { actFx.hide() }
+            button(R.string.btn_cancel_recreate) { actFx.cancel() }
+            note(R.string.note_scope_activity)
 
-            section("Fragment")
-            note("ScopeFragment 在 onCreate（view 还没创建）里就调用了 fxScope().show()，浮窗要等 view 就绪才出现——正是 #244。")
-            button("添加 Fragment（内含浮窗）") {
+            section(R.string.section_fragment)
+            note(R.string.note_scope_fragment)
+            button(R.string.btn_fragment_add) {
                 supportFragmentManager.beginTransaction().replace(R.id.fragmentSlot, ScopeFragment()).commit()
             }
-            button("移除 Fragment（浮窗随之 cancel）") {
+            button(R.string.btn_fragment_remove) {
                 scopeFragment()?.let { supportFragmentManager.beginTransaction().remove(it).commit() }
             }
-            button("detach Fragment（view 销毁，浮窗消失）") {
+            button(R.string.btn_fragment_detach) {
                 scopeFragment()?.let { supportFragmentManager.beginTransaction().detach(it).commit() }
             }
-            button("attach Fragment（view 重建，浮窗自动回来）") {
+            button(R.string.btn_fragment_attach) {
                 scopeFragment()?.let { supportFragmentManager.beginTransaction().attach(it).commit() }
             }
             custom(slot)
@@ -127,13 +128,13 @@ class ScopeFragment : Fragment() {
 
     /** 根 view 必须是 ViewGroup，FragmentHost 才能往里加浮窗 */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        hostBox(inflater.context, "Fragment 根 view", Color.parseColor("#BBDEFB"))
+        hostBox(inflater.context, R.string.label_fragment_root, Color.parseColor("#BBDEFB"))
 }
 
 /** 局部浮窗的宿主方块：带底色 + 一行说明，才看得出浮窗被限制在里面 */
 internal fun hostBox(
     context: Context,
-    label: String,
+    @StringRes label: Int,
     color: Int = Color.parseColor("#FFF59D"),
 ): FrameLayout {
     val density = context.resources.displayMetrics.density
@@ -142,7 +143,7 @@ internal fun hostBox(
         setBackgroundColor(color)
         addView(
             TextView(context).apply {
-                text = label
+                text = context.getString(label)
                 textSize = 12f
                 setTextColor(Color.DKGRAY)
                 setPadding(8.dp(), 8.dp(), 8.dp(), 8.dp())

@@ -20,7 +20,7 @@
             android:id="@+id/etInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="点我弹键盘"
+            android:hint="@string/fx_hint_keyboard"
             android:importantForAutofill="no"
             android:inputType="text"
             android:maxLines="1"
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="6dp"
-            android:text="按返回键先收起键盘"
+            android:text="@string/fx_tip_back_key"
             android:textSize="11sp" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

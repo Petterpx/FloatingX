@@ -35,48 +35,48 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        demoPage("FloatingX 3.0") {
-            section("快捷操作")
-            button("显示 App 全局浮窗") { DemoWindows.ensureApp(application).show() }
-            button("显示系统浮窗（自动申请权限，拒绝则降级）") { DemoWindows.ensureSystem(application).show() }
-            button("隐藏全部全局浮窗") { FloatingX.controls().forEach { it.hide() } }
-            button("卸载全部全局浮窗") { FloatingX.uninstallAll() }
+        demoPage(R.string.page_main_title) {
+            section(R.string.section_quick_actions)
+            button(R.string.btn_show_app_window) { DemoWindows.ensureApp(application).show() }
+            button(R.string.btn_show_system_window) { DemoWindows.ensureSystem(application).show() }
+            button(R.string.btn_hide_all) { FloatingX.controls().forEach { it.hide() } }
+            button(R.string.btn_uninstall_all) { FloatingX.uninstallAll() }
 
-            section("能力页")
-            page("App 级全局浮窗", AppHostActivity::class.java)
-            page("系统级浮窗（权限 / 键盘 / Service）", SystemHostActivity::class.java)
-            page("局部浮窗（Activity / ViewGroup / Fragment）", ScopeHostActivity::class.java)
-            page("手势（拖动模式 / 区域 / 子 view 优先级）", GestureActivity::class.java)
-            page("布局（锚点 / 越界 / 吸附 / 持久化）", LayoutActivity::class.java)
-            page("多窗口（按 tag 管理）", MultiWindowActivity::class.java)
-            page("Modal（拦截外部触摸 / Dialog 之上）", ModalActivity::class.java)
-            page("Compose 浮窗（ViewModel / rememberSaveable / 状态流）", ComposeActivity::class.java)
-            note("下面三页是 App 级浮窗的配套场景，也可以从「App 级全局浮窗」页进入。")
-            page("换页观察（attachedActivity）", SecondActivity::class.java)
-            page("黑名单页（浮窗消失）", BlackActivity::class.java)
-            page("沉浸页（无状态栏）", ImmersedActivity::class.java)
+            section(R.string.section_features)
+            page(R.string.page_app_host_title, AppHostActivity::class.java)
+            page(R.string.nav_system_host, SystemHostActivity::class.java)
+            page(R.string.nav_scope_host, ScopeHostActivity::class.java)
+            page(R.string.nav_gesture, GestureActivity::class.java)
+            page(R.string.nav_layout, LayoutActivity::class.java)
+            page(R.string.nav_multi_window, MultiWindowActivity::class.java)
+            page(R.string.nav_modal, ModalActivity::class.java)
+            page(R.string.nav_compose, ComposeActivity::class.java)
+            note(R.string.note_main_extra_pages)
+            page(R.string.nav_second, SecondActivity::class.java)
+            page(R.string.nav_black, BlackActivity::class.java)
+            page(R.string.nav_immersed, ImmersedActivity::class.java)
 
-            section("回归页")
-            page("#187 尺寸变化锚点不动", Issue187Activity::class.java)
-            page("#210 Compose 跨页存活", Issue210Activity::class.java)
-            page("#221 黑名单命中子类", Issue221Activity::class.java)
-            page("#240 越界不被裁剪", Issue240Activity::class.java)
-            page("#244 Fragment 内浮窗", Issue244Activity::class.java)
+            section(R.string.section_regressions)
+            page(R.string.page_issue187_title, Issue187Activity::class.java)
+            page(R.string.page_issue210_title, Issue210Activity::class.java)
+            page(R.string.page_issue221_title, Issue221Activity::class.java)
+            page(R.string.page_issue240_title, Issue240Activity::class.java)
+            page(R.string.page_issue244_title, Issue244Activity::class.java)
 
-            section("Java")
-            note("同样的三种浮窗用 Java Builder 写一遍（JavaDemo.java），验证公开 API 的 Java 友好度。")
-            button("Java：安装 App 级浮窗（tag=${JavaDemo.TAG_APP}）") {
+            section(R.string.section_java)
+            note(R.string.note_java)
+            button(text(R.string.btn_java_install_app, JavaDemo.TAG_APP)) {
                 JavaDemo.installApp(application)
-                DemoContent.toast(this@MainActivity, "已安装 ${JavaDemo.TAG_APP}")
+                DemoContent.toast(this@MainActivity, R.string.toast_installed, JavaDemo.TAG_APP)
             }
-            button("Java：安装系统浮窗（tag=${JavaDemo.TAG_SYSTEM}）") {
+            button(text(R.string.btn_java_install_system, JavaDemo.TAG_SYSTEM)) {
                 JavaDemo.installSystem(application)
-                DemoContent.toast(this@MainActivity, "已安装 ${JavaDemo.TAG_SYSTEM}")
+                DemoContent.toast(this@MainActivity, R.string.toast_installed, JavaDemo.TAG_SYSTEM)
             }
-            button("Java：本页局部浮窗（tag=${JavaDemo.TAG_SCOPE}）") {
+            button(text(R.string.btn_java_scope, JavaDemo.TAG_SCOPE)) {
                 cancelJavaScope()
                 javaScope = JavaDemo.createScope(this@MainActivity)
-                DemoContent.toast(this@MainActivity, "已创建 ${JavaDemo.TAG_SCOPE}（离开本页自动销毁）")
+                DemoContent.toast(this@MainActivity, R.string.toast_java_scope_created, JavaDemo.TAG_SCOPE)
             }
         }
     }

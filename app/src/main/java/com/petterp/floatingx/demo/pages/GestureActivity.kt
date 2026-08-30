@@ -59,35 +59,35 @@ class GestureActivity : AppCompatActivity() {
             setTextColor(Color.DKGRAY)
             val pad = (16 * resources.displayMetrics.density).toInt()
             setPadding(pad, pad / 4, pad, pad)
-            text = LOG_EMPTY
+            text = getString(R.string.hint_gesture_log)
         }
-        demoPage("手势") {
-            section("浮窗")
-            button("显示") { fx.show() }
-            button("隐藏") { fx.hide() }
+        demoPage(R.string.page_gesture_title) {
+            section(R.string.section_window)
+            button(R.string.btn_show) { fx.show() }
+            button(R.string.btn_hide) { fx.hide() }
 
-            section("拖动模式")
-            button("IMMEDIATE（按下即可拖，默认）") { fx.update { gesture { drag = FxDrag.IMMEDIATE } } }
-            button("AFTER_LONG_PRESS（长按后才可拖，#222）") { fx.update { gesture { drag = FxDrag.AFTER_LONG_PRESS } } }
-            button("DISABLED（禁止拖动，只保留点击）") { fx.update { gesture { drag = FxDrag.DISABLED } } }
+            section(R.string.section_drag_mode)
+            button(R.string.btn_drag_mode_immediate) { fx.update { gesture { drag = FxDrag.IMMEDIATE } } }
+            button(R.string.btn_drag_mode_long_press) { fx.update { gesture { drag = FxDrag.AFTER_LONG_PRESS } } }
+            button(R.string.btn_drag_mode_disabled) { fx.update { gesture { drag = FxDrag.DISABLED } } }
 
-            section("拖动区域")
-            note("dragRegion 限定「从哪里按下才算起拖」（#165）；区域之外的按下照常交给内容自己处理。")
-            button("只允许 header 拖动") { fx.update { gesture { dragRegion = FxRegion.child(R.id.tvHeader) } } }
-            button("任意位置都能拖") { fx.update { gesture { dragRegion = null } } }
+            section(R.string.section_drag_region)
+            note(R.string.note_drag_region)
+            button(R.string.btn_drag_region_header) { fx.update { gesture { dragRegion = FxRegion.child(R.id.tvHeader) } } }
+            button(R.string.btn_drag_region_any) { fx.update { gesture { dragRegion = null } } }
 
-            section("子 view 优先级")
-            note("内容里有可滚动的 RecyclerView 时，纵向手势归谁：")
-            button("AUTO（落点下可滚就不抢，默认）") { fx.update { gesture { childPriority = FxChildPriority.AUTO } } }
-            button("PARENT（超过 slop 就抢，列表滚不动）") { fx.update { gesture { childPriority = FxChildPriority.PARENT } } }
-            button("CHILD（永不抢，只能滚列表）") { fx.update { gesture { childPriority = FxChildPriority.CHILD } } }
+            section(R.string.section_child_priority)
+            note(R.string.note_child_priority)
+            button(R.string.btn_child_priority_auto) { fx.update { gesture { childPriority = FxChildPriority.AUTO } } }
+            button(R.string.btn_child_priority_parent) { fx.update { gesture { childPriority = FxChildPriority.PARENT } } }
+            button(R.string.btn_child_priority_child) { fx.update { gesture { childPriority = FxChildPriority.CHILD } } }
 
-            section("透传")
-            note("关掉 touchable 后浮窗完全不吃触摸（#243/#108），点它等于点下面的页面。")
-            toggle("touchable", true) { enabled -> fx.update { gesture { touchable = enabled } } }
+            section(R.string.section_pass_through)
+            note(R.string.note_touchable_gesture)
+            toggle(R.string.toggle_touchable, true) { enabled -> fx.update { gesture { touchable = enabled } } }
 
-            section("回调")
-            note("addListener 的 onClick / onLongClick / onDragStart / onDragEnd：")
+            section(R.string.section_callbacks)
+            note(R.string.note_callbacks)
             custom(logView)
         }
         fx.show()
@@ -125,7 +125,7 @@ class GestureActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: VH, position: Int) {
-            holder.text.text = "第 ${position + 1} 行"
+            holder.text.text = holder.text.context.getString(R.string.item_row, position + 1)
         }
 
         override fun getItemCount(): Int = count
@@ -134,6 +134,5 @@ class GestureActivity : AppCompatActivity() {
     private companion object {
         const val ROW_COUNT = 20
         const val MAX_LOGS = 6
-        const val LOG_EMPTY = "（点击 / 长按 / 拖动浮窗试试）"
     }
 }

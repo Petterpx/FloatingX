@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.petterp.floatingx.demo.DemoWindows
+import com.petterp.floatingx.demo.R
 
 /**
  * 从前台 Service 安装系统浮窗（#192）：3.0 的 SystemHost 只要一个 application context，
@@ -40,8 +41,8 @@ class DemoService : Service() {
         createChannel()
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("FloatingX")
-            .setContentText("前台 Service 正在托管系统浮窗")
+            .setContentTitle(getString(R.string.app_name))
+            .setContentText(getString(R.string.notification_service_text))
             .setOngoing(true)
             .build()
         // API 34（U）起前台 Service 必须声明类型，且要与 manifest 里的 foregroundServiceType 一致
@@ -57,7 +58,7 @@ class DemoService : Service() {
         val manager = getSystemService(NotificationManager::class.java) ?: return
         if (manager.getNotificationChannel(CHANNEL_ID) != null) return
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL_ID, "FloatingX 示例", NotificationManager.IMPORTANCE_LOW),
+            NotificationChannel(CHANNEL_ID, getString(R.string.notification_channel_name), NotificationManager.IMPORTANCE_LOW),
         )
     }
 

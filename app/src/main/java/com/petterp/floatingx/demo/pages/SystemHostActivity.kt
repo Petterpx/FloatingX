@@ -41,11 +41,11 @@ class SystemHostActivity : AppCompatActivity() {
             val pad = (16 * resources.displayMetrics.density).toInt()
             setPadding(pad, pad / 4, pad, pad / 2)
         }
-        demoPage("系统级浮窗") {
-            section("权限")
+        demoPage(R.string.page_system_host_title) {
+            section(R.string.section_permission)
             custom(permissionView)
-            button("Auto（默认）安装并显示") { DemoWindows.installSystem(application).show() }
-            button("Manual：弹对话框再申请") {
+            button(R.string.btn_perm_auto) { DemoWindows.installSystem(application).show() }
+            button(R.string.btn_perm_manual) {
                 // strategy 会被 SystemHost 一直持有，直接捕获 Activity 会泄漏，这里走弱引用
                 val ref = WeakReference(this@SystemHostActivity)
                 DemoWindows.installSystem(
@@ -56,51 +56,51 @@ class SystemHostActivity : AppCompatActivity() {
                     },
                 ).show()
             }
-            note("Manual 的对话框里：去开启=proceed()、降级=useFallback()、取消=deny()。deny() 只是放弃，配了 fallback 也停在 INSTALLED（可用 retryPermission() 恢复），只有 useFallback() 才降级。")
-            button("Skip（不检查权限，type 由 customizer 决定）") {
+            note(R.string.note_perm_manual)
+            button(R.string.btn_perm_skip) {
                 DemoWindows.installSystem(application, FxPermissionStrategy.skip(), fallback = false).show()
             }
-            note("Skip 压根不查权限：没权限时 addView 会失败（日志 Fx-system），拿到权限后点 retryPermission() 即可恢复。")
-            button("retryPermission()") {
+            note(R.string.note_perm_skip)
+            button(R.string.btn_retry_permission) {
                 // 拿到权限后（或从后台回到前台）重新挂载；已降级成 AppHost 时 host 就不是 SystemHost 了
                 (s.host as? SystemHost)?.retryPermission()
-                    ?: DemoContent.toast(this@SystemHostActivity, "当前不是系统浮窗（已降级为 AppHost）")
+                    ?: DemoContent.toast(this@SystemHostActivity, R.string.toast_not_system_host)
             }
-            button("打开系统设置页") {
+            button(R.string.btn_open_settings) {
                 startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
             }
 
-            section("LayoutParams")
-            note("customizer 在默认 LayoutParams 之后执行，type / flags / alpha 等字段都能覆盖。「alpha 0.5」按最小配置重装，想换回默认配置点上面的安装按钮。")
-            button("alpha 0.5（重新安装）") { installWithAlpha() }
-            button("读取当前 LP") {
+            section(R.string.section_layout_params)
+            note(R.string.note_layout_params)
+            button(R.string.btn_alpha_half) { installWithAlpha() }
+            button(R.string.btn_read_lp) {
                 val host = s.host as? SystemHost
                 if (host == null) {
-                    DemoContent.toast(this@SystemHostActivity, "当前不是系统浮窗（已降级为 AppHost）")
+                    DemoContent.toast(this@SystemHostActivity, R.string.toast_not_system_host)
                 } else {
                     val text = host.windowLayoutParams.let { "type=${it.type} flags=${it.flags} x=${it.x} y=${it.y}" }
                     DemoContent.toast(this@SystemHostActivity, text)
                 }
             }
 
-            section("触摸")
-            note("touchable 关闭后窗口加 FLAG_NOT_TOUCHABLE，触摸整体透传给下层应用。")
-            toggle("touchable", true) { enabled -> s.update { gesture { touchable = enabled } } }
+            section(R.string.section_touch)
+            note(R.string.note_touchable_system)
+            toggle(R.string.toggle_touchable, true) { enabled -> s.update { gesture { touchable = enabled } } }
 
-            section("键盘 / 返回键")
-            button("安装带 EditText 的系统浮窗") { DemoWindows.installSystem(application, keyboard = true).show() }
-            note("点 EditText 弹键盘；按返回收起键盘，不会触发 onBackPressed")
+            section(R.string.section_keyboard_back)
+            button(R.string.btn_install_keyboard_window) { DemoWindows.installSystem(application, keyboard = true).show() }
+            note(R.string.note_keyboard)
 
-            section("Service")
-            note("系统浮窗只要 application context，Service 里也能装（#192）。API 33+ 未授予通知权限时前台 Service 照样起得来，只是通知看不到。")
-            button("从前台 Service 安装（#192）") {
+            section(R.string.section_service)
+            note(R.string.note_service)
+            button(R.string.btn_install_from_service) {
                 ContextCompat.startForegroundService(this@SystemHostActivity, Intent(this@SystemHostActivity, DemoService::class.java))
             }
-            button("停止 Service") { stopService(Intent(this@SystemHostActivity, DemoService::class.java)) }
+            button(R.string.btn_stop_service) { stopService(Intent(this@SystemHostActivity, DemoService::class.java)) }
 
-            section("降级")
-            note("拒绝权限时看降级：默认配了 fallback(AppHost)，被拒后浮窗会自动换成 App 级实现继续显示；不配 fallback 则停在 INSTALLED，等 retryPermission()。")
-            button("卸载系统浮窗") { FloatingX.uninstall(DemoWindows.TAG_SYSTEM) }
+            section(R.string.section_fallback)
+            note(R.string.note_fallback)
+            button(R.string.btn_uninstall_system) { FloatingX.uninstall(DemoWindows.TAG_SYSTEM) }
         }
     }
 
@@ -111,7 +111,8 @@ class SystemHostActivity : AppCompatActivity() {
     }
 
     private fun refreshPermission() {
-        permissionView.text = "悬浮窗权限：" + if (FxPermission.isGranted(this)) "已授予" else "未授予"
+        val state = getString(if (FxPermission.isGranted(this)) R.string.state_granted else R.string.state_not_granted)
+        permissionView.text = getString(R.string.label_overlay_permission, state)
     }
 
     /** Manual 策略：三个方法只应调用一个，所以对话框不可取消，必须点一个按钮 */
@@ -122,12 +123,12 @@ class SystemHostActivity : AppCompatActivity() {
             return
         }
         AlertDialog.Builder(this)
-            .setTitle("需要悬浮窗权限")
-            .setMessage("Manual 策略把决定权交给业务方：可以先解释用途，再决定申请、降级还是放弃。")
+            .setTitle(R.string.dialog_permission_title)
+            .setMessage(R.string.dialog_permission_message)
             .setCancelable(false)
-            .setPositiveButton("去开启") { _, _ -> request.proceed() }
-            .setNeutralButton("降级") { _, _ -> request.useFallback() }
-            .setNegativeButton("取消") { _, _ -> request.deny() }
+            .setPositiveButton(R.string.dialog_permission_positive) { _, _ -> request.proceed() }
+            .setNeutralButton(R.string.dialog_permission_neutral) { _, _ -> request.useFallback() }
+            .setNegativeButton(R.string.dialog_permission_negative) { _, _ -> request.deny() }
             .show()
     }
 

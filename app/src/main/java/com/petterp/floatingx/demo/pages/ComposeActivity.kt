@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.petterp.floatingx.core.FloatingX
 import com.petterp.floatingx.core.FxControl
 import com.petterp.floatingx.demo.DemoWindows
+import com.petterp.floatingx.demo.R
 import com.petterp.floatingx.demo.regression.Issue210Activity
 import com.petterp.floatingx.demo.ui.DemoContent
 import com.petterp.floatingx.demo.ui.demoPage
@@ -23,28 +24,28 @@ class ComposeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        demoPage("Compose 浮窗") {
-            section("App 级 compose 浮窗")
-            note("点浮窗计数：count 走 rememberSaveable，vm 走 viewModel()，第三行是 positionFlow() 的实时坐标与 stateFlow() 的状态。")
-            button("显示 Compose 浮窗") { fx.show() }
-            button("隐藏") { fx.hide() }
-            button("cancel") {
+        demoPage(R.string.page_compose_title) {
+            section(R.string.section_compose_app)
+            note(R.string.note_compose_counters)
+            button(R.string.btn_show_compose) { fx.show() }
+            button(R.string.btn_hide) { fx.hide() }
+            button(R.string.btn_cancel) {
                 // cancel 是终态：owner destroy、ViewModel 清空、过桥仓库清空，
                 // 再点「显示」会重新 install 一个全新的（count / vm 都归零）
                 FloatingX.uninstall(DemoWindows.TAG_COMPOSE)
-                DemoContent.toast(this@ComposeActivity, "已 cancel，再点显示会重建（计数归零）")
+                DemoContent.toast(this@ComposeActivity, R.string.toast_compose_cancelled)
             }
 
-            section("状态存活")
-            note("旋转后 count 保持（rememberSaveable 走 FxComposeOwner）")
-            page("进入第二页：count 与 vm 应保持", ComposeSecondActivity::class.java)
-            page("进入黑名单页：浮窗消失，返回后 count 保持", BlackActivity::class.java)
-            page("#210 回归页", Issue210Activity::class.java)
+            section(R.string.section_state_survival)
+            note(R.string.note_compose_rotation)
+            page(R.string.nav_compose_second, ComposeSecondActivity::class.java)
+            page(R.string.nav_compose_black, BlackActivity::class.java)
+            page(R.string.nav_issue210, Issue210Activity::class.java)
 
-            section("系统窗口版")
-            note("同一份 compose 内容装进系统窗口（tag=${DemoWindows.TAG_COMPOSE_SYS}）：自动申请权限，被拒降级为 App 浮窗。可与上面的 App 版同时显示。")
-            button("显示系统窗口版 compose") { DemoWindows.ensureCompose(application, system = true).show() }
-            button("卸载系统窗口版") { FloatingX.uninstall(DemoWindows.TAG_COMPOSE_SYS) }
+            section(R.string.section_compose_system)
+            note(text(R.string.note_compose_system, DemoWindows.TAG_COMPOSE_SYS))
+            button(R.string.btn_show_compose_system) { DemoWindows.ensureCompose(application, system = true).show() }
+            button(R.string.btn_uninstall_compose_system) { FloatingX.uninstall(DemoWindows.TAG_COMPOSE_SYS) }
         }
     }
 }

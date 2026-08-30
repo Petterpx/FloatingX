@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FloatingX</string>
+
+    <!-- 通用 -->
+    <string name="btn_show">显示</string>
+    <string name="btn_hide">隐藏</string>
+    <string name="btn_back">返回</string>
+    <string name="btn_cancel">cancel</string>
+    <string name="btn_cancel_uninstall">cancel（卸载）</string>
+    <string name="section_window">浮窗</string>
+
+    <!-- 页面标题 -->
+    <string name="page_main_title">FloatingX 3.0</string>
+    <string name="page_app_host_title">App 级全局浮窗</string>
+    <string name="page_system_host_title">系统级浮窗</string>
+    <string name="page_scope_host_title">局部浮窗</string>
+    <string name="page_gesture_title">手势</string>
+    <string name="page_layout_title">布局</string>
+    <string name="page_multi_window_title">多窗口（按 tag）</string>
+    <string name="page_modal_title">Modal</string>
+    <string name="page_compose_title">Compose 浮窗</string>
+    <string name="page_compose_second_title">Compose 第二页</string>
+    <string name="page_second_title">第二页</string>
+    <string name="page_black_title">黑名单页</string>
+    <string name="page_immersed_title">沉浸页</string>
+    <string name="page_issue187_title">#187 尺寸变化锚点不动</string>
+    <string name="page_issue210_title">#210 Compose 跨页存活</string>
+    <string name="page_issue221_title">#221 黑名单命中子类</string>
+    <string name="page_issue240_title">#240 越界不被裁剪</string>
+    <string name="page_issue244_title">#244 Fragment 内浮窗</string>
+
+    <!-- MainActivity -->
+    <string name="section_quick_actions">快捷操作</string>
+    <string name="btn_show_app_window">显示 App 全局浮窗</string>
+    <string name="btn_show_system_window">显示系统浮窗（自动申请权限，拒绝则降级）</string>
+    <string name="btn_hide_all">隐藏全部全局浮窗</string>
+    <string name="btn_uninstall_all">卸载全部全局浮窗</string>
+    <string name="section_features">能力页</string>
+    <string name="nav_system_host">系统级浮窗（权限 / 键盘 / Service）</string>
+    <string name="nav_scope_host">局部浮窗（Activity / ViewGroup / Fragment）</string>
+    <string name="nav_gesture">手势（拖动模式 / 区域 / 子 view 优先级）</string>
+    <string name="nav_layout">布局（锚点 / 越界 / 吸附 / 持久化）</string>
+    <string name="nav_multi_window">多窗口（按 tag 管理）</string>
+    <string name="nav_modal">Modal（拦截外部触摸 / Dialog 之上）</string>
+    <string name="nav_compose">Compose 浮窗（ViewModel / rememberSaveable / 状态流）</string>
+    <string name="note_main_extra_pages">下面三页是 App 级浮窗的配套场景，也可以从「App 级全局浮窗」页进入。</string>
+    <string name="nav_second">换页观察（attachedActivity）</string>
+    <string name="nav_black">黑名单页（浮窗消失）</string>
+    <string name="nav_immersed">沉浸页（无状态栏）</string>
+    <string name="section_regressions">回归页</string>
+    <string name="section_java">Java</string>
+    <string name="note_java">同样的三种浮窗用 Java Builder 写一遍（JavaDemo.java），验证公开 API 的 Java 友好度。</string>
+    <string name="btn_java_install_app">Java：安装 App 级浮窗（tag=%1$s）</string>
+    <string name="btn_java_install_system">Java：安装系统浮窗（tag=%1$s）</string>
+    <string name="btn_java_scope">Java：本页局部浮窗（tag=%1$s）</string>
+    <string name="toast_installed">已安装 %1$s</string>
+    <string name="toast_java_scope_created">已创建 %1$s（离开本页自动销毁）</string>
+
+    <!-- AppHostActivity -->
+    <string name="section_show_hide">显示/隐藏</string>
+    <string name="section_move">移动</string>
+    <string name="btn_move_to_100_300">moveTo(100, 300)</string>
+    <string name="btn_move_by">moveBy(-40, 0)</string>
+    <string name="btn_move_to_no_anim">moveTo 不带动画</string>
+    <string name="section_anchor_bounds">锚点 / 边界</string>
+    <string name="btn_anchor">anchor(%1$s)</string>
+    <string name="btn_margin_all_48">margin 全 48</string>
+    <string name="btn_overflow_vertical">允许上下越界</string>
+    <string name="toggle_safe_area">safeArea（避开系统栏 / 刘海）</string>
+    <string name="toggle_safe_area_short">safeArea</string>
+    <string name="section_adsorb">吸附</string>
+    <string name="btn_adsorb_all">四向吸附</string>
+    <string name="btn_adsorb_sides_half" formatted="false">左右吸附 + 半隐 30%</string>
+    <string name="btn_adsorb_off">关闭吸附</string>
+    <string name="toggle_rebound">越界回弹（rebound）</string>
+    <string name="section_content">内容</string>
+    <string name="btn_content_layout">换成 layout 内容</string>
+    <string name="btn_content_title">改标题文字</string>
+    <string name="section_animation">动画</string>
+    <string name="btn_anim_scale">scale 动画</string>
+    <string name="btn_anim_fade">fade 动画</string>
+    <string name="btn_anim_none">无动画</string>
+    <string name="section_navigation_filter">换页 / 过滤</string>
+    <string name="nav_second_observe">进入第二页（观察 attachedActivity）</string>
+    <string name="nav_black_disappear">进入黑名单页（浮窗消失）</string>
+    <string name="nav_immersed_no_status_bar">进入沉浸页（无状态栏）</string>
+    <string name="label_attached">当前挂载：%1$s</string>
+    <string name="label_not_attached">未挂载</string>
+
+    <!-- SystemHostActivity -->
+    <string name="section_permission">权限</string>
+    <string name="label_overlay_permission">悬浮窗权限：%1$s</string>
+    <string name="state_granted">已授予</string>
+    <string name="state_not_granted">未授予</string>
+    <string name="btn_perm_auto">Auto（默认）安装并显示</string>
+    <string name="btn_perm_manual">Manual：弹对话框再申请</string>
+    <string name="note_perm_manual">Manual 的对话框里：去开启=proceed()、降级=useFallback()、取消=deny()。deny() 只是放弃，配了 fallback 也停在 INSTALLED（可用 retryPermission() 恢复），只有 useFallback() 才降级。</string>
+    <string name="btn_perm_skip">Skip（不检查权限，type 由 customizer 决定）</string>
+    <string name="note_perm_skip">Skip 压根不查权限：没权限时 addView 会失败（日志 Fx-system），拿到权限后点 retryPermission() 即可恢复。</string>
+    <string name="btn_retry_permission">retryPermission()</string>
+    <string name="btn_open_settings">打开系统设置页</string>
+    <string name="toast_not_system_host">当前不是系统浮窗（已降级为 AppHost）</string>
+    <string name="section_layout_params">LayoutParams</string>
+    <string name="note_layout_params">customizer 在默认 LayoutParams 之后执行，type / flags / alpha 等字段都能覆盖。「alpha 0.5」按最小配置重装，想换回默认配置点上面的安装按钮。</string>
+    <string name="btn_alpha_half">alpha 0.5（重新安装）</string>
+    <string name="btn_read_lp">读取当前 LP</string>
+    <string name="section_touch">触摸</string>
+    <string name="note_touchable_system">touchable 关闭后窗口加 FLAG_NOT_TOUCHABLE，触摸整体透传给下层应用。</string>
+    <string name="toggle_touchable">touchable</string>
+    <string name="section_keyboard_back">键盘 / 返回键</string>
+    <string name="btn_install_keyboard_window">安装带 EditText 的系统浮窗</string>
+    <string name="note_keyboard">点 EditText 弹键盘；按返回收起键盘，不会触发 onBackPressed</string>
+    <string name="section_service">Service</string>
+    <string name="note_service">系统浮窗只要 application context，Service 里也能装（#192）。API 33+ 未授予通知权限时前台 Service 照样起得来，只是通知看不到。</string>
+    <string name="btn_install_from_service">从前台 Service 安装（#192）</string>
+    <string name="btn_stop_service">停止 Service</string>
+    <string name="section_fallback">降级</string>
+    <string name="note_fallback">拒绝权限时看降级：默认配了 fallback(AppHost)，被拒后浮窗会自动换成 App 级实现继续显示；不配 fallback 则停在 INSTALLED，等 retryPermission()。</string>
+    <string name="btn_uninstall_system">卸载系统浮窗</string>
+    <string name="dialog_permission_title">需要悬浮窗权限</string>
+    <string name="dialog_permission_message">Manual 策略把决定权交给业务方：可以先解释用途，再决定申请、降级还是放弃。</string>
+    <string name="dialog_permission_positive">去开启</string>
+    <string name="dialog_permission_neutral">降级</string>
+    <string name="dialog_permission_negative">取消</string>
+
+    <!-- ScopeHostActivity -->
+    <string name="label_viewgroup_host">ViewGroup 宿主：浮窗只能在本区域内活动</string>
+    <string name="label_fragment_root">Fragment 根 view</string>
+    <string name="section_scope_viewgroup">ViewGroup 内浮窗</string>
+    <string name="btn_drag_disabled">禁止拖动</string>
+    <string name="btn_drag_long_press">长按后可拖</string>
+    <string name="btn_drag_immediate">恢复（按下即可拖）</string>
+    <string name="section_scope_activity">Activity 内浮窗</string>
+    <string name="btn_cancel_recreate">cancel（销毁，再点显示会重建）</string>
+    <string name="note_scope_activity">API 29+ 页面销毁自动 cancel；低版本需自行在 onDestroy 里 cancel（本页两种都做了）。位置用 FxSpStorage 记住，返回本页会恢复。</string>
+    <string name="section_fragment">Fragment</string>
+    <string name="note_scope_fragment">ScopeFragment 在 onCreate（view 还没创建）里就调用了 fxScope().show()，浮窗要等 view 就绪才出现——正是 #244。</string>
+    <string name="btn_fragment_add">添加 Fragment（内含浮窗）</string>
+    <string name="btn_fragment_remove">移除 Fragment（浮窗随之 cancel）</string>
+    <string name="btn_fragment_detach">detach Fragment（view 销毁，浮窗消失）</string>
+    <string name="btn_fragment_attach">attach Fragment（view 重建，浮窗自动回来）</string>
+
+    <!-- GestureActivity -->
+    <string name="section_drag_mode">拖动模式</string>
+    <string name="btn_drag_mode_immediate">IMMEDIATE（按下即可拖，默认）</string>
+    <string name="btn_drag_mode_long_press">AFTER_LONG_PRESS（长按后才可拖，#222）</string>
+    <string name="btn_drag_mode_disabled">DISABLED（禁止拖动，只保留点击）</string>
+    <string name="section_drag_region">拖动区域</string>
+    <string name="note_drag_region">dragRegion 限定「从哪里按下才算起拖」（#165）；区域之外的按下照常交给内容自己处理。</string>
+    <string name="btn_drag_region_header">只允许 header 拖动</string>
+    <string name="btn_drag_region_any">任意位置都能拖</string>
+    <string name="section_child_priority">子 view 优先级</string>
+    <string name="note_child_priority">内容里有可滚动的 RecyclerView 时，纵向手势归谁：</string>
+    <string name="btn_child_priority_auto">AUTO（落点下可滚就不抢，默认）</string>
+    <string name="btn_child_priority_parent">PARENT（超过 slop 就抢，列表滚不动）</string>
+    <string name="btn_child_priority_child">CHILD（永不抢，只能滚列表）</string>
+    <string name="section_pass_through">透传</string>
+    <string name="note_touchable_gesture">关掉 touchable 后浮窗完全不吃触摸（#243/#108），点它等于点下面的页面。</string>
+    <string name="section_callbacks">回调</string>
+    <string name="note_callbacks">addListener 的 onClick / onLongClick / onDragStart / onDragEnd：</string>
+    <string name="hint_gesture_log">（点击 / 长按 / 拖动浮窗试试）</string>
+    <string name="item_row">第 %1$d 行</string>
+
+    <!-- LayoutActivity -->
+    <string name="section_anchor">锚点</string>
+    <string name="note_anchor">锚点 = 内容贴哪个角/边；拖动结束后 core 会把落点换算回锚点（这也是持久化存的东西）。</string>
+    <string name="section_overflow">越界</string>
+    <string name="note_overflow">默认不允许越界：内容被约束在可用区内。打开某个方向后，那一侧可以拖出去。</string>
+    <string name="toggle_overflow_top">上方越界</string>
+    <string name="toggle_overflow_bottom">下方越界</string>
+    <string name="toggle_overflow_left">左侧越界</string>
+    <string name="toggle_overflow_right">右侧越界</string>
+    <string name="section_content_size">内容尺寸</string>
+    <string name="note_content_size">尺寸变化时锚点不动（#187）：先把浮窗拖到某个角，再变大/变小，贴着的那条边不会挪。</string>
+    <string name="btn_grow_40">变大（+40dp）</string>
+    <string name="btn_shrink_40">变小（-40dp）</string>
+    <string name="section_persist">持久化</string>
+    <string name="toggle_persist">persist(FxSpStorage)</string>
+    <string name="note_persist">开启后每次锚点提交（拖动结束 / moveTo / update{anchor}）都会写入；读取只发生在浮窗创建时，所以要退出本页再进来才看得到恢复效果。</string>
+    <string name="btn_clear_storage">清除记忆</string>
+    <string name="toast_storage_cleared">已清除 %1$s 的横竖屏记忆</string>
+    <string name="note_persist_orientation">旋转屏幕后位置按方向分别恢复：存储键是「tag:orientation」（1=竖屏、2=横屏），横竖屏各记一份。</string>
+
+    <!-- MultiWindowActivity -->
+    <string name="section_install_show">安装 / 显示</string>
+    <string name="note_multi_window">两个窗口用不同 tag，配置、位置持久化、监听都各自独立。</string>
+    <string name="btn_show_tag">显示 %1$s</string>
+    <string name="section_registry">注册表</string>
+    <string name="btn_iterate_controls">遍历 controls()</string>
+    <string name="toast_no_global_windows">当前没有全局浮窗</string>
+    <string name="btn_is_installed">isInstalled(...)</string>
+    <string name="note_scope_not_in_registry">局部浮窗（fxScope / FloatingX.create）不进注册表，controls() 里看不到。</string>
+    <string name="section_reinstall">重复 install 同 tag</string>
+    <string name="note_reinstall">同一个 tag 再 install：注册表里替换成新的，旧 control 立刻被 cancel（终态，之后任何调用都会抛异常）。</string>
+    <string name="btn_reinstall_tag">重复 install %1$s</string>
+    <string name="toast_reinstall_result">旧 control=%1$s，新 control=%2$s，controls().size=%3$d</string>
+    <string name="section_uninstall">卸载</string>
+    <string name="btn_uninstall_tag">uninstall(%1$s)</string>
+    <string name="btn_uninstall_all_api">uninstallAll()</string>
+
+    <!-- ModalActivity -->
+    <string name="section_modal_check">modal 拦截验证</string>
+    <string name="note_modal_check">先点下面的「显示」，再点这个按钮：浮窗显示中时点击被容器吃掉（计数不变，浮窗自动隐藏）；浮窗隐藏之后（或关掉 modal）触摸就照常透传，计数会涨。</string>
+    <string name="label_click_count">点击次数：%1$d</string>
+    <string name="btn_modal_outside">modal 下方按钮</string>
+    <string name="section_modal">modal</string>
+    <string name="note_modal">开启时：浮窗**显示中**才拦截（浮窗之外的触摸被容器吃掉，下面的按钮点不动），并且点一下外部浮窗自动 hide；浮窗隐藏或关闭 modal 后触摸照常透传。</string>
+    <string name="toggle_modal">modal（拦截外部触摸 + 点外部自动 hide）</string>
+    <string name="section_dialog_overlay">Dialog 之上的浮窗</string>
+    <string name="note_dialog_overlay">Dialog 是独立 Window，层级在 Activity 之上：想让浮窗盖住 Dialog，就把它挂到 Dialog 自己的 decorView 上。</string>
+    <string name="btn_show_dialog_window">弹 Dialog 并在其上显示浮窗</string>
+    <string name="dialog_plain_title">普通 Dialog</string>
+    <string name="dialog_plain_message">右上角的「Dlg」浮窗挂在本 Dialog 的 decorView 上，可以在 Dialog 范围内拖动；Dialog 关闭时它随之 cancel。</string>
+    <string name="dialog_close">关闭</string>
+
+    <!-- ComposeActivity / ComposeSecondActivity -->
+    <string name="section_compose_app">App 级 compose 浮窗</string>
+    <string name="note_compose_counters">点浮窗计数：count 走 rememberSaveable，vm 走 viewModel()，第三行是 positionFlow() 的实时坐标与 stateFlow() 的状态。</string>
+    <string name="btn_show_compose">显示 Compose 浮窗</string>
+    <string name="toast_compose_cancelled">已 cancel，再点显示会重建（计数归零）</string>
+    <string name="section_state_survival">状态存活</string>
+    <string name="note_compose_rotation">旋转后 count 保持（rememberSaveable 走 FxComposeOwner）</string>
+    <string name="nav_compose_second">进入第二页：count 与 vm 应保持</string>
+    <string name="nav_compose_black">进入黑名单页：浮窗消失，返回后 count 保持</string>
+    <string name="nav_issue210">#210 回归页</string>
+    <string name="section_compose_system">系统窗口版</string>
+    <string name="note_compose_system">同一份 compose 内容装进系统窗口（tag=%1$s）：自动申请权限，被拒降级为 App 浮窗。可与上面的 App 版同时显示。</string>
+    <string name="btn_show_compose_system">显示系统窗口版 compose</string>
+    <string name="btn_uninstall_compose_system">卸载系统窗口版</string>
+    <string name="note_compose_second_1">浮窗跟到本页，count 与 vm 都应保持原值：\n- 容器只是换了父 view，FxComposeOwner 归 control 所有，不随页面销毁（#210）；\n- 组合若被 dispose 过，rememberSaveable 的值由 FxComposeContent 的过桥仓库带回来。</string>
+    <string name="note_compose_second_2">在本页点浮窗继续计数，返回上一页数字应接着走。</string>
+
+    <!-- SecondActivity / BlackActivity / ImmersedActivity -->
+    <string name="note_second_page">浮窗应无动画地跟到本页：容器只是换了父 View，engine 状态、feature、动画都不重来，位置由 translation 保留。</string>
+    <string name="btn_attached_activity">attachedActivity</string>
+    <string name="note_black_page">本页在黑名单（按父类 BaseBlackActivity 命中，#221），浮窗不显示；返回后恢复。</string>
+    <string name="note_immersed">safeArea 打开时浮窗不进刘海/导航栏区域；关闭 safeArea 可贴到屏幕边。</string>
+
+    <!-- 回归页 -->
+    <string name="note_issue187_steps">复现步骤：\n1. 点「显示」，浮窗默认贴右下（BOTTOM_END）；\n2. 反复点「变大 / 变小」（也可以点卡片里的按钮）；\n3. 期望：右下角始终不动，尺寸只往左上方向长——2.x 会越变越往右下溢出。</string>
+    <string name="btn_switch_anchor">切换锚点（四角轮换）</string>
+    <string name="note_issue187_drag">拖到任意位置再变尺寸同样成立：拖动结束时 core 会把落点换算成最近的锚点。</string>
+    <string name="note_issue187_system">有悬浮窗权限时，同一个用例在「系统级浮窗」页也成立：系统窗口改的是 WindowManager 的 x/y，尺寸变化一样按锚点重算。</string>
+    <string name="toast_anchor">锚点：%1$s</string>
+    <string name="note_issue210_steps">复现步骤：\n1. 点「显示 Compose 浮窗」，再点浮窗几下把 count / vm 加上去；\n2. 跳到第二页 / 黑名单页，或者旋转屏幕；\n3. 期望：浮窗一直在（黑名单页除外，那是配置要求它消失），回来后 count 与 vm 都是原值，浮窗不会白掉或崩溃。</string>
+    <string name="nav_issue210_second">跨页：进第二页再返回</string>
+    <string name="nav_issue210_black">卸下再挂上：进黑名单页再返回</string>
+    <string name="note_issue210_black">黑名单页里容器被卸下（owner 降到 CREATED，组合 dispose），返回时重新组合——count 由过桥仓库带回、vm 是同一个实例。</string>
+    <string name="btn_print_state">打印当前状态</string>
+    <string name="note_issue210_cancel">对照组：cancel 之后 owner 才 destroy，此时 ViewModel 被清空，再显示就是一个全新的浮窗。</string>
+    <string name="btn_cancel_reset_count">cancel（计数应归零）</string>
+    <string name="note_issue221_blacklist">DemoWindows.installApp 里登记的是父类：\n    blacklist(BaseBlackActivity::class.java)\nBlackActivity 自己没登记，只是继承了 BaseBlackActivity——按 isInstance 匹配，一样被拦下。</string>
+    <string name="note_issue221_filters">AppHost.Builder 的三种过滤写法：\n· blacklist(Class...) / whitelist(Class...)：含子类；\n· blacklist(String...) / whitelist(String...)：类全名精确匹配；\n· filter { activity -> ... }：任意规则（按包名、按 Intent 参数……），可多次调用，全部通过才显示。</string>
+    <string name="btn_show_app">显示 App 浮窗</string>
+    <string name="nav_issue221_black">跳到 BlackActivity（子类，浮窗应消失）</string>
+    <string name="note_issue221_expect">期望：进入 BlackActivity 后浮窗消失（容器被卸下），返回本页自动恢复。</string>
+    <string name="note_issue240_steps">复现步骤：\n1. 点「显示」，再点「允许下方越界」并关掉吸附（否则松手会被吸回边上）；\n2. 把浮窗往屏幕最下方拖，压到导航栏区域；\n3. 期望：内容完整可见、不被裁掉一半，松手后也停在原地。</string>
+    <string name="btn_overflow_bottom_on">允许下方越界（overflow(bottom = true)）</string>
+    <string name="btn_overflow_reset">恢复不越界（overflow()）</string>
+    <string name="btn_adsorb_off_stay">关闭吸附（松手停在原地）</string>
+    <string name="btn_adsorb_sides">恢复左右吸附</string>
+    <string name="note_issue240_safe_area">safeArea 关掉后可用区扩到整个窗口，浮窗可以直接停在状态栏 / 导航栏上；overflow 则是允许再超出可用区之外。</string>
+    <string name="note_issue240_decor">挂载点是 DecorView：拖动范围是整个窗口，与状态栏 / 导航栏无关（挂在 android.R.id.content 上就会被内容区裁住）。</string>
+    <string name="note_issue244_steps">复现步骤：\n1. 点下面的按钮添加 Fragment；\n2. ScopeFragment 在 onCreate 里调用 fxScope(\"scope-frag\").show()，此时它还没有根 view；\n3. 期望：Fragment 的 view 一创建，「Frag」浮窗就出现在下面的灰色区域里，并且只能在区域内拖动。</string>
+    <string name="note_issue244_replace">再点一次按钮会 replace 掉旧 Fragment：旧 fragment destroy → 浮窗自动 cancel，新 fragment 重新建一个。</string>
+    <string name="btn_fragment_add_oncreate">添加 Fragment（onCreate 里建浮窗）</string>
+
+    <!-- 浮窗内容（fx_card / fx_card_resizable / fx_input / fx_list） -->
+    <string name="fx_label">Fx</string>
+    <string name="fx_text_hi">Hi</string>
+    <string name="fx_btn_grow">变大</string>
+    <string name="fx_btn_shrink">变小</string>
+    <string name="fx_size_format">%1$d x %2$d</string>
+    <string name="fx_hint_keyboard">点我弹键盘</string>
+    <string name="fx_tip_back_key">按返回键先收起键盘</string>
+    <string name="fx_list_header">Header（拖动区域）</string>
+
+    <!-- DemoWindows 的监听回调 / DemoService 通知 -->
+    <string name="toast_clicked">点击了 %1$s</string>
+    <string name="toast_long_pressed">长按了 %1$s</string>
+    <string name="toast_system_back_pressed">系统浮窗收到返回键</string>
+    <string name="notification_channel_name">FloatingX 示例</string>
+    <string name="notification_service_text">前台 Service 正在托管系统浮窗</string>
+</resources>

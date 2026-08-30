@@ -55,7 +55,7 @@ class SystemWindowResizeTest {
         val before = onMainGet { host.windowLayoutParams }
         val widthBefore = onMainGet { control.contentView!!.width }
         val positionBefore = onMainGet { control.position }
-        assertEquals("BOTTOM_END 应映射成 BOTTOM|RIGHT", Gravity.BOTTOM or Gravity.RIGHT, before.gravity)
+        assertEquals("BOTTOM_END should map to BOTTOM|RIGHT", Gravity.BOTTOM or Gravity.RIGHT, before.gravity)
 
         onMain {
             val content = control.contentView!!
@@ -65,14 +65,14 @@ class SystemWindowResizeTest {
             content.layoutParams = lp
             content.requestLayout()
         }
-        await("内容宽度没有变大 ${DELTA_PX}px") { (control.contentView?.width ?: 0) == widthBefore + DELTA_PX }
+        await("the content width did not grow by ${DELTA_PX}px") { (control.contentView?.width ?: 0) == widthBefore + DELTA_PX }
         idle()
 
         val after = onMainGet { host.windowLayoutParams }
         // 锚定边偏移一个都没动：右下角由 WindowManager 自己保持
-        assertEquals("gravity 不该变", before.gravity, after.gravity)
-        assertEquals("锚定边到屏幕右边的距离不该变", before.x, after.x)
-        assertEquals("锚定边到屏幕下边的距离不该变", before.y, after.y)
+        assertEquals("gravity must not change", before.gravity, after.gravity)
+        assertEquals("the distance from the anchored edge to the right of the screen must not change", before.x, after.x)
+        assertEquals("the distance from the anchored edge to the bottom of the screen must not change", before.y, after.y)
         // 内容左上角则相应地往左上各挪了 DELTA_PX
         val positionAfter = onMainGet { control.position }
         assertEquals(positionBefore.x - DELTA_PX, positionAfter.x, POSITION_TOLERANCE)

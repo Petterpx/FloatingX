@@ -22,7 +22,7 @@
             android:background="?attr/colorSecondaryContainer"
             android:gravity="center"
             android:padding="12dp"
-            android:text="Header（拖动区域）"
+            android:text="@string/fx_list_header"
             android:textColor="?attr/colorOnSecondaryContainer"
             android:textSize="13sp"
             android:textStyle="bold" />

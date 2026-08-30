@@ -12,6 +12,7 @@ import com.petterp.floatingx.core.FxControl
 import com.petterp.floatingx.core.FxState
 import com.petterp.floatingx.core.layout.FxGravity
 import com.petterp.floatingx.core.update
+import com.petterp.floatingx.demo.R
 import com.petterp.floatingx.demo.ui.DemoContent
 import com.petterp.floatingx.demo.ui.demoPage
 import com.petterp.floatingx.scope.fxScope
@@ -56,29 +57,29 @@ class ModalActivity : AppCompatActivity() {
             setPadding(pad, pad / 4, pad, pad / 4)
         }
         renderClicks()
-        demoPage("Modal") {
+        demoPage(R.string.page_modal_title) {
             // 放在最上面：浮窗是居中显示的，这个按钮要离它足够远，点下去才算"点在内容之外"
-            section("modal 拦截验证")
-            note("先点下面的「显示」，再点这个按钮：浮窗显示中时点击被容器吃掉（计数不变，浮窗自动隐藏）；浮窗隐藏之后（或关掉 modal）触摸就照常透传，计数会涨。")
+            section(R.string.section_modal_check)
+            note(R.string.note_modal_check)
             custom(clicksView)
-            button("modal 下方按钮") {
+            button(R.string.btn_modal_outside) {
                 outsideClicks++
                 renderClicks()
             }
 
-            section("浮窗")
-            button("显示") { fx.show() }
-            button("隐藏") { fx.hide() }
+            section(R.string.section_window)
+            button(R.string.btn_show) { fx.show() }
+            button(R.string.btn_hide) { fx.hide() }
 
-            section("modal")
-            note("开启时：浮窗**显示中**才拦截（浮窗之外的触摸被容器吃掉，下面的按钮点不动），并且点一下外部浮窗自动 hide；浮窗隐藏或关闭 modal 后触摸照常透传。")
-            toggle("modal（拦截外部触摸 + 点外部自动 hide）", true) { enabled ->
+            section(R.string.section_modal)
+            note(R.string.note_modal)
+            toggle(R.string.toggle_modal, true) { enabled ->
                 fx.update { modal(enabled, dismissOnOutsideTouch = true) }
             }
 
-            section("Dialog 之上的浮窗")
-            note("Dialog 是独立 Window，层级在 Activity 之上：想让浮窗盖住 Dialog，就把它挂到 Dialog 自己的 decorView 上。")
-            button("弹 Dialog 并在其上显示浮窗") { showDialogWithFloating() }
+            section(R.string.section_dialog_overlay)
+            note(R.string.note_dialog_overlay)
+            button(R.string.btn_show_dialog_window) { showDialogWithFloating() }
         }
     }
 
@@ -88,14 +89,14 @@ class ModalActivity : AppCompatActivity() {
     }
 
     private fun renderClicks() {
-        clicksView.text = "点击次数：$outsideClicks"
+        clicksView.text = getString(R.string.label_click_count, outsideClicks)
     }
 
     private fun showDialogWithFloating() {
         val dialog = AlertDialog.Builder(this)
-            .setTitle("普通 Dialog")
-            .setMessage("右上角的「Dlg」浮窗挂在本 Dialog 的 decorView 上，可以在 Dialog 范围内拖动；Dialog 关闭时它随之 cancel。")
-            .setPositiveButton("关闭", null)
+            .setTitle(R.string.dialog_plain_title)
+            .setMessage(R.string.dialog_plain_message)
+            .setPositiveButton(R.string.dialog_close, null)
             .create()
         dialog.show()
         // decorView 必须在 show() 之后取：show 之前 window 还没建好

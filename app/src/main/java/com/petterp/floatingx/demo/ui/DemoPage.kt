@@ -8,13 +8,22 @@ import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.StringRes
 import androidx.core.widget.NestedScrollView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
 
-/** 示例页 DSL：section / button / toggle / note / page，一行一个按钮，避免每页重复样板 */
+/**
+ * 示例页 DSL：section / button / toggle / note / page，一行一个按钮，避免每页重复样板。
+ *
+ * 文案一律走 `@StringRes` 重载（默认英文，中文系统自动切 values-zh）；
+ * String 版只留给运行期才拼得出来的文本（枚举名、tag 等）。
+ */
 class DemoPageScope(private val root: LinearLayout) {
     private val ctx get() = root.context
+
+    /** 需要参数的文案：`text(R.string.x, arg)`，占位符写 `%1$s` */
+    fun text(@StringRes resId: Int, vararg formatArgs: Any): String = ctx.getString(resId, *formatArgs)
 
     private fun Int.dp(): Int = (this * ctx.resources.displayMetrics.density).toInt()
 
@@ -74,6 +83,19 @@ class DemoPageScope(private val root: LinearLayout) {
 
     /** 跳转到另一个示例页 */
     fun page(text: String, cls: Class<out Activity>) = button(text) { it.context.startActivity(Intent(it.context, cls)) }
+
+    // ---- @StringRes 重载：页面统一传资源 id ----
+
+    fun section(@StringRes title: Int) = section(ctx.getString(title))
+
+    fun note(@StringRes text: Int) = note(ctx.getString(text))
+
+    fun button(@StringRes text: Int, onClick: (View) -> Unit) = button(ctx.getString(text), onClick)
+
+    fun toggle(@StringRes text: Int, initial: Boolean, onChange: (Boolean) -> Unit) =
+        toggle(ctx.getString(text), initial, onChange)
+
+    fun page(@StringRes text: Int, cls: Class<out Activity>) = page(ctx.getString(text), cls)
 }
 
 /**
@@ -102,6 +124,9 @@ fun Activity.demoPage(title: String? = null, block: DemoPageScope.() -> Unit) {
     setContentView(NestedScrollView(this).apply { addView(column) })
 }
 
+/** [demoPage] 的资源 id 版 */
+fun Activity.demoPage(@StringRes title: Int, block: DemoPageScope.() -> Unit) = demoPage(getString(title), block)
+
 /** 可以在页面顶部放一个真实的 ViewGroup（局部浮窗宿主）再接示例列表 */
 fun Activity.demoPageWithHeader(header: View, title: String? = null, block: DemoPageScope.() -> Unit) {
     val outer = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
@@ -115,3 +140,7 @@ fun Activity.demoPageWithHeader(header: View, title: String? = null, block: Demo
     )
     setContentView(outer)
 }
+
+/** [demoPageWithHeader] 的资源 id 版 */
+fun Activity.demoPageWithHeader(header: View, @StringRes title: Int, block: DemoPageScope.() -> Unit) =
+    demoPageWithHeader(header, getString(title), block)

@@ -45,26 +45,26 @@ class ModalScrimTest {
 
     @Test
     fun modal_swallows_outside_click_and_dismisses_then_passes_through_when_off() {
-        onView(withText("显示")).perform(scrollTo(), click())
-        val control = requireNotNull(withActivity { it.modalControl }) { "点了「显示」之后浮窗仍未创建" }
+        onView(withText(R.string.btn_show)).perform(scrollTo(), click())
+        val control = requireNotNull(withActivity { it.modalControl }) { "the window was not created after tapping Show" }
         control.awaitPositioned()
-        assertTrue("浮窗应处于显示中", onMainGet { control.isShowing })
+        assertTrue("the window should be showing", onMainGet { control.isShowing })
         assertEquals(0, withActivity { it.outsideClicks })
 
         // modal 开着：点浮窗外部的按钮 → 事件被容器吃掉，按钮的 OnClickListener 不该跑
-        onView(withText(OUTSIDE_BUTTON)).perform(scrollTo(), click())
-        await("dismissOnOutsideTouch 没有把浮窗隐藏") { !control.isShowing }
-        assertEquals("modal 开着时下方按钮不该被点到", 0, withActivity { it.outsideClicks })
+        onView(withText(R.string.btn_modal_outside)).perform(scrollTo(), click())
+        await("dismissOnOutsideTouch did not hide the window") { !control.isShowing }
+        assertEquals("the button below must not be clicked while modal is on", 0, withActivity { it.outsideClicks })
 
         // 浮窗已被隐藏：modal 还开着，但隐藏的浮窗不能再吃触摸，否则整页都点不动
-        onView(withText(OUTSIDE_BUTTON)).perform(scrollTo(), click())
-        assertEquals("浮窗隐藏后 modal 不该继续拦截触摸", 1, withActivity { it.outsideClicks })
+        onView(withText(R.string.btn_modal_outside)).perform(scrollTo(), click())
+        assertEquals("modal must stop intercepting once the window is hidden", 1, withActivity { it.outsideClicks })
 
         // 关掉 modal：容器不再拦截，触摸透传回页面
         onMain { control.update { modal(false) } }
         idle()
-        onView(withText(OUTSIDE_BUTTON)).perform(scrollTo(), click())
-        assertEquals("关掉 modal 后下方按钮应正常收到点击", 2, withActivity { it.outsideClicks })
+        onView(withText(R.string.btn_modal_outside)).perform(scrollTo(), click())
+        assertEquals("with modal off the button below should receive the click", 2, withActivity { it.outsideClicks })
     }
 
     /** [androidx.test.core.app.ActivityScenario.onActivity] 本身就跑在主线程，不能再套 [onMain] */
@@ -73,9 +73,5 @@ class ModalScrimTest {
         activityRule.scenario.onActivity { holder[0] = block(it) }
         @Suppress("UNCHECKED_CAST")
         return holder[0] as T
-    }
-
-    private companion object {
-        const val OUTSIDE_BUTTON = "modal 下方按钮"
     }
 }
