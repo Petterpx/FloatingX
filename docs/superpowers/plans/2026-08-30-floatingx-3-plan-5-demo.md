@@ -881,3 +881,62 @@ dependencies {
 - **Spec 覆盖：** §11 删除项（`floatingx/`、`floatingx_compose/`、`check/detekt/`、`gradle/dev/FxComposeSimple.kt`）→ T1；demo "每模块一个演示页 + 按 issue 编号命名的回归页" → T2–T6；Java 样例保持编译 → T7；§10 instrumentation 四行 + CI emulator-runner → T8；`docs/MIGRATION.md`、README 重写、copilot/CLAUDE 更新 → T9；Plan 3 真机清单 → T8 用例 + T9 FAQ。
 - **占位扫描：** 页面按钮以"标签 → 调用"列表给出（每项都是具体 API 调用），页面骨架由 T1 的 DSL 提供；无 TBD。
 - **类型一致性：** `DemoWindows.installApp/installSystem/installCompose/ensureApp/ensureSystem`（T1/T3/T6）；`DemoContent.card/resizable/list/toast`（T1/T5）；`demoPage/demoPageWithHeader`（T1）；`BaseBlackActivity`（T2，T6/T7 引用）；`JavaDemo.installApp/installSystem/createScope`（T7，T9 README 引用）；包名统一 `com.petterp.floatingx.demo`（T1 裁决）。
+
+## 执行记录（SDD ledger 归档）
+
+分支 feat/3.0-demo，9 个功能提交 + 5 个修复波提交（77edd4d..dc8415b）；最终 ./gradlew test：core 142 / scope 22 / app 32 / system 62 / compose 25 = 283，0 失败；app:assembleDebug + assembleDebugAndroidTest 通过；instrumentation 用例仅编译验证（无设备），首次真实执行在 CI instrumentation job。
+
+### Pre-flight scan
+
+| Pair / Task | Produces vs consumes | Finding |
+|---|---|---|
+| T1 ↔ T2–T7 | T1 提供 demoPage/demoPageWithHeader DSL、DemoWindows.installApp/installSystem/ensureApp/ensureSystem、DemoContent.card/toast、包名 com.petterp.floatingx.demo；各页按此调用 | 一致 |
+| T1 ↔ T2 | T1 的 DemoWindows.installApp 引用 BlackActivity（T2 创建）→ T1 无法编译 | **冲突**：Ruling 见下 |
+| T2 ↔ T7 | BaseBlackActivity（T2）被 JavaDemo（T7）与 T6 引用 | 一致 |
+| T3 ↔ T1 | T3 给 installSystem 加 keyboard 参数并改内容；T1 版本先无该参数 | 一致（T3 修改 T1 文件） |
+| T5 ↔ T1 | T5 给 DemoContent 加 resizable/list；MultiWindow 给 installApp 加 tag 参数 | 一致 |
+| T6 ↔ T1 | installCompose 加进 DemoWindows；需要 lifecycle-viewmodel-compose（目录别名已在 Plan 4 加入：lifecycle-viewmodel-compose） | 一致 |
+| T8 ↔ T2–T6 | 测试引用 AppHostActivity/SecondActivity/BlackActivity/ComposeSecondActivity/ModalActivity/DemoWindows.installCompose/CounterViewModel | 一致 |
+| T9 ↔ 全部 | README 片段须与 demo/JavaDemo 一致 | 一致（T9 有 grep 检查步骤） |
+| T1 自身 | 删除 floatingx/、floatingx_compose/ 后 settings.gradle 与 catalog 同步；旧 app 源码全部删除 | 一致 |
+| T8 自身 | 系统窗口用例 assume 权限；CI 用 appops 在 installDebug 之后授权 | 一致 |
+
+- Ruling: T1 ↔ T2 循环引用 — T1 里 DemoWindows.installApp 先用 `blacklist("com.petterp.floatingx.demo.pages.BlackActivity")`（按名，字符串）保持可编译，T2 创建 BaseBlackActivity 后改回 `blacklist(BaseBlackActivity::class.java)` — 若错，代价为零。
+- Ruling: demo 包名统一为 `com.petterp.floatingx.demo`（避免与库的 `com.petterp.floatingx.app.AppHost` 同包歧义；applicationId/namespace 保持 `com.petterp.floatingx.app`）。
+- Ruling: 就地分支 feat/3.0-demo；实现者 opus；评审按复杂度；完成后本地 ff 合回 main、不 push（沿用）。
+- Ruling: 库模块源码本计划不改；发现的库 bug 记 ledger，最终评审决定是否开修复波。
+
+### Tasks
+- Task 1: Ruling: demo namespace 与 floatingx-app 同为 com.petterp.floatingx.app 会生成两个同名 R — demo namespace 改为 com.petterp.floatingx.demo（applicationId 保持 com.petterp.floatingx.app；manifest 内类名已是全限定），并入 Task 2 — 若错，代价是一次 namespace 改名。
+- Task 1: implementer deviations（交评审）：删 values-night/themes.xml（MaterialComponents 父主题在暗色下会让 MaterialSwitch 崩溃）与死的 proguard-rules.pro；新建缺失的 app/proguard-floatingx.pro；systemHost 块加 theme()；uiautomator 用 version.ref。
+- Task 1: complete (commits 77edd4d..377321f, review clean)
+- Task 2: minor (deferred): values-v28 主题重复两条属性缺注释。
+- Task 2: complete (commits 377321f..f635ffb, review clean)
+- Task 3: 库缺陷（记录，最终修复波处理）：floatingx-system `FxPermissionRequest.deny()` KDoc 说停在 INSTALLED，但 SystemHost.denied() 有 fallback 时无条件 requestSwap，deny 与 useFallback 等价 — Ruling：deny() 改为只记日志停在 INSTALLED（用户可 retryPermission），useFallback() 有 fallback 则 swap、无则同 deny；Auto 策略被拒仍走 fallback；补测试。
+- Task 3: implementer deviations（交评审）：manifest 用全限定 service 名；`host as? SystemHost`；Manual 拦截器用 WeakReference 持 Activity。
+- Task 3: Important（入最终修复波）：SystemHostActivity Manual 拦截器 `ref.get()` 未检查 isFinishing/isDestroyed，retryPermission 时可能在已销毁 Activity 上弹 AlertDialog（BadTokenException）。
+- Task 3: minor (deferred): 权限状态 note 用 custom(TextView) 实现（可刷新）；installWithAlpha 重装不带 permission/fallback（note 已说明）。
+- Task 3: complete (commits f635ffb..453f4be, review approved; 1 Important 入修复波)
+- Task 4: implementer deviations（交评审）：FxSpStorage(this@Activity)；控件 CANCELLED 后重建而非 lazy；fragmentSlot 放滚动列；固定 R.id.fragmentSlot；onDestroy cancel 局部浮窗。
+- Task 4: minor (deferred): hostBox/fragmentSlot 作为 internal 顶层函数放在 pages 而非 ui。
+- Task 4: complete (commits 453f4be..9a811b5, review clean)
+- Task 5: implementer deviations（交评审）：modal toggle 保留 dismissOnOutsideTouch；Issue187 用独立 tag；resizable/list 显式设 root.layoutParams；各页加显示/隐藏按钮。
+- Task 5: minor (deferred): 共享 demo-app 控件的 toggle 初值可能与真实状态不一致；Dialog 覆盖浮窗重复 tag "dialog"。
+- Task 5: complete (commits 9a811b5..9026536, review clean)
+- Task 6: implementer deviations（交评审）：installCompose(app, system=false) 单一 composable + ensureCompose；系统变体 dy=60；compose host 不设 theme。
+- Task 6: minor (deferred): ComposeActivity 与 Issue210Activity 演示面有重叠；系统变体首次点击会弹权限页未提示。
+- Task 6: complete (commits 9026536..a0f042b, review clean)
+- Task 7: implementer deviations（交评审）：anchor(BOTTOM_START, 24f, 120f)（计划的 -120 会推出区域外）；onClick toast；SystemHost 加 theme()；scope 控件生命周期归 MainActivity；保留 Second/Black/Immersed 入口。
+- Task 7: minor (deferred): 报告里 Modal/Compose 顺序的"计划顺序"说法与计划文件列表相反（无功能影响）；java-app/java-system 共用 config 初始位置重叠。
+- Task 7: complete (commits a0f042b..4797aa7, review clean)
+- Task 8: 库缺陷（最终修复波）：core ModalScrimFeature 在 hide() 后 container.modal 仍为 true，而 hitTest 对 INVISIBLE 内容返回 false → 隐藏的 modal 浮窗吞掉全屏触摸 — Ruling：FxLayerContainer.dispatchTouchEvent 仅在内容可见时拦截外部触摸（或 ModalScrimFeature 在 onHide/onShow 切换 modal），补 core 测试。
+- Task 8: 说明：五个 instrumentation 用例仅编译验证（无设备），首次真实执行在 CI instrumentation job；SystemWindowResizeTest 无权限时 assume 跳过。
+- Task 8: minor (deferred): 报告称 getter 有主线程 check（实际只有 mutator 有）；SystemWindowResizeTest 多余 idle()；ModalScrimTest 依赖按钮与卡片的布局距离。
+- Task 8: complete (commits 4797aa7..3a51194, review clean; 用例仅编译验证)
+- Task 9: implementer notes：README 用 fallback(AppHost.builder(app).build())（demo 无 DSL 嵌套形式）；MIGRATION 移除项按真实 2.x API；README 硬编码 3.0.0；去掉 2.x 日志截图。
+- Task 9: complete (commits 3a51194..2ef5083, review clean; README/README_EN 19/19 章节 24/24 代码块对齐，API 全部核对)
+- Final review (opus, 77edd4d..2ef5083): 2 Critical（= ledger 两个库缺陷）/ 5 Important / 7 minor；裁决全部被确认。
+- Ruling: C1 在 FxLayerContainer.dispatchTouchEvent 修（内容不可见时不拦截外部触摸），非 ModalScrimFeature；补 core 测试。C2 SystemHost.deny() 停 INSTALLED、useFallback() 才 swap；补 system 测试；SystemHostActivity 的 note 同步。I1 在 showPermissionDialog 里守卫并 deny()。I2 build job 加 assembleDebug/assembleDebugAndroidTest。I3 emulator target=google_apis + setup-gradle。I4 TestUtil 注释改正。I5 ModalScrimTest 加隐藏后不吞触摸断言。测试数 279→281 同步 CLAUDE.md/copilot。
+- Final review minor（本波顺手）：M2 README/demo 注释"cancel 后再调用抛 ISE"不实（实为 no-op；库 KDoc 不改）；M3 删未用别名 espresso-contrib；M4 .gitignore 死条目；M5 未用颜色/drawable；M6 recyclerview 显式依赖；M7 v28 主题注释；M1 demoPage 标题 TextView。
+- Final fix wave: commits 2ef5083..dc8415b（C1/C2/I1–I5/M1–M8）；测试 283（core 142 / system 62）; scoped re-review 派出
+- Final re-review: 16/16 ADDRESSED；nit：DemoPage 标题 Color.BLACK 暗色模式对比度；TestUtil 注释 addListener 无 check；recyclerview 内联版本；force-avd-creation 无 cache 时是空操作。
