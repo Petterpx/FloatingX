@@ -48,7 +48,9 @@ Java 17 is required (AGP 8.13.2 / Gradle 8.14.3 / Kotlin 2.2.21). Version catalo
 ./gradlew lint                                                       # android lint
 ```
 
-Instrumentation（需要设备 / 模拟器，CI 用 `reactivecircus/android-emulator-runner`，api-level 34）：
+Instrumentation（需要设备 / 模拟器；CI 用 `reactivecircus/android-emulator-runner` api-level 34 跑
+`.github/scripts/instrumentation.sh`——失败自动重跑一次并把 logcat / 截图传成工件；emulator-runner 的
+`script` 逐行 `sh -c` 执行，所以逻辑必须放脚本文件里）：
 
 ```bash
 ./gradlew app:installDebug app:installDebugAndroidTest
