@@ -11,7 +11,7 @@
 implementation 'io.github.petterpx:floatingx:2.3.7'
 implementation 'io.github.petterpx:floatingx-compose:2.3.7'
 
-// 3.0：按需取，core 必选
+// 3.0：按需取，core 会随其它模块自动带上
 implementation "io.github.petterpx:floatingx-core:3.0.0"
 implementation "io.github.petterpx:floatingx-app:3.0.0"
 implementation "io.github.petterpx:floatingx-system:3.0.0"

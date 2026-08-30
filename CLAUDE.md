@@ -164,5 +164,8 @@ Java 样例在 `demo/java/JavaDemo.java`；页面骨架 DSL 在 `demo/ui/DemoPag
 - Plans：`docs/superpowers/plans/`（plan 1 core、plan 2 scope+app、plan 3 system、plan 4 compose、
   plan 5 demo）。
 
-用户文档：`README.md` / `README_EN.md`（结构一致，中英对照）、`docs/MIGRATION.md`（2.x → 3.0 对照）。
-改公开 API 时三份都要同步。
+用户文档：`README.md` / `README_EN.md` 是仓库首页（只讲「是什么 / 解决什么 / 怎么依赖 / 最小上手 / 去哪看文档」，
+结构中英一一对应），详细文档在 GitHub Wiki（`git@github.com:Petterpx/FloatingX.wiki.git`，
+中文页用中文标题（快速开始 / App 级全局浮窗 / 系统级浮窗 / 局部浮窗 / Compose 浮窗 / 配置项 / API 速查 /
+常见问题 / 从 2.x 迁移 / Issue 覆盖矩阵 / 架构设计 / Demo 说明），英文页用对应英文标题（Getting-Started / App-Host …）。
+改公开 API 时：README 两份 + Wiki 对应页 + `docs/MIGRATION.md`（与 Wiki「从 2.x 迁移」/ Migration-from-2.x 同步维护）都要同步。
