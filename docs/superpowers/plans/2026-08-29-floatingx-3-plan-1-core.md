@@ -4450,3 +4450,46 @@ git commit -m "feat(core): FxActivityTracker 与 Java 互操作测试；更新 C
 与 brief 的差异：A5 的 brief 写"relayout 开头无条件用新 input 完成 settle"，但它给的用例要求
 `update { anchor(TOP_START) }` 之后锚点仍是 `TOP_START`——无条件收尾会用 settle 的反算锚点覆盖用户刚设的锚点。
 实现取"用户显式改锚点时丢弃在飞 settle，其余触发（尺寸/可用区变化）用新 input 收尾"，两个场景各一个用例覆盖。
+
+## 遗留项（执行期 ledger 归档，供 Plan 2–5 参考）
+
+- Task 1: minor (deferred): Groovy 旧脚本的 space-assignment 弃用警告（Gradle 9 不兼容提示），属旧模块，Plan 5 删除旧模块时自然消失。
+- Task 2: minor (deferred): convention plugin 为无 androidTest 源集的模块也声明了 androidTestImplementation（计划原文，无害）。
+- Task 3: minor (deferred): `clampAxis` 内容比可用区大时的兜底恒为物理左/上，RTL 下未按逻辑 start 对齐（计划原文，极端场景）。
+- Task 4: minor (deferred): nearestEdge 平局时依赖 Set 迭代顺序（内置工厂均为有序 set，仅外部传 HashSet 时不确定）。
+- Task 5: minor (deferred): FxSpStorage.load 遇到损坏数据静默返回 null 不打日志；apply() 异步无 flush 保证；无按 tag 批量 clear。
+- Task 5: minor (deferred): FxSpStorage.load 的 bad gravity / non-float 分支无直接测试（计划测试设计）。
+- Task 6: minor (deferred): onHostLost 在 CANCELLED 态仍置 hostReady=false（无可观测影响，与 onHostReady 的守卫不对称）。
+- Task 7: minor (deferred): 公开 API 用了 `@IdRes`（androidx.annotation）而 core 对 androidx.core 是 implementation——最终评审决定是否改 api 或显式加 androidx.annotation 依赖；FxRegion.child/rect 无直接单测；onIntercept 阶段无多指转移；CHILD 优先级下长按定时器在子 view 消费期间仍运行。
+- Task 8: minor (deferred): FxViewHolder.getViewOrNull 泛型擦除 unchecked cast（2.x 沿袭）；setContent 原地改写调用方传入的 LayoutParams.gravity；contentPositionOnScreen 假设内容 left/top=0；KT-73255 注解目标警告。
+- Task 9: minor (deferred): DSL 无法清除已设 logger / 移除 feature；DSL scope 的 mutator 对 Java 可见但不可链式（可考虑 @JvmSynthetic）。
+- Task 10: minor (deferred): FloatingX.create() 的 tag 为 ""，多个局部浮窗共用同一 FxStorage 时 key 冲突（最终评审判断是否改为 identity 派生 key）；onDrag 每帧分配 FxPoint + FxLayoutSpec（见 pre-flight ruling）。
+- Task 10: minor (deferred): addListener/removeListener 无 main() 检查；settle 期间 relayout 不取消动画（旋转/尺寸变化竞争）；canDragFrom/hasScrollableChildAt 只减 translation（依赖内容 left/top=0）；findScrollable 忽略 GONE/INVISIBLE；GestureFeature.onDetach 的 detector.cancel() 会发一次无锚点提交的 onDragEnd；install/create 无主线程检查；requestRelayout 会消费 pending；onDragEnd 报告的是松手点而非停靠点（KDoc 补充）。
+- Task 11: minor (deferred): FxActivityTracker 无 release()（Plan 2/3 host 自行 removeObserver）；onActivityPostResumed 无测试覆盖；计划"完成标准"里的用例计数已过期（14 / 23）。
+- Final: minor (deferred): commitAndApply 在 onPositionChanged 之后再 apply，监听器内重入 moveTo/cancel 会出现一帧位置/锚点不一致；拖动中 bounds/size 变化会让 onDrag 提前返回直到 UP；FxLayoutSpec.anchor 在拖动/动画中间帧是已提交的旧锚点（Plan 3 Window 容器中间帧只用 x/y）；settle 期间旋转会把 settle 目标写入新方向的 key；install("") 也会禁用持久化；FxRegionTest unknown-id 用例未覆盖 as? ViewGroup 分支。
+
+### 执行期裁决（Rulings）
+
+- 计划 T10 的 GestureFeature.onDrag / LocationFeature.onDrag 每个 MOVE 分配 FxPoint，与 Global Constraints "触摸 MOVE 路径无对象分配" 冲突 — 先按计划实现（可读性优先，data class 逃逸分析大概率栈上分配），作为 deferred minor 交给最终评审判断是否改为复用字段 — 若错，代价是拖动时少量 GC 抖动，不影响正确性。
+- 计划 T1 保留 vanniktech 0.34.0（而非最新 0.37.0）— 仓库工具链不传导，且已知与 AGP 8.x 兼容；若 0.34 与 AGP 8.13 不兼容，T1 文本已授权升级到 0.37.0 — 若错，代价是一次构建失败重试。
+- 基线 `./gradlew test` 在 3671f31 上本就失败（AGP 8.1.4 无法解析 demo 的 compose 1.9 / lifecycle 2.9 依赖，要求 AGP ≥ 8.6）——不是本次改动引入，且正是 Task 1 的修复对象；继续执行 — 若错，代价为零（Task 1 验证步骤会重新建立绿色基线）。
+- Task 1 实现者把 demo 的 simpleMinSdk 提到 23（material 1.14 / compose 1.11 / appcompat 1.8 的 AAR 都要求 minSdk 23，application 模块 manifest merge 硬失败）— 接受：只影响 demo，库模块 minSdk 仍 21 — 若错，代价是 demo 装不上 API 21/22 设备（无关紧要）。
+- 库 minSdk 分层 — core/app/system/scope 保持 21（core 只依赖 androidx.core 1.13.1，minSdk 19），compose 模块 minSdk 23（compose 1.11 / lifecycle 2.11 本身要求 23，Compose 用户已在 23+）；spec §1.1 需补一行，Plan 4 落实 — 若错，代价是 compose 模块使用方需要 minSdk 23（本就如此）。旧 floatingx 模块用 appcompat 1.8 只是过渡，Plan 5 删除。
+- `./gradlew test` 仍失败是因为 app / floatingx_compose 从未声明 testImplementation junit 却带着 ExampleUnitTest（历史遗留）— Task 2 的 dispatch 里追加"给这两个模块加 `testImplementation libs.junit`"，保证 CI 的 `./gradlew test` 绿 — 若错，代价是两行多余依赖。
+- Task 2 实现者额外加了 build-logic/.gitignore 与 floatingx-core/.gitignore（/build、/.kotlin）— 接受：仓库惯例是按模块 gitignore，否则 `git add floatingx-core` 会带入 build 产物 — 若错，代价是两个多余的小文件。后续新模块（Plan 2–4）沿用此惯例。
+- Task 3 计划用例 `content wider than area aligns to start` 的 y 期望 80 与其 gravity CENTER_END 的语义矛盾（应为 840）— 接受实现者改测试期望、不改实现 — 若错，代价为零（x=0 的核心断言未变）。
+- `toAnchor` 在 overflow 打开时可产生负 dx/dy，且只产出边角 gravity — 这是 spec §2.3 的既定语义（锚点记录相对最近边的真实偏移，resolve 时再 clamp），无需调整；Task 4/10 按此实现 — 若错，代价是持久化的锚点在关闭 overflow 后被 clamp 回边内（可接受）。
+- Robolectric 4.16.1 的 SDK 36 沙箱要求 Java 21，仓库工具链 JDK 17 → robolectric.properties 改 sdk=35（Task 5 dispatch 已授权的唯一兜底）；spec §1.1 "Robolectric 4.16.1（sdk=36）" 需改为 sdk=35，随最终 docs 提交一并更新 — 若错，代价是 Robolectric 用例跑在 API 35 而非 36（core 不用任何 36 新 API）。
+- Task 6 实现者提醒 `transition` 先执行 action 再改 state、`FxControlImpl` 不能同时实现 FxHostSession —— Task 10 设计本就如此（Impl 实现 Delegate + FeatureScope，performXxx 内不读 engine.state），无需改动；Task 10 dispatch 里注明 — 若错，代价是 Task 10 评审时发现再改。
+- Task 9 实现者担心 update{ addFeature(f) } 重复实例被 onAttach 两次 — Task 10 计划中 FxControlImpl.addFeature 已有 `if (feature in features) return` 去重，update 用集合差计算 added/removed，无需改动 — 若错，代价是 Task 10 评审时补一行去重。
+- 五项全部修复（spec §2.2/§2.3/§2.5 是权威，计划原文有缺陷）— 修法：(1) hide 动画监听加 cancelled 守卫；(2) cancel() 加 cancelling 闩；(3) features 改 CopyOnWriteArrayList；(4) update 中 anchor 变化改走 commitAnchor（先赋 config 再 commit，仅当 old.anchor != new.anchor）；(5) createContent 末尾 setContentVisible(engine.state == SHOWN)；同时补 5 个回归测试 — 若错，代价是多写几行防御代码。
+- Task 11 的 Java 测试暴露 `FxHalfHide` 缺 `@JvmOverloads`，实现者已修；同类缺口（FxAnchor/FxInsets/FxMargin/FxOverflow/FxBounds 带默认参数的构造）交最终评审的修复波统一处理 — 若错，代价是 Java 端多写几个参数。
+- FxLayoutSpec 增加 `anchor: FxAnchor` 字段（gravity 改为由 anchor 派生的属性），Window 容器可直接写 LP.gravity + 偏移 — 发布前改代价最低 — 若错，代价是一个多余字段。
+- `FloatingX.create(config, host, tag = "")` 加 tag 参数（@JvmOverloads）；tag 为空且配置了 storage 时跳过持久化并 logger?.e 警告 — 若错，代价是局部浮窗需显式 tag 才能持久化（可接受）。
+- spec §2.5 的 `FxFeature.onTouchEvent` 与受限 `FxEngineApi/FxHostInfo` **删除**（YAGNI；触摸只有 GestureFeature 一个消费者；feature 信任模型与 listener 相同），改为给 `FxContainer` 加 `isLayer: Boolean` 判别，避免 downcast；spec 同步修订 — 若错，代价是未来加第二个触摸 feature 时再引入分发链。
+- 给 `FxFeature` 加 `onCancel()` 默认空方法（cancel 时在 host.release 前调用），Compose owner 的 destroy 走这里；ViewTree owner 在 FxContent.create() 内设置（attach 先于 feature.onAttach 的顺序保持）；spec §6 补注 — 若错，代价是一个多余的钩子。
+- androidx.annotation 改为显式 `api` 依赖（公开 API 带 @IdRes/@LayoutRes 等）；androidx.core 保留 implementation（Plan 2 host 需要 WindowInsetsCompat）。
+- 触摸 MOVE 路径的 layoutInput() 改为 onDragStart 时缓存、bounds/size 变化时失效；FxPoint/FxLayoutSpec 每帧分配保持 deferred（Plan 5 用 instrumentation 剖析后再定）。
+- modal 在 DOWN 而非 UP 触发外部关闭、hitTest 忽略 scale、touchable=false 对可点击子 view 的透传不完整 — 保持 deferred，交 Plan 5 真机验证。
+- A5 简报自相矛盾（"relayout 总是完成 settle" vs "update{anchor} 不得被 settle 覆盖"）— 接受实现者取意图：显式 anchor 变更丢弃进行中的 settle，其它 relayout 触发用新 layoutInput 完成 settle；两条路径各有测试 — 若错，代价是显式 update 后少一次动画收尾。
+- POM_DESCRIPTION 保持英文（gradle.properties 按 ISO-8859-1 读取，中文变乱码）— 若错，代价为零。
