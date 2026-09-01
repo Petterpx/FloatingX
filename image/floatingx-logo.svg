@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="728" viewBox="0 0 1300 728" role="img" aria-labelledby="title desc">
+  <title id="title">FloatingX</title>
+  <desc id="desc">FloatingX logo</desc>
+  <defs>
+    <radialGradient id="background" cx="50%" cy="50%" r="75%">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#edf4ff"/>
+    </radialGradient>
+  </defs>
+  <rect width="1300" height="728" fill="url(#background)"/>
+  <g transform="translate(250 309)">
+    <text x="0" y="110" fill="#000" font-family="monospace" font-size="126" font-style="italic" font-weight="700" letter-spacing="-8">FloatingX</text>
+    <path d="M750 0a64 64 0 0 0 0 128" fill="none" stroke="#9f95a5" stroke-width="26"/>
+    <circle cx="778" cy="64" r="35" fill="#91a49f" stroke="#d5ddda" stroke-width="6"/>
+  </g>
+</svg>
