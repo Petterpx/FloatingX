@@ -11,6 +11,8 @@
 
 **FloatingX** is a flexible and powerful floating window solution for Android.
 
+For native HarmonyOS support, see [FloatingX-Harmony](https://github.com/Petterpx/FloatingX-Harmony), built with ArkTS / ArkUI for API 12+. See that repository for supported features and validation status.
+
 3.0 is a ground-up rewrite split into opt-in modules; the API is not compatible with 2.x, see [Migration from 2.x](https://github.com/Petterpx/FloatingX/wiki/Migration-from-2.x).
 
 ## 👏 Features

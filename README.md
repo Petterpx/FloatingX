@@ -11,6 +11,8 @@
 
 **FloatingX** 一个灵活且强大的悬浮窗解决方案。
 
+鸿蒙原生版见 [FloatingX-Harmony](https://github.com/Petterpx/FloatingX-Harmony)，使用 ArkTS / ArkUI，最低兼容 API 12。支持范围与验证状态见鸿蒙仓库。
+
 3.0 为全新重写版本，按模块拆分、按需依赖；API 与 2.x 不兼容，升级请看 [从 2.x 迁移](https://github.com/Petterpx/FloatingX/wiki/从-2.x-迁移)。
 
 ## 👏 特性
