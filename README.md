@@ -1,5 +1,9 @@
 # FloatingX
 
+**English** · [简体中文](README_ZH.md)
+
+> 中文用户请阅读 [中文说明](README_ZH.md)；首次接入见 [快速开始](https://github.com/Petterpx/FloatingX/wiki/快速开始)，从旧版升级见 [2.x 迁移指南](https://github.com/Petterpx/FloatingX/wiki/从-2.x-迁移)。
+
 ![FloatingX logo](image/floatingx-logo.png)
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a9edd107b5444b7ca31738f5a96b3cb9)](https://app.codacy.com/gh/Petterpx/FloatingX?utm_source=github.com&utm_medium=referral&utm_content=Petterpx/FloatingX&utm_campaign=Badge_Grade_Settings)
@@ -7,46 +11,46 @@
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 [![AtomGit Star](https://atomgit.com/petterp/Floatingx/star/badge.svg)](https://atomgit.com/petterp/Floatingx)
 
-[English](README_EN.md) · [文档 Wiki](https://github.com/Petterpx/FloatingX/wiki) · [DeepWiki](https://deepwiki.com/Petterpx/FloatingX)
+[Documentation Wiki](https://github.com/Petterpx/FloatingX/wiki) · [DeepWiki](https://deepwiki.com/Petterpx/FloatingX)
 
-**FloatingX** 一个灵活且强大的悬浮窗解决方案。
+**FloatingX** is a flexible and powerful floating window solution for Android.
 
-鸿蒙原生版见 [FloatingX-Harmony](https://github.com/Petterpx/FloatingX-Harmony)，使用 ArkTS / ArkUI，最低兼容 API 12。支持范围与验证状态见鸿蒙仓库。
+For native HarmonyOS support, see [FloatingX-Harmony](https://github.com/Petterpx/FloatingX-Harmony), built with ArkTS / ArkUI for API 12+. See that repository for supported features and validation status.
 
-3.0 为全新重写版本，按模块拆分、按需依赖；API 与 2.x 不兼容，升级请看 [从 2.x 迁移](https://github.com/Petterpx/FloatingX/wiki/从-2.x-迁移)。
+3.0 is a ground-up rewrite split into opt-in modules; the API is not compatible with 2.x, see [Migration from 2.x](https://github.com/Petterpx/FloatingX/wiki/Migration-from-2.x).
 
-## 👏 特性
+## 👏 Features
 
-- 支持 **JetPack Compose**，浮窗自带 `ViewModelStore` / `SavedState`，换页不丢
-- 支持 **系统浮窗**、**应用内浮窗**、**局部浮窗**（`ViewGroup` / `Fragment` / `Activity`）
-- 支持 换页 **不重建**，浮窗位置、状态、动画跟着 Activity 走
-- 支持 **锚点定位**，旋转、内容尺寸变化不跑偏
-- 支持 **边缘吸附**、**半隐藏**、**边界设置**、**越界不裁剪**
-- 支持 **拖动区域**、**长按拖动**，与列表滚动 **冲突处理**
-- 支持 自定义 **显示 / 隐藏动画**
-- 支持 **保存历史位置** 及还原（按 tag + 屏幕方向）
-- 支持 **黑名单与白名单**，指定页面禁止显示浮窗
-- 支持 **Modal 浮窗**，拦截外部点击
-- 支持 **系统浮窗权限** 自动 / 手动申请，被拒 **自动降级** 为应用内浮窗
-- 支持 宿主未就绪时调用 `show` / `moveTo`，就绪后自动执行
-- 支持 `kotlin` DSL 构建，及对 `Java` 的友好兼容（Builder）
-- 完善的日志系统，`enableLog(tag)` 即可看到 Fx 运行过程
+- Supports **Jetpack Compose**; each window owns a `ViewModelStore` / `SavedState` that survives page changes
+- Supports **system windows**, **in-app windows** and **scoped windows** (`ViewGroup` / `Fragment` / `Activity`)
+- Supports page changes **without rebuilding**; position, state and animation follow the Activity
+- Supports **anchor-based positioning**; rotation and content resizing never drift the window
+- Supports **edge snapping**, **half-hide**, **bounds** and **no-clip overflow**
+- Supports a **drag region**, **drag after long press**, and **conflict handling** with scrolling lists
+- Supports custom **show / hide animations**
+- Supports **saving and restoring the last position** (per tag + orientation)
+- Supports **blacklist / whitelist** to keep the window off given pages
+- Supports **modal windows** that block outside touches
+- Supports **system window permission** auto / manual request, with **automatic fallback** to an in-app window when denied
+- Supports calling `show` / `moveTo` before the host is ready; they run once it is
+- Supports a `kotlin` DSL and a `Java`-friendly Builder
+- Full logging: `enableLog(tag)` shows what Fx is doing
 
-## 👨‍💻‍ 依赖方式
+## 👨‍💻‍ Dependencies
 
 ```groovy
 dependencies {
-    implementation "io.github.petterpx:floatingx-core:3.0.0"      // 其它模块会自动带上
-    implementation "io.github.petterpx:floatingx-app:3.0.0"       // App 级全局浮窗（跟随 Activity）
-    implementation "io.github.petterpx:floatingx-system:3.0.0"    // 系统级浮窗（WindowManager + 权限）
-    implementation "io.github.petterpx:floatingx-scope:3.0.0"     // 局部浮窗（Activity / ViewGroup / Fragment）
-    implementation "io.github.petterpx:floatingx-compose:3.0.0"   // Jetpack Compose 内容
+    implementation "io.github.petterpx:floatingx-core:3.0.0"      // pulled in by the other modules
+    implementation "io.github.petterpx:floatingx-app:3.0.0"       // app-level global window (follows Activity)
+    implementation "io.github.petterpx:floatingx-system:3.0.0"    // system window (WindowManager + permission)
+    implementation "io.github.petterpx:floatingx-scope:3.0.0"     // local window (Activity / ViewGroup / Fragment)
+    implementation "io.github.petterpx:floatingx-compose:3.0.0"   // Jetpack Compose content
 }
 ```
 
-只引用到的模块就行，core 会跟着带上。minSdk 21（compose 模块 23），清单里的权限和 provider 都在库里声明好了。
+Only add the modules you use; core comes along with them. minSdk 21 (23 for the compose module). Permissions and the provider are declared in the library manifests, nothing to add on your side.
 
-## 🚀 快速开始
+## 🚀 Quick start
 
 ```kotlin
 val control = FloatingX.install("music") {
@@ -57,53 +61,57 @@ val control = FloatingX.install("music") {
     persist(FxSpStorage(app))
     enableLog("Fx-demo")
     appHost(app) {
-        // 传 Class 而非类名字符串：按 isInstance 匹配，子类一起命中
+        // pass a Class, not a class name: matched with isInstance, so subclasses are hit too
         blacklist(SplashActivity::class.java)
     }
 }
 control.show()
 ```
 
-Java 写法、系统级浮窗、局部浮窗、Compose 浮窗见
-[快速开始](https://github.com/Petterpx/FloatingX/wiki/快速开始)。
+For Java, system windows, local windows and Compose windows, see
+[Getting Started](https://github.com/Petterpx/FloatingX/wiki/Getting-Started).
 
-## 📖 文档
+## 📖 Documentation
 
-完整文档在 [**GitHub Wiki**](https://github.com/Petterpx/FloatingX/wiki)（中文标题为中文页，英文标题为英文页）：
+The full documentation lives in the [**GitHub Wiki**](https://github.com/Petterpx/FloatingX/wiki)
+(English-titled pages are English, Chinese-titled pages are Chinese):
 
-- [快速开始](https://github.com/Petterpx/FloatingX/wiki/快速开始) — 模块与依赖、四种 host 的最小示例
-- [App 级全局浮窗](https://github.com/Petterpx/FloatingX/wiki/App-级全局浮窗) — App 级全局浮窗：黑白名单 / filter、挂载点、theme
-- [系统级浮窗](https://github.com/Petterpx/FloatingX/wiki/系统级浮窗) — 系统浮窗：权限策略、降级、LayoutParams、键盘、Service
-- [局部浮窗](https://github.com/Petterpx/FloatingX/wiki/局部浮窗) — 局部浮窗：ViewGroup / Activity / Fragment
-- [Compose 浮窗](https://github.com/Petterpx/FloatingX/wiki/Compose-浮窗) — `compose {}`、`FxComposeOwner`、`stateFlow` / `positionFlow`
-- [配置项](https://github.com/Petterpx/FloatingX/wiki/配置项) — 能力一览与全部配置项
-- [API 速查](https://github.com/Petterpx/FloatingX/wiki/API-速查) — `FxControl` / `FxListener` / `FloatingX` 注册表
-- [常见问题](https://github.com/Petterpx/FloatingX/wiki/常见问题) · [Issue 覆盖矩阵](https://github.com/Petterpx/FloatingX/wiki/Issue-覆盖矩阵) · [架构设计](https://github.com/Petterpx/FloatingX/wiki/架构设计) · [Demo 说明](https://github.com/Petterpx/FloatingX/wiki/Demo-说明)
-- 2.x 升级：[从 2.x 迁移](https://github.com/Petterpx/FloatingX/wiki/从-2.x-迁移)，仓库内同步维护一份 [`docs/MIGRATION.md`](docs/MIGRATION.md)
+- [Getting Started](https://github.com/Petterpx/FloatingX/wiki/Getting-Started) — modules, dependencies, minimal samples for the four hosts
+- [App Host](https://github.com/Petterpx/FloatingX/wiki/App-Host) — app-level window: black/white list, filter, attach target, theme
+- [System Host](https://github.com/Petterpx/FloatingX/wiki/System-Host) — system window: permission strategies, fallback, LayoutParams, keyboard, Service
+- [Scope Host](https://github.com/Petterpx/FloatingX/wiki/Scope-Host) — local windows: ViewGroup / Activity / Fragment
+- [Compose](https://github.com/Petterpx/FloatingX/wiki/Compose) — `compose {}`, `FxComposeOwner`, `stateFlow` / `positionFlow`
+- [Configuration](https://github.com/Petterpx/FloatingX/wiki/Configuration) — capabilities and every config option
+- [API Reference](https://github.com/Petterpx/FloatingX/wiki/API-Reference) — `FxControl` / `FxListener` / the `FloatingX` registry
+- [FAQ](https://github.com/Petterpx/FloatingX/wiki/FAQ) · [Issue Coverage](https://github.com/Petterpx/FloatingX/wiki/Issue-Coverage) · [Architecture](https://github.com/Petterpx/FloatingX/wiki/Architecture) · [Demo](https://github.com/Petterpx/FloatingX/wiki/Demo)
+- Upgrading from 2.x: [Migration from 2.x](https://github.com/Petterpx/FloatingX/wiki/Migration-from-2.x), kept in sync with [`docs/MIGRATION.md`](docs/MIGRATION.md) in the repo
 
-## 🏄‍♀️ 效果图
+## 🏄‍♀️ Demo GIFs
 
-| App 级：拖动 / 吸附 / 换页跟随 | 系统级：回到桌面仍在 | 旋转：锚点保持 |
+| App host: drag / adsorb / follows pages | System host: stays on the launcher | Rotation: anchor kept |
 | --- | --- | --- |
-| ![App 级：拖动 / 吸附 / 换页跟随](https://github.com/Petterpx/FloatingX/blob/main/image/fx-app-host.gif?raw=true) | ![系统级：回到桌面仍在](https://github.com/Petterpx/FloatingX/blob/main/image/fx-system-host.gif?raw=true) | ![旋转：锚点保持](https://github.com/Petterpx/FloatingX/blob/main/image/fx-rotate.gif?raw=true) |
+| ![App host: drag / adsorb / follows pages](https://github.com/Petterpx/FloatingX/blob/main/image/fx-app-host.gif?raw=true) | ![System host: stays on the launcher](https://github.com/Petterpx/FloatingX/blob/main/image/fx-system-host.gif?raw=true) | ![Rotation: anchor kept](https://github.com/Petterpx/FloatingX/blob/main/image/fx-rotate.gif?raw=true) |
 
-| 尺寸变化：锚点不动（#187） | Compose：计数跨页存活 | 局部浮窗：ViewGroup / Fragment |
+| Resize: anchor stays put (#187) | Compose: counter survives pages | Scoped: ViewGroup / Fragment |
 | --- | --- | --- |
-| ![尺寸变化：锚点不动（#187）](https://github.com/Petterpx/FloatingX/blob/main/image/fx-resize.gif?raw=true) | ![Compose：计数跨页存活](https://github.com/Petterpx/FloatingX/blob/main/image/fx-compose.gif?raw=true) | ![局部浮窗：ViewGroup / Fragment](https://github.com/Petterpx/FloatingX/blob/main/image/fx-scope.gif?raw=true) |
+| ![Resize: anchor stays put (#187)](https://github.com/Petterpx/FloatingX/blob/main/image/fx-resize.gif?raw=true) | ![Compose: counter survives pages](https://github.com/Petterpx/FloatingX/blob/main/image/fx-compose.gif?raw=true) | ![Scoped: ViewGroup / Fragment](https://github.com/Petterpx/FloatingX/blob/main/image/fx-scope.gif?raw=true) |
 
 ## 📱 Demo
 
-`app` 模块是完整的示例与回归工程，`./gradlew app:installDebug` 即可安装，页面清单见
-[Demo 说明](https://github.com/Petterpx/FloatingX/wiki/Demo-说明)。
+The `app` module is a full sample and regression harness — `./gradlew app:installDebug` installs it;
+the page list is on [Demo](https://github.com/Petterpx/FloatingX/wiki/Demo).
 
-## 👍 感谢
+## 👍 Thanks
 
-基础 **悬浮窗View** 的初版实现思想源自 [EnFloatingView](https://github.com/leotyndale/EnFloatingView) 的
-[FloatingMagnetView](https://github.com/leotyndale/EnFloatingView/blob/master/floatingview/src/main/java/com/imuxuan/floatingview/FloatingMagnetView.java)，
-并在其之上进行了彻底的重构与演变；导航栏测量部分代码来自 wenlu，并在其之上增加了更多机型适配。
+The initial implementation idea of the basic **floating window View** comes from
+[EnFloatingView](https://github.com/leotyndale/EnFloatingView)'s
+[FloatingMagnetView](https://github.com/leotyndale/EnFloatingView/blob/master/floatingview/src/main/java/com/imuxuan/floatingview/FloatingMagnetView.java),
+which was thoroughly refactored and evolved; the navigation-bar measurement code comes from Wenlu and
+has been further adapted to cover more devices.
 
-## 关于我
+## About Me
 
-欢迎关注我的公众号，期待一同进步；使用上有问题也可以加我微信 **Petterpx**。
+Welcome to follow my public account and look forward to progressing together. If you have any usage
+problems, you can also add me on WeChat: **Petterpx**.
 
 ![Petterp-wechat](https://user-images.githubusercontent.com/41142188/226162520-93796619-81ca-4e61-bfff-4a5b95e4fa0b.png)
